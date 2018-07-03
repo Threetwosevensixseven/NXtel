@@ -1,0 +1,17 @@
+*.*   			binary
+
+*.asm   		text eol=crlf
+*.cs   			text eol=crlf
+*.txt   		text eol=crlf
+*.inc   		text eol=crlf
+*.config 		text eol=crlf
+*.bat   		text eol=crlf
+*.manifest 		text eol=crlf
+*.csproj 		text eol=crlf
+*.a80   		text eol=crlf
+*.ini   		text eol=crlf
+*.cfg   		text eol=crlf
+*.html   		text eol=crlf
+*.sln   		text eol=crlf
+*.gitignore 	text eol=crlf
+*.gitattributes text eol=crlf
