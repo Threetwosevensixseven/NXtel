@@ -1,0 +1,48 @@
+Trashman © 1984 Malcolm Evans, originally released in 1984 by New Generation Software Ltd
+
+Distribution free of charge is kindly allowed for the TBBLUE distribution for the ZX Spectrum Next by the Author.
+
+TRASHMAN
+""""""""
+
+LOADING INSTRUCTIONS:
+LOAD by typing LOAD "TRASHMAN"
+
+PLAYING INSTRUCTIONS:
+Play is available for either 1 or 2 players. Use cursor keys for
+movement of Trashman. Alternatively 'Trashman' is
+compatible with the Kempston or cursor key type joystick
+(i.e. Protek), and the Sinclair Interface II.
+
+NAME:
+To enter your name, press up or down key until required
+letter is reached, and then the O key (fire button). Up to
+eight letters may be entered. Move to end of bracket and
+press fire button for next screen. If more than one player,
+enter YES by using up or down key and fire button and then
+proceed as above.
+
+OBJECT:
+The object of the game is to empty all the bins from each
+road into the dustcart which is slowly moving up the road,
+before your bonus points reduce to zero. If you step on the
+grass the bonus score will reduce rapidly, but you can
+increase it by completing tasks you are asked to do by
+householders. (Leave the house by holding the down key).
+Your score is increased for each bin emptied. Some houses
+will have dogs in them, which will chase you if you step on
+the grass, and if they bite you, your injury will result in a 
+limp, which will slow you down. The same effect will occur if
+you are knocked down by a bike.
+
+If you choose to go into the cafe or pup to collect valuable
+bonus points, beware of overeating or drinking too much.
+
+If your bonus score is reduced to zero you will be allowed two
+more attempts to improve. Should you mis-judge crossing
+the road and are hit by a car the game will end.
+
+
+
+©1984 New Generation Software Ltd.
+All rights reserved not for hire or unauthorised duplication

@@ -1,0 +1,423 @@
+v1.97D (2018-03-03)
+===================
+* Fixed Browser to respond to shifted cursor right key (as well as 8); exposed
+  by recent keymap changes.
+* Fix for missing cursor in INPUT and Browser inputs etc (broken in v1.97C).
+* Ensure snapshots are always loaded in layer 0.
+* Ensure standard .SCR screenshots are loaded from the Browser in layer 0.
+
+v1.97C (2018-02-28)
+===================
+* Fixed bug in window printing routines, where double-width/height printing
+  routine overwrote calculator memories causing incorrect output of floating-
+  point numbers.
+
+v1.97B (2018-02-22)
+===================
+* Improved boot speed (typically ~3x faster from ROM load to menu display;
+  this went from 3.6s to 1.2s on 16GB Toshiba FlashAir with 3 partitions).
+* When tape loading occurs, border is set to red immediately so this is more
+  obvious to the user.
+* Fixed problems with automatic creation of .BAK files when overwriting existing
+  files.
+* Fixed swapping of Editor/BASIC modes and speeds etc if an error occured during
+  evaluation of a standalone expression in BASIC or the Calculator.
+* Prevented scroll pause occuring when using "Screen" option in 64/85 col mode.
+* Fixed renaming problems in the Browser, where only the short filename was
+  provided to edit for the last file in the list.
+* Fixed moving of directories to ensure the ".." special entry is correctly
+  updated to point to the new parent directory.
+* Fixed editor so that following execution of a BASIC statement/program, the
+  same lines are displayed as before (instead of returning to program top).
+* Fixed cursors becoming hidden or orphaned when switching between 32/64/85
+  columns in the Calculator.
+* Fixed syntax-checking of PWD #n and CAT #n commands (broken by v1.97 changes).
+* Fixed parsing of CAT command; now CAT- #n commands are correctly parsed.
+
+v1.97A (2018-02-19)
+===================
+* Enabled use of Z80N PixelDn instruction in text output code for windows &
+  layer 1/2 screens (requires core v1.10.17+).
+* Fixed permanent INVERSE/OVER settings for layer 1/2 modes - these were being
+  ignored.
+
+v1.97 (2018-02-19)
+==================
+* Updated PLAY command to support turbosound. 9 strings may now be specified,
+  with each set of 3 going to a different AY chip.
+* Added L,R,S parameters to PLAY command: these confine the audio output for
+  the current AY chip to either the Left or Right channels (or S to reinstate
+  stereo).
+* Reduced default volume to 13 when more than 3 PLAY strings are specified, to
+  prevent clipping.
+* Implemented DRAW, CIRCLE and POINT commands for all layer 1/2 modes. CIRCLE
+  for layer 1/2 is implemented using Bresenham's algorithm for improved speed.
+* Allow PLOT, DRAW and CIRCLE to include off-screen points on layer 1/2 modes,
+  so clipped shapes may easily be drawn without invoking out-of-screen errors.
+* Implemented support for temporary colour items for PLOT/DRAW/CIRCLE on layer 1/2.
+* Fixed temporary colour item support in layer 1/2 PRINT/INPUT statements.
+* Fixed corruption of UDGs S,T,U at NEW/reset.
+* Fixed editor to display UDGs within strings correctly, instead of replacing
+  them with new NextBASIC tokens.
+* Started using more Z80N instructions where possible for speed & space-saving,
+  particularly: NextReg, PixelAd, PixelDn, SetAe, PushVal.
+  NOTE: This change means v1.97+ requires core 1.10.14+ to run stably.
+
+v1.96A (2018-02-12)
+===================
+* Fixed TAP loader (TAPLOAD.BAS) to use the new "NEXT #n TO var" syntax.
+* Fixed ON ERROR to replace existing error handler at current level, rather
+  than installing an additional one.
+
+v1.96 (2018-02-11)
+==================
+* Implemented procedures, with new DEFPROC, PROC, ENDPROC and LOCAL commands.
+* Implemented error-trapping, with new ON ERROR, ERROR and ERROR TO commands.
+* For consistency with PROC/DRIVER/ERROR commands, changed syntax of these
+  commands:
+    DIM #n,var                  -->     DIM #n TO var
+    RETURN #n,var               -->     RETURN #n TO var
+    NEXT #n,var                 -->     NEXT #n TO var
+    BANK n PEEK offset,var      -->     BANK n PEEK offset TO var
+  (This will also apply to the as-yet-unimplemented POINT command).
+* Removed "Boot A:" menu option: unneeded as Browser will be made to auto-boot
+  any disk images that it mounts.
+* Remove NEW DATA/NEW EXP commands: these will later be replaced by .mkdata
+  and .mkswap dot commands.
+* Stubbed out FORMAT d$ command: this will later be done by .mkdsk and/or
+  .format dot commands.
+* Some refactoring to save space in the NextBASIC ROM.
+* NOTE: Due to new commands being added, some token values have changed and
+        saved NextBASIC programs may need to be re-edited to fix them.
+
+v1.95B (2018-02-06)
+===================
+* Fixed assignments to elements of integer arrays.
+* Corrected "Too many brackets" error to "Too many parentheses"
+* Renamed modulus operator from % to MOD to avoid confusion with symbol
+  introducing an integer expression.
+* Removed unary + and - operators from integer expression evaluator, as all
+  values are unsigned in range 0..65535.
+* Removed negative STEP processing in integer loops.
+
+v1.95A (2018-02-03)
+===================
+* Tape SAVEs no longer print "Start tape and press any key" message, so screens
+  can be saved without being partly overwritten.
+* INPUT now returns zero for an empty numeric input instead of causing a
+  "nonsense in BASIC" error.
+* After a "LIST n" command, the editor now uses "n" as the current line number
+  being edited (as in 48K mode).
+* Unsupported keys in menus now produce error beep instead of "success" click.
+* Fix for various editing issues in NextOS command-line mode, leading to odd
+  cursor movements and other problems.
+* Fix for hang in editor after loading BASIC programs from the Browser with
+  different line numbers to the previous program.
+* Fix for various cursor issues in the Calculator, especially in hi-res modes.
+* Fix for screen problems when switching column modes in the Calculator.
+* Fix for crash when LAYER 1,3 is executed in NextOS command-line mode.
+* Fix for extended mode cursor colour/shape not being updated when an
+  unsupported key is pressed.
+* Fix CLEAR to clear the screen in the current mode. Previously it could leave
+  the mode in an indeterminate state, causing strange effects after a CLEAR
+  or RUN in a non-standard mode.
+
+v1.95 (2018-01-28)
+==================
+* Implemented LOAD/SAVE/VERIFY...BANK and LOAD/SAVE/VERIFY...LAYER commands,
+  so banks and screens in any mode can now be loaded/saved to disk or tape
+  (or .TAP).
+* Minor fixes for LOAD/SAVE command syntax checking.
+* Removed the BANK..LOAD/SAVE commands.
+* Added RST $20 hook for dot commands to terminate and auto-start a loaded
+  program.
+* Increased maximum allowable size of RTC.SYS module to 512 bytes.
+* Implemented support for installable device drivers, with new M_DRVAPI
+  hook, IDE_DRIVER +3DOS call and DRIVER NextBASIC command.
+* Removed the FORMAT LPRINT and FORMAT LINE commands.
+* Updated Gosh Wonderful ROM to v1.33, compatible with Nirvana engines.
+
+v1.94B (2018-01-18)
+===================
+* Dot commands are now started with BC=address of entire command line, as
+  well as HL=address of command arguments
+* Implemented M_GETHANDLE to allow dot commands >8K to read their own file.
+* Implemented M_EXECCMD hook.
+* Added new M_GETERR hook for reporting/retrieving esxDOS error messages.
+
+v1.94A (2018-01-17)
+===================
+* Added support for setting the ULA clip window with the LAYER DIM command
+* Implemented the COPY f$ TO #n command
+* Improved COPY f$ TO SCREEN$/LPRINT/#n commands to cope with Unix (LF),
+  Sinclair (CR) or DOS (CRLF) line endings
+* Fixed an esxDOS error message
+
+v1.94 (2018-01-15)
+==================
+* Major rework of BASIC parser to make space for new features
+* Implemented LINE line,step command for renumbering BASIC program
+* Implemented ERASE n,m command for erasing lines of a BASIC program
+* Implemented ERASE command to erase entire BASIC program (can be used within
+  c:/nextos/autoexec.bas, for example)
+* Implemented REPEAT...[WHILE]...REPEAT UNTIL loops
+* Ensured all BASIC commands accessing memory banks now respect allocations
+  made by external programs using the IDE_BANK API call
+* Implemented BANK CLEAR and BANK NEW commands to explicitly free/reserve banks
+* Allow LAYER BANK command to be executed in any mode, and make layer2 banks
+  owned by BASIC
+* Added workaround for buggy esxDOS dot commands (eg .dumpmem) that create
+  files but neglect to select write access for them
+* Implemented new file streaming API, allowing files to be read under control
+  of applications with minimal OS involvement (DISK_FILEMAP,DISK_STRMSTART,
+  DISK_STRMEND hooks in esxDOS-compatible API)
+* Major rework of esxDOS-compatible API layer, including various fixes
+* Implemented the following esxDOS hooks:
+    F_TELLDIR, F_SEEKDIR, F_REWINDDIR
+    M_GETDATE, M_DOSVERSION, M_GETSETDRV
+    F_UNLINK, F_CHMOD, F_STAT, F_RENAME
+    F_FTRUNCATE, F_TRUNCATE, F_GETFREE
+* Added enhanced versions of the following esxDOS hooks:
+    M_DOSVERSION: providing info on version and mode (NextOS/48K mode)
+    F_READDIR: returning long filenames (LFNs) if requested
+    M_TAPEIN: allowing tape simulation mode to be selected
+* Added new M_P3DOS hook, allowing programs and dot commands to easily
+  access +3DOS/IDEDOS/NextOS API calls, using the RST $8 mechanism
+
+v1.93C (2018-01-05)
+===================
+* Fixed default ULA colours; previous "normal" colours were too dark.
+* Fixed PALETTE commands which were using an old out-of-date method to set 9-bit
+  colour values, which the hardware no longer supports.
+
+v1.93B (2018-01-02)
+===================
+* Fixed uninitialised variable in snapshot loader that could be overwritten
+  by BASIC program presence (eg AUTOEXEC.BAS) and cause snapshot load to fail.
+* Fixed printing of characters in layer2 which straddled an 8K boundary, due
+  to incorrect re-initialisation of stride value.
+* Added workaround to esxdos emulator for buggy dot commands (.dumpmem)
+  which fail to set write mode when opening newly-created files.
+
+v1.93A (2017-12-29)
+===================
+* Added patch to IM1 routine in 48K BASIC ROM so that games using BiFrost
+  and Nirvana multicolour engines detect NextOS as a 128K Spectrum and use
+  appropriate timing. (Patch not currently present in GW version of ROMs).
+* Fixed v3 Z80 snapshot loading issue where port 1ffd value was not set if
+  provided by the snapshot (and was incorrectly set to zero if not provided).
+  Fixes some 128K snapshots which use the ROM before doing their own paging
+  (eg Addams Family).
+
+v1.93 (2017-12-23)
+==================
+* Integer expressions can now be used anywhere that a numeric value is required.
+* Implemented fast FOR/NEXT loops with integer loop variables.
+* Implemented ELSE command for use in IF..THEN..ELSE constructs.
+* Fixed OPEN # to allow long filenames to be used.
+* Various space-saving optimisations.
+
+v1.92D (2017-12-22)
+===================
+* Disable Timex modes support before loading ZX80/1 snapshots, since some hi-res
+  games otherwise accidentally change modes (eg Against The Elements).
+
+v1.92C (2017-12-20)
+===================
+* Re-enabled support for second SD slot (previously disabled to save space during
+  development).
+* Fix for renumber routine generating incorrect hidden numbers in GOTOs/GOSUBs.
+* Optimised file read operations to read complete sectors direct to destination
+  instead of via sector buffers.
+* Moved tape load trap to later on ($562->$569) to support certain games (eg
+  Arc of Yesod 128).
+
+v1.92B (2017-12-17)
+===================
+* Fixed bug in TAP loading causing some games to unnecessarily be loaded using
+  a slow path, and taking much longer to load (eg Dizzy VII, Thanatos 128).
+* Added border feedback during TAP loading which really does require the
+  slow path to be used (eg Rainbow Islands).
+* Fixed the banner in the TAP loader to align stripes correctly.
+* Added "erasing..." information message during erase operations in the Browser.
+
+v1.92A (2017-12-14)
+===================
+* Implemented support for optional tape simulation during TAP file loading
+* Increased optional loading screen pause to 5 secs
+* Fixes for various non-working TAP files:
+   + Out of memory errors (eg Trans Am)
+   + Corrected return values for blocks including part of the ROM (eg Rainbow
+     Islands)
+   + Fix to cope with Chase HQ 128 protection mechanism
+* Fix for potential crash if syntax errors generated in IDE_BASIC API call
+* Fix for infinite error-checking loop/crash in esxdos emulator if line numbers
+  greater than 9999 entered
+* Fix for crashes if default streams (0..3) left redirected to user-defined
+  channels at BASIC error reports
+* Fix for crashes in renumber routine due to stack corruption
+* Fix SPECTRUM command to clear ZX printer buffer before entering 48K mode
+* Browser fixes:
+   + Fixed path display line to be cleared before updating (broken by v1.92)
+   + Added "copying..." information message during copy operations
+
+v1.92 (2017-12-12)
+==================
+* Implemented support for real-time clock, requiring valid RTC.SYS in the
+  C:/NEXTOS directory, and a ZX Next with RTC module. This support provides:
+   + date/timestamps when SD card files/dirs are created or updated
+   + current date and time shown is shown in menus
+* Re-write of expanded catalog command (CAT EXP). This now shows dates/times
+  of files and exact filesizes.
+* Updated the IDE_GET_LFN +3DOS call to also return time/date stamps and
+  exact filesizes.
+* Added new IDE_RTC call to query the current date and time.
+* Implemented screensaver functionality.
+* Added new SPECTRUM SCREEN$ command to select screensaver type and timeout.
+* Implemented SPECTRUM CHR$ command to select editor columns (32/64/85).
+* Implemented support for LOADing a C:/NEXTOS/AUTOEXEC.BAS program for setting
+  desired defaults etc.
+* Implemented support for LOADing a C:/NEXTOS/RUN.BAS program if RUN is
+  executed when there is no BASIC program in memory.
+* Changed the TILE and BANK...LAYER commands to use the new Z80N opcodes
+  LDIX/LDIRX for improved performance.
+* Fixed NextOS command line and Browser options to respect any user-defined
+  colour schemes set using the SPECTRUM INK/PAPER/BRIGHT/FLASH/ATTR commands.
+* Various fixes for user-defined colour schemes.
+* Changed the scroll pause feature for windows to use an inverted block in the
+  bottom right-hand corner instead of a flashing one, and to accept any key.
+* Fixed crash in scroll pause feature if ENTER/CAPS/EXTEND/GRAPHICS pressed.
+* Fix loading of 48K SNA snapshots where SP lies between $4000 and $4005. Not
+  normally seen, but can be created by SNASM.
+* Fixed TAP loader to clear all BASIC workspaces to prevent Out of memory errors
+  loading some games (eg TransAm).
+
+v1.91 (2017-12-05)
+==================
+* Fix for TILE commands hanging in invalid modes.
+* Rainbow stripes in banners now look consistent with original 128K machines.
+* Fixed loading of 128K SNA snapshots where page 7 was the "current" page (not
+  properly fixed in v1.86).
+* Added workaround to support some 128K TAPs (eg Thanatos 128K) which load the
+  stack including returns into the original 128K syntax ROM.
+* Fix for error reporting in PLOT command, which previously caused hangs.
+* Re-enabled PLAY command (now loaded at boot from new overlay.sys file).
+* Re-enabled renumber menu option (also present in overlay.sys).
+* Improved dot command handling so that any files left open by the dot are
+  automatically closed on exit, or if a BASIC error occurs.
+* Added installable error handlers for dot commands on RST $8;defb $95.
+
+v1.90 (2017-12-03)
+==================
+* Fix for RST$18/RST$10 calls in dot commands.
+* Fix for command length returned by IDE_BROWSER call if wildcards used.
+* Added workaround to allow some snapshots taken on 128/+2 machines whilst
+  still in 128 BASIC (eg Slightly Magic) to run in the +3/NextOS configuration
+  by trapping original 128K command class returns in ROM 2 and diverting to ROM 1.
+* Fix for NextBASIC banner being left on-screen during direct command execution.
+* Fix for crash if dot command executed after a previous dot command had
+  abnormally terminated (eg BREAK in screen output)
+
+v1.89 (2017-11-30)
+==================
+* Added remount/mkdir/rename/copy/paste/erase options to Browser
+* Added fine-grain control of new Browser features in IDE_BROWSER API call
+* Added new BANK...LAYER command for copying data between screen (in current
+  mode) and memory, with optional raster operations
+* Fixed TILE command to not write transparent pixels (NOTE: currently using
+  standard Z80 instructions rather than faster Z80N ldix)
+* Renumber menu option temporarily disabled due to lack of ROM space
+* Fixed operation of TAB in text windows, and modes other than LAYER 0
+* Fixed AY enable at boot
+* Fixed RST $18 (call ROM3 routine) from dot commands
+
+v1.88 (2017-11-26)
+==================
+* Rewrite of initialisation/NEW code
+    + now initialises all 3 AY chips
+    + fixed & improved border colour error "reporting" in memory test routine
+    + fixed bug where streams 4+ would be left open across a NEW although their
+      channels may have disappeared
+    + ensure required peripheral settings (Timex modes on, DivMMC auto-paging off,
+      turbo selection on, AYs on, multiface currently disabled)
+* Fixed Browser to set the currently-selected drive for LOAD and SAVE operations
+  as well as general disk operations
+* Implemented lower-screen editing for Hi-res, so "screen" editing mode is now
+  usable in 64/85 column modes
+* The NextOS command line menu option now has a persistent mode, so BASIC always
+  inherits the currently-selected editing mode (unlike the NextBASIC option,
+  which still has distinct display modes for editing and BASIC)
+* Extended mode symbols underneath keys Y,U,P,A,S,D,F,G now available with just
+  symbol shift+key (copyright symbol is symbol shift+Q since P already has ").
+
+v1.87 (2017-11-23)
+==================
+* Implemented line input handler for window channels. INPUT # may now be used
+  with window, file, variable and memory channels as well as the standard "K"
+  channel.
+* Implemented new IDE_WINDOW_LINEIN call to perform line input on window channels.
+* Implemented new IDE_INTEGER_VAR call to allow any of the new integer variables
+  to be read or written.
+* Implemented new REMOUNT command to allow removal/re-insertion of SD cards
+* Fixes to esxdos m_tapein/m_tapeout functions:
+    + in_open now automatically closes any current tape file
+    + in_setpos fixed to work in blocks
+    + undocumented in_getpos functionality added (cf .tapls disassembly)
+    + in_pause implemented to allow pause at loading screen
+    + added stack protection during tape load trap
+    + fully-implemented all possible exit conditions from load trap
+    + implemented save trap
+* SPECTRUM command (with no parameters) now continues executing statements
+  instead of terminating with an OK report (needed for TAP helper)
+* Added a new TAP file helper program for loading TAPs from the Browser
+* Improved system consistency validation: enNextOS.rom, nextmmc.rom and
+  esxemu.sys now all stamped with current NextOS version number and validated
+  at boot time.
+* Fixed potential memory/stack corruption and hangs when switching between
+  LAYER 0 and LAYER 1/2.
+* Prevented keypress at BASIC report from being passed to the menu system
+  (typically the user would press ENTER and the first menu item, ie Browser,
+  would be automatically executed).
+
+v1.86 (2017-11-14)
+==================
+* Complete re-write of windowing code:
+    + Implemented all features in all modes, with the exception of line input
+    + Optimised window character output routine in standard and Timex modes
+    + Fixed opening window channels with OPEN #
+    + Auto-pause is now enabled by default for the LAYER 1/2 screens (but
+      disabled by default for user-defined windows in all modes)
+* Browser optimisations and minor fixes
+* Fixed loading of 128K SNA snapshots where page 7 was the "current" page
+* Implemented IDE_BROWSER, IDE_BANK, IDE_BASIC and IDE_WINDOW_STRING API calls
+  (NOTE: The BASIC BANK command doesn't yet respect/use IDE_BANK)
+
+v1.85 (2017-10-27)
+==================
+* Fixed issue in tokenizer where required spaces were removed after keywords
+  ending in $ or # (eg CHR$, OPEN#)
+* Tweaked esxDOS error messages
+* Streamlined available drives boot message
+* Updated TILE command to support map widths up to 2048 (previously 256), and
+  to support 16x16 tiles as well as 8x8 tiles
+* Added TILE DIM and SPRITE DIM commands to set clip windows for layer2 and
+  sprite layer (NB: sprite clip not yet working/available in hardware)
+
+v1.84 (2017-10-25)
+==================
+* ROMs renamed (nxten2eE.rom -> enNextOS.rom, and p3divmmc.rom -> nextmmc.rom)
+  NOTE: Don't forget to update your config.ini to reflect this
+* esxDOS emulation layer is now loaded from a file, C:/NEXTOS/ESXEMU.BIN
+* Implemented full error reporting for dot commands
+* Fixed some issues with parts of dot command names and parameters sometimes
+  being tokenized (eg /bin would be tokenized with BIN keyword)
+* Fixed bug where dot command couldn't be entered as first statement on a
+  program line (due to calculator accepting it as an expression)
+* Fixed tokenisation problems preventing > and < being accepted in expressions
+* Dot commands can now formally be executed from anywhere by starting name
+  with . or / path character, eg to execute "mycommand" in current directory:
+  ../mycommand
+  (NOTE: Maximum 32 characters path/name in total)
+* Parameterless dot commands supported by updated browser.cfg (if named with
+  .dot extension)
+

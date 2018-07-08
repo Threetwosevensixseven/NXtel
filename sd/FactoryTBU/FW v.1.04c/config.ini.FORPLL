@@ -1,0 +1,53 @@
+scandoubler=1
+50_60hz=0
+timex=1
+psgmode=0
+intsnd=1
+turbosound=1
+covox=1
+divmmc=1
+mf=0
+joystick1=1
+joystick2=0
+ps2=0
+lightpen=0
+scanlines=0
+dac=1
+turbo=1
+default=14
+menu=Spectrum 48K,0,0,48.rom
+menu=Timex Sinclair TC2048,0,0,tc2048.rom
+menu=Spectrum 48K Gosh Wonderful 1.32,0,0,gw03.rom
+menu=Spectrum 128k,1,0,128.rom
+menu=Investronica Spectrum 128K,1,0,128es21.rom
+menu=ZX Spectrum +2,1,0,128-2.rom
+menu=ZX Spectrum +3e,2,0,128-3e.rom,dvmen3eE.rom
+menu=ZX Spectum Next 0,2,0,enNextOS.rom,nextmmc.rom
+menu=ZX Spectum Next 1,2,1,enNextOS.rom,nextmmc.rom
+menu=ZX Spectum Next 2,2,2,enNextOS.rom,nextmmc.rom
+menu=ZX Spectum Next 3,2,3,enNextOS.rom,nextmmc.rom
+menu=ZX Spectum Next 4,2,4,enNextOS.rom,nextmmc.rom
+menu=ZX Spectum Next 5,2,5,enNextOS.rom,nextmmc.rom
+menu=ZX Spectum Next 6,2,6,enNextOS.rom,nextmmc.rom
+menu=ZX Spectrum Next with HDMI,2,7,enNextOS.rom,nextmmc.rom
+menu=ZX80 Emulator (c) Paul Farrow,1,0,zx80.rom
+menu=ZX81 Emulator (c) Paul Farrow,1,0,zx81.rom
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
