@@ -23,7 +23,7 @@ table:
 ; defb 16*leading+width-1
 
         defw    space -$
-        defb    16*0+6-1
+        defb    16*8+6-1
         defw    exclamation_mark -$
         defb    16*0+6-1
         defw    quotation_mark -$

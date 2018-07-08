@@ -31,6 +31,7 @@ RenderBuffer            proc
                         ld sp, $FFFF
                         PageLayer2Bottom48K(9)
                         ld hl, DisplayBuffer.Length
+                        //ld hl, 60
                         push hl
                         ld hl, DisplayBuffer
 Read:
@@ -54,12 +55,12 @@ Read:
                         ld e, 3
                         mul
                         add hl, de
-                        ld a, (hl)
                         inc hl
                         ld e, (hl)
                         inc hl
                         ld d, (hl)                      ; de = Character offset
                         inc hl
+                        ld a, (hl)
                         inc hl
                         ld c, (hl)
                         inc hl
@@ -75,11 +76,14 @@ Read:
                         add hl, de
                         add hl, -4
 
+zeusprinthex Fonts.space, Fonts.exclamation_mark
+
                         ld de, [Coordinates]SMC
                         or a
                         jp z, FontLines
                         push bc
                         ld b, a
+                        //dec b
 Leading:
                         ld a, [Background1]$00
                         for n = 0 to 5
@@ -96,9 +100,6 @@ Leading:
                         djnz Leading
                         pop bc
 FontLines:
-
-zeusprinthex Fonts.latin_capital_letter_t, Fonts.latin_capital_letter_u
-
                         CpHL(bc)
                         push bc
                         jp z, Trailing
@@ -140,14 +141,22 @@ Trailing:
                         ld e, a
                         djnz Trailing
 EndChar:
-
-                        pop bc
-                        pop hl
-
-                        jp Return
-
+                        //call WaitKey
+                        pop bc                          ; Discard, balance stack
+                        pop hl                          ; Display buffer next char
 
 NextChar:
+                        ld de, (Coordinates)
+                        add de, 6
+                        ld a, e
+                        cp 240
+                        jp nz, NoNextRow
+                        add de, 256*8
+                        ld e, 0
+                        //jp Return
+NoNextRow:              ld (Coordinates), de
+
+
                         pop bc                          ; Remaining length
                         dec bc
                         push bc
@@ -168,4 +177,25 @@ PrintChar               proc
 pend
 
 
+
+WaitKey                 proc
+                        ei
+                        push af
+                        xor a
+                        in a, ($FE)
+                        cpl
+                        and 15
+                        halt
+                        jr nz, WaitKey
+Loop:
+                        xor a
+                        in a, ($FE)
+                        cpl
+                        and 15
+                        halt
+                        jr z, Loop
+                        pop af
+                        di
+                        ret
+pend
 
