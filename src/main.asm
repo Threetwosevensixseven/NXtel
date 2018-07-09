@@ -74,7 +74,7 @@ org $BFBF
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif
 
-                        output_sna "..\bin\nex-tel.sna", $FF40, Start
+                        output_sna "..\bin\NexTel.sna", $FF40, Start
 
                         zeusinvoke "..\build\deploy.bat"
 
