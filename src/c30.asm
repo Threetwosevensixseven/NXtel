@@ -1,8 +1,8 @@
 ; c30.asm
 
 DisplayBuffer           proc
-                        //import_bin "..\docs\data\telstar-91a-raw.bin"
-                        import_bin "..\docs\data\wenstar-91a-raw.bin"
+                        import_bin "..\docs\data\telstar-91a-raw.bin"
+                        //import_bin "..\docs\data\wenstar-91a-raw.bin"
                         Length equ $-DisplayBuffer
 pend
 
@@ -19,8 +19,26 @@ ClsLayer2               proc
                         PageLayer2Bottom48K(9)
                         FillLDIR($0000, $C000, $00)
                         PageResetBottom48K()
-                        ld hl, RenderBuffer.Coordinates
-                        ld (hl), $0000                  ; Top Left (0, 0)
+                        ld hl, $0008                    ; Top Left (8, 0)
+                        ld (RenderBuffer.Coordinates), hl
+                        ret
+pend
+
+
+
+DefinePalettes          proc
+                        nextreg $43, %0 001 000 0       ; Set Layer 2 primary palette, incrementing
+                        nextreg $40, 00                 ; Start at index 0
+                        ld c, 32
+NextSet:                ld b, 8
+                        ld hl, PaletteL2Primary
+Loop:                   ld a, (hl)
+                        inc hl
+                        nextreg $41, a
+                        djnz Loop
+                        dec c
+                        ld a, c
+                        jp nz, NextSet
                         ret
 pend
 
@@ -37,10 +55,11 @@ RenderBuffer            proc
 Read:
                         ld a, (hl)
                         inc hl
+ProcessRead:
                         cp 32
                         jp c, NextChar                  ; Skip ASCII ctrl codes for now
                         cp 128
-                        jp nc, NextChar                 ; Skip teletext ctrl codes for now
+                        jp nc, Colours                  ; Skip teletext ctrl codes for now
                         push hl
 
                         ex af, af'
@@ -149,10 +168,12 @@ NextChar:
                         ld de, (Coordinates)
                         add de, 6
                         ld a, e
-                        cp 240
+                        cp 248
                         jp nz, NoNextRow
                         add de, 256*8
-                        ld e, 0
+                        ld e, 8
+                        ld a, 7
+                        ld (Foreground), a
                         //jp Return
 NoNextRow:              ld (Coordinates), de
 
@@ -168,6 +189,14 @@ Return:
                         PageResetBottom48K()
                         ld sp, [Stack]SMC
                         ret
+Colours:
+                        cp 136
+                        jp nc, NextChar                 ; Skip teletext ctrl codes for now
+                        and %111
+                        ld (Foreground), a
+                        ld a, 32
+                        jp ProcessRead
+
 pend
 
 
@@ -197,5 +226,19 @@ Loop:
                         pop af
                         di
                         ret
+pend
+
+
+
+PaletteL2Primary        proc Table:
+                        ;   RRR GGG BB  Index  Colour   Notes
+                        db %000 000 00  ;   0  Black    The layer 2 primary palette repeats these
+                        db %111 000 00  ;   1  Red      8 colours 32 times through indices 0..255.
+                        db %000 111 00  ;   2  Green
+                        db %111 111 00  ;   3  Yellow
+                        db %010 010 11  ;   4  Blue     Lightened for readability on black background.
+                        db %111 001 11  ;   5  Magenta  Uses $E7 because global transparency is $E3.
+                        db %000 111 11  ;   6  Cyan
+                        db %111 111 11  ;   7  White
 pend
 

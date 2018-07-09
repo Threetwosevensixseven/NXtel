@@ -242,3 +242,18 @@ CpHL                    macro(Register)
                         add hl, Register
 mend
 
+
+
+ClsAttrFull             macro(Colour)
+                        if Colour = DimBlackBlackP
+                         xor a
+                        else
+                          ld a, Colour
+                        endif
+                        ld hl, ATTRS_8x8
+                        ld (hl), a
+                        ld de, ATTRS_8x8+1
+                        ld bc, ATTRS_8x8_COUNT-1
+                        ldir
+mend
+

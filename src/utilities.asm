@@ -85,3 +85,10 @@ esxDOSerror             proc
 Freeze:                 jp Freeze
 pend
 
+
+
+ClsAttr                 proc
+                        ClsAttrFull(DimBlackBlackP)
+                        ret
+pend
+

@@ -34,13 +34,14 @@ Loooop:
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
                         PageBankZX(0, false)            ; Force MMU reset
-                        //call ClsAttr
+                        call ClsAttr
                         call SetupDataFileSystem
                         call LoadResources
                         di
 
                         MMU7(30, false)
                         call ClsLayer2
+                        call DefinePalettes
                         call RenderBuffer
 
                         nextreg $14, $E3                ; Global L2 transparency colour
