@@ -1,8 +1,9 @@
 ; c30.asm
 
 DisplayBuffer           proc
-                        import_bin "..\docs\data\telstar-91a-raw.bin"
+                        //import_bin "..\docs\data\telstar-91a-raw.bin"
                         //import_bin "..\docs\data\wenstar-91a-raw.bin"
+                        import_bin "..\docs\data\dont-panic-raw.bin"
                         Length equ $-DisplayBuffer
 pend
 
@@ -52,6 +53,8 @@ RenderBuffer            proc
                         //ld hl, 60
                         push hl
                         ld hl, DisplayBuffer
+                        xor a
+                        ld (GraphicsOffset), a          ; Clear graphics offset back to plain text
 Read:
                         ld a, (hl)
                         inc hl
@@ -61,6 +64,8 @@ ProcessRead:
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
                         push hl
+
+                        add a, [GraphicsOffset]SMC
 
                         ex af, af'
                         ld hl, Fonts.SAA5050
@@ -172,6 +177,8 @@ NextChar:
                         ld e, 8
                         ld a, 7
                         ld (Foreground), a
+                        xor a
+                        ld (GraphicsOffset), a
                         //jp Return
 NoNextRow:              ld (Coordinates), de
 
@@ -189,12 +196,25 @@ Return:
                         ret
 Colours:
                         cp 136
-                        jp nc, NextChar                 ; Skip teletext ctrl codes for now
-                        and %111
-                        ld (Foreground), a
+                        jp nc, Graphics
+                        push af
+                        xor a
+                        ld (GraphicsOffset), a
+                        pop af
+SetColour:              and %111                        ; Extract color (0..7)
+                        ld (Foreground), a              ; Set foreground colour
                         ld a, 32
                         jp ProcessRead
-
+Graphics:
+                        cp 145
+                        jp c, NextChar                  ; Skip 136-144 for now
+                        cp 152
+                        jp nc, NextChar                 ; Skip 152-156 for now
+                        push af
+                        ld a, 128
+                        ld (GraphicsOffset), a
+                        pop af
+                        jp SetColour
 pend
 
 
