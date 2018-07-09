@@ -5,6 +5,6 @@ CD %~dp0
 
 ZXVersion.exe
 SpectronPackager.exe
-copy ..\bin\nex-tel.sna ..\sd\*.*
+copy ..\bin\NexTel.sna ..\sd\*.*
 
 ::pause

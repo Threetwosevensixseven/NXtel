@@ -95,8 +95,6 @@ ProcessRead:
                         add hl, de
                         add hl, -4
 
-zeusprinthex Fonts.space, Fonts.exclamation_mark
-
                         ld de, [Coordinates]SMC
                         or a
                         jp z, FontLines

@@ -64,7 +64,7 @@ Error:
                         ld iy, FileName
                         jp esxDOSerror
 FileName:
-  db "nex-tel.sna", 0
+  db "NexTel.sna", 0
 pend
 
 
