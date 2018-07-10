@@ -1,9 +1,9 @@
 ; c30.asm
 
 DisplayBuffer           proc
-                        //import_bin "..\docs\data\telstar-91a-raw.bin"
+                        import_bin "..\docs\data\telstar-91a-raw.bin"
                         //import_bin "..\docs\data\wenstar-91a-raw.bin"
-                        import_bin "..\docs\data\dont-panic-raw.bin"
+                        //import_bin "..\docs\data\dont-panic-raw.bin"
                         Length equ $-DisplayBuffer
 pend
 
@@ -12,6 +12,10 @@ pend
 Fonts                   proc
 SAA5050:                //import_bin "..\fonts\SAA5050.fzx"
                         include "..\fonts\SAA5050.asm"
+                        Temp := $
+                        org SAA5050+5
+                        defb 16*8+6-1                   ; Set space to be a full 8 lines high, so
+                        org Temp                        ; the font always blanks the background.
 pend
 
 
@@ -22,6 +26,10 @@ ClsLayer2               proc
                         PageResetBottom48K()
                         ld hl, $0008                    ; Top Left (8, 0)
                         ld (RenderBuffer.Coordinates), hl
+
+                        zeusdatabreakpoint 2, "zeusprint(1, (l-8)/6, h/8)", $+disp
+                        nop
+
                         ret
 pend
 
@@ -50,11 +58,14 @@ RenderBuffer            proc
                         ld sp, $FFFF
                         PageLayer2Bottom48K(9)
                         ld hl, DisplayBuffer.Length
-                        //ld hl, 60
+                        //ld hl, 87
                         push hl
                         ld hl, DisplayBuffer
                         xor a
-                        ld (GraphicsOffset), a          ; Clear graphics offset back to plain text
+                        ld (IsSeparated), a
+                        ld (OrOffset), a                ; Clear graphics offset back to plain text
+                        dec a
+                        ld (AndOffset), a               ; Clear graphics offset back to plain text
 Read:
                         ld a, (hl)
                         inc hl
@@ -63,10 +74,10 @@ ProcessRead:
                         jp c, NextChar                  ; Skip ASCII ctrl codes for now
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
+ProcessRead2:
                         push hl
-
-                        add a, [GraphicsOffset]SMC
-
+                        or [OrOffset]SMC
+                        and [AndOffset]SMC
                         ex af, af'
                         ld hl, Fonts.SAA5050
                         ld a, (hl)
@@ -99,7 +110,6 @@ ProcessRead:
                         pop hl
                         add hl, de
                         add hl, -4
-
                         ld de, [Coordinates]SMC
                         or a
                         jp z, FontLines
@@ -107,6 +117,9 @@ ProcessRead:
                         ld b, a
                         //dec b
 Leading:
+
+
+
                         ld a, [Background1]$00
                         for n = 0 to 5
                           ld (de), a
@@ -178,10 +191,15 @@ NextChar:
                         ld a, 7
                         ld (Foreground), a
                         xor a
-                        ld (GraphicsOffset), a
-                        //jp Return
+                        ld (IsSeparated), a
+                        ld (OrOffset), a                ; Clear graphics offset back to plain text
+                        dec a
+                        ld (AndOffset), a               ; Clear graphics offset back to plain text
+
 NoNextRow:              ld (Coordinates), de
 
+                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=20 && (d/8)=18", $+disp
+                        nop
 
                         pop bc                          ; Remaining length
                         dec bc
@@ -199,22 +217,53 @@ Colours:
                         jp nc, Graphics
                         push af
                         xor a
-                        ld (GraphicsOffset), a
+                        ld (OrOffset), a                ; Clear graphics offset back to plain text
+                        dec a
+                        ld (AndOffset), a               ; Clear graphics offset back to plain text
                         pop af
 SetColour:              and %111                        ; Extract color (0..7)
                         ld (Foreground), a              ; Set foreground colour
                         ld a, 32
-                        jp ProcessRead
+                        jp ProcessRead2
 Graphics:
                         cp 145
                         jp c, NextChar                  ; Skip 136-144 for now
                         cp 152
-                        jp nc, NextChar                 ; Skip 152-156 for now
-                        push af
-                        ld a, 128
-                        ld (GraphicsOffset), a
+                        jp z, NextChar                  ; Skip 152 for now (Conceal)
+                        cp 153
+                        jp z, Contiguous
+                        cp 154
+                        jp z, Separated
+                        jp nc, NextChar                 ; Skip 155-159 for now
+ResetGraphics:          push af
+                        ld a, [IsSeparated]SMC
+                        or a
+                        jp z, SetContiguous
+                        ld a, %1101 1111                ; Set Separated AND
+                        ld (AndOffset), a
+                        ld a, %1000 0000                ; Set Separated OR
+                        ld (OrOffset), a
+                        jp GraphicsContinue
+SetContiguous:          ld a, %1111 1111                ; Set Contiguous AND
+                        ld (AndOffset), a
+                        ld a, %1000 0000                ; Set Separated OR
+                        ld (OrOffset), a
+GraphicsContinue:
                         pop af
                         jp SetColour
+Contiguous:
+                        push af
+                        xor a
+                        jp SepSave
+Separated:
+                        push af
+                        ld a, 1
+SepSave:                ld (IsSeparated), a
+NoGfxSepz:               pop af
+                        ld a, (Foreground)
+                        and %111
+                        jp ResetGraphics
+//IsSeparated:            db 0
 pend
 
 

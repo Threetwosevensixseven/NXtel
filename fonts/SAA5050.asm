@@ -1,7 +1,7 @@
 ; SAA5050.asm - FZX font file
 ; created with FZXEditor
 
-
+//        org     0
 
 ; --------------------------------------------------------------------------------
 ; header
@@ -23,7 +23,7 @@ table:
 ; defb 16*leading+width-1
 
         defw    space -$
-        defb    16*8+6-1
+        defb    16*0+6-1
         defw    exclamation_mark -$
         defb    16*0+6-1
         defw    quotation_mark -$
@@ -241,7 +241,7 @@ table:
         defw    character_140 -$
         defb    16*3+6-1
         defw    character_141 -$
-        defb    16*3+6-1
+        defb    16*0+6-1
         defw    character_142 -$
         defb    16*0+6-1
         defw    character_143 -$
@@ -1328,6 +1328,9 @@ character_140:
         defb    %11011000
 
 character_141:
+        defb    %11000000
+        defb    %11000000
+        defb    %00000000
         defb    %11011000
         defb    %11011000
 
