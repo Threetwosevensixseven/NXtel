@@ -4,6 +4,7 @@ DisplayBuffer           proc
                         import_bin "..\docs\data\telstar-91a-raw.bin"
                         //import_bin "..\docs\data\wenstar-91a-raw.bin"
                         //import_bin "..\docs\data\dont-panic-raw.bin"
+                        //import_bin "..\docs\data\double-height.bin"
                         Length equ $-DisplayBuffer
 pend
 
@@ -12,10 +13,20 @@ pend
 Fonts                   proc
 SAA5050:                //import_bin "..\fonts\SAA5050.fzx"
                         include "..\fonts\SAA5050.asm"
-                        Temp := $
-                        org SAA5050+5
-                        defb 16*8+6-1                   ; Set space to be a full 8 lines high, so
-                        org Temp                        ; the font always blanks the background.
+                        Temp = $
+                        org SAA5050+5                   ; Set spaces to be a full 8 lines high, so
+                        defb 16*8+6-1                   ; the font always blanks the background.
+                        org SAA5050+293
+                        defb 16*8+6-1
+                        org Temp
+
+SAADouble:              import_bin "..\fonts\SAADouble.fzx"
+                        Temp = $
+                        org SAADouble+5                 ; Set spaces to be a full 16 lines high, so
+                        defb 16*16+6-1                  ; the font always blanks the background.
+                        org SAADouble+293
+                        defb 16*16+6-1
+                        org Temp
 pend
 
 
@@ -63,6 +74,9 @@ RenderBuffer            proc
                         ld hl, DisplayBuffer
                         xor a
                         ld (IsSeparated), a
+                        ld (Background1), a
+                        ld (Background2), a
+                        ld (Background3), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
@@ -164,8 +178,9 @@ BG:                     ld (de), a
 Trailing:
                         ex af, af'
                         ld b, a
+                        or a
                         jp z, EndChar
-                        ld a, [Background3]$00
+TrailingLoop:           ld a, [Background3]$00
                         for n = 0 to 5
                           ld (de), a
                           inc e
@@ -174,7 +189,7 @@ Trailing:
                         ld a, e
                         add a, -6
                         ld e, a
-                        djnz Trailing
+                        djnz TrailingLoop
 EndChar:
                         //call WaitKey
                         pop bc                          ; Discard, balance stack
@@ -191,6 +206,9 @@ NextChar:
                         ld a, 7
                         ld (Foreground), a
                         xor a
+                        ld (Background1), a
+                        ld (Background2), a
+                        ld (Background3), a
                         ld (IsSeparated), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
@@ -198,7 +216,7 @@ NextChar:
 
 NoNextRow:              ld (Coordinates), de
 
-                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=20 && (d/8)=18", $+disp
+                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=26 && (d/8)=2", $+disp
                         nop
 
                         pop bc                          ; Remaining length
@@ -234,7 +252,11 @@ Graphics:
                         jp z, Contiguous
                         cp 154
                         jp z, Separated
-                        jp nc, NextChar                 ; Skip 155-159 for now
+                        cp 156
+                        jp z, BlackBG
+                        cp 157
+                        jp z, NewBG
+                        jp nc, NextChar                 ; Skip 158-159 for now
 ResetGraphics:          push af
                         ld a, [IsSeparated]SMC
                         or a
@@ -263,7 +285,22 @@ NoGfxSepz:               pop af
                         ld a, (Foreground)
                         and %111
                         jp ResetGraphics
-//IsSeparated:            db 0
+BlackBG:
+                        xor a
+                        jp NewBGContinue
+NewBG:
+                        ld a, (Foreground)
+                        and %111
+                        ld (NewBGFG), a
+                        rlca
+                        rlca
+                        rlca
+                        or [NewBGFG]SMC
+NewBGContinue:          ld (Background1), a
+                        ld (Background2), a
+                        ld (Background3), a
+                        ld a, 32
+                        jp ProcessRead2
 pend
 
 
@@ -308,4 +345,6 @@ PaletteL2Primary        proc Table:
                         db %000 111 11  ;   6  Cyan
                         db %111 111 11  ;   7  White
 pend
+
+//zeusprinthex $-Fonts
 
