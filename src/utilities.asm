@@ -92,3 +92,45 @@ ClsAttr                 proc
                         ret
 pend
 
+
+DoFlash                 proc
+                        ld a, [Frame]SMC
+                        inc a
+                        and 31
+                        ld (Frame), a
+                        ret nz
+                        nextreg $43, %0 001 000 0       ; Set Layer 2 primary palette, incrementing
+                        nextreg $40, 64                 ; Start at index 64
+                        ld a, [OnOff]SMC+1
+                        xor 1
+                        ld (OnOff), a
+                        jp nz, On
+Off:
+                        ld e, 0                         ; Black
+                        ld d, 9                         ; 8 sets of colour
+OffOuter:               dec d
+                        ld b, 8
+                        ld a, e                         ; Colour index to set (0..7)
+                        ld hl, PaletteL2Primary.Table
+                        add hl, a
+                        ld a, (hl)                      ; Colour to set (RGB8)
+OffInner:               nextreg $41, a
+                        djnz OffInner
+                        inc e
+                        ld b, d
+                        djnz OffOuter
+                        ret
+On:
+                        ld c, 8
+NextSet:                ld b, 8
+                        ld hl, PaletteL2Primary
+Loop:                   ld a, (hl)
+                        inc hl
+                        nextreg $41, a
+                        djnz Loop
+                        dec c
+                        ld a, c
+                        jp nz, NextSet
+                        ret
+pend
+

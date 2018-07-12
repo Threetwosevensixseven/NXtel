@@ -1,18 +1,23 @@
 ; c30.asm
 
 DisplayBuffer           proc
-                        import_bin "..\docs\data\telstar-91a-raw.bin"
-                        //import_bin "..\docs\data\wenstar-91a-raw.bin"
-                        //import_bin "..\docs\data\dont-panic-raw.bin"
-                        //import_bin "..\docs\data\double-height.bin"
+                        import_bin "..\pages\telstar-91a-raw.bin"
+                        //import_bin "..\pages\wenstar-91a-raw.bin"
+                        //import_bin "..\pages\dont-panic-raw.bin"
+                        //import_bin "..\pages\double-height.bin"
+                        //import_bin "..\pages\double-height2.bin"
+                        //import_bin "..\pages\flash-steady.bin"
                         Length equ $-DisplayBuffer
+                        if Length <> 1000
+                          zeuserror "Invalid DisplayBuffer.Length!"
+                        endif
 pend
 
 
 
 Fonts                   proc
-SAA5050:                //import_bin "..\fonts\SAA5050.fzx"
-                        include "..\fonts\SAA5050.asm"
+SAA5050:                import_bin "..\fonts\SAA5050.fzx"
+                        //include "..\fonts\SAA5050.asm"
                         Temp = $
                         org SAA5050+5                   ; Set spaces to be a full 8 lines high, so
                         defb 16*8+6-1                   ; the font always blanks the background.
@@ -21,6 +26,7 @@ SAA5050:                //import_bin "..\fonts\SAA5050.fzx"
                         org Temp
 
 SAADouble:              import_bin "..\fonts\SAADouble.fzx"
+                        //include "..\fonts\SAADouble.asm"
                         Temp = $
                         org SAADouble+5                 ; Set spaces to be a full 16 lines high, so
                         defb 16*16+6-1                  ; the font always blanks the background.
@@ -69,14 +75,18 @@ RenderBuffer            proc
                         ld sp, $FFFF
                         PageLayer2Bottom48K(9)
                         ld hl, DisplayBuffer.Length
-                        //ld hl, 87
+                        //ld hl, 880
                         push hl
+                        ld hl, Fonts.SAA5050
+                        ld (FontInUse), hl
                         ld hl, DisplayBuffer
                         xor a
+                        ld (DoubleHeightThisLine), a
                         ld (IsSeparated), a
                         ld (Background1), a
                         ld (Background2), a
                         ld (Background3), a
+                        ld (IsFlashing), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
@@ -85,17 +95,21 @@ Read:
                         inc hl
 ProcessRead:
                         cp 32
-                        jp c, NextChar                  ; Skip ASCII ctrl codes for now
+                        jp c, Escape                    ; Skip ASCII ctrl codes for now
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
 ProcessRead2:
                         push hl
-                        or [OrOffset]SMC
-                        and [AndOffset]SMC
-                        ex af, af'
-                        ld hl, Fonts.SAA5050
+                        cp 64
+                        jp c, NotBlastThrough
+                        cp 96
+                        jp nc, NotBlastThrough
+                        jp BlastThrough
+NotBlastThrough:        or [OrOffset]SMC
+                        and [AndOffset]SMC              ; Blast through chars are 64..95 inclusive
+BlastThrough:           ex af, af'
+                        ld hl, [FontInUse]Fonts.SAA5050
                         ld a, (hl)
-                        //ld (LineHeight), a
                         ex af, af'
                         inc hl
                         inc hl
@@ -116,7 +130,6 @@ ProcessRead2:
                         ld b, (hl)                      ; bc = next Character offset
                         swapnib
                         and %1111                       ; a  = Character leading
-                        //inc a:inc a
                         push hl
                         add hl, bc
                         dec hl
@@ -129,11 +142,7 @@ ProcessRead2:
                         jp z, FontLines
                         push bc
                         ld b, a
-                        //dec b
 Leading:
-
-
-
                         ld a, [Background1]$00
                         for n = 0 to 5
                           ld (de), a
@@ -165,16 +174,15 @@ Rotate:
                         ld a, [Background2]%00
                         jp z, BG
                         ld a, [Foreground]$FF
+                        or [IsFlashing]$00
 BG:                     ld (de), a
                         rlc c
                         inc e
                         djnz Rotate
                         pop de
                         inc d
-
                         pop bc
                         jp FontLines
-
 Trailing:
                         ex af, af'
                         ld b, a
@@ -191,18 +199,26 @@ TrailingLoop:           ld a, [Background3]$00
                         ld e, a
                         djnz TrailingLoop
 EndChar:
-                        //call WaitKey
                         pop bc                          ; Discard, balance stack
                         pop hl                          ; Display buffer next char
-
 NextChar:
                         ld de, (Coordinates)
                         add de, 6
                         ld a, e
                         cp 248
                         jp nz, NoNextRow
-                        add de, 256*8
-                        ld e, 8
+                        ld a, [DoubleHeightThisLine]SMC
+DoubleHeightPass2:      add de, 256*8
+                        or a
+                        jp z, NoDoubleHeightThisLine
+                        add hl, 40                      ; TODO: Check for end of display buffer
+                        pop bc
+                        add bc, -40
+                        push bc
+                        xor a
+                        ld (DoubleHeightThisLine), a
+                        jp DoubleHeightPass2
+NoDoubleHeightThisLine: ld e, 8
                         ld a, 7
                         ld (Foreground), a
                         xor a
@@ -210,13 +226,17 @@ NextChar:
                         ld (Background2), a
                         ld (Background3), a
                         ld (IsSeparated), a
+                        ld (IsFlashing), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
-
+                        push hl
+                        ld hl, Fonts.SAA5050
+                        ld (FontInUse), hl
+                        pop hl
 NoNextRow:              ld (Coordinates), de
 
-                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=26 && (d/8)=2", $+disp
+                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=1 && (d/8)=2", $+disp
                         nop
 
                         pop bc                          ; Remaining length
@@ -228,6 +248,10 @@ NoNextRow:              ld (Coordinates), de
                         pop bc
 Return:
                         PageResetBottom48K()
+                        xor a
+                        ld (DoFlash.Frame), a
+                        inc a
+                        ld (DoFlash.OnOff), a
                         ld sp, [Stack]SMC
                         ret
 Colours:
@@ -240,14 +264,28 @@ Colours:
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
                         pop af
 SetColour:              and %111                        ; Extract color (0..7)
+                        push bc
+                        ld b, a
+                        ld a, (Background1)
+                        and %111000
+                        or b
                         ld (Foreground), a              ; Set foreground colour
+                        pop bc
                         ld a, 32
                         jp ProcessRead2
 Graphics:
+                        cp 136
+                        jp z, Flash
+                        cp 137
+                        jp z, Steady
+                        cp 140
+                        jp z, NormalHeight
+                        cp 141
+                        jp z, DoubleHeight
                         cp 145
-                        jp c, NextChar                  ; Skip 136-144 for now
+                        jp c, Escape                    ; Skip 136-144 for now
                         cp 152
-                        jp z, NextChar                  ; Skip 152 for now (Conceal)
+                        jp z, Escape                    ; Skip 152 for now (Conceal)
                         cp 153
                         jp z, Contiguous
                         cp 154
@@ -256,7 +294,7 @@ Graphics:
                         jp z, BlackBG
                         cp 157
                         jp z, NewBG
-                        jp nc, NextChar                 ; Skip 158-159 for now
+                        jp nc, Escape                   ; Skip 158-159 for now
 ResetGraphics:          push af
                         ld a, [IsSeparated]SMC
                         or a
@@ -301,12 +339,30 @@ NewBGContinue:          ld (Background1), a
                         ld (Background3), a
                         ld a, 32
                         jp ProcessRead2
-pend
-
-
-
-PrintChar               proc
-
+NormalHeight:
+                        push hl
+                        ld hl, Fonts.SAA5050
+NormalHeight2:          ld (FontInUse), hl
+                        ld a, 32
+                        pop hl
+                        jp ProcessRead2
+DoubleHeight:
+                        ld (DoubleHeightThisLine), a
+                        push hl
+                        ld hl, Fonts.SAADouble
+                        jp NormalHeight2
+Escape:
+                        ld a, 32
+                        push hl
+                        jp BlastThrough
+Flash:
+                        ld a, %0100 0000
+                        jp Steady2
+Steady:
+                        xor a
+Steady2:                ld (IsFlashing), a
+                        ld a, 32
+                        jp ProcessRead2
 pend
 
 
@@ -340,7 +396,7 @@ PaletteL2Primary        proc Table:
                         db %111 000 00  ;   1  Red      8 colours 32 times through indices 0..255.
                         db %000 111 00  ;   2  Green
                         db %111 111 00  ;   3  Yellow
-                        db %010 010 11  ;   4  Blue     Lightened for readability on black background.
+                        db %001 001 11  ;   4  Blue     Lightened for readability on black background.
                         db %111 001 11  ;   5  Magenta  Uses $E7 because global transparency is $E3.
                         db %000 111 11  ;   6  Cyan
                         db %111 111 11  ;   7  White
