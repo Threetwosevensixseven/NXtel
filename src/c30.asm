@@ -1,12 +1,13 @@
 ; c30.asm
 
 DisplayBuffer           proc
-                        import_bin "..\pages\telstar-91a-raw.bin"
+                        //import_bin "..\pages\telstar-91a-raw.bin"
                         //import_bin "..\pages\wenstar-91a-raw.bin"
                         //import_bin "..\pages\dont-panic-raw.bin"
                         //import_bin "..\pages\double-height.bin"
                         //import_bin "..\pages\double-height2.bin"
                         //import_bin "..\pages\flash-steady.bin"
+                        import_bin "..\pages\double-height-copy-down.bin"
                         Length equ $-DisplayBuffer
                         if Length <> 1000
                           zeuserror "Invalid DisplayBuffer.Length!"
@@ -74,6 +75,7 @@ RenderBuffer            proc
                         ld (Stack), sp
                         ld sp, $FFFF
                         PageLayer2Bottom48K(9)
+                        call DoubleFillBuffer.Clear
                         ld hl, DisplayBuffer.Length
                         //ld hl, 880
                         push hl
@@ -109,6 +111,39 @@ NotBlastThrough:        or [OrOffset]SMC
                         and [AndOffset]SMC              ; Blast through chars are 64..95 inclusive
 BlastThrough:           ex af, af'
                         ld hl, [FontInUse]Fonts.SAA5050
+                        push af
+                        ld a, h
+                        cp high Fonts.SAADouble
+                        jp z, NoFill
+
+                        push bc
+                        push hl
+                        push de
+
+                        ld a, 8
+                        ld (FillCounter), a
+                        add d
+                        ld d, a
+                        ex de, hl
+FillLoop:               ld a, (Background1)
+                        ld (hl), a
+                        ld de, hl
+                        inc e
+                        ld bc, 5
+                        ldir
+                        add hl, 256-5
+                        ld a, [FillCounter]SMC
+                        dec a
+                        ld (FillCounter), a
+                        jp nz, FillLoop
+
+
+                        pop de
+                        pop hl
+                        pop bc
+
+
+NoFill:                 pop af
                         ld a, (hl)
                         ex af, af'
                         inc hl
@@ -235,6 +270,7 @@ NoDoubleHeightThisLine: ld e, 8
                         ld (FontInUse), hl
                         pop hl
 NoNextRow:              ld (Coordinates), de
+                        call DoubleFillBuffer.Clear
 
                         zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=1 && (d/8)=2", $+disp
                         nop
@@ -385,6 +421,32 @@ Loop:
                         jr z, Loop
                         pop af
                         di
+                        ret
+pend
+
+
+
+DoubleFillBuffer        proc Table:
+                        db 0, 0, 0, 0, 0, 0, 0, 0
+                        db 0, 0, 0, 0, 0, 0, 0, 0
+                        db 0, 0, 0, 0, 0, 0, 0, 0
+                        db 0, 0, 0, 0, 0, 0, 0, 0
+                        db 0, 0, 0, 0, 0, 0, 0, 0
+Clear:
+                        push af
+                        push bc
+                        push de
+                        push hl
+                        ld hl, Table
+                        ld a, -1
+                        ld (hl), a
+                        ld de, Table+1
+                        ld bc, 39
+                        ldir
+                        pop hl
+                        pop de
+                        pop bc
+                        pop af
                         ret
 pend
 
