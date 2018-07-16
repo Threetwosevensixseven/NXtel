@@ -41,20 +41,49 @@ Start:
                         di
 
                         MMU7(30, false)
-                        call ClsLayer2
                         call DefinePalettes
-                        call RenderBuffer
-
-                        nextreg $14, $E3                ; Global L2 transparency colour
-                        nextreg $4B, $E3                ; Global sprite transparency index
-                        nextreg $4A, $00                ; Transparency fallback colour (black)
-                        nextreg $12, 9                  ; Set Layer 2 to bank 18
-                        PortOut($123B, $02)             ; Show layer 2 and disable write paging
-                        //nextreg $15, %0 00 000 1 1      ; Enable sprites, over border, set SLU
-Freeze:
+NextPage:
+                        ld a, (Pages.Current)           ; Load next page
+                        inc a
+                        cp Pages.Count
+                        jp c, SavePage
+                        xor a
+SavePage:               ld (Pages.Current), a
+                        ld hl, Pages.Table
+                        add a, a
+                        add a, a
+                        add hl, a
+                        ld a, (hl)
+                        ex af, af'
+                        inc hl
+                        ld b, (hl)
+                        inc hl
+                        ld e, (hl)
+                        inc hl
+                        ld d, (hl)
+                        ld a, d
+                        and %1000 0000
+                        ld (GetTime.ShowClock), a
+                        ld a, d
+                        and %0111 1111
+                        ld d, a
+                        ex de, hl
+                        ld (PageDuration), hl
+                        ex af, af'
+                        call LoadPage                   ; Bank in a (e.g. 31), Page in b (0..7)
+                        call RenderBuffer               ; display page
+MainLoop:
                         ei
                         halt
-                        jp Freeze
+                        ld hl, [PageTimer]SMC
+                        inc hl
+                        ld (PageTimer), hl
+                        ld bc, [PageDuration]SMC
+                        CpHL(bc)
+                        jp nz, MainLoop
+                        ld hl, 0
+                        ld (PageTimer), hl
+                        jp NextPage
 
                         include "utilities.asm"         ; Utility routines
                         include "esxDOS.asm"
@@ -97,6 +126,6 @@ org $BFBF
                           zeusinvoke "..\build\UploadNext.bat"
                         endif
 
-                        //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
-
+                        //zeusmem $4CFE8,"Double Height Cap D",16,true,false      ; Show layer 2 screen memory
+                        //zeusdatabreakpoint 11, "addr=$EFE8", zeusmmu(18), $2000
 

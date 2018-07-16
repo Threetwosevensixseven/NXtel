@@ -1,13 +1,8 @@
 ; c30.asm
 
 DisplayBuffer           proc
+                        ds 1000, 32
                         //import_bin "..\pages\telstar-91a-raw.bin"
-                        //import_bin "..\pages\wenstar-91a-raw.bin"
-                        //import_bin "..\pages\dont-panic-raw.bin"
-                        //import_bin "..\pages\double-height.bin"
-                        //import_bin "..\pages\double-height2.bin"
-                        //import_bin "..\pages\flash-steady.bin"
-                        import_bin "..\pages\double-height-copy-down.bin"
                         Length equ $-DisplayBuffer
                         if Length <> 1000
                           zeuserror "Invalid DisplayBuffer.Length!"
@@ -39,15 +34,9 @@ pend
 
 
 ClsLayer2               proc
-                        PageLayer2Bottom48K(9)
-                        FillLDIR($0000, $C000, $00)
-                        PageResetBottom48K()
+                        //FillLDIR($0000, $C000, $00)
                         ld hl, $0008                    ; Top Left (8, 0)
                         ld (RenderBuffer.Coordinates), hl
-
-                        zeusdatabreakpoint 2, "zeusprint(1, (l-8)/6, h/8)", $+disp
-                        nop
-
                         ret
 pend
 
@@ -74,14 +63,23 @@ pend
 RenderBuffer            proc
                         ld (Stack), sp
                         ld sp, $FFFF
-                        PageLayer2Bottom48K(9)
-                        call DoubleFillBuffer.Clear
+
+                        call GetTime
+                        ld a, [WhichLayer2]SMC+1
+                        xor 1
+                        ld (WhichLayer2), a
+                        call z, PageLayer2Primary
+                        call nz, PageLayer2Secondary
+                        call ClsLayer2
+
                         ld hl, DisplayBuffer.Length
                         //ld hl, 880
                         push hl
                         ld hl, Fonts.SAA5050
                         ld (FontInUse), hl
                         ld hl, DisplayBuffer
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
                         xor a
                         ld (DoubleHeightThisLine), a
                         ld (IsSeparated), a
@@ -96,6 +94,8 @@ Read:
                         ld a, (hl)
                         inc hl
 ProcessRead:
+                        //bit 7, a
+                        //call nz, ReplaceHeldChar
                         cp 32
                         jp c, Escape                    ; Skip ASCII ctrl codes for now
                         cp 128
@@ -109,7 +109,20 @@ ProcessRead2:
                         jp BlastThrough
 NotBlastThrough:        or [OrOffset]SMC
                         and [AndOffset]SMC              ; Blast through chars are 64..95 inclusive
-BlastThrough:           ex af, af'
+BlastThrough:
+                        jp HeldCharThisTime // SKIP
+
+                        push af
+                        ld a, [HeldCharToPrint]SMC
+                        or a
+                        jp z, NoHeldCharThisTime
+                        pop af
+                        ld a, (HeldCharToPrint)
+                        jp HeldCharThisTime
+NoHeldCharThisTime:     pop af
+HeldCharThisTime:
+
+                        ex af, af'
                         ld hl, [FontInUse]Fonts.SAA5050
                         push af
                         ld a, h
@@ -123,6 +136,8 @@ BlastThrough:           ex af, af'
                         ld a, 8
                         ld (FillCounter), a
                         add d
+                        cp $C0
+                        jp nc, OutOfScreen
                         ld d, a
                         ex de, hl
 FillLoop:               ld a, (Background1)
@@ -130,14 +145,15 @@ FillLoop:               ld a, (Background1)
                         ld de, hl
                         inc e
                         ld bc, 5
-                        ldir
+                        for n = 1 to 5
+                          ldi
+                        next ;n
                         add hl, 256-5
                         ld a, [FillCounter]SMC
                         dec a
                         ld (FillCounter), a
                         jp nz, FillLoop
-
-
+OutOfScreen:
                         pop de
                         pop hl
                         pop bc
@@ -146,6 +162,7 @@ FillLoop:               ld a, (Background1)
 NoFill:                 pop af
                         ld a, (hl)
                         ex af, af'
+                        ld (DebugPrint.Char), a
                         inc hl
                         inc hl
                         add a, -32
@@ -173,6 +190,7 @@ NoFill:                 pop af
                         add hl, de
                         add hl, -4
                         ld de, [Coordinates]SMC
+                        call DebugPrint
                         or a
                         jp z, FontLines
                         push bc
@@ -247,6 +265,9 @@ DoubleHeightPass2:      add de, 256*8
                         or a
                         jp z, NoDoubleHeightThisLine
                         add hl, 40                      ; TODO: Check for end of display buffer
+                        ld a, d
+                        cp $C0
+                        jp nc, Abort
                         pop bc
                         add bc, -40
                         push bc
@@ -256,6 +277,8 @@ DoubleHeightPass2:      add de, 256*8
 NoDoubleHeightThisLine: ld e, 8
                         ld a, 7
                         ld (Foreground), a
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
                         xor a
                         ld (Background1), a
                         ld (Background2), a
@@ -270,9 +293,8 @@ NoDoubleHeightThisLine: ld e, 8
                         ld (FontInUse), hl
                         pop hl
 NoNextRow:              ld (Coordinates), de
-                        call DoubleFillBuffer.Clear
 
-                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8), ((e-8)/6)=1 && (d/8)=2", $+disp
+                        zeusdatabreakpoint 2, "((e-8)/6)=0 && (d/8)=99", $+disp
                         nop
 
                         pop bc                          ; Remaining length
@@ -281,13 +303,23 @@ NoNextRow:              ld (Coordinates), de
                         ld a, b
                         or c
                         jp nz, Read
-                        pop bc
+Abort:                  pop bc
 Return:
                         PageResetBottom48K()
                         xor a
                         ld (DoFlash.Frame), a
                         inc a
                         ld (DoFlash.OnOff), a
+                        nextreg $14, $E3                ; Global L2 transparency colour
+                        nextreg $4B, $E3                ; Global sprite transparency index
+                        nextreg $4A, $00                ; Transparency fallback colour (black)
+                        ld a, (WhichLayer2)
+                        or a
+                        ld a, 9
+                        jp z, ShowLayer2
+                        ld a, 12
+ShowLayer2:             nextreg $12, a
+                        PortOut($123B, $02)             ; Show layer 2 and disable write paging
                         ld sp, [Stack]SMC
                         ret
 Colours:
@@ -298,6 +330,8 @@ Colours:
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
                         pop af
 SetColour:              and %111                        ; Extract color (0..7)
                         push bc
@@ -377,7 +411,12 @@ NewBGContinue:          ld (Background1), a
                         jp ProcessRead2
 NormalHeight:
                         push hl
-                        ld hl, Fonts.SAA5050
+                        ld a, (FontInUse+1)
+                        cp high Fonts.SAA5050
+                        jp z, NoChange1
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
+NoChange1:              ld hl, Fonts.SAA5050
 NormalHeight2:          ld (FontInUse), hl
                         ld a, 32
                         pop hl
@@ -385,7 +424,12 @@ NormalHeight2:          ld (FontInUse), hl
 DoubleHeight:
                         ld (DoubleHeightThisLine), a
                         push hl
-                        ld hl, Fonts.SAADouble
+                        ld a, (FontInUse+1)
+                        cp high Fonts.SAADouble
+                        jp z, NoChange2
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
+NoChange2:              ld hl, Fonts.SAADouble
                         jp NormalHeight2
 Escape:
                         ld a, 32
@@ -399,54 +443,13 @@ Steady:
 Steady2:                ld (IsFlashing), a
                         ld a, 32
                         jp ProcessRead2
-pend
-
-
-
-WaitKey                 proc
-                        ei
-                        push af
-                        xor a
-                        in a, ($FE)
-                        cpl
-                        and 15
-                        halt
-                        jr nz, WaitKey
-Loop:
-                        xor a
-                        in a, ($FE)
-                        cpl
-                        and 15
-                        halt
-                        jr z, Loop
-                        pop af
-                        di
-                        ret
-pend
-
-
-
-DoubleFillBuffer        proc Table:
-                        db 0, 0, 0, 0, 0, 0, 0, 0
-                        db 0, 0, 0, 0, 0, 0, 0, 0
-                        db 0, 0, 0, 0, 0, 0, 0, 0
-                        db 0, 0, 0, 0, 0, 0, 0, 0
-                        db 0, 0, 0, 0, 0, 0, 0, 0
-Clear:
-                        push af
-                        push bc
-                        push de
-                        push hl
-                        ld hl, Table
-                        ld a, -1
-                        ld (hl), a
-                        ld de, Table+1
-                        ld bc, 39
-                        ldir
-                        pop hl
-                        pop de
-                        pop bc
-                        pop af
+HeldCharX:
+                        db 0
+ReplaceHeldChar:
+                        //push af
+                        //ld a, (HeldChar)
+                        //ld (HeldCharToPrint), a
+                        //pop af
                         ret
 pend
 
@@ -464,5 +467,140 @@ PaletteL2Primary        proc Table:
                         db %111 111 11  ;   7  White
 pend
 
-//zeusprinthex $-Fonts
+
+
+DebugPrint              proc
+                        push af
+                        push bc
+                        ld b, [Char]SMC
+                        ld a, b
+                        and %1101 1111
+                        cp 128
+                        ld a, (HeldChar)
+                        jp z, NotHold
+                        bit 7, b
+                        jp z, NotHold
+                        ld a, b
+                        ld (HeldChar), a
+NotHold:                nop
+
+                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a), ((e-8)/6)=99 && (d/8)=2", $+disp
+                        nop
+
+
+                        pop bc
+                        pop af
+                        ret
+HeldChar:
+                        db 0
+pend
+
+
+LoadPage                proc                    ; Bank in a (e.g. 31), Page in b (0..7)
+                        di
+                        nextreg $56, a
+                        ld a, b
+                        add a, a
+                        add a, a
+                        add a, $C0
+                        ld h, a
+                        ld l, 0
+                        ld de, DisplayBuffer
+                        ld bc, DisplayBuffer.Length
+                        ldir
+                        MMU6(0, false)
+                        ret
+pend
+
+
+
+PageLayer2Primary       proc
+                        PageLayer2Bottom48K(9, false)
+                        ld a, 9*2
+                        ld (GetTime.Page), a
+                        ld a, (RenderBuffer.WhichLayer2)
+                        or a
+                        ret
+pend
+
+
+
+PageLayer2Secondary     proc
+                        PageLayer2Bottom48K(12, false)
+                        ld a, 12*2
+                        ld (GetTime.Page), a
+                        ld a, (RenderBuffer.WhichLayer2)
+                        or a
+                        ret
+pend
+
+
+
+GetTime                 proc
+                        ret
+                        ld a, [ShowClock]SMC
+                        or a
+                        ret z
+
+                        call esxDOS.GetDate
+                        ret c
+
+                        ld ix, DisplayBuffer+31
+                        ld (ix+0), 135                  ; Alpha white
+
+                        ld a, d
+                        and %1111 1000
+                        rrca
+                        rrca
+                        rrca                            ; hour
+
+                        ld c, -10
+                        call Na1
+                        ld (ix+1), b                    ; Hour first digit
+                        ld c, -1
+                        call Na1
+                        ld (ix+2), b                    ; Hour second digit
+                        ld (ix+3), ':'                  ; Colon
+
+                        ld a, d
+                        and %0000 0111
+                        rlca
+                        rlca
+                        rlca
+                        ld c, a
+                        ld a, e
+                        and %1110 0000
+                        rlca
+                        rlca
+                        rlca
+                        add a, c
+
+                        ld c, -10
+                        call Na1
+                        ld (ix+4), b                    ; Minute first digit
+                        ld c, -1
+                        call Na1
+                        ld (ix+5), b                    ; Minute second digit
+                        ld (ix+6), ':'                  ; Colon
+
+                        ld a, e
+                        and %0001 1111
+
+                        ld c, -10
+                        call Na1
+                        ld (ix+7), b                    ; Second first digit
+                        ld c, -1
+                        call Na1
+                        ld (ix+8), b                    ; Second second digit
+
+                        ret
+Na1:                    ld b, '0'-1
+Na2:                    inc b
+                        add a, c
+                        jp c, Na2
+                        sub c                           ; works as add 100/10/1
+                        ret                             ; result is in b
+Page:
+                        db 0
+pend
 

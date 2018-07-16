@@ -213,14 +213,16 @@ mend
 
 
 
-PageLayer2Bottom48K     macro(Page)
+PageLayer2Bottom48K     macro(Page, Switch)
                         nextreg $50, (Page*2)+0         ; MMU page bottom 48K to layer 2
                         nextreg $51, (Page*2)+1
                         nextreg $52, (Page*2)+2
                         nextreg $53, (Page*2)+3
                         nextreg $54, (Page*2)+4
                         nextreg $55, (Page*2)+5
-                        nextreg $12, Page               ; Set layer 2 base page
+                        if Switch
+                          nextreg $12, Page               ; Set layer 2 base page
+                        endif
 mend
 
 

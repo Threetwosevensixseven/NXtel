@@ -19,6 +19,8 @@ FA_READ                 equ $01
 FA_APPEND               equ $06
 FA_OVERWRITE            equ $0C
 
+M_GETDATE               equ $8E
+
 esx_seek_set            equ $00         ; set the fileposition to BCDE
 esx_seek_fwd            equ $01         ; add BCDE to the fileposition
 esx_seek_bwd            equ $02         ; subtract BCDE from the fileposition
@@ -166,5 +168,19 @@ Name:                   ds 256                          ; Buffer to store names,
 ::ha:
 Handle:                 ds 1                            ; File handle (0..255)
 ::te:                   ds 3
+
+
+; Function:             Get the current date/time
+; In:                   None
+; Out:                  Fc=0 if RTC present and providing valid date/time, and:
+;                         BC=date, in MS-DOS format
+;                         DE=time, in MS-DOS format
+;                       Fc=1 if no RTC, or invalid date/time, and:
+;                         BC=0
+;                         DE=0
+;
+GetDate:
+                        Rst8(esxDOS.M_GETDATE)          ; Get the current date/time
+                        ret
 pend
 
