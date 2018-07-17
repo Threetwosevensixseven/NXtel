@@ -27,21 +27,33 @@ Start:
                         ld a, $BE
                         ld i, a
                         im 2
+
                         Turbo(MHz14)
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
                         PageBankZX(0, false)            ; Force MMU reset
                         call ClsAttr
+                        MMU7(30, false)
                         ei
                         halt
                         di
                         call SetupDataFileSystem
                         call LoadResources
                         di
-
                         MMU7(30, false)
                         call DefinePalettes
+                        call InitLayer2
+                        NextRegRead(%00)
+                        //cp 10                           ; Next
+                        //jp z, IsNext
+                        cp 8                            ; Not ZEsarUX
+                        jp nz, IsNext
+                        ld a, $C9                       ; ret
+                        ld (GetTime), a                 ; Disable clock if not Next
+IsNext:                 ld a, $CD                       ; call NN
+                        ld (PrintTimeCall), a
+
 NextPage:
                         ld a, (Pages.Current)           ; Load next page
                         inc a
@@ -101,6 +113,7 @@ org $BFBF
                         push de
                         push hl
                         call DoFlash
+PrintTimeCall:          ld hl, PrintTime
                         pop hl
                         pop de
                         pop bc

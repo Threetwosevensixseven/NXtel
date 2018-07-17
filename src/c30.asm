@@ -72,12 +72,12 @@ RenderBuffer            proc
                         call nz, PageLayer2Secondary
                         call ClsLayer2
 
-                        ld hl, DisplayBuffer.Length
+                        ld hl, [PrintLength]DisplayBuffer.Length
                         //ld hl, 880
                         push hl
                         ld hl, Fonts.SAA5050
                         ld (FontInUse), hl
-                        ld hl, DisplayBuffer
+                        ld hl, [PrintStart]DisplayBuffer
                         ld a, 32
                         ld (DebugPrint.HeldChar), a
                         xor a
@@ -536,6 +536,17 @@ pend
 
 
 
+InitLayer2              proc
+                        PageLayer2Bottom48K(12, false)
+                        FillLDIR($0000, $C000, $00)
+                        PageLayer2Bottom48K(9, false)
+                        FillLDIR($0000, $C000, $00)
+                        PageResetBottom48K()
+                        ret
+pend
+
+
+
 GetTime                 proc
                         ld a, [ShowClock]SMC
                         or a
@@ -601,5 +612,27 @@ Na2:                    inc b
                         ret                             ; result is in b
 Page:
                         db 0
+pend
+
+
+
+PrintTime               proc
+                        ld a, (RenderBuffer.WhichLayer2)
+                        or a
+                        ld a, 9*2
+                        jp z, Bank18
+                        ld a, 12*2
+Bank18:                 nextreg $50, a
+                        ld hl, DisplayBuffer+31
+                        ld (RenderBuffer.PrintStart), hl
+                        ld hl, 9
+                        ld (RenderBuffer.PrintLength), hl
+                        //call RenderBuffer
+                        ld hl, DisplayBuffer
+                        ld (RenderBuffer.PrintStart), hl
+                        ld hl, DisplayBuffer.Length
+                        ld (RenderBuffer.PrintLength), hl
+                        nextreg $50, 255
+                        ret
 pend
 

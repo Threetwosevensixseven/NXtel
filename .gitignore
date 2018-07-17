@@ -2,3 +2,9 @@
 /src/ZeusBak
 /fonts/ZeusBak
 /bin/NexTel.snx
+*.suo
+*.user
+/server/NexTelServer/bin
+/server/NexTelServer/obj
+/server/Version/bin
+/server/Version/obj

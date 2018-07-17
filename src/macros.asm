@@ -259,3 +259,13 @@ ClsAttrFull             macro(Colour)
                         ldir
 mend
 
+
+
+NextRegRead             macro(Register)
+                        ld bc, Sprite_Register_Port
+                        ld a, Register
+                        out (c), a
+                        inc b
+                        in a, (c)
+mend
+
