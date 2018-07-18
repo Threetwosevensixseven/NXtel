@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelServer", "NexTelServer\NXtelServer.csproj", "{B12E7B2E-CB44-4139-B90E-9D47BADDDBAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelServer", "NXtelServer\NXtelServer.csproj", "{B12E7B2E-CB44-4139-B90E-9D47BADDDBAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Version", "Version\Version.csproj", "{B3DC84AF-9B6F-4F7A-8801-5887BBDEA645}"
 EndProject
