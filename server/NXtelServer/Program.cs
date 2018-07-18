@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using NXtelData;
 using NXtelServer.Classes;
 
 namespace NXtelServer
@@ -24,6 +25,7 @@ namespace NXtelServer
         {
             Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             Console.WriteLine("Starting NXtel Server v" + Version);
+            //Page.Update("welcome.bin", 0, 0, "Welcome");
             new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 2380);
@@ -107,12 +109,12 @@ namespace NXtelServer
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //string output = "-- NXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
             //output += "Please input your password:\n\r";
-            var message = GetPage("title.bin");
-            SetVersion(message);
-            message = Encode7Bit(message);
+            var page = Page.Load(0, 0);
+            page.SetVersion(Version);
             client.clientState = EClientState.Logging;
-            //byte[] message = Encoding.ASCII.GetBytes(output);
-            newSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(SendData), newSocket);
+            Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+            newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length, 
+                SocketFlags.None, new AsyncCallback(SendData), newSocket);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
         }
 
@@ -245,40 +247,6 @@ namespace NXtelServer
         {
             var fn = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Pages", Name);
             return File.ReadAllBytes(fn);
-        }
-
-        private static byte[] Encode7Bit(byte[] Bytes)
-        {
-            var enc = new List<byte>();
-            foreach (var b in Bytes)
-            {
-                if ((b & 0x80) == 0x80)
-                {
-                    enc.Add(27);
-                    enc.Add(Convert.ToByte(b & 0x7F));
-                }
-                else
-                    enc.Add(b);
-            }
-            return enc.ToArray();
-        }
-
-        private static void SetVersion(byte[] Bytes)
-        {
-            for (int i = 0; i < Bytes.Length - Version.Length + 1; i++)
-            {
-                if (Convert.ToChar(Bytes[i]).ToString() == "["
-                    && Convert.ToChar(Bytes[i + 1]).ToString() == "V"
-                    && Convert.ToChar(Bytes[i + 2]).ToString() == "E"
-                    && Convert.ToChar(Bytes[i + 3]).ToString() == "]")
-                {
-                    Bytes[i] = Convert.ToByte(Version[0]);
-                    Bytes[i + 1] = Convert.ToByte(Version[1]);
-                    Bytes[i + 2] = Convert.ToByte(Version[2]);
-                    Bytes[i + 3] = Convert.ToByte(Version[3]);
-                    return;
-                }
-            }
         }
     }
 }

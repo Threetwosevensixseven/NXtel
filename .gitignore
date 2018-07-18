@@ -4,8 +4,11 @@
 /bin/NXtel.snx
 *.suo
 *.user
+/server/packages
 /server/NXtelServer/bin
 /server/NXtelServer/obj
 /server/Version/bin
 /server/Version/obj
-/server/packages
+/server/NXtelData/bin
+/server/NXtelData/obj
+
