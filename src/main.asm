@@ -139,6 +139,6 @@ PrintTimeCall:          ld hl, PrintTime
                           zeusinvoke "..\build\UploadNext.bat"
                         endif
 
-                        //zeusmem $4CFE8,"Double Height Cap D",16,true,false      ; Show layer 2 screen memory
+                        //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
                         //zeusdatabreakpoint 11, "addr=$EFE8", zeusmmu(18), $2000
 

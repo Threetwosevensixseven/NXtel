@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NexTelServer.Classes
+namespace NXtelServer.Classes
 {
     public class Client
     {

@@ -1,10 +1,11 @@
 /docs/~*.xlsx
 /src/ZeusBak
 /fonts/ZeusBak
-/bin/NexTel.snx
+/bin/NXtel.snx
 *.suo
 *.user
-/server/NexTelServer/bin
-/server/NexTelServer/obj
+/server/NXtelServer/bin
+/server/NXtelServer/obj
 /server/Version/bin
 /server/Version/obj
+/server/packages

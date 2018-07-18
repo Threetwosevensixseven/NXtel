@@ -7,9 +7,9 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using NexTelServer.Classes;
+using NXtelServer.Classes;
 
-namespace NexTelServer
+namespace NXtelServer
 {
     class Program
     {
@@ -22,15 +22,15 @@ namespace NexTelServer
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting...");
-            Version = Assembly.GetEntryAssembly().GetName().Version.MinorRevision.ToString("D4");
+            Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            Console.WriteLine("Starting NXtel Server v" + Version);
             new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 2380);
             serverSocket.Bind(endPoint);
             serverSocket.Listen(0);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
-            Console.WriteLine("Server socket listening to upcoming connections on port " + endPoint.Port + "...");
+            Console.WriteLine("Listening for connections on port " + endPoint.Port + "...");
         }
 
         private static void backgroundThread()
@@ -107,7 +107,7 @@ namespace NexTelServer
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //string output = "-- NEXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
             //output += "Please input your password:\n\r";
-            var message = GetPage("wenstar-0.bin");
+            var message = GetPage("title.bin");
             SetVersion(message);
             message = Encode7Bit(message);
             client.clientState = EClientState.Logging;
