@@ -160,7 +160,7 @@ P36Size = $-$C000
 output_bin "..\banks\Bank36.bin", zeusmmu(36), P36Size
 zeusprinthex "P36Size = ", P36Size
 
-; PAGE 37 - BANK36.BIN - Pages G
+; PAGE 37 - BANK37.BIN - Pages G
 org $C000
 dispto zeusmmu(37)
 Pages37 proc
@@ -184,6 +184,31 @@ pend
 P37Size = $-$C000
 output_bin "..\banks\Bank37.bin", zeusmmu(37), P37Size
 zeusprinthex "P37Size = ", P37Size
+
+; PAGE 38 - BANK38.BIN - Pages H
+org $C000
+dispto zeusmmu(38)
+Pages38 proc
+  align 1024
+  P0: import_bin "..\pages\welcome-website.bin"
+  align 1024
+  P1: import_bin "..\pages\double-height-copy-down.bin"
+  align 1024
+  P2: import_bin "..\pages\demo1\sh019.bin"
+  align 1024
+  P3: import_bin "..\pages\demo1\aj001.bin"
+  align 1024
+  P4: import_bin "..\pages\demo1\jellica003.bin"
+  align 1024
+  P5: import_bin "..\pages\demo1\title.bin"
+  align 1024
+  P6: import_bin "..\pages\demo1\credits.bin"
+  align 1024
+  P7: import_bin "..\pages\demo1\blank.bin"
+pend
+P38Size = $-$C000
+output_bin "..\banks\Bank38.bin", zeusmmu(38), P38Size
+zeusprinthex "P38Size = ", P38Size
 
 org MMUTemp16
 disp 0

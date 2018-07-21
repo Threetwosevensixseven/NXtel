@@ -6,12 +6,13 @@ Resources proc Table:
   ; Bank  FName  Index  Notes
   db  30,    30  ;   0  Layer 2 Teletext renderer
   //db  31,    31  ;   1  Pages31.P0 to Pages31.P7
-  db  32,    32  ;   2  Pages32.P0 to Pages32.P7
-  db  33,    33  ;   3  Pages33.P0 to Pages33.P7
+  db  32,    32  ;   1  Pages32.P0 to Pages32.P7
+  db  33,    33  ;   2  Pages33.P0 to Pages33.P7
   db  34,    34  ;   3  Pages34.P0 to Pages34.P7
-  db  35,    35  ;   3  Pages35.P0 to Pages35.P7
-  db  36,    36  ;   3  Pages36.P0 to Pages36.P7
-  db  37,    37  ;   3  Pages36.P0 to Pages36.P7
+  db  35,    35  ;   4  Pages35.P0 to Pages35.P7
+  db  36,    36  ;   5  Pages36.P0 to Pages36.P7
+  db  37,    37  ;   6  Pages37.P0 to Pages37.P7
+  db  38,    38  ;   7  Pages38.P0 to Pages38.P7
 
   struct
     Bank        ds 1
@@ -30,6 +31,8 @@ pend
 Pages proc Table:
 
   ; Bank  Slot  Duration    Notes
+
+  db  38,    1, dw 32767+NOC  ;   Welcome (website)
 
   db  37,    5, dw 350+NOC  ;   Title
   db  37,    7, dw  50+NOC  ;   Blank
