@@ -104,11 +104,11 @@ Read:
                         ld (Foreground), a
                         ld a, (IsSeparatedNext)
                         ld (IsSeparated), a
+                        xor a
+                        ld (ResetHeldCharNextTime), a
                         ld a, (hl)
                         inc hl
 ProcessRead:
-                        //bit 7, a
-                        //call nz, ReplaceHeldChar
                         cp 32
                         jp c, Escape                    ; Skip ASCII ctrl codes for now
                         cp 128
@@ -300,10 +300,17 @@ NoDoubleHeightThisLine: ld e, 8
                         pop hl
 NoNextRow:              ld (Coordinates), de
 
+                        ld a, [ResetHeldCharNextTime]SMC
+                        or a
+                        jp z, NoResetHeldChar
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
+NoResetHeldChar:
+
                         // Breaks at the end of the previous char
                         //                  Coordinates: XX,         YY
                         //                               ||          ||
-                        zeusdatabreakpoint 2, "((e-8)/6)= 7 && (d/8)= 2", $+disp
+                        zeusdatabreakpoint 2, "((e-8)/6)=37 && (d/8)= 2", $+disp
                         nop
 
                         pop bc                          ; Remaining length
@@ -335,12 +342,19 @@ Colours:
                         cp 136
                         jp nc, Graphics
                         push af
+
+                        ld a, (OrOffset)
+                        bit 7, a
+                        jp z, NotGfx
+                        ld a, 1
+                        ld (ResetHeldCharNextTime), a
+NotGfx:
+
+
                         xor a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
-                        ld a, 32
-                        ld (DebugPrint.HeldChar), a
                         pop af
 SetColour:              and %111                        ; Extract color (0..7)
                         push bc
@@ -350,8 +364,7 @@ SetColour:              and %111                        ; Extract color (0..7)
                         or b
                         ld (NextForeground), a          ; Set foreground colour
                         pop bc
-                        ld a, 32
-                        jp ProcessRead2
+                        jp PrintHeldChar
 Graphics:
                         cp 136
                         jp z, Flash
@@ -362,9 +375,9 @@ Graphics:
                         cp 141
                         jp z, DoubleHeight
                         cp 145
-                        jp c, Escape                    ; Skip 136-144 for now
+                        jp c, NotYetImplemented         ; Skip 136-144 for now
                         cp 152
-                        jp z, Escape                    ; Skip 152 for now (Conceal)
+                        jp z, NotYetImplemented         ; Skip 152 for now (Conceal)
                         cp 153
                         jp z, Contiguous
                         cp 154
@@ -462,14 +475,6 @@ Steady:
                         xor a
 Steady2:                ld (IsFlashing), a
                         jp PrintHeldChar
-//HeldCharX:
-//                        db 0
-//ReplaceHeldCharX:
-                        //push af
-                        //ld a, (HeldChar)
-                        //ld (HeldCharToPrint), a
-                        //pop af
-                        //ret
 Hold:
                         ld a, 1
                         ld (HoldActive), a
@@ -487,14 +492,13 @@ NextForeground:
                         db 0
 IsSeparatedNext:
                         db 0
+NotYetImplemented:
 PrintHeldChar:
                         ld a, (HoldActive)
                         or a
                         ld a, 32
                         jp z, ProcessRead2
                         ld a, (DebugPrint.HeldChar)
-                        //jp ProcessRead2                 ; This needs to jump to something with a separate hold OR/AND
-
                         push hl
                         cp 64
                         jp c, NotBlastThroughHeld
@@ -517,11 +521,9 @@ SetContiguous2:         ld a, %1111 1111                ; Set Contiguous AND
                         ld (OrOffset2), a
 GraphicsContinue2:
                         pop af
-
                         or [OrOffset2]SMC
                         and [AndOffset2]SMC              ; Blast through chars are 64..95 inclusive
                         jp BlastThrough
-
 pend
 
 
