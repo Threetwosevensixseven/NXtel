@@ -32,7 +32,7 @@ Pages proc Table:
 
   ; Bank  Slot  Duration    Notes
 
-  db  38,    1, dw 32767+NOC  ;   Welcome (website)
+  db  33,    1, dw 32767+NOC;   Engineering Test Page
 
   db  37,    5, dw 350+NOC  ;   Title
   db  37,    7, dw  50+NOC  ;   Blank

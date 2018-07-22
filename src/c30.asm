@@ -80,17 +80,30 @@ RenderBuffer            proc
                         ld hl, [PrintStart]DisplayBuffer
                         ld a, 32
                         ld (DebugPrint.HeldChar), a
+                        ld a, $FF
+                        ld (Foreground), a
+                        ld (NextForeground), a
                         xor a
                         ld (DoubleHeightThisLine), a
                         ld (IsSeparated), a
+                        ld (IsSeparatedForHold), a
+                        ld (IsSeparatedNext), a
                         ld (Background1), a
                         ld (Background2), a
                         ld (Background3), a
                         ld (IsFlashing), a
+                        ld (HoldActive), a
+                        ld (HoldNext), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
 Read:
+                        ld a, (HoldNext)
+                        ld (HoldActive), a
+                        ld a, (NextForeground)
+                        ld (Foreground), a
+                        ld a, (IsSeparatedNext)
+                        ld (IsSeparated), a
                         ld a, (hl)
                         inc hl
 ProcessRead:
@@ -110,18 +123,6 @@ ProcessRead2:
 NotBlastThrough:        or [OrOffset]SMC
                         and [AndOffset]SMC              ; Blast through chars are 64..95 inclusive
 BlastThrough:
-                        jp HeldCharThisTime // SKIP
-
-                        push af
-                        ld a, [HeldCharToPrint]SMC
-                        or a
-                        jp z, NoHeldCharThisTime
-                        pop af
-                        ld a, (HeldCharToPrint)
-                        jp HeldCharThisTime
-NoHeldCharThisTime:     pop af
-HeldCharThisTime:
-
                         ex af, af'
                         ld hl, [FontInUse]Fonts.SAA5050
                         push af
@@ -277,6 +278,7 @@ DoubleHeightPass2:      add de, 256*8
 NoDoubleHeightThisLine: ld e, 8
                         ld a, 7
                         ld (Foreground), a
+                        ld (NextForeground), a
                         ld a, 32
                         ld (DebugPrint.HeldChar), a
                         xor a
@@ -284,7 +286,11 @@ NoDoubleHeightThisLine: ld e, 8
                         ld (Background2), a
                         ld (Background3), a
                         ld (IsSeparated), a
+                        ld (IsSeparatedForHold), a
+                        ld (IsSeparatedNext), a
                         ld (IsFlashing), a
+                        ld (HoldActive), a
+                        ld (HoldNext), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
@@ -294,7 +300,10 @@ NoDoubleHeightThisLine: ld e, 8
                         pop hl
 NoNextRow:              ld (Coordinates), de
 
-                        zeusdatabreakpoint 2, "((e-8)/6)=0 && (d/8)=99", $+disp
+                        // Breaks at the end of the previous char
+                        //                  Coordinates: XX,         YY
+                        //                               ||          ||
+                        zeusdatabreakpoint 2, "((e-8)/6)= 7 && (d/8)= 2", $+disp
                         nop
 
                         pop bc                          ; Remaining length
@@ -339,7 +348,7 @@ SetColour:              and %111                        ; Extract color (0..7)
                         ld a, (Background1)
                         and %111000
                         or b
-                        ld (Foreground), a              ; Set foreground colour
+                        ld (NextForeground), a          ; Set foreground colour
                         pop bc
                         ld a, 32
                         jp ProcessRead2
@@ -364,7 +373,11 @@ Graphics:
                         jp z, BlackBG
                         cp 157
                         jp z, NewBG
-                        jp nc, Escape                   ; Skip 158-159 for now
+                        cp 158
+                        jp z, Hold
+                        cp 159
+                        jp z, Release
+                        jp nc, Escape
 ResetGraphics:          push af
                         ld a, [IsSeparated]SMC
                         or a
@@ -380,7 +393,15 @@ SetContiguous:          ld a, %1111 1111                ; Set Contiguous AND
                         ld (OrOffset), a
 GraphicsContinue:
                         pop af
-                        jp SetColour
+                        and %111                        ; Extract color (0..7)
+                        push bc
+                        ld b, a
+                        ld a, (Background1)
+                        and %111000
+                        or b
+                        ld (NextForeground), a              ; Set foreground colour
+                        pop bc
+                        jp PrintHeldChar
 Contiguous:
                         push af
                         xor a
@@ -388,8 +409,8 @@ Contiguous:
 Separated:
                         push af
                         ld a, 1
-SepSave:                ld (IsSeparated), a
-NoGfxSepz:               pop af
+SepSave:                ld (IsSeparatedNext), a
+                        pop af
                         ld a, (Foreground)
                         and %111
                         jp ResetGraphics
@@ -407,8 +428,7 @@ NewBG:
 NewBGContinue:          ld (Background1), a
                         ld (Background2), a
                         ld (Background3), a
-                        ld a, 32
-                        jp ProcessRead2
+                        jp PrintHeldChar
 NormalHeight:
                         push hl
                         ld a, (FontInUse+1)
@@ -441,16 +461,67 @@ Flash:
 Steady:
                         xor a
 Steady2:                ld (IsFlashing), a
-                        ld a, 32
-                        jp ProcessRead2
-HeldCharX:
-                        db 0
-ReplaceHeldChar:
+                        jp PrintHeldChar
+//HeldCharX:
+//                        db 0
+//ReplaceHeldCharX:
                         //push af
                         //ld a, (HeldChar)
                         //ld (HeldCharToPrint), a
                         //pop af
-                        ret
+                        //ret
+Hold:
+                        ld a, 1
+                        ld (HoldActive), a
+                        ld (HoldNext), a
+                        jp PrintHeldChar
+Release:
+                        xor a
+                        ld (HoldNext), a
+                        jp PrintHeldChar
+HoldActive:
+                        db 0
+HoldNext:
+                        db 0
+NextForeground:
+                        db 0
+IsSeparatedNext:
+                        db 0
+PrintHeldChar:
+                        ld a, (HoldActive)
+                        or a
+                        ld a, 32
+                        jp z, ProcessRead2
+                        ld a, (DebugPrint.HeldChar)
+                        //jp ProcessRead2                 ; This needs to jump to something with a separate hold OR/AND
+
+                        push hl
+                        cp 64
+                        jp c, NotBlastThroughHeld
+                        cp 96
+                        jp nc, NotBlastThroughHeld
+                        jp BlastThrough
+NotBlastThroughHeld:
+                        push af
+                        ld a, [IsSeparatedForHold]SMC
+                        or a
+                        jp z, SetContiguous2
+                        ld a, %1101 1111                ; Set Separated AND
+                        ld (AndOffset2), a
+                        ld a, %1000 0000                ; Set Separated OR
+                        ld (OrOffset2), a
+                        jp GraphicsContinue2
+SetContiguous2:         ld a, %1111 1111                ; Set Contiguous AND
+                        ld (AndOffset2), a
+                        ld a, %1000 0000                ; Set Separated OR
+                        ld (OrOffset2), a
+GraphicsContinue2:
+                        pop af
+
+                        or [OrOffset2]SMC
+                        and [AndOffset2]SMC              ; Blast through chars are 64..95 inclusive
+                        jp BlastThrough
+
 pend
 
 
@@ -472,6 +543,8 @@ pend
 DebugPrint              proc
                         push af
                         push bc
+                        ld a, (RenderBuffer.HoldActive)
+                        ld c, a
                         ld b, [Char]SMC
                         ld a, b
                         and %1101 1111
@@ -481,10 +554,15 @@ DebugPrint              proc
                         bit 7, b
                         jp z, NotHold
                         ld a, b
-                        ld (HeldChar), a
+                        cp b
+                        jp nz, HeldCharChanged
+HeldCharChangedCont:    ld (HeldChar), a
 NotHold:                nop
 
-                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a), ((e-8)/6)=99 && (d/8)=2", $+disp
+                        // Breaks during the hold graphics calculation for the current char
+                        //                                                       Coordinates: XX,         YY
+                        //                                                                    ||          ||
+                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a, c), ((e-8)/6)=99 && (d/8)= 2", $+disp
                         nop
 
 
@@ -493,6 +571,12 @@ NotHold:                nop
                         ret
 HeldChar:
                         db 0
+HeldCharChanged:
+                        push af
+                        ld a, (RenderBuffer.IsSeparated)
+                        ld (RenderBuffer.IsSeparatedForHold), a
+                        pop af
+                        jp HeldCharChangedCont
 pend
 
 
