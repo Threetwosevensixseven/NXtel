@@ -84,6 +84,7 @@ RenderBuffer            proc
                         ld (Foreground), a
                         ld (NextForeground), a
                         xor a
+                        ld (IsGraphics), a
                         ld (DoubleHeightThisLine), a
                         ld (IsSeparated), a
                         ld (IsSeparatedForHold), a
@@ -282,6 +283,7 @@ NoDoubleHeightThisLine: ld e, 8
                         ld a, 32
                         ld (DebugPrint.HeldChar), a
                         xor a
+                        ld (IsGraphics), a
                         ld (Background1), a
                         ld (Background2), a
                         ld (Background3), a
@@ -310,7 +312,9 @@ NoResetHeldChar:
                         // Breaks at the end of the previous char
                         //                  Coordinates: XX,         YY
                         //                               ||          ||
-                        zeusdatabreakpoint 2, "((e-8)/6)=37 && (d/8)= 2", $+disp
+
+                        zeusdatabreakpoint 2, "((e-8)/6)= 1 && (d/8)= 5", $+disp
+                        //zeusdatabreakpoint 2, "((((e-8)/6)>0) && (((e-8)/6)<4)) && ((d/8)= 5)", $+disp
                         nop
 
                         pop bc                          ; Remaining length
@@ -339,6 +343,8 @@ ShowLayer2:             nextreg $12, a
                         ld sp, [Stack]SMC
                         ret
 Colours:
+                        cp 128
+                        jp z, PrintHeldChar             ; Black text not allowed
                         cp 136
                         jp nc, Graphics
                         push af
@@ -359,6 +365,8 @@ NotGfx:
 SetColour:              and %111                        ; Extract color (0..7)
                         push bc
                         ld b, a
+                        xor a
+                        ld (IsGraphics), a
                         ld a, (Background1)
                         and %111000
                         or b
@@ -370,6 +378,8 @@ Graphics:
                         jp z, Flash
                         cp 137
                         jp z, Steady
+                        cp 138
+                        jp z, PrintHeldChar             ; Black graphics not allowed
                         cp 140
                         jp z, NormalHeight
                         cp 141
@@ -392,6 +402,11 @@ Graphics:
                         jp z, Release
                         jp nc, Escape
 ResetGraphics:          push af
+                        ld a, [IsGraphics]SMC
+                        or a
+                        jp nz, GraphicsContinue
+ResetGraphicsAlways:    ld a, 1
+                        ld (IsGraphics), a
                         ld a, [IsSeparated]SMC
                         or a
                         jp z, SetContiguous
@@ -402,7 +417,7 @@ ResetGraphics:          push af
                         jp GraphicsContinue
 SetContiguous:          ld a, %1111 1111                ; Set Contiguous AND
                         ld (AndOffset), a
-                        ld a, %1000 0000                ; Set Separated OR
+                        ld a, %1000 0000                ; Set Contiguous OR
                         ld (OrOffset), a
 GraphicsContinue:
                         pop af
@@ -422,11 +437,13 @@ Contiguous:
 Separated:
                         push af
                         ld a, 1
-SepSave:                ld (IsSeparatedNext), a
+SepSave:                ld (IsSeparated), a
+                        ld (IsSeparatedNext), a
                         pop af
                         ld a, (Foreground)
                         and %111
-                        jp ResetGraphics
+                        push af
+                        jp ResetGraphicsAlways
 BlackBG:
                         xor a
                         jp NewBGContinue
@@ -476,9 +493,14 @@ Steady:
 Steady2:                ld (IsFlashing), a
                         jp PrintHeldChar
 Hold:
+                        ld a, (HoldActive)
+                        or a
+                        jp nz, PrintHeldChar
                         ld a, 1
                         ld (HoldActive), a
                         ld (HoldNext), a
+                        ld a, (IsSeparatedNext)
+                        ld (IsSeparatedForHold), a
                         jp PrintHeldChar
 Release:
                         xor a
@@ -545,9 +567,15 @@ pend
 DebugPrint              proc
                         push af
                         push bc
+                        exx
+                        ld a, (RenderBuffer.IsSeparated)
+                        ld b, a                                 ; b' = IsSeparated
+                        ld a, (RenderBuffer.IsGraphics)
+                        ld c, a                                 ; c' = IsGraphics
+                        exx
                         ld a, (RenderBuffer.HoldActive)
-                        ld c, a
-                        ld b, [Char]SMC
+                        ld c, a                                 ; c = HoldActive
+                        ld b, [Char]SMC                         ; b = hold Char
                         ld a, b
                         and %1101 1111
                         cp 128
@@ -558,13 +586,13 @@ DebugPrint              proc
                         ld a, b
                         cp b
                         jp nz, HeldCharChanged
-HeldCharChangedCont:    ld (HeldChar), a
+HeldCharChangedCont:    ld (HeldChar), a                        ; a = HeldChar
 NotHold:                nop
 
                         // Breaks during the hold graphics calculation for the current char
-                        //                                                       Coordinates: XX,         YY
-                        //                                                                    ||          ||
-                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a, c), ((e-8)/6)=99 && (d/8)= 2", $+disp
+                        //                                                              Coordinates: XX,         YY
+                        //                                                                           ||          ||
+                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a, c, b', c'), ((e-8)/6)=99 && (d/8)= 2", $+disp
                         nop
 
 
@@ -650,6 +678,9 @@ GetTime                 proc
                         rrca
                         rrca                            ; hour
 
+                        cp 25
+                        jp nc, Disable
+
                         ld c, -10
                         call Na1
                         ld (ix+1), b                    ; Hour first digit
@@ -698,6 +729,10 @@ Na2:                    inc b
                         ret                             ; result is in b
 Page:
                         db 0
+Disable:
+                        ld a, $C9
+                        ld (ShowClock), a
+                        ret
 pend
 
 

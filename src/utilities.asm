@@ -34,8 +34,8 @@ Pages proc Table:
 
   db  33,    1, dw 32767+NOC;   Engineering Test Page
 
-  db  37,    5, dw 350+NOC  ;   Title
-  db  37,    7, dw  50+NOC  ;   Blank
+//  db  37,    5, dw 350+NOC  ;   Title
+//  db  37,    7, dw  50+NOC  ;   Blank
 
   db  32,    0, dw 200+CLK  ;   0
   db  32,    1, dw 200+CLK  ;   1

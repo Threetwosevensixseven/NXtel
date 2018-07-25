@@ -45,12 +45,12 @@ Start:
                         call DefinePalettes
                         call InitLayer2
                         NextRegRead(%00)
-                        //cp 10                           ; Next
-                        //jp z, IsNext
-                        cp 8                            ; Not ZEsarUX
+                        cp 10                           ; Next and CSpect 1.14.1 has clock
+                        jp z, IsNext
+                        cp 8                            ; ZEsarUX doesn't (yet)
                         jp nz, IsNext
                         ld a, $C9                       ; ret
-                        ld (GetTime), a                 ; Disable clock if not Next
+                        ld (GetTime), a                 ; Disable clock
 IsNext:                 ld a, $CD                       ; call NN
                         ld (PrintTimeCall), a
 
@@ -140,5 +140,5 @@ PrintTimeCall:          ld hl, PrintTime
                         endif
 
                         //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
-                        //zeusdatabreakpoint 11, "addr=$EFE8", zeusmmu(18), $2000
+                        //zeusdatabreakpoint 11, "addr=RenderBuffer.IsSeparated", zeusmmu(30), $2000
 
