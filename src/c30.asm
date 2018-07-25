@@ -112,6 +112,7 @@ Read:
 ProcessRead:
                         cp 32
                         jp c, Escape                    ; Skip ASCII ctrl codes for now
+                        jp z, Release2
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
 ProcessRead2:
@@ -313,7 +314,7 @@ NoResetHeldChar:
                         //                  Coordinates: XX,         YY
                         //                               ||          ||
 
-                        zeusdatabreakpoint 2, "((e-8)/6)= 1 && (d/8)= 5", $+disp
+                        zeusdatabreakpoint 2, "((e-8)/6)=27 && (d/8)= 7", $+disp
                         //zeusdatabreakpoint 2, "((((e-8)/6)>0) && (((e-8)/6)<4)) && ((d/8)= 5)", $+disp
                         nop
 
@@ -506,6 +507,13 @@ Release:
                         xor a
                         ld (HoldNext), a
                         jp PrintHeldChar
+Release2:
+                        ld a, (IsGraphics)
+                        or a
+                        ld a, 32
+                        jp z, PrintHeldChar
+                        ld (DebugPrint.HeldChar), a
+                        jp Release
 HoldActive:
                         db 0
 HoldNext:
