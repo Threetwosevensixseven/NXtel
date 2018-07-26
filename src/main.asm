@@ -24,9 +24,12 @@ Start:
                         di
                         ld iy, $5C3A
                         ld sp, Stack
-                        ld a, $BE
+                        //ld a, $BE
+                        //ld i, a
+                        //im 2
+                        ld a, $3F
                         ld i, a
-                        im 2
+                        im 1
 
                         Turbo(MHz14)
                         Border(Black)
@@ -87,6 +90,10 @@ SavePage:               ld (Pages.Current), a
 MainLoop:
                         ei
                         halt
+
+                        call DoFlash
+PrintTimeCall:          ld hl, PrintTime
+
                         ld hl, [PageTimer]SMC
                         inc hl
                         ld (PageTimer), hl
@@ -102,7 +109,7 @@ MainLoop:
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
                         include "mmu-pages.asm"
-
+/*
 org $BE00
                         loop 257
                           db $BF
@@ -113,14 +120,14 @@ org $BFBF
                         push de
                         push hl
                         call DoFlash
-PrintTimeCall:          ld hl, PrintTime
+PrintTimeCallX:         ld hl, PrintTime
                         pop hl
                         pop de
                         pop bc
                         pop af
                         ei
                         reti
-
+*/
                         if zeusver < 73
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif
