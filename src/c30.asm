@@ -314,7 +314,7 @@ NoResetHeldChar:
                         //                  Coordinates: XX,         YY
                         //                               ||          ||
 
-                        zeusdatabreakpoint 2, "((e-8)/6)=27 && (d/8)= 7", $+disp
+                        zeusdatabreakpoint 2, "((e-8)/6)=10 && (d/8)= 5", $+disp
                         //zeusdatabreakpoint 2, "((((e-8)/6)>0) && (((e-8)/6)<4)) && ((d/8)= 5)", $+disp
                         nop
 
@@ -464,6 +464,7 @@ NormalHeight:
                         push hl
                         ld a, (FontInUse+1)
                         cp high Fonts.SAA5050
+                        call nz, HeightModeChanged
                         jp z, NoChange1
                         ld a, 32
                         ld (DebugPrint.HeldChar), a
@@ -477,11 +478,20 @@ DoubleHeight:
                         push hl
                         ld a, (FontInUse+1)
                         cp high Fonts.SAADouble
+                        call nz, HeightModeChanged
                         jp z, NoChange2
                         ld a, 32
                         ld (DebugPrint.HeldChar), a
 NoChange2:              ld hl, Fonts.SAADouble
                         jp NormalHeight2
+HeightModeChanged:
+                        push af
+                        xor a
+                        ld (HoldNext), a
+                        ld a, 32
+                        ld (DebugPrint.HeldChar), a
+                        pop af
+                        ret
 Escape:
                         ld a, 32
                         push hl
