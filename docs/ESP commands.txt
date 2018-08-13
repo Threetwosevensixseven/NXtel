@@ -1,0 +1,4 @@
+AT+CWLAP to list the AP's
+AT+CWJAP="network","password" to join
+AT+CIFSR will tell you the IP address etc.
+AT+CIUPDATE to update ESP formware over the network
