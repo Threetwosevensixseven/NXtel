@@ -56,8 +56,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\DB.cs" />
-    <Compile Include="Classes\MySqlDataReaderExtensions.cs" />
+    <Compile Include="Classes\Editor.cs" />
+    <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />
+    <Compile Include="Classes\Pages.cs" />
+    <Compile Include="MySqlDataReaderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -14,3 +14,8 @@
 
 /demos/NXtelDemo2
 /demos/NexTelDemo1
+/server/.vs/config
+/server/NXtelManager/bin
+/server/NXtelManager/obj
+/server/NXtelManager/App_Data/*.mdf
+/server/NXtelManager/App_Data/*.ldf

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Version", "Version\Version.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelData", "NXtelData\NXtelData.csproj", "{CC5ED840-4AAB-4951-AE14-7625F2F55B1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelManager", "NXtelManager\NXtelManager.csproj", "{7936C73E-0EBE-413D-B7F0-D58B44D4689E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{CC5ED840-4AAB-4951-AE14-7625F2F55B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC5ED840-4AAB-4951-AE14-7625F2F55B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC5ED840-4AAB-4951-AE14-7625F2F55B1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7936C73E-0EBE-413D-B7F0-D58B44D4689E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7936C73E-0EBE-413D-B7F0-D58B44D4689E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7936C73E-0EBE-413D-B7F0-D58B44D4689E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7936C73E-0EBE-413D-B7F0-D58B44D4689E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

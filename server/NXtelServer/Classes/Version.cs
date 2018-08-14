@@ -2,7 +2,7 @@ namespace NXtelServer
 {
     public static class Version
     {
-        public const string Number = "1.1.0.19";
+        public const string Number = "1.1.0.28";
     }
 }
 

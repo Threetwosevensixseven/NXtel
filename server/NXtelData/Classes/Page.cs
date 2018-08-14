@@ -21,6 +21,22 @@ namespace NXtelData
         public byte? DateY { get; set; }
         public byte? TimeX { get; set; }
         public byte? TimeY { get; set; }
+        public bool BoxMode { get; set; }
+        public string URL { get; set; }
+
+        public Page()
+        {
+            PageID = -1;
+            URL = "";
+        }
+
+        public string SubPage
+        {
+            get
+            {
+                return ((char)Convert.ToByte(((byte)"a"[0]) + Seq)).ToString();
+            }
+        }
 
         public static Page Load(int PageNo, int Seq)
         {
@@ -34,20 +50,48 @@ namespace NXtelData
                 {
                     while (rdr.Read())
                     {
-                        item.PageID = rdr.GetInt32(rdr.GetOrdinal("PageID"));
-                        item.PageNo = rdr.GetInt32(rdr.GetOrdinal("PageNo"));
-                        item.Seq = rdr.GetInt32(rdr.GetOrdinal("Seq"));
-                        item.Title = rdr.GetString(rdr.GetOrdinal("Title"));
-                        item.Contents = (byte[])rdr["Contents"];
-                        item.DateX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateX"));
-                        item.DateY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateY"));
-                        item.TimeX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeX"));
-                        item.TimeY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeY"));
+                        item.Read(rdr);
                         break;
                     }
                 }
             }
             return item;
+        }
+
+        public static Page Load(int PageID)
+        {
+            var item = new Page();
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                string sql = "SELECT * FROM page WHERE PageID=" + PageID;
+                var cmd = new MySqlCommand(sql, con);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        item.Read(rdr);
+                        break;
+                    }
+                }
+            }
+            return item;
+        }
+
+
+        public void Read(MySqlDataReader rdr)
+        {
+            this.PageID = rdr.GetInt32("PageID");
+            this.PageNo = rdr.GetInt32("PageNo");
+            this.Seq = rdr.GetInt32("Seq");
+            this.Title = rdr.GetString("Title").Trim();
+            this.Contents = (byte[])rdr["Contents"];
+            this.URL = rdr.GetStringNullable("URL").Trim();
+            this.BoxMode = rdr.GetBoolean("BoxMode");
+            //item.DateX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateX"));
+            //item.DateY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateY"));
+            //item.TimeX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeX"));
+            //item.TimeY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeY"));
         }
 
         private static byte[] GetPage(string Name)
