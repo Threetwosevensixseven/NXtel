@@ -110,7 +110,7 @@ namespace NXtelServer
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //string output = "-- NXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
             //output += "Please input your password:\n\r";
-            var page = Page.Load(1, 0);
+            var page = Page.Load(0, 0);
             page.SetVersion(Version);
             client.clientState = EClientState.Logging;
             Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");

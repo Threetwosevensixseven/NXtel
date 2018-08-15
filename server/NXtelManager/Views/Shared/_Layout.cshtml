@@ -6,7 +6,7 @@
     <title>@ViewBag.Title - NXtel</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-
+    @RenderSection("head", required: false)
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -34,7 +34,7 @@
             <p>&copy; @DateTime.Now.Year NXtel</p>
         </footer>
     </div>
-    @RenderSection("iframe", required: false)
+    @RenderSection("editor", required: false)
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)

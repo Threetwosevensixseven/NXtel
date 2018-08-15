@@ -28,6 +28,7 @@ namespace NXtelData
         {
             PageID = -1;
             URL = "";
+            this.ConvertContentsFromURL();
         }
 
         public string SubPage
@@ -78,6 +79,36 @@ namespace NXtelData
             return item;
         }
 
+        public static int Save(Page Page)
+        {
+            if (Page == null)
+                return -1;
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                var key = Page.PageID <= 0 ? "" : "PageID,";
+                var val = Page.PageID <= 0 ? "" : "@PageID,";
+                string sql = @"INSERT INTO page
+                    (" + key + @"PageNo,Seq,Title,Contents,BoxMode,URL)
+                    VALUES(" + val + @"@PageNo,@Seq,@Title,@Contents,@BoxMode,@URL)
+                    ON DUPLICATE KEY UPDATE
+                    PageNo=@PageNo,Seq=@Seq,Title=@Title,BoxMode=@BoxMode,URL=@URL;
+                    SELECT LAST_INSERT_ID();";
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("PageID", Page.PageID);
+                cmd.Parameters.AddWithValue("PageNo", Page.PageNo);
+                cmd.Parameters.AddWithValue("Seq", Page.Seq);
+                cmd.Parameters.AddWithValue("Title", (Page.Title ?? "").Trim());
+                cmd.Parameters.AddWithValue("BoxMode", Page.BoxMode);
+                cmd.Parameters.AddWithValue("URL", (Page.URL ?? "").Trim());
+                var rv = cmd.ExecuteScalar();
+                if (rv.GetType() == typeof(int))
+                    return (int)rv;
+                else
+                    return -1;
+            }
+        }
+
 
         public void Read(MySqlDataReader rdr)
         {
@@ -85,13 +116,14 @@ namespace NXtelData
             this.PageNo = rdr.GetInt32("PageNo");
             this.Seq = rdr.GetInt32("Seq");
             this.Title = rdr.GetString("Title").Trim();
-            this.Contents = (byte[])rdr["Contents"];
+            this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.BoxMode = rdr.GetBoolean("BoxMode");
             //item.DateX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateX"));
             //item.DateY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateY"));
             //item.TimeX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeX"));
             //item.TimeY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeY"));
+            this.ConvertContentsFromURL();
         }
 
         private static byte[] GetPage(string Name)
@@ -190,5 +222,44 @@ namespace NXtelData
             }
         }
 
+        public void ConvertContentsFromURL()
+        {
+            string url = (URL ?? "").Trim().Split(':').FirstOrDefault(p => p.Length == 1167 || p.Length == 1120);
+            if (url == null)
+            {
+                Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
+                return;
+            }
+            var cc = new byte[1000];
+            string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+            for (int i = 0; i < url.Length; i++)
+            {
+                int val = alphabet.IndexOf(url[i]);
+                if (val == -1)
+                {
+                    //throw new InvalidDataException("The encoded character at position i should be one from the alphabet");
+                    Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
+                    return;
+                }
+                for (int b = 0; b < 6; b++)
+                {
+                    int bit = val & (1 << (5 - b));
+                    if (bit > 0) {
+                        int cbit = (i * 6) + b;
+                        int cpos = cbit % 7;
+                        int cloc = (cbit - cpos) / 7;
+			            cc[cloc] |= Convert.ToByte(1 << (6 - cpos));
+                    }
+                }
+            }
+            if (url.Length == 1120)
+                for (int i = 960; i < 1000; i++)
+                    cc[i] = 32;
+            for (int i = 0; i < cc.Length; i++)
+                if (cc[i] < 32)
+                    cc[i] |= 128;
+            Contents = cc;
+            //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\server\conv.bin", cc);
+        }
     }
 }

@@ -1,0 +1,203 @@
+﻿html.with-iframe {
+    -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+}
+html.with-iframe body {
+    margin: 0;
+    background-color: #222;
+}
+div#a {
+    display: table;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+}
+div.b {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+/* hints toolbar ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  */
+#hints {
+    /* em width adapts to different browsers' text width whilst permitting
+    us to have the export div match the hints table width */
+    min-width: 23em;
+    /* height: 518px; -- same as #canvasframe */
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    border: 1px solid #343;
+    text-align: left;
+}
+#hints tr, #hints th, #hints td, #export {
+    vertical-align: center;
+    font-family: sans-serif;
+    line-height: 1.1;
+    font-size: 14px;
+    color: #9b9;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: -moz-none;
+        -ms-user-select: none;
+        user-select: none;
+}
+small {
+    font-size: 14px;
+}
+#hints tr, #hints th, #hints td {
+    border: 1px solid #343;
+}
+#hints th {
+    height: 18px;
+    padding: 1px 6px;
+    background-color: #343;
+    font-weight: normal;
+    text-align: center;
+    color: #797;
+    white-space: nowrap;
+}
+#hints td {
+    padding: 1px 6px;
+    text-align: right;
+    white-space: nowrap;
+}
+#hints td span {
+    float: left;
+    text-align: left;
+    color: #797;
+}
+#hints td.note {
+    text-align: center;
+}
+td a, th a, div#export a {
+    color: inherit;
+}
+[onclick] {
+    cursor: pointer;
+}
+/* glyphs table ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ */
+#hints span.esc {
+    color: #9b9;
+}
+#hints td.glyphs { /* table container */
+    padding: 0;
+}
+#hints table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+/* inner borders only for the glyphs table */
+#hints table tr {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+#hints table tr:first-child {
+    border-top: none;
+}
+#hints table td {
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+}
+#hints table td:first-child,
+#hints table td.allowblack2,
+#hints table td.allowblack3 {
+    border-left: none;
+}
+/* end inner border style */
+@@font-face {
+    font-family: 'ttkit';
+    src:url('/fonts/TeletextKit.eot');
+    src:url('/fonts/TeletextKit.eot?#iefix') format('embedded-opentype'),
+    url('/fonts/TeletextKit.woff') format('woff'),
+    url('/fonts/TeletextKit.ttf') format('truetype'),
+    url('/fonts/TeletextKit.svg#icons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.glypht:before,
+.glyphb:before,
+.glyphgs:before,
+.glyphg:before {
+    font-family: 'ttkit';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    text-decoration: none !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 19px;
+}
+.glypht:before  { content: "\e900\00a0"; } /* text glyph */
+.glyphb:before  { content: "\e901\00a0"; } /* block character glyph */
+.glyphgs:before { content: "\e902\00a0"; } /* separated graphics glyph */
+.glyphg:before  { content: "\e903\00a0"; } /* contiguous graphics glyph */
+#hints table .r:before { color: red;     }
+#hints table .g:before { color: lime;    } /* lime is #0f0, green isn't */
+#hints table .y:before { color: yellow;  }
+#hints table .b:before { color: blue;    }
+#hints table .m:before { color: magenta; }
+#hints table .c:before { color: cyan;    }
+#hints table .w:before { color: white;   }
+#hints table .k:before { color: black;   }
+#hints table td {
+    height: 26px;
+}
+#hints table td.allowblack1 span:before,
+#hints table td.allowblack2 span:before {
+text-shadow: 1px 1px 0px #343;
+}
+#hints table td.allowblack3 {
+    height: 21px;
+    padding-top: 5px;
+}
+#hints table td.allowblack3 span.ctrl {
+    color: #9b9;
+}
+#hints table tr:first-child  td {
+    /* enforce one seventh width to each cell */
+    width: 14.28%;
+}
+/* export box ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ */
+#export {
+    display: table; /* contract as small as possible */
+    /* em width adapts to different browsers' text width whilst permitting
+    us to have the export div match the hints table width */
+    min-width: 23em;
+    margin: 0 auto;
+    line-height: 1.1;
+}
+div.exportbox {
+    margin-top: 1em;
+    border: 2px solid #9b9;
+    background-color: #343;
+    padding: 5px 5px;
+}
+/* teletext canvas ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  */
+#canvasframe {
+    display: inline-block;
+    -moz-border-radius: 10px;
+        border-radius: 10px;
+    background-color: #000;
+    padding: 7px 10px;
+}
+#canvasframe canvas {
+    /* The canvas should have no padding */
+    background-color: #000;
+    margin: 0;
+    cursor: crosshair;
+    position:relative;
+    z-index: 1;
+}

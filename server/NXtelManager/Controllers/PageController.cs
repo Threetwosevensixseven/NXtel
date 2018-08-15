@@ -10,12 +10,26 @@ namespace NXtelManager.Controllers
 {
     public class PageController : Controller
     {
-        public ActionResult Edit(int ID)
+        public ActionResult Edit(int? ID)
         {
+            int id = ID ?? -1;
             var model = new PageEditModel();
-            model.Page = Page.Load(ID);
-            if (model.Page.PageID <= 0)
+            model.Page = Page.Load(id);
+            if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index", "Pages");
+            model.Editor = Editor.LoadDefault();
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(Page Page)
+        {
+            if (ModelState.IsValid)
+            {
+                Page.Save(Page);
+            }
+            var model = new PageEditModel();
+            model.Page = Page;
             model.Editor = Editor.LoadDefault();
             return View(model);
         }

@@ -34,6 +34,7 @@ table.edit textarea {
 
 table.edit td.lbl {
     font-weight: bold;
+    white-space: nowrap;
 }
 
 table.edit td.data {
