@@ -114,7 +114,7 @@ td a, th a, div#export a {
     border-left: none;
 }
 /* end inner border style */
-@@font-face {
+@font-face {
     font-family: 'ttkit';
     src:url('/fonts/TeletextKit.eot');
     src:url('/fonts/TeletextKit.eot?#iefix') format('embedded-opentype'),

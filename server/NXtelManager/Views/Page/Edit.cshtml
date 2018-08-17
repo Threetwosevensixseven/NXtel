@@ -1,11 +1,11 @@
 ﻿@model NXtelManager.Models.PageEditModel
 @{
     var page = Model.Page;
-    ViewBag.Title = (page.Title ?? "").Trim();
+    ViewBag.Title = "Edit Page";
     var btnCaption = "Edit Page";
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
-    string subPage = @page.PageID <= 0 ? "" : @page.SubPage.ToString();
+    string frame = @page.PageID <= 0 ? "" : @page.Frame;
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
@@ -20,15 +20,15 @@
             </tr>
             <tr>
                 <td class="lbl">Title:</td>
-                <td class="data" colspan="5">@Html.TextBox("PageID", page.Title, new { style = "width:100%;max-width:initial" })</td>
+                <td class="data" colspan="5">@Html.TextBox("Title", page.Title, new { maxlength = 30, style = "width:100%;max-width:initial" })</td>
             </tr>
             <tr>
                 <td class="lbl">Page No:</td>
-                <td class="data">@Html.TextBox("PageNo", pageNo)</td>
+                <td class="data">@Html.TextBox("PageNo", pageNo, new { maxlength = 10 })</td>
             </tr>
             <tr>
-                <td class="lbl">Sub Page:</td>
-                <td class="data">@Html.TextBox("SubPage", subPage)</td>
+                <td class="lbl">Frame:</td>
+                <td class="data">@Html.TextBox("Frame", frame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
             </tr>
             <tr>
                 <td class="lbl">Box Mode:</td>
@@ -40,7 +40,7 @@
             </tr>
             <tr>
                 <td class="lbl" style="vertical-align:top">
-                    <button onclick="launchEditor();return false;">@btnCaption</button>
+                    <button onclick="launchEditor();return false;" class="btn btn-default">@btnCaption</button>
                 </td>
                 <td class="data">
                     <div id="canvasframePreview">
@@ -51,8 +51,8 @@
         </tbody>
     </table>
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    <input type="submit" value="Save" class="btn btn-default" />
-    @Html.ActionLink("Back to List", "Index", "Pages")
+    <input type="submit" value="Save" class="btn btn-primary" />
+    @Html.ActionLink("Back to List", "Index")
 }
 
 @section head {

@@ -10,7 +10,7 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("Index", "Pages");
+            return RedirectToAction("Index", "Page");
             //return View();
         }
 

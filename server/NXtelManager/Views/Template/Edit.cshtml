@@ -1,0 +1,110 @@
+﻿@model NXtelManager.Models.TemplateEditModel
+@{
+    var template = Model.Template;
+    ViewBag.Title = "Edit Template";
+    var btnCaption = "Edit Template";
+    string templateID = @template.TemplateID <= 0 ? "NEW" : @template.TemplateID.ToString();
+    string x = @template.TemplateID <= 0 ? "" : @template.X.ToString();
+    string y = @template.TemplateID <= 0 ? "" : @template.Y.ToString();
+    string size = @template.TemplateID <= 0 ? "" : @template.Size.ToString();
+    string dateX = (@template.TemplateID <= 0 || template.DateX == null) ? "" : @template.DateX.ToString();
+    string dateY = (@template.TemplateID <= 0 || template.DateY == null) ? "" : @template.DateY.ToString();
+    string timeX = (@template.TemplateID <= 0 || template.TimeX == null) ? "" : @template.TimeX.ToString();
+    string timeY = (@template.TemplateID <= 0 || template.TimeY == null) ? "" : @template.TimeY.ToString();
+    string containerX = (@template.TemplateID <= 0 || template.ContainerX == null) ? "" : @template.ContainerX.ToString();
+    string containerY = (@template.TemplateID <= 0 || template.ContainerY == null) ? "" : @template.ContainerY.ToString();
+    string containerW = (@template.TemplateID <= 0 || template.ContainerW == null) ? "" : @template.ContainerW.ToString();
+    string containerH = (@template.TemplateID <= 0 || template.ContainerH == null) ? "" : @template.ContainerW.ToString();
+}
+<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Message</h3>
+@using (Html.BeginForm("Edit", "Template", new { id = template.TemplateID }))
+{
+    @Html.AntiForgeryToken()
+    <table id="tblEdit" class="edit">
+        <tbody>
+            <tr>
+                <td class="lbl">Template ID:</td>
+                <td class="data" colspan="5">@templateID@Html.Hidden("PageID", @template.TemplateID)</td>
+            </tr>
+            <tr>
+                <td class="lbl">Description:</td>
+                <td class="data" colspan="5">@Html.TextBox("Description", template.Description, new { maxlength = 30, style = "width:100%;max-width:initial" })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Template X:</td>
+                <td class="data">@Html.TextBox("X", x, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Template Y:</td>
+                <td class="data">@Html.TextBox("Y", y, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Size:</td>
+                <td class="data">@Html.TextBox("Size", size, new { maxlength = 4 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">URL:</td>
+                <td class="data">@Html.TextArea("URL", template.URL)</td>
+            </tr>
+            <tr>
+                <td class="lbl" style="vertical-align:top">
+                    <button onclick="launchEditor();return false;" class="btn btn-default">@btnCaption</button>
+                </td>
+                <td class="data">
+                    <div id="canvasframePreview">
+                        <canvas id="framePreview" width="960" height="1000" style="width: 576px; height: 500px;"></canvas>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="lbl">Date X:</td>
+                <td class="data">@Html.TextBox("DateX", dateX, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Date Y:</td>
+                <td class="data">@Html.TextBox("DateY", dateY, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Time X:</td>
+                <td class="data">@Html.TextBox("TimeX", timeX, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Time Y:</td>
+                <td class="data">@Html.TextBox("TimeY", timeY, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Container X:</td>
+                <td class="data">@Html.TextBox("ContainerX", containerX, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Container Y:</td>
+                <td class="data">@Html.TextBox("ContainerY", containerY, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Container W:</td>
+                <td class="data">@Html.TextBox("ContainerW", containerW, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">Container H:</td>
+                <td class="data">@Html.TextBox("ContainerH", containerH, new { maxlength = 2 })</td>
+            </tr>
+       </tbody>
+    </table>
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <input type="submit" value="Save" class="btn btn-primary" />
+    @Html.ActionLink("Back to List", "Index")
+}
+
+@section head {
+    <link type="text/css" rel="stylesheet" href="~/Content/teletext.css" />
+}
+
+@section editor {
+    @Html.Partial("_Editor")
+}
+
+@section Scripts {
+    <script type="text/javascript" src="~/Scripts/teletext-editor.js"></script>
+    <script type="text/javascript" src="~/Scripts/editor.js"></script>
+}

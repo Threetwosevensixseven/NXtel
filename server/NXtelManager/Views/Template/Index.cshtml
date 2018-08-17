@@ -1,0 +1,22 @@
+﻿@model NXtelData.Templates
+@{
+    ViewBag.Title = "Templates";
+}
+<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Message</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Template</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (NXtelData.Template template in Model)
+        {
+            <tr>
+                <td>@Html.ActionLink(@template.Description, "Edit", "Template", new { id = template.TemplateID }, null)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.ActionLink("New Template", "Edit", "Template")

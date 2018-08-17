@@ -14,7 +14,7 @@ namespace NXtelData
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM page ORDER BY PageNo,Seq;";
+                string sql = "SELECT * FROM page ORDER BY PageNo,FrameNo;";
                 var cmd = new MySqlCommand(sql, con);
                 using (var rdr = cmd.ExecuteReader())
                 {

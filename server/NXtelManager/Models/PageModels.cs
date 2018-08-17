@@ -9,6 +9,5 @@ namespace NXtelManager.Models
     public class PageEditModel
     {
         public Page Page { get; set; }
-        public Editor Editor { get; set; }
     }
 }

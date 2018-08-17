@@ -10,14 +10,19 @@ namespace NXtelManager.Controllers
 {
     public class PageController : Controller
     {
+        public ActionResult Index()
+        {
+            var pages = Pages.Load();
+            return View(pages);
+        }
+
         public ActionResult Edit(int? ID)
         {
             int id = ID ?? -1;
             var model = new PageEditModel();
             model.Page = Page.Load(id);
             if (id != -1 && model.Page.PageID <= 0)
-                return RedirectToAction("Index", "Pages");
-            model.Editor = Editor.LoadDefault();
+                return RedirectToAction("Index");
             return View(model);
         }
 
@@ -30,7 +35,6 @@ namespace NXtelManager.Controllers
             }
             var model = new PageEditModel();
             model.Page = Page;
-            model.Editor = Editor.LoadDefault();
             return View(model);
         }
     }

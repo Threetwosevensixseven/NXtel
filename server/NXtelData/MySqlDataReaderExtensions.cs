@@ -17,6 +17,15 @@ namespace MySql.Data.MySqlClient
             return rdr.GetString(column);
         }
 
+        public static byte? GetByteNullable(this MySqlDataReader rdr, string column)
+        {
+            if (rdr == null)
+                return null;
+            if (rdr.IsDBNull(rdr.GetOrdinal(column)))
+                return null;
+            return rdr.GetByte(column);
+        }
+
         public static byte[] GetBytesNullable(this MySqlDataReader rdr, string column)
         {
             if (rdr == null)

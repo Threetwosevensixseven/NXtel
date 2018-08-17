@@ -9,33 +9,47 @@ using MySql.Data.MySqlClient;
 
 namespace NXtelData
 {
-    public class Page
+    public class Page : PageBase
     {
-        private byte[] _contents;
-        private byte[] _contents7BitEncoded;
         public int PageID { get; set; }
         public int PageNo { get; set; }
-        public int Seq { get; set; }
+        public int FrameNo { get; set; }
         public string Title { get; set; }
         public byte? DateX { get; set; }
         public byte? DateY { get; set; }
         public byte? TimeX { get; set; }
         public byte? TimeY { get; set; }
         public bool BoxMode { get; set; }
-        public string URL { get; set; }
+        public Routing Routing { get; set; }
 
         public Page()
         {
             PageID = -1;
             URL = "";
+            Routing = new Routing();
             this.ConvertContentsFromURL();
         }
 
-        public string SubPage
+        public string Frame
         {
             get
             {
-                return ((char)Convert.ToByte(((byte)"a"[0]) + Seq)).ToString();
+                return ((char)Convert.ToByte(((byte)"a"[0]) + FrameNo)).ToString();
+            }
+            set
+            {
+                if (value == null || value.Trim().Length == 0)
+                {
+                    FrameNo = 0;
+                    return;
+                }
+                char chr = (value.Trim().ToLower())[0];
+                if (chr < 'a')
+                    FrameNo = 0;
+                else if (chr > 'z')
+                    FrameNo = 25;
+                else
+                    FrameNo = chr - 'a';
             }
         }
 
@@ -97,7 +111,7 @@ namespace NXtelData
                 var cmd = new MySqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("PageID", Page.PageID);
                 cmd.Parameters.AddWithValue("PageNo", Page.PageNo);
-                cmd.Parameters.AddWithValue("Seq", Page.Seq);
+                cmd.Parameters.AddWithValue("Seq", Page.FrameNo);
                 cmd.Parameters.AddWithValue("Title", (Page.Title ?? "").Trim());
                 cmd.Parameters.AddWithValue("BoxMode", Page.BoxMode);
                 cmd.Parameters.AddWithValue("URL", (Page.URL ?? "").Trim());
@@ -109,20 +123,15 @@ namespace NXtelData
             }
         }
 
-
         public void Read(MySqlDataReader rdr)
         {
             this.PageID = rdr.GetInt32("PageID");
             this.PageNo = rdr.GetInt32("PageNo");
-            this.Seq = rdr.GetInt32("Seq");
+            this.FrameNo = rdr.GetInt32("FrameNo");
             this.Title = rdr.GetString("Title").Trim();
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.BoxMode = rdr.GetBoolean("BoxMode");
-            //item.DateX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateX"));
-            //item.DateY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("DateY"));
-            //item.TimeX = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeX"));
-            //item.TimeY = rdr.GetValueOrDefault<Byte>(rdr.GetOrdinal("TimeY"));
             this.ConvertContentsFromURL();
         }
 
@@ -130,19 +139,6 @@ namespace NXtelData
         {
             var fn = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Pages", Name);
             return File.ReadAllBytes(fn);
-        }
-
-        public byte[] Contents
-        {
-            get
-            {
-                return _contents;
-            }
-            set
-            {
-                _contents = value;
-                _contents7BitEncoded = null;
-            }
         }
 
         public static byte[] Update(string PageFile, int PageNo, int Seq, string Title)
@@ -166,29 +162,6 @@ namespace NXtelData
                 cmd.ExecuteNonQuery();
             }
             return bytes;
-        }
-
-        public byte[] Contents7BitEncoded
-        {
-            get
-            {
-                if (_contents7BitEncoded == null)
-                {
-                    var enc = new List<byte>();
-                    foreach (var b in Contents)
-                    {
-                        if ((b & 0x80) == 0x80)
-                        {
-                            enc.Add(27);
-                            enc.Add(Convert.ToByte(b & 0x7F));
-                        }
-                        else
-                            enc.Add(b);
-                    }
-                    _contents7BitEncoded = enc.ToArray();
-                }
-                return _contents7BitEncoded;
-            }
         }
 
         public void SetVersion(string Version)
@@ -220,46 +193,6 @@ namespace NXtelData
                     return;
                 }
             }
-        }
-
-        public void ConvertContentsFromURL()
-        {
-            string url = (URL ?? "").Trim().Split(':').FirstOrDefault(p => p.Length == 1167 || p.Length == 1120);
-            if (url == null)
-            {
-                Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
-                return;
-            }
-            var cc = new byte[1000];
-            string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-            for (int i = 0; i < url.Length; i++)
-            {
-                int val = alphabet.IndexOf(url[i]);
-                if (val == -1)
-                {
-                    //throw new InvalidDataException("The encoded character at position i should be one from the alphabet");
-                    Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
-                    return;
-                }
-                for (int b = 0; b < 6; b++)
-                {
-                    int bit = val & (1 << (5 - b));
-                    if (bit > 0) {
-                        int cbit = (i * 6) + b;
-                        int cpos = cbit % 7;
-                        int cloc = (cbit - cpos) / 7;
-			            cc[cloc] |= Convert.ToByte(1 << (6 - cpos));
-                    }
-                }
-            }
-            if (url.Length == 1120)
-                for (int i = 960; i < 1000; i++)
-                    cc[i] = 32;
-            for (int i = 0; i < cc.Length; i++)
-                if (cc[i] < 32)
-                    cc[i] |= 128;
-            Contents = cc;
-            //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\server\conv.bin", cc);
         }
     }
 }
