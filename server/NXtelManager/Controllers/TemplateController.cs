@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using NXtelData;
+using NXtelManager.Attributes;
 using NXtelManager.Models;
 
 namespace NXtelManager.Controllers
@@ -19,23 +20,42 @@ namespace NXtelManager.Controllers
         public ActionResult Edit(int? ID)
         {
             int id = ID ?? -1;
-            var model = new TemplateEditModel();
-            model.Template = Template.Load(id);
-            if (id != -1 && model.Template.TemplateID <= 0)
+            var template = Template.Load(id);
+            if (id != -1 && template.TemplateID <= 0)
                 return RedirectToAction("Index");
-            return View(model);
+            return View(template);
         }
 
         [HttpPost]
-        public ActionResult Edit(Template Template)
+        [MultipleButton("save")]
+        public ActionResult Save(Template Template)
         {
             if (ModelState.IsValid)
             {
-                Template.Save(Template);
+                string err;
+                if (!Template.Save(Template, out err))
+                {
+                    ModelState.AddModelError("", err);
+                    return View("Edit", Template);
+                }
+                return RedirectToAction("Index");
             }
-            var model = new TemplateEditModel();
-            model.Template = Template;
-            return View(model);
+            return View("Edit", Template);
+        }
+
+        [HttpPost]
+        [MultipleButton("delete")]
+        public ActionResult Delete(Template Template)
+        {
+            if (Template == null || Template.TemplateID <= 0)
+                return RedirectToAction("Index");
+            string err;
+            if (!Template.Delete(out err))
+            {
+                ModelState.AddModelError("", err);
+                return View("Edit", Template);
+            }
+            return RedirectToAction("Index");
         }
     }
 }

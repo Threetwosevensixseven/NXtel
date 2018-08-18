@@ -12,20 +12,14 @@ namespace NXtelData
         public string Description { get; set; }
         public byte X { get; set; }
         public byte Y { get; set; }
-        public int Size { get; set; }
-        public byte? DateX { get; set; }
-        public byte? DateY { get; set; }
-        public byte? TimeX { get; set; }
-        public byte? TimeY { get; set; }
-        public byte? ContainerX { get; set; }
-        public byte? ContainerY { get; set; }
-        public byte? ContainerW { get; set; }
-        public byte? ContainerH { get; set; }
+        public byte Width { get; set; }
+        public byte Height { get; set; }
+        public string Expression { get; set; }
 
         public Template()
         {
             TemplateID = -1;
-            Description = "";
+            Description = Expression = "";
         }
 
         public static Template Load(int TemplateID)
@@ -48,34 +42,116 @@ namespace NXtelData
             return item;
         }
 
-        public static int Save(Template Template)
+        public static bool Save(Template Template, out string Err)
         {
-            if (Template == null)
-                return -1;
-            //using (var con = new MySqlConnection(DBOps.ConnectionString))
-            //{
-            //    con.Open();
-            //    var key = Page.TemplateID <= 0 ? "" : "TemplateID,";
-            //    var val = Page.TemplateID <= 0 ? "" : "@TemplateID,";
-            //    string sql = @"INSERT INTO template
-            //        (" + key + @"PageNo,Seq,Title,Contents,BoxMode,URL)
-            //        VALUES(" + val + @"@PageNo,@Seq,@Title,@Contents,@BoxMode,@URL)
-            //        ON DUPLICATE KEY UPDATE
-            //        PageNo=@PageNo,Seq=@Seq,Title=@Title,BoxMode=@BoxMode,URL=@URL;
-            //        SELECT LAST_INSERT_ID();";
-            //    var cmd = new MySqlCommand(sql, con);
-            //    cmd.Parameters.AddWithValue("PageID", Page.TemplateID);
-            //    cmd.Parameters.AddWithValue("PageNo", Page.PageNo);
-            //    cmd.Parameters.AddWithValue("Seq", Page.FrameNo);
-            //    cmd.Parameters.AddWithValue("Title", (Page.Title ?? "").Trim());
-            //    cmd.Parameters.AddWithValue("BoxMode", Page.BoxMode);
-            //    cmd.Parameters.AddWithValue("URL", (Page.URL ?? "").Trim());
-            //    var rv = cmd.ExecuteScalar();
-            //    if (rv.GetType() == typeof(int))
-            //        return (int)rv;
-            //    else
-                    return -1;
-            //}
+            Err = "";
+            try
+            {
+                if (Template.TemplateID <= 0)
+                    return Template.Create(out Err);
+                else
+                    return Template.Update(out Err);
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Create(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"INSERT INTO template
+                    (Description,X,Y,Width,Height,Expression,URL,Contents)
+                    VALUES(@Description,@X,@Y,@Width,@Height,@Expression,@URL,@Contents);
+                    SELECT LAST_INSERT_ID();";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
+                    cmd.Parameters.AddWithValue("X", X);
+                    cmd.Parameters.AddWithValue("Y", Y);
+                    cmd.Parameters.AddWithValue("Width", Width);
+                    cmd.Parameters.AddWithValue("Height", Height);
+                    cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
+                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                    cmd.Parameters.AddWithValue("Contents", Contents);
+                    int rv = cmd.ExecuteScalarInt32();
+                    if (rv > 0)
+                        TemplateID = rv;
+                    if (TemplateID <= 0)
+                        Err = "The template could not be saved.";
+                    return TemplateID > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Update(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"UPDATE template
+                    SET Description=@Description,X=@X,Y=@Y,Width=@Width,Height=@Height,
+                    Expression=@Expression,URL=@URL,Contents=@Contents
+                    WHERE TemplateID=@TemplateID;
+                    SELECT ROW_COUNT();";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("TemplateID", TemplateID);
+                    cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
+                    cmd.Parameters.AddWithValue("X", X);
+                    cmd.Parameters.AddWithValue("Y", Y);
+                    cmd.Parameters.AddWithValue("Width", Width);
+                    cmd.Parameters.AddWithValue("Height", Height);
+                    cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
+                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                    cmd.Parameters.AddWithValue("Contents", Contents);
+                    int rv = cmd.ExecuteScalarInt32();
+                    if (rv <= 0)
+                        Err = "The template could not be saved.";
+                    return rv > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Delete(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"DELETE FROM template
+                    WHERE TemplateID=@TemplateID;";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("TemplateID", TemplateID);
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
         }
 
         public void Read(MySqlDataReader rdr)
@@ -84,15 +160,9 @@ namespace NXtelData
             this.Description = rdr.GetString("Description").Trim();
             this.X = rdr.GetByte("X");
             this.Y = rdr.GetByte("Y");
-            this.Size = rdr.GetInt32("Size");
-            this.DateX = rdr.GetByteNullable("DateX");
-            this.DateY = rdr.GetByteNullable("DateY");
-            this.TimeX = rdr.GetByteNullable("TimeX");
-            this.TimeY = rdr.GetByteNullable("TimeY");
-            this.ContainerX = rdr.GetByteNullable("ContainerX");
-            this.ContainerY = rdr.GetByteNullable("ContainerY");
-            this.ContainerW = rdr.GetByteNullable("ContainerW");
-            this.ContainerH = rdr.GetByteNullable("ContainerH");
+            this.Width = rdr.GetByte("Width");
+            this.Height = rdr.GetByte("Height");
+            this.Expression = rdr.GetStringNullable("Expression").Trim();
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.ConvertContentsFromURL();

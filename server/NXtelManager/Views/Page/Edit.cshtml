@@ -1,6 +1,6 @@
-﻿@model NXtelManager.Models.PageEditModel
+﻿@model NXtelData.Page
 @{
-    var page = Model.Page;
+    var page = Model;
     ViewBag.Title = "Edit Page";
     var btnCaption = "Edit Page";
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
@@ -9,7 +9,7 @@
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
-@using (Html.BeginForm("Edit", "Page", new { id = page.PageID }))
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
     <table id="tblEdit" class="edit">
@@ -50,9 +50,10 @@
             </tr>
         </tbody>
     </table>
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    <input type="submit" value="Save" class="btn btn-primary" />
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
+    <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this page?');" />
+    @Html.ActionLink("Back to Page List", "Index")
 }
 
 @section head {

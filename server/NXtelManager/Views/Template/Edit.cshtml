@@ -1,20 +1,13 @@
-﻿@model NXtelManager.Models.TemplateEditModel
+﻿@model NXtelData.Template
 @{
-    var template = Model.Template;
+    var template = Model;
     ViewBag.Title = "Edit Template";
     var btnCaption = "Edit Template";
     string templateID = @template.TemplateID <= 0 ? "NEW" : @template.TemplateID.ToString();
     string x = @template.TemplateID <= 0 ? "" : @template.X.ToString();
     string y = @template.TemplateID <= 0 ? "" : @template.Y.ToString();
-    string size = @template.TemplateID <= 0 ? "" : @template.Size.ToString();
-    string dateX = (@template.TemplateID <= 0 || template.DateX == null) ? "" : @template.DateX.ToString();
-    string dateY = (@template.TemplateID <= 0 || template.DateY == null) ? "" : @template.DateY.ToString();
-    string timeX = (@template.TemplateID <= 0 || template.TimeX == null) ? "" : @template.TimeX.ToString();
-    string timeY = (@template.TemplateID <= 0 || template.TimeY == null) ? "" : @template.TimeY.ToString();
-    string containerX = (@template.TemplateID <= 0 || template.ContainerX == null) ? "" : @template.ContainerX.ToString();
-    string containerY = (@template.TemplateID <= 0 || template.ContainerY == null) ? "" : @template.ContainerY.ToString();
-    string containerW = (@template.TemplateID <= 0 || template.ContainerW == null) ? "" : @template.ContainerW.ToString();
-    string containerH = (@template.TemplateID <= 0 || template.ContainerH == null) ? "" : @template.ContainerW.ToString();
+    string width = @template.TemplateID <= 0 ? "" : @template.Width.ToString();
+    string height = @template.TemplateID <= 0 ? "" : @template.Height.ToString();
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
@@ -25,23 +18,11 @@
         <tbody>
             <tr>
                 <td class="lbl">Template ID:</td>
-                <td class="data" colspan="5">@templateID@Html.Hidden("PageID", @template.TemplateID)</td>
+                <td class="data" colspan="5">@templateID@Html.Hidden("TemplateID", @template.TemplateID)</td>
             </tr>
             <tr>
                 <td class="lbl">Description:</td>
                 <td class="data" colspan="5">@Html.TextBox("Description", template.Description, new { maxlength = 30, style = "width:100%;max-width:initial" })</td>
-            </tr>
-            <tr>
-                <td class="lbl">Template X:</td>
-                <td class="data">@Html.TextBox("X", x, new { maxlength = 2 })</td>
-            </tr>
-            <tr>
-                <td class="lbl">Template Y:</td>
-                <td class="data">@Html.TextBox("Y", y, new { maxlength = 2 })</td>
-            </tr>
-            <tr>
-                <td class="lbl">Size:</td>
-                <td class="data">@Html.TextBox("Size", size, new { maxlength = 4 })</td>
             </tr>
             <tr>
                 <td class="lbl">URL:</td>
@@ -58,42 +39,31 @@
                 </td>
             </tr>
             <tr>
-                <td class="lbl">Date X:</td>
-                <td class="data">@Html.TextBox("DateX", dateX, new { maxlength = 2 })</td>
+                <td class="lbl">X:</td>
+                <td class="data">@Html.TextBox("X", x, new { maxlength = 2 })</td>
             </tr>
             <tr>
-                <td class="lbl">Date Y:</td>
-                <td class="data">@Html.TextBox("DateY", dateY, new { maxlength = 2 })</td>
+                <td class="lbl">Y:</td>
+                <td class="data">@Html.TextBox("Y", y, new { maxlength = 2 })</td>
             </tr>
             <tr>
-                <td class="lbl">Time X:</td>
-                <td class="data">@Html.TextBox("TimeX", timeX, new { maxlength = 2 })</td>
+                <td class="lbl">Width:</td>
+                <td class="data">@Html.TextBox("Width", width, new { maxlength = 2 })</td>
             </tr>
             <tr>
-                <td class="lbl">Time Y:</td>
-                <td class="data">@Html.TextBox("TimeY", timeY, new { maxlength = 2 })</td>
+                <td class="lbl">Height:</td>
+                <td class="data">@Html.TextBox("Height", height, new { maxlength = 2 })</td>
             </tr>
             <tr>
-                <td class="lbl">Container X:</td>
-                <td class="data">@Html.TextBox("ContainerX", containerX, new { maxlength = 2 })</td>
-            </tr>
-            <tr>
-                <td class="lbl">Container Y:</td>
-                <td class="data">@Html.TextBox("ContainerY", containerY, new { maxlength = 2 })</td>
-            </tr>
-            <tr>
-                <td class="lbl">Container W:</td>
-                <td class="data">@Html.TextBox("ContainerW", containerW, new { maxlength = 2 })</td>
-            </tr>
-            <tr>
-                <td class="lbl">Container H:</td>
-                <td class="data">@Html.TextBox("ContainerH", containerH, new { maxlength = 2 })</td>
+                <td class="lbl">Expression:</td>
+                <td class="data">@Html.TextBox("Expression", template.Expression, new { maxlength = 100, style = "width:100%;max-width:initial" })</td>
             </tr>
        </tbody>
     </table>
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    <input type="submit" value="Save" class="btn btn-primary" />
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
+    <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this template?');" />
+    @Html.ActionLink("Back to Template List", "Index")
 }
 
 @section head {

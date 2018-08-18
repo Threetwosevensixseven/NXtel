@@ -200,8 +200,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
-    <Compile Include="Models\PageModels.cs" />
-    <Compile Include="Models\TemplateModels.cs" />
+    <Compile Include="Attributes\MultipleButtonAttribute.cs" />
     <Compile Include="MySqlInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

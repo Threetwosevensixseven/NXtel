@@ -25,7 +25,7 @@ namespace NXtelData
         public Page()
         {
             PageID = -1;
-            URL = "";
+            Title = URL = "";
             Routing = new Routing();
             this.ConvertContentsFromURL();
         }
@@ -93,33 +93,117 @@ namespace NXtelData
             return item;
         }
 
-        public static int Save(Page Page)
+        public static bool Save(Page Page, out string Err)
         {
-            if (Page == null)
-                return -1;
-            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            Err = "";
+            try
             {
-                con.Open();
-                var key = Page.PageID <= 0 ? "" : "PageID,";
-                var val = Page.PageID <= 0 ? "" : "@PageID,";
-                string sql = @"INSERT INTO page
-                    (" + key + @"PageNo,Seq,Title,Contents,BoxMode,URL)
-                    VALUES(" + val + @"@PageNo,@Seq,@Title,@Contents,@BoxMode,@URL)
-                    ON DUPLICATE KEY UPDATE
-                    PageNo=@PageNo,Seq=@Seq,Title=@Title,BoxMode=@BoxMode,URL=@URL;
-                    SELECT LAST_INSERT_ID();";
-                var cmd = new MySqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("PageID", Page.PageID);
-                cmd.Parameters.AddWithValue("PageNo", Page.PageNo);
-                cmd.Parameters.AddWithValue("Seq", Page.FrameNo);
-                cmd.Parameters.AddWithValue("Title", (Page.Title ?? "").Trim());
-                cmd.Parameters.AddWithValue("BoxMode", Page.BoxMode);
-                cmd.Parameters.AddWithValue("URL", (Page.URL ?? "").Trim());
-                var rv = cmd.ExecuteScalar();
-                if (rv.GetType() == typeof(int))
-                    return (int)rv;
+                if (Page.PageID <= 0)
+                    return Page.Create(out Err);
                 else
-                    return -1;
+                    return Page.Update(out Err);
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Create(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"INSERT INTO page
+                    (PageNo,FrameNo,Title,Contents,BoxMode,URL)
+                    VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL);
+                    SELECT LAST_INSERT_ID();";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("PageNo", PageNo);
+                    cmd.Parameters.AddWithValue("FrameNo", FrameNo);
+                    cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
+                    cmd.Parameters.AddWithValue("BoxMode", BoxMode);
+                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                    cmd.Parameters.AddWithValue("Contents", Contents);
+                    int rv = cmd.ExecuteScalarInt32();
+                    if (rv > 0)
+                        PageID = rv;
+                    if (PageID <= 0)
+                        Err = "The page could not be saved.";
+                    return PageID > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.ToLower().Contains("duplicate entry"))
+                    Err = "Page " + PageNo + Frame + " already exists.";
+                else
+                    Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Update(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"UPDATE page
+                    SET PageNo=@PageNo,FrameNo=@FrameNo,Title=@Title,BoxMode=@BoxMode,
+                    URL=@URL,Contents=@Contents
+                    WHERE PageID=@PageID;
+                    SELECT ROW_COUNT();";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("PageID", PageID);
+                    cmd.Parameters.AddWithValue("PageNo", PageNo);
+                    cmd.Parameters.AddWithValue("FrameNo", FrameNo);
+                    cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
+                    cmd.Parameters.AddWithValue("BoxMode", BoxMode);
+                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                    cmd.Parameters.AddWithValue("Contents", Contents);
+                    int rv = cmd.ExecuteScalarInt32();
+                    if (rv <= 0)
+                        Err = "The page could not be saved.";
+                    return rv > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.ToLower().Contains("duplicate entry"))
+                    Err = "Page " + PageNo + Frame + " already exists.";
+                else
+                    Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Delete(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"DELETE FROM page
+                    WHERE PageID=@PageID;";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("PageID", PageID);
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
             }
         }
 

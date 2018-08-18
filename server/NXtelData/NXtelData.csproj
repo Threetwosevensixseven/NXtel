@@ -61,10 +61,10 @@
     <Compile Include="Classes\Routing.cs" />
     <Compile Include="Classes\Template.cs" />
     <Compile Include="Classes\Templates.cs" />
+    <Compile Include="Extensions\MySqlCommandExtensions.cs" />
     <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />
     <Compile Include="Classes\Pages.cs" />
-    <Compile Include="MySqlDataReaderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
