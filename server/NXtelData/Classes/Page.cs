@@ -20,13 +20,15 @@ namespace NXtelData
         public byte? TimeX { get; set; }
         public byte? TimeY { get; set; }
         public bool BoxMode { get; set; }
-        public Routing Routing { get; set; }
+        public Templates Templates { get; set; }
+        public Routes Routing { get; set; }
 
         public Page()
         {
             PageID = -1;
             Title = URL = "";
-            Routing = new Routing();
+            Templates = new Templates();
+            Routing = new Routes();
             this.ConvertContentsFromURL();
         }
 
@@ -53,13 +55,13 @@ namespace NXtelData
             }
         }
 
-        public static Page Load(int PageNo, int Seq)
+        public static Page Load(int PageNo, int FrameNo)
         {
             var item = new Page();
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM page WHERE PageNo=" + PageNo + " AND Seq=" + Seq;
+                string sql = "SELECT * FROM page WHERE PageNo=" + PageNo + " AND FrameNo=" + FrameNo;
                 var cmd = new MySqlCommand(sql, con);
                 using (var rdr = cmd.ExecuteReader())
                 {
@@ -68,6 +70,11 @@ namespace NXtelData
                         item.Read(rdr);
                         break;
                     }
+                }
+                if (item.PageID > 0)
+                {
+                    item.Templates = Templates.LoadForPage(item.PageID, con);
+                    item.Compose();
                 }
             }
             return item;
@@ -89,6 +96,8 @@ namespace NXtelData
                         break;
                     }
                 }
+                if (item.PageID > 0)
+                    item.Templates = Templates.LoadForPage(item.PageID, con);
             }
             return item;
         }
@@ -277,6 +286,16 @@ namespace NXtelData
                     return;
                 }
             }
+        }
+
+        public void Compose()
+        {
+            if (Contents == null)
+                Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
+            if (Contents.Length != 1000)
+                Contents = Pad(Contents, 1000, 32);
+            foreach (var template in Templates ?? new Templates())
+                template.Compose(this);
         }
     }
 }

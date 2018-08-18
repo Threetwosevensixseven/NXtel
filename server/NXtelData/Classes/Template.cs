@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using MySql.Data.MySqlClient;
 
@@ -15,6 +17,7 @@ namespace NXtelData
         public byte Width { get; set; }
         public byte Height { get; set; }
         public string Expression { get; set; }
+        public int Sequence { get; set; }
 
         public Template()
         {
@@ -166,6 +169,43 @@ namespace NXtelData
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.ConvertContentsFromURL();
+        }
+
+        public void Compose(Page Page)
+        {
+            if (Page == null)
+                return;
+            if (Contents == null)
+                Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
+            if (Contents.Length != 1000)
+                Contents = Pad(Contents, 1000, 32);
+            string val = "";
+            var now = DateTime.Now;
+            if ((Expression ?? "").ToLower() == "@date")
+                val = now.ToString("ddd dd MMM");
+            else if ((Expression ?? "").ToLower() == "@time")
+                val = now.ToString("HH:mm:ss");
+            else if ((Expression ?? "").ToLower() == "@year")
+                val = now.ToString("yyyy");
+            else if ((Expression ?? "").ToLower() == "@version")
+                val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
+            if (val != "")
+                val = val.PadLeft(Width);
+
+            if (Sequence == 50)
+                Debugger.Break();
+
+            int added = 0;
+            for (int y = Y; y < Y + Height; y++)
+            {
+                for (int x = X; x < X + Width; x++)
+                {
+                    byte b = 32;
+                    if (added < val.Length) b = Convert.ToByte(val[added++]);
+                    else b = GetByte(x, y);
+                    Page.SetByte(x, y, b);
+                }
+            }
         }
     }
 }

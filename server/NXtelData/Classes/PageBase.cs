@@ -91,5 +91,25 @@ namespace NXtelData
                     cc[i] |= 128;
             Contents = cc;
         }
+
+        public static byte[] Pad(byte[] Bytes, int Length, byte Value = 32)
+        {
+            var before = Bytes.Length;
+            Array.Resize<byte>(ref Bytes, Length);
+            for (int i = before; i < Bytes.Length; i++)
+                Bytes[i] = Value;
+            return Bytes;
+        }
+
+        public byte GetByte(int X, int Y)
+        {
+            return Contents[X + (Y * 40)];
+        }
+
+        public void SetByte(int X, int Y, byte Value)
+        {
+            _contents[X + (Y * 40)] = Value;
+            _contents7BitEncoded = null;
+        }
     }
 }

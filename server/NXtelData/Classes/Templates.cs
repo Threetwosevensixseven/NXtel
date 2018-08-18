@@ -28,5 +28,29 @@ namespace NXtelData
             }
             return list;
         }
+
+        public static Templates LoadForPage(int PageID, MySqlConnection ConX)
+        {
+            var list = new Templates();
+            string sql = @"SELECT t.*
+                    FROM pagetemplate pt
+                    JOIN template t ON pt.TemplateID=t.TemplateID
+                    WHERE pt.PageID=" + PageID + @"
+                    ORDER BY pt.Seq,t.TemplateID;";
+            var cmd = new MySqlCommand(sql, ConX);
+            using (var rdr = cmd.ExecuteReader())
+            {
+                int seq = 10;
+                while (rdr.Read())
+                {
+                    var item = new Template();
+                    item.Read(rdr);
+                    item.Sequence = seq;
+                    seq += 10;
+                    list.Add(item);
+                }
+            }
+            return list;
+        }
     }
 }
