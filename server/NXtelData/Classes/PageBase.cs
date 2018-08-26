@@ -111,5 +111,9 @@ namespace NXtelData
             _contents[X + (Y * 40)] = Value;
             _contents7BitEncoded = null;
         }
+
+        public virtual void Fixup()
+        {
+        }
     }
 }

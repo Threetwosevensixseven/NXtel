@@ -157,6 +157,30 @@ namespace NXtelData
             }
         }
 
+        public bool SaveForPage(int PageID, MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            string sql = @"INSERT INTO pagetemplate (PageID,TemplateID,Seq)
+                    VALUES(@PageID,@TemplateID,@Seq);";
+            var cmd = new MySqlCommand(sql, ConX);
+            cmd.Parameters.AddWithValue("PageID", PageID);
+            cmd.Parameters.AddWithValue("TemplateID", TemplateID);
+            cmd.Parameters.AddWithValue("Seq", Sequence);
+            cmd.ExecuteNonQuery();
+
+            if (openConX)
+                ConX.Close();
+
+            return true;
+        }
+
+
         public void Read(MySqlDataReader rdr)
         {
             this.TemplateID = rdr.GetInt32("TemplateID");
@@ -176,12 +200,18 @@ namespace NXtelData
             if (Page == null)
                 return;
             if (Contents == null)
-                Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
-            if (Contents.Length != 1000)
-                Contents = Pad(Contents, 1000, 32);
+                Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
+            if (Contents.Length != 960)
+                Contents = Pad(Contents, 960, 32);
             string val = "";
             var now = DateTime.Now;
-            if ((Expression ?? "").ToLower() == "@date")
+            if ((Expression ?? "").ToLower() == "@pageframe")
+                val = Page.PageNo.ToString() + Page.Frame;
+            else if ((Expression ?? "").ToLower() == "@page")
+                val = Page.PageNo.ToString();
+            else if ((Expression ?? "").ToLower() == "@pageframe")
+                val = Page.Frame;
+            else if ((Expression ?? "").ToLower() == "@date")
                 val = now.ToString("ddd dd MMM");
             else if ((Expression ?? "").ToLower() == "@time")
                 val = now.ToString("HH:mm:ss");
@@ -191,10 +221,8 @@ namespace NXtelData
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
             if (val != "")
                 val = val.PadLeft(Width);
-
-            if (Sequence == 50)
-                Debugger.Break();
-
+            //if (Sequence == 50)
+            //    Debugger.Break();
             int added = 0;
             for (int y = Y; y < Y + Height; y++)
             {
@@ -206,6 +234,7 @@ namespace NXtelData
                     Page.SetByte(x, y, b);
                 }
             }
+            //Page.SetByte(5, 1, 65);
         }
     }
 }

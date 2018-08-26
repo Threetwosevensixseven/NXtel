@@ -22,11 +22,12 @@ namespace NXtelData
         public bool BoxMode { get; set; }
         public Templates Templates { get; set; }
         public Routes Routing { get; set; }
+        public string SelectedTemplates { get; set; }
 
         public Page()
         {
             PageID = -1;
-            Title = URL = "";
+            Title = URL = SelectedTemplates = "";
             Templates = new Templates();
             Routing = new Routes();
             this.ConvertContentsFromURL();
@@ -97,7 +98,10 @@ namespace NXtelData
                     }
                 }
                 if (item.PageID > 0)
+                {
                     item.Templates = Templates.LoadForPage(item.PageID, con);
+                    item.SetSelectedTemplates();
+                }
             }
             return item;
         }
@@ -143,6 +147,13 @@ namespace NXtelData
                         PageID = rv;
                     if (PageID <= 0)
                         Err = "The page could not be saved.";
+
+                    if (PageID > 0)
+                    {
+                        Templates.SaveForPage(PageID, out Err, con);
+                        return string.IsNullOrWhiteSpace(Err);
+                    }
+
                     return PageID > 0;
                 }
             }
@@ -180,6 +191,13 @@ namespace NXtelData
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The page could not be saved.";
+
+                    if (rv > 0)
+                    {
+                        Templates.SaveForPage(PageID, out Err, con);
+                        return string.IsNullOrWhiteSpace(Err);
+                    }
+
                     return rv > 0;
                 }
             }
@@ -201,8 +219,7 @@ namespace NXtelData
                 using (var con = new MySqlConnection(DBOps.ConnectionString))
                 {
                     con.Open();
-                    string sql = @"DELETE FROM page
-                    WHERE PageID=@PageID;";
+                    string sql = @"DELETE FROM page WHERE PageID=@PageID;";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("PageID", PageID);
                     cmd.ExecuteNonQuery();
@@ -291,11 +308,39 @@ namespace NXtelData
         public void Compose()
         {
             if (Contents == null)
-                Contents = Encoding.ASCII.GetBytes(new string(' ', 1000));
-            if (Contents.Length != 1000)
-                Contents = Pad(Contents, 1000, 32);
+                Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
+            if (Contents.Length != 960)
+                Contents = Pad(Contents, 960, 32);
             foreach (var template in Templates ?? new Templates())
                 template.Compose(this);
+            Contents = Pad(Contents, 960, 32);
+        }
+
+        public override void Fixup()
+        {
+            Frame = Frame;
+            Templates = new Templates();
+            Templates templates = null;
+            foreach (string cid in (SelectedTemplates ?? "").Split(','))
+            {
+                int id;
+                int.TryParse(cid, out id);
+                if (id <= 0)
+                    continue;
+                if (Templates.Any(t => t.TemplateID == id))
+                    continue;
+                if (templates == null)
+                    templates = Templates.Load();
+                var matched = templates.FirstOrDefault(t => t.TemplateID == id);
+                if (matched != null)
+                    Templates.Add(matched);
+            }
+        }
+
+        public void SetSelectedTemplates()
+        {
+            var sel = (Templates ?? new Templates()).Select(t => t.TemplateID).Distinct().OrderBy(i => i);
+            SelectedTemplates = string.Join(",", sel);
         }
     }
 }

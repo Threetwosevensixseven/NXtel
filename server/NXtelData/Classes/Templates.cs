@@ -29,9 +29,16 @@ namespace NXtelData
             return list;
         }
 
-        public static Templates LoadForPage(int PageID, MySqlConnection ConX)
+        public static Templates LoadForPage(int PageID, MySqlConnection ConX = null)
         {
             var list = new Templates();
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
             string sql = @"SELECT t.*
                     FROM pagetemplate pt
                     JOIN template t ON pt.TemplateID=t.TemplateID
@@ -50,7 +57,74 @@ namespace NXtelData
                     list.Add(item);
                 }
             }
+
+            if (openConX)
+                ConX.Close();
+
             return list;
+        }
+
+        public bool DeleteForPage(int PageID, out string Err, MySqlConnection ConX = null)
+        {
+            Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                string sql = @"DELETE FROM pagetemplate WHERE PageID=" + PageID;
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public bool SaveForPage(int PageID, out string Err, MySqlConnection ConX = null)
+        {
+            Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                var rv = DeleteForPage(PageID, out Err, ConX);
+                if (!string.IsNullOrWhiteSpace(Err))
+                    return false;
+                int seq = 10;
+                foreach (var item in this)
+                {
+                    item.Sequence = seq;
+                    item.SaveForPage(PageID, ConX);
+                    seq += 10;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
         }
     }
 }

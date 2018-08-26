@@ -20,40 +20,50 @@ namespace NXtelManager.Controllers
         public ActionResult Edit(int? ID)
         {
             int id = ID ?? -1;
-            var page = Page.Load(id);
-            if (id != -1 && page.PageID <= 0)
+            var model = new PageEditModel();
+            model.Page = Page.Load(id);
+            if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index");
-            return View(page);
+            return View(model);
         }
 
         [HttpPost]
         [MultipleButton("save")]
         public ActionResult Save(Page Page)
         {
+            PageEditModel model;
+            Page.Fixup();
             if (ModelState.IsValid)
             {
                 string err;
                 if (!Page.Save(Page, out err))
                 {
                     ModelState.AddModelError("", err);
-                    return View("Edit", Page);
+                    model = new PageEditModel();
+                    model.Page = Page;
+                    return View("Edit", model);
                 }
                 return RedirectToAction("Index");
             }
-            return View("Edit", Page);
+            model = new PageEditModel();
+            model.Page = Page;
+            return View("Edit", model);
         }
 
         [HttpPost]
         [MultipleButton("delete")]
         public ActionResult Delete(Page Page)
         {
+            PageEditModel model;
             if (Page == null || Page.PageID <= 0)
                 return RedirectToAction("Index");
             string err;
             if (!Page.Delete(out err))
             {
                 ModelState.AddModelError("", err);
-                return View("Edit", Page);
+                model = new PageEditModel();
+                model.Page = Page;
+                return View("Edit", model);
             }
             return RedirectToAction("Index");
         }

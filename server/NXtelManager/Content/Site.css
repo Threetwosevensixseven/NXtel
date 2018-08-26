@@ -55,3 +55,67 @@ html.with-iframe, html.with-iframe body {
     bottom: 0;
     top: 0px;
 }
+
+tr.ordered td {
+    background-color: #eee;
+    border-top: 2px white solid;
+    border-bottom: 2px white solid;
+    padding: 2px 3px;
+    cursor: default;
+}
+
+tr.ordered td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+tr.ordered td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding-right: 6px;
+}
+
+tr.ordered:hover td {
+    background-color: #ddd;
+}
+
+tr:first-child>td>a.ordered-btn.up, tr:last-child>td>a.ordered-btn.down {
+    visibility: hidden;
+}
+
+a.ordered-btn {
+    background: url('/Content/Images/btn-delete.png') center center no-repeat;
+    width: 16px;
+    height: 16px;
+    text-indent: -9999px;
+    display: block;
+}
+
+a.ordered-btn.up {
+    background-image: url('/Content/Images/btn-up.png');
+}
+
+a.ordered-btn.down {
+    background-image: url('/Content/Images/btn-down.png');
+}
+
+a.ordered-btn.add {
+    background-image: url('/Content/Images/btn-add.png');
+}
+
+
+a.ordered-btn:hover {
+    background-image: url('/Content/Images/btn-delete-highlight.png');
+}
+
+a.ordered-btn.up:hover {
+    background-image: url('/Content/Images/btn-up-highlight.png');
+}
+
+a.ordered-btn.down:hover {
+    background-image: url('/Content/Images/btn-down-highlight.png');
+}
+
+a.ordered-btn.add:hover {
+    background-image: url('/Content/Images/btn-add-highlight.png');
+}

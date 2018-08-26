@@ -102,7 +102,7 @@ namespace NXtelServer
 
         private static void AcceptConnection(IAsyncResult result)
         {
-            if (!newClients) return;
+            if (!newClients) return;        
             Socket oldSocket = (Socket)result.AsyncState;
             Socket newSocket = oldSocket.EndAccept(result);
             Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, EClientState.NotLogged);
