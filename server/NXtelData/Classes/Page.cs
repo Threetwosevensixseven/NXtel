@@ -23,11 +23,12 @@ namespace NXtelData
         public Templates Templates { get; set; }
         public Routes Routing { get; set; }
         public string SelectedTemplates { get; set; }
+        public string SelectedRoutes { get; set; }
 
         public Page()
         {
             PageID = -1;
-            Title = URL = SelectedTemplates = "";
+            Title = URL = SelectedTemplates = SelectedRoutes = "";
             Templates = new Templates();
             Routing = new Routes();
             this.ConvertContentsFromURL();
@@ -75,6 +76,7 @@ namespace NXtelData
                 if (item.PageID > 0)
                 {
                     item.Templates = Templates.LoadForPage(item.PageID, con);
+                    item.Routing = Routes.LoadForPage(item.PageID, con);
                     item.Compose();
                 }
             }
@@ -101,6 +103,8 @@ namespace NXtelData
                 {
                     item.Templates = Templates.LoadForPage(item.PageID, con);
                     item.SetSelectedTemplates();
+                    item.Routing = Routes.LoadForPage(item.PageID, con);
+                    item.SetSelectedRoutes();
                 }
             }
             return item;
@@ -151,7 +155,11 @@ namespace NXtelData
                     if (PageID > 0)
                     {
                         Templates.SaveForPage(PageID, out Err, con);
-                        return string.IsNullOrWhiteSpace(Err);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+                        Routing.SaveForPage(PageID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
                     }
 
                     return PageID > 0;
@@ -192,10 +200,14 @@ namespace NXtelData
                     if (rv <= 0)
                         Err = "The page could not be saved.";
 
-                    if (rv > 0)
+                    if (PageID > 0)
                     {
                         Templates.SaveForPage(PageID, out Err, con);
-                        return string.IsNullOrWhiteSpace(Err);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+                        Routing.SaveForPage(PageID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
                     }
 
                     return rv > 0;
@@ -319,6 +331,8 @@ namespace NXtelData
         public override void Fixup()
         {
             Frame = Frame;
+
+            // Templates
             Templates = new Templates();
             Templates templates = null;
             foreach (string cid in (SelectedTemplates ?? "").Split(','))
@@ -335,12 +349,54 @@ namespace NXtelData
                 if (matched != null)
                     Templates.Add(matched);
             }
+
+            // Routing
+            Routing = new Routes();
+            foreach (string rr in (SelectedRoutes ?? "").Split(','))
+            {
+                var split = rr.Split(';');
+                if (split.Length < 5)
+                    continue;
+                var route = new Route();
+                byte bVal;
+                byte.TryParse(split[0], out bVal);
+                route.KeyCode = bVal;
+                int iVal;
+                if (int.TryParse(split[1], out iVal) && iVal >= 0)
+                    route.NextPageNo = iVal;
+                route.NextFrame = split[2].Trim().ToLower();
+                bool lVal;
+                bool.TryParse((split[3] ?? "").Trim().ToLower().Replace("t", "T").Replace("f", "F"), out lVal);
+                route.GoNextPage = lVal;
+                bool.TryParse((split[4] ?? "").Trim().ToLower().Replace("t", "T").Replace("f", "F"), out lVal);
+                route.GoNextFrame = lVal;
+                var matched = Routing.FirstOrDefault(r => r.KeyCode == route.KeyCode);
+                if (matched == null)
+                    Routing.Add(route);
+            }
         }
 
         public void SetSelectedTemplates()
         {
             var sel = (Templates ?? new Templates()).Select(t => t.TemplateID).Distinct().OrderBy(i => i);
             SelectedTemplates = string.Join(",", sel);
+        }
+
+        public void SetSelectedRoutes()
+        {
+            string join = "";
+            string val = "";
+            foreach (var route in Routing ?? new Routes())
+            {
+                string sel = route.KeyCode + ";"
+                    + (route.NextPageNo == null ? "" : route.NextPageNo.ToString()) + ";"
+                    + route.NextFrame + ";"
+                    + route.GoNextPage.ToString().ToLower() + ";"
+                    + route.GoNextFrame.ToString().ToLower();
+                val += join + sel;
+                join = ",";
+            }
+            SelectedRoutes = val;
         }
     }
 }

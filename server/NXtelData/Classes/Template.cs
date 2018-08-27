@@ -180,7 +180,6 @@ namespace NXtelData
             return true;
         }
 
-
         public void Read(MySqlDataReader rdr)
         {
             this.TemplateID = rdr.GetInt32("TemplateID");

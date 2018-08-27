@@ -80,6 +80,45 @@
                     <a href="#" class="ordered ordered-btn add" title="Add template" style="display:inline-block;position:relative;top:-3px">Add</a>
                 </td>
             </tr>
+            <tr>
+                <td class="lbl" style="vertical-align:top">Routing:</td>
+                <td id="PageRouting" class="data">
+                    @Html.Hidden("SelectedRoutes", page.SelectedRoutes)
+                    <table style="display:inline">
+                        <tbody id="tbodyPageRouting">
+                            @for (int i = 0; i < page.Routing.Count; i++)
+                            {
+                                string id = "trPageRoute" + (i + 1).ToString();
+                                string kcode = page.Routing[i].KeyCode.ToString();
+                                string clsPage = (page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "page-no route-disable" : "page-no";
+                                string clsFrame = (page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "frame route-disable" : "frame";
+                                    <tr id="@id" + page.Routing[i].KeyCode class="route ordered" data-route-keycode="@kcode">
+                                    <td>
+                                        @Html.Hidden("Routing[" + i + "].KeyCode", page.Routing[i].KeyCode)
+                                        @page.Routing[i].Description
+                                    </td>
+                                    <td>@Html.TextBox("Routing[" + i + "].NextPageNo", page.Routing[i].NextPageNo, new { @class = clsPage, maxlength = 10, style = "width:75px" })</td>
+                                    <td>@Html.TextBox("Routing[" + i + "].NextFrame", page.Routing[i].NextFrame, new { @class = clsFrame, maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
+                                    <td>@Html.CheckBox("Routing[" + i + "].GoNextPage", page.Routing[i].GoNextPage, new { @class = "next-page" })&nbsp;Next&nbsp;Page</td>
+                                    <td>@Html.CheckBox("Routing[" + i + "].GoNextFrame", page.Routing[i].GoNextFrame, new { @class = "next-frame" })&nbsp;Next&nbsp;Frame</td>
+                                    <td><a href="#" class="ordered ordered-btn delete" title="Delete route">Delete</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tbody style="display:none">
+                            <tr id="trPageRouteXXX" class="route ordered">
+                                <td>@Html.DropDownList("RouteMasterListXXX", Model.Routes)</td>
+                                <td>@Html.TextBox("Routing_XXX.NextPageNo", "", new { @class = "page-no", maxlength = 10, style = "width:75px" })</td>
+                                <td>@Html.TextBox("Routing_XXX.NextFrame", "", new { @class = "frame", maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
+                                <td>@Html.CheckBox("Routing_XXX.GoNextPage", false, new { @class = "next-page" })&nbsp;Next&nbsp;Page</td>
+                                <td>@Html.CheckBox("Routing_XXX.GoNextFrame", false, new { @class = "next-frame" })&nbsp;Next&nbsp;Frame</td>
+                                <td><a href="#" class="ordered ordered-btn delete" title="Delete route">Delete</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="#" class="ordered ordered-btn add" title="Add route" style="display:inline-block;position:relative;top:-3px">Add</a>
+                </td>
+            </tr>
         </tbody>
     </table>
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
@@ -100,7 +139,14 @@
 <script type="text/javascript" src="~/Scripts/teletext-editor.js"></script>
 <script type="text/javascript" src="~/Scripts/editor.js"></script>
 <script type="text/javascript">
-    var nextTemplateID = 0;
+    var nextID = 0;
+    var checkingRoutes = false;
+
+    $(document).ready(function () {
+        $(".route-disable").each(function (index, textBox) {
+            $(textBox).prop("disabled", "disabled");
+        });
+    });
 
     $("#PageTemplates .ordered-btn.add").click(function (event) {
         event.preventDefault();
@@ -122,9 +168,31 @@
         moveTemplateDown(this);
     });
 
-    function getNextTemplateID() {
-        var rv = nextTemplateID - 1;
-        nextTemplateID = rv;
+    $("#PageRouting .ordered-btn.add").click(function (event) {
+        event.preventDefault();
+        addRoute(this);
+    });
+
+    $("#tbodyPageRouting .ordered-btn.delete").click(function (event) {
+        event.preventDefault();
+        deleteRoute(this);
+    });
+
+    $("#tbodyPageRouting .next-page").click(function (event) {
+        nextPageChecked(this);
+    });
+
+    $("#tbodyPageRouting .next-frame").click(function (event) {
+        nextFrameChecked(this);
+    });
+
+    $("#tbodyPageRouting .page-no,#tbodyPageRouting .frame").change(function (event) {
+        setSelectedRoutes(this);
+    });
+
+    function getNextID() {
+        var rv = nextID - 1;
+        nextID = rv;
         return rv.toString();
     }
 
@@ -135,7 +203,7 @@
     };
 
     function addTemplate(btn) {
-        var id = getNextTemplateID();
+        var id = getNextID();
         var html = $("#trPageTemplateXXX").outerHTML().replace(/XXX/g, id);
         $("#tbodyPageTemplates").append(html);
         $("#trPageTemplate" + id + " .ordered-btn.delete").click(function (event) {
@@ -196,6 +264,89 @@
             join = ",";
         });
         $("#SelectedTemplates").val(val);
+    }
+
+    function addRoute(btn) {
+        var id = getNextID();
+        var html = $("#trPageRouteXXX").outerHTML().replace(/XXX/g, id);
+        $("#tbodyPageRouting").append(html);
+        $("#trPageRoute" + id + " .ordered-btn.delete").click(function (event) {
+            event.preventDefault();
+            deleteRoute(this);
+        });
+        $("#trPageRoute" + id + " select").change(function (event) {
+            event.preventDefault();
+            setSelectedRoutes();
+        });
+        $("#trPageRoute" + id + " .next-page").change(function (event) {
+            nextPageChecked(this);
+        });
+        $("#trPageRoute" + id + " .next-frame").change(function (event) {
+            nextFrameChecked(this);
+        });
+        $("#trPageRoute" + id + " .page-no,#trPageRoute" + id + " .frame").change(function (event) {
+            setSelectedRoutes(this);
+        });
+        setSelectedRoutes();
+    }
+
+    function deleteRoute(btn) {
+        var row = $(btn).parents("tr.route.ordered");
+        $(row.remove());
+        setSelectedRoutes();
+    }
+
+    function nextPageChecked(ctrl) {
+        if (checkingRoutes)
+            return;
+        checkingRoutes = true;
+        var row = $(ctrl).parents("tr.route.ordered");
+        var nextPage = $(row).find(".next-page").is(":checked");
+        var nextFrame = $(row).find(".next-frame").is(":checked");
+        if (nextPage)
+            $(row).find(".next-frame").prop("checked", false);
+        if (nextPage || nextFrame)
+            $(row).find("input[type=text]").prop("disabled", "disabled");
+        else
+            $(row).find("input[type=text]").removeProp("disabled");
+        checkingRoutes = false;
+        setSelectedRoutes();
+    }
+
+    function nextFrameChecked(ctrl) {
+        if (checkingRoutes)
+            return;
+        checkingRoutes = true;
+        var row = $(ctrl).parents("tr.route.ordered");
+        var nextPage = $(row).find(".next-page").is(":checked");
+        var nextFrame = $(row).find(".next-frame").is(":checked");
+        if (nextFrame)
+            $(row).find(".next-page").prop("checked", false);     
+        if (nextPage || nextFrame)
+            $(row).find("input[type=text]").prop("disabled", "disabled");
+        else
+            $(row).find("input[type=text]").removeProp("disabled");
+        checkingRoutes = false;
+        setSelectedRoutes();
+    }
+
+    function setSelectedRoutes() {
+        var val = "";
+        var join = "";
+        $("#tbodyPageRouting tr").each(function (index, row) {
+            var id = $(row).attr("id").replace(/trPageRoute/g, "") * 1;
+            if (id > 0)
+                var keycode = $(row).data("route-keycode") * 1;
+            else
+                var keycode = $("#RouteMasterList" + id.toString()).val();
+            var pageNo = $(row).find(".page-no").val();
+            var frame = $(row).find(".frame").val();
+            var goPage = $(row).find(".next-page").is(":checked");
+            var goFrame = $(row).find(".next-frame").is(":checked");
+            val += join + keycode.toString() + ";" + pageNo + ";" + frame + ";" + goPage + ";" + goFrame;
+            join = ",";
+        });
+        $("#SelectedRoutes").val(val);
     }
     </script>
 }
