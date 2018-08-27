@@ -127,5 +127,24 @@ namespace NXtelData
             }
         }
 
+        public bool IsValid(ref byte[] Data, int Received, out Page NextPage)
+        {
+            NextPage = null;
+            for (int i = 0; i < Received; i++)
+            {
+                var b = Convert.ToByte(Data[i]);
+                var route = this.FirstOrDefault(r => r.KeyCode == b);
+                if (route != null)
+                {
+                    if (route.NextPageNo != null && route.NextFrameNo != null)
+                    {
+                        NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 }

@@ -57,6 +57,14 @@ namespace NXtelData
             }
         }
 
+        public string PageAndFrame
+        {
+            get
+            {
+                return PageNo + Frame;
+            }
+        }
+
         public static Page Load(int PageNo, int FrameNo)
         {
             var item = new Page();

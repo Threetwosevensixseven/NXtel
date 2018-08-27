@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -111,6 +112,7 @@ namespace NXtelServer
             //string output = "-- NXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
             //output += "Please input your password:\n\r";
             var page = Page.Load(0, 0);
+            client.History.Push(page);
             //page.SetVersion(Version);
             client.clientState = EClientState.Logging;
             Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
@@ -148,6 +150,15 @@ namespace NXtelServer
                 }
 
                 Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
+
+                Page nextPage;
+                if (client.CurrentPage.Routing.IsValid(ref data, received, out nextPage))
+                {
+                    client.History.Push(nextPage);
+                    Console.WriteLine("Routing to page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    clientSocket.BeginSend(nextPage.Contents7BitEncoded, 0, nextPage.Contents7BitEncoded.Length,
+                        SocketFlags.None, new AsyncCallback(SendData), clientSocket);
+                }
 
                 // 0x2E & 0X0D => return/intro
                 if (data[0] == 0x2E && data[1] == 0x0D && client.commandIssued.Length == 0)
