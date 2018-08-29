@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNet.Identity
-@if (Request.IsAuthenticated)
+@{
+    bool LoggedIn = ViewBag.NotLoggedID == null;
+}
+@if (Request.IsAuthenticated && LoggedIn)
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
     {

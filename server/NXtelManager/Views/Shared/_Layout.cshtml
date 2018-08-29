@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{ 
+    bool LoggedIn = ViewBag.NotLoggedID == null;
+}
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -21,8 +24,11 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    @if (User.Identity.IsAuthenticated && LoggedIn)
+                    {
                     <li>@Html.ActionLink("Pages", "Index", "Page")</li>
                     <li>@Html.ActionLink("Templates", "Index", "Template")</li>
+                    }
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

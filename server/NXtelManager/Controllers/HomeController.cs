@@ -10,7 +10,10 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("Index", "Page");
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Page");
+            else
+                return View("Title");
             //return View();
         }
 

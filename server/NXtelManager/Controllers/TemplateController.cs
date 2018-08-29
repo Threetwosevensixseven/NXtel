@@ -9,6 +9,7 @@ using NXtelManager.Models;
 
 namespace NXtelManager.Controllers
 {
+    [Authorize]
     public class TemplateController : Controller
     {
         public ActionResult Index()

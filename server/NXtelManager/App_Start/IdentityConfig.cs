@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -18,8 +20,11 @@ namespace NXtelManager
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            SmtpClient client = new SmtpClient();
+            return client.SendMailAsync(ConfigurationManager.AppSettings["AdminEmailAddress"],
+                                        message.Destination,
+                                        message.Subject,
+                                        message.Body);
         }
     }
 

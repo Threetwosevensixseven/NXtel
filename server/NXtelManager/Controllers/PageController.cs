@@ -9,6 +9,7 @@ using NXtelManager.Models;
 
 namespace NXtelManager.Controllers
 {
+    [Authorize]
     public class PageController : Controller
     {
         public ActionResult Index()

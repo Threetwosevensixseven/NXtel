@@ -79,7 +79,30 @@ namespace NXtelManager.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    {
+                        var currentUser = UserManager.FindByNameAsync(model.Email);
+                        if (!await UserManager.IsEmailConfirmedAsync(currentUser.Result.Id))
+                        {
+                            AuthenticationManager.SignOut();
+
+                            // Send email
+                            var code = await UserManager.GenerateEmailConfirmationTokenAsync(currentUser.Result.Id);
+                            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Url.Scheme);
+                            await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your account", string.Format("Please confirm your account by clicking this link: <a href=\"{0}\">link</a>", callbackUrl));
+                            // Show message
+                            ViewBag.NotLoggedIn = true;
+                            //return View("DisplayEmail");
+                            return RedirectToAction("DisplayEmail");
+                        }
+                        // Some validation
+                        //return RedirectToAction("SilentLogOff");
+                        
+                        return RedirectToLocal(returnUrl);
+                    }
+
+
+                //case SignInStatus.Success:
+                //    return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -155,15 +178,19 @@ namespace NXtelManager.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+                    AuthenticationManager.SignOut();
+                    //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    return RedirectToAction("Index", "Home");
+                    //return RedirectToAction("Index", "Home");
+                    //return RedirectToAction("DisplayEmail");
+                    ViewBag.NotLoggedIn = true;
+                    return View("DisplayEmail");
                 }
                 AddErrors(result);
             }
@@ -181,8 +208,15 @@ namespace NXtelManager.Controllers
             {
                 return View("Error");
             }
-            var result = await UserManager.ConfirmEmailAsync(userId, code);
-            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+            try
+            {
+                var result = await UserManager.ConfirmEmailAsync(userId, code);
+                return View(result.Succeeded ? "ConfirmEmail" : "Error");
+            }
+            catch
+            {
+                return View("Error");
+            }
         }
 
         //
@@ -211,10 +245,10 @@ namespace NXtelManager.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
+                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // If we got this far, something failed, redisplay form
@@ -421,6 +455,26 @@ namespace NXtelManager.Controllers
             }
 
             base.Dispose(disposing);
+        }
+
+        // GET: /Account/SilentLogOff
+        [HttpGet]
+        [Authorize]
+        public ActionResult SilentLogOff()
+        {
+            // Sign out and redirect to Login
+            AuthenticationManager.SignOut();
+            return RedirectToAction("Login");
+        }
+
+        // GET: /Account/DisplayEmail
+        [HttpGet]
+        [Authorize]
+        public ActionResult DisplayEmail()
+        {
+            // Sign out and show DisplayEmail view
+            AuthenticationManager.SignOut();
+            return View();
         }
 
         #region Helpers
