@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -87,6 +88,8 @@ namespace NXtelData
                     item.Routing = Routes.LoadForPage(item.PageID, con);
                     item.Compose();
                 }
+                else
+                    Debugger.Break();
             }
             return item;
         }

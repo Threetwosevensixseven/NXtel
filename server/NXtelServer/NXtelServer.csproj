@@ -58,7 +58,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Client.cs" />
-    <Compile Include="Classes\EClientState.cs" />
+    <Compile Include="Classes\ClientStates.cs" />
+    <Compile Include="Classes\CommandStates.cs" />
     <Compile Include="Classes\Version.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

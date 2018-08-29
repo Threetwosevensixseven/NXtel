@@ -106,16 +106,17 @@ namespace NXtelServer
             if (!newClients) return;        
             Socket oldSocket = (Socket)result.AsyncState;
             Socket newSocket = oldSocket.EndAccept(result);
-            Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, EClientState.NotLogged);
+            Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, ClientStates.NotLogged);
             clientList.Add(newSocket, client);
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //string output = "-- NXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
             //output += "Please input your password:\n\r";
             var page = Page.Load(0, 0);
-            client.History.Push(page);
+            client.PageHistory.Push(page);
             //page.SetVersion(Version);
-            client.clientState = EClientState.Logging;
+            client.clientState = ClientStates.Logging;
             Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+            //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
             newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length, 
                 SocketFlags.None, new AsyncCallback(SendData), newSocket);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
@@ -134,10 +135,11 @@ namespace NXtelServer
 
         private static void ReceiveData(IAsyncResult result)
         {
+            Client client;
+            Page nextPage;
             try
             {
                 Socket clientSocket = (Socket)result.AsyncState;
-                Client client;
                 clientList.TryGetValue(clientSocket, out client);
                 int received = clientSocket.EndReceive(result);
                 if (received == 0)
@@ -149,13 +151,12 @@ namespace NXtelServer
                     return;
                 }
 
-                Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
+                //Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
 
-                Page nextPage;
-                if (client.CurrentPage.Routing.IsValid(ref data, received, out nextPage))
+                if(client.ProcessInput(data, received, out nextPage))
                 {
-                    client.History.Push(nextPage);
-                    Console.WriteLine("Routing to page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
                     clientSocket.BeginSend(nextPage.Contents7BitEncoded, 0, nextPage.Contents7BitEncoded.Length,
                         SocketFlags.None, new AsyncCallback(SendData), clientSocket);
                 }
@@ -223,12 +224,12 @@ namespace NXtelServer
             client.clientState = EClientState.Logging;
             Output += "Please input your password:\n\r";
             }*/
-            if (client.clientState == EClientState.Logging)
+            if (client.clientState == ClientStates.Logging)
             {
                 if (Input == "1337")
                 {
                     Console.WriteLine("Client has logged in (correct password), marking as logged...");
-                    client.clientState = EClientState.LoggedIn;
+                    client.clientState = ClientStates.LoggedIn;
                     Output += "Logged successfully.\n\r";
                 }
                 else
@@ -237,7 +238,7 @@ namespace NXtelServer
                     Output += "Incorrect password. Please input your password: ";
                 }
             }
-            if (client.clientState == EClientState.LoggedIn)
+            if (client.clientState == ClientStates.LoggedIn)
             {
                 if (Input == "test")
                 {

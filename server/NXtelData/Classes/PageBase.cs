@@ -37,7 +37,8 @@ namespace NXtelData
                 if (_contents7BitEncoded == null)
                 {
                     var enc = new List<byte>();
-                    enc.Add(30); // Cursor Home
+                    //enc.Add(30); // Cursor Home
+                    enc.Add(12); // CLS
                     foreach (var b in Contents)
                     {
                         if ((b & 0x80) == 0x80)
