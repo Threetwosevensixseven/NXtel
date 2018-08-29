@@ -44,13 +44,6 @@ namespace NXtelServer.Classes
 
         public bool ProcessInput(byte[] Chars, int Received, out Page NextPage)
         {
-            //if (PageHistory.Count == 0)
-            //{
-            //    NextPage = Page.Load(0, 0);
-            //    PageHistory.Push(NextPage);
-            //    return true;
-            //}
-
             Page first = null;
             foreach (var item in PageHistory)
                 first = item;
@@ -94,7 +87,7 @@ namespace NXtelServer.Classes
                             int.TryParse(CurrentCommand, out pageNo);
                             NextPage = Page.Load(pageNo, 0);
                             if (NextPage.PageNo != pageNo)
-                                NextPage = Page.Load(0, 0);
+                                NextPage = Page.Load(1, 0);
                             PageHistory.Push(NextPage);
                             CommandState = CommandStates.RegularRouting;
                             CurrentCommand = "";

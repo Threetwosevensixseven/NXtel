@@ -220,8 +220,6 @@ namespace NXtelData
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
             if (val != "")
                 val = val.PadLeft(Width);
-            //if (Sequence == 50)
-            //    Debugger.Break();
             int added = 0;
             for (int y = Y; y < Y + Height; y++)
             {
@@ -233,7 +231,6 @@ namespace NXtelData
                     Page.SetByte(x, y, b);
                 }
             }
-            //Page.SetByte(5, 1, 65);
         }
     }
 }

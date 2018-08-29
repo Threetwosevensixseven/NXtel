@@ -88,8 +88,6 @@ namespace NXtelData
                     item.Routing = Routes.LoadForPage(item.PageID, con);
                     item.Compose();
                 }
-                else
-                    Debugger.Break();
             }
             return item;
         }
