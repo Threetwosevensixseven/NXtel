@@ -15,7 +15,7 @@ namespace NXtelManager.Models
 
         public PageEditModel()
         {
-            Templates = GetSelectList(NXtelData.Templates.Load());
+            Templates = GetSelectList(NXtelData.Templates.LoadStubs());
             Routes = GetSelectList(NXtelData.Routes.MasterList);
         }
 

@@ -55,13 +55,15 @@
                     <table style="display:inline">
                         <tbody id="tbodyPageTemplates">
                             @for (int i = 0; i < page.Templates.Count; i++)
-                                {
-                                    string id = "trPageTemplate" + (i + 1).ToString();
-                                    string tid = page.Templates[i].TemplateID.ToString();
-                                    <tr id="@id" + page.Templates[i].TemplateID class="template ordered" data-template-id="@tid">
+                            {
+                                string id = "trPageTemplate" + (i + 1).ToString();
+                                string tid = page.Templates[i].TemplateID.ToString();
+                                int children = page.Templates[i].CountChildren();
+                                string desc = @page.Templates[i].Description + (children == 0 ? "" : " (+" + children + ")");
+                                <tr id="@id" + page.Templates[i].TemplateID class="template ordered" data-template-id="@tid">
                                     <td>@Html.Hidden("Templates[" + i + "].TemplateID", page.Templates[i].TemplateID)
                                         @Html.Hidden("Templates[" + i + "].Description", page.Templates[i].Description)
-                                        @page.Templates[i].Description</td>
+                                        @Html.ActionLink(@desc, "Edit", "Template", new { id = page.Templates[i].TemplateID }, null)</td>
                                     <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
                                     <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
                                     <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>

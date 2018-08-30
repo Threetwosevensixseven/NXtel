@@ -13,8 +13,10 @@
     <tbody>
         @foreach (NXtelData.Template template in Model)
         {
+            int children = @template.CountChildren();
+            string desc = @template.Description + (children == 0 ? "" : " (+" + children + ")");
             <tr>
-                <td>@Html.ActionLink(@template.Description, "Edit", "Template", new { id = template.TemplateID }, null)</td>
+                <td>@Html.ActionLink(@desc, "Edit", "Template", new { id = template.TemplateID }, null)</td>
             </tr>
         }
     </tbody>

@@ -19,11 +19,13 @@ namespace NXtelData
         public string Expression { get; set; }
         public int Sequence { get; set; }
         public Feed Feed { get; set; }
+        public Templates ChildTemplates { get; set; }
 
         public Template()
         {
             TemplateID = -1;
             Description = Expression = "";
+            ChildTemplates = new Templates();
         }
 
         public static Template Load(int TemplateID)
@@ -33,7 +35,7 @@ namespace NXtelData
             {
                 con.Open();
                 string sql = "SELECT * FROM template WHERE TemplateID=" + TemplateID;
-                var cmd = new MySqlCommand(sql, con);
+                using (var cmd = new MySqlCommand(sql, con))
                 using (var rdr = cmd.ExecuteReader())
                 {
                     while (rdr.Read())
@@ -41,6 +43,11 @@ namespace NXtelData
                         item.Read(rdr);
                         break;
                     }
+                }
+                var ids = new HashSet<int>();
+                if (item.TemplateID >= 0)
+                {
+                    item.LoadChildTemplates(ref ids, con);
                 }
             }
             return item;
@@ -169,11 +176,13 @@ namespace NXtelData
 
             string sql = @"INSERT INTO pagetemplate (PageID,TemplateID,Seq)
                     VALUES(@PageID,@TemplateID,@Seq);";
-            var cmd = new MySqlCommand(sql, ConX);
-            cmd.Parameters.AddWithValue("PageID", PageID);
-            cmd.Parameters.AddWithValue("TemplateID", TemplateID);
-            cmd.Parameters.AddWithValue("Seq", Sequence);
-            cmd.ExecuteNonQuery();
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("PageID", PageID);
+                cmd.Parameters.AddWithValue("TemplateID", TemplateID);
+                cmd.Parameters.AddWithValue("Seq", Sequence);
+                cmd.ExecuteNonQuery();
+            }
 
             if (openConX)
                 ConX.Close();
@@ -181,10 +190,54 @@ namespace NXtelData
             return true;
         }
 
-        public void Read(MySqlDataReader rdr)
+        public bool LoadChildTemplates(ref HashSet<int> IDs, MySqlConnection ConX = null, bool StubsOnly = false)
+        {
+            bool rv = true;
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                string fields;
+                if (StubsOnly) fields = "t.TemplateID,t.Description";
+                else fields = "t.*";
+                string sql = @"SELECT " + fields + @"
+                    FROM template t
+                    JOIN templatetree tt ON t.TemplateID=tt.ChildTemplateID
+                    WHERE tt.ParentTemplateID=" + TemplateID;
+                using (var cmd = new MySqlCommand(sql, ConX))
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var item = new Template();
+                        item.Read(rdr, StubsOnly);
+                        if (!IDs.Contains(item.TemplateID))
+                        {
+                            ChildTemplates.Add(item);
+                            IDs.Add(item.TemplateID);
+                        }
+                    }
+                }
+                foreach (var child in ChildTemplates)
+                    child.LoadChildTemplates(ref IDs, ConX);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+            return rv;
+        }
+
+        public void Read(MySqlDataReader rdr, bool StubOnly = false)
         {
             this.TemplateID = rdr.GetInt32("TemplateID");
             this.Description = rdr.GetString("Description").Trim();
+            if (StubOnly) return;
             this.X = rdr.GetByte("X");
             this.Y = rdr.GetByte("Y");
             this.Width = rdr.GetByte("Width");
@@ -255,5 +308,34 @@ namespace NXtelData
             return "";
         }
 
+        public Templates FlattenTemplates()
+        {
+            var rv = new Templates();
+            AddChildTemplates(ref rv);
+            return rv;
+        }
+
+        public void AddChildTemplates(ref Templates List)
+        {
+            List.Add(this);
+            foreach (var t in ChildTemplates)
+                t.AddChildTemplates(ref List);
+        }
+
+        public int CountChildren()
+        {
+            var val = 0;
+            foreach (var t in ChildTemplates)
+                val += t.CountChildrenInternal();
+            return val;
+        }
+
+        private int CountChildrenInternal()
+        {
+            var val = 1;
+            foreach (var t in ChildTemplates)
+                val += t.CountChildrenInternal();
+            return val;
+        }
     }
 }

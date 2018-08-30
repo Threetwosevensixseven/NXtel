@@ -39,6 +39,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
+            var ids = new HashSet<int>();
             string sql = @"SELECT t.*
                     FROM pagetemplate pt
                     JOIN template t ON pt.TemplateID=t.TemplateID
@@ -52,15 +53,50 @@ namespace NXtelData
                 {
                     var item = new Template();
                     item.Read(rdr);
-                    item.Sequence = seq;
-                    seq += 10;
-                    list.Add(item);
+                    if (!ids.Contains(item.TemplateID))
+                    {
+                        item.Sequence = seq;
+                        seq += 10;
+                        list.Add(item);
+                        ids.Add(item.TemplateID);
+                    }
                 }
             }
+            foreach (var t in list)
+                t.LoadChildTemplates(ref ids, ConX);
 
             if (openConX)
                 ConX.Close();
 
+            return list;
+        }
+
+        public static Templates LoadStubs(bool ExcludeTopLevelDuplicateChildren = false)
+        {
+            var ids = new HashSet<int>();
+            var list = new Templates();
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                string sql = "SELECT TemplateID,Description FROM template ORDER BY Description,TemplateID;";
+                var cmd = new MySqlCommand(sql, con);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var item = new Template();
+                        item.Read(rdr, true);
+                        if (!ids.Contains(item.TemplateID))
+                        {
+                            list.Add(item);
+                            if (!ExcludeTopLevelDuplicateChildren)
+                                ids.Add(item.TemplateID);
+                        }
+                    }
+                }
+                foreach (var t in list)
+                    t.LoadChildTemplates(ref ids, con, true);
+            }
             return list;
         }
 

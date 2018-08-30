@@ -14,7 +14,7 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            var pages = Pages.Load();
+            var pages = Pages.LoadStubs();
             return View(pages);
         }
 
@@ -23,6 +23,14 @@ namespace NXtelManager.Controllers
             int id = ID ?? -1;
             var model = new PageEditModel();
             model.Page = Page.Load(id);
+
+            var flat = model.Page.FlattenTemplates();
+            string x = "";
+            foreach (var t in flat)
+                x += t.TemplateID + ": " + t.Description + "\r\n";
+
+
+
             if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index");
             return View(model);

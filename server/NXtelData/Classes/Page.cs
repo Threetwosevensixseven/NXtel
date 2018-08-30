@@ -254,12 +254,13 @@ namespace NXtelData
             }
         }
 
-        public void Read(MySqlDataReader rdr)
+        public void Read(MySqlDataReader rdr, bool StubOnly = false)
         {
             this.PageID = rdr.GetInt32("PageID");
             this.PageNo = rdr.GetInt32("PageNo");
             this.FrameNo = rdr.GetInt32("FrameNo");
             this.Title = rdr.GetString("Title").Trim();
+            if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.BoxMode = rdr.GetBoolean("BoxMode");
@@ -332,7 +333,7 @@ namespace NXtelData
                 Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
             if (Contents.Length != 960)
                 Contents = Pad(Contents, 960, 32);
-            foreach (var template in Templates ?? new Templates())
+            foreach (var template in FlattenTemplates() ?? new Templates())
                 template.Compose(this);
             Contents = Pad(Contents, 960, 32);
         }
@@ -407,5 +408,14 @@ namespace NXtelData
             }
             SelectedRoutes = val;
         }
+
+        public Templates FlattenTemplates()
+        {
+            var rv = new Templates();
+            foreach (var t in Templates)
+                t.AddChildTemplates(ref rv);
+            return rv;
+        }
+
     }
 }

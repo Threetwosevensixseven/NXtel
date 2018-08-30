@@ -14,7 +14,7 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            var templates = Templates.Load();
+            var templates = Templates.LoadStubs(true);
             return View(templates);
         }
 
@@ -22,6 +22,12 @@ namespace NXtelManager.Controllers
         {
             int id = ID ?? -1;
             var template = Template.Load(id);
+
+            var flat = template.FlattenTemplates();
+            string x = "";
+            foreach (var t in flat)
+                x += t.TemplateID + ": " + t.Description + "\r\n";
+
             if (id != -1 && template.TemplateID <= 0)
                 return RedirectToAction("Index");
             return View(template);

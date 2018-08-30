@@ -105,7 +105,6 @@ namespace NXtelData
                 if (openConX)
                     ConX.Close();
             }
-            return false;
         }
     }
 }
