@@ -7,20 +7,8 @@ using System.Threading.Tasks;
 
 namespace NXtelData
 {
-    internal static partial class DBOps
+    public static partial class DBOps
     {
-        private static string _connectionString = null;
-
-        public static string ConnectionString
-        {
-            get
-            {
-                if (_connectionString == null)
-                {
-                    _connectionString = ConfigurationManager.ConnectionStrings["NXTel"].ToString();
-                }
-                return _connectionString;
-            }
-        }
+        public static string ConnectionString { get; set; }
     }
 }

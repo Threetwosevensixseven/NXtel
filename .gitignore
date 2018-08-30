@@ -19,3 +19,4 @@
 /server/NXtelManager/obj
 /server/NXtelManager/App_Data/*.mdf
 /server/NXtelManager/App_Data/*.ldf
+/server/NXtelManager/App_Data/Settings.xml

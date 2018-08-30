@@ -24,6 +24,7 @@ namespace NXtelServer
 
         static void Main(string[] args)
         {
+            DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
             Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             Console.WriteLine("Starting NXtel Server v" + Version);
             //Page.Update("welcome.bin", 0, 0, "Welcome");

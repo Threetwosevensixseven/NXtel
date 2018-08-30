@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using NXtelData;
 
 namespace NXtelManager.Models
 {
@@ -21,7 +22,7 @@ namespace NXtelManager.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("NXTel", throwIfV1Schema: false)
+            : base(DBOps.ConnectionString, throwIfV1Schema: false)
         {
         }
 
