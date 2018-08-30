@@ -18,6 +18,7 @@ namespace NXtelData
         public byte Height { get; set; }
         public string Expression { get; set; }
         public int Sequence { get; set; }
+        public Feed Feed { get; set; }
 
         public Template()
         {
@@ -218,6 +219,11 @@ namespace NXtelData
                 val = now.ToString("yyyy");
             else if ((Expression ?? "").ToLower() == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
+            else if ((Expression ?? "").ToLower().Contains("@feed="))
+            {
+                string url = GetExpression("@feed", Expression);
+                var feed = Feed.Load(url, Expression);
+            }
             if (val != "")
                 val = val.PadLeft(Width);
             int added = 0;
@@ -232,5 +238,22 @@ namespace NXtelData
                 }
             }
         }
+
+        public static string GetExpression(string Key, string Expression)
+        {
+            string key = (Key ?? "").Trim().ToLower();
+            var exprs = (Expression ?? "").Split(';');
+            foreach (string e in exprs)
+            {
+                var expr = e.Split(new char[] { '=' }, 2);
+                if (expr[0].Trim().ToLower() != key)
+                    continue;
+                if (expr.Length < 2)
+                    continue;
+                return expr[1].Trim().ToLower();
+            }
+            return "";
+        }
+
     }
 }
