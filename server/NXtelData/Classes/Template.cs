@@ -20,11 +20,12 @@ namespace NXtelData
         public int Sequence { get; set; }
         public Feed Feed { get; set; }
         public Templates ChildTemplates { get; set; }
+        public string SelectedTemplates { get; set; }
 
         public Template()
         {
             TemplateID = -1;
-            Description = Expression = "";
+            Description = Expression = SelectedTemplates = "";
             ChildTemplates = new Templates();
         }
 
@@ -48,6 +49,7 @@ namespace NXtelData
                 if (item.TemplateID >= 0)
                 {
                     item.LoadChildTemplates(ref ids, con);
+                    item.SetSelectedTemplates();
                 }
             }
             return item;
@@ -96,6 +98,14 @@ namespace NXtelData
                         TemplateID = rv;
                     if (TemplateID <= 0)
                         Err = "The template could not be saved.";
+
+                    if (TemplateID > 0)
+                    {
+                        ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+                    }
+
                     return TemplateID > 0;
                 }
             }
@@ -132,7 +142,15 @@ namespace NXtelData
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The template could not be saved.";
-                    return rv > 0;
+
+                    if (TemplateID > 0)
+                    {
+                        ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+                    }
+
+                    return TemplateID > 0;
                 }
             }
             catch (Exception ex)
@@ -190,6 +208,32 @@ namespace NXtelData
             return true;
         }
 
+        public bool SaveChildForTemplate(int ParentTemplateID, MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            string sql = @"INSERT INTO templatetree (ParentTemplateID,ChildTemplateID,Seq)
+                    VALUES(@ParentTemplateID,@ChildTemplateID,@Seq);";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("ParentTemplateID", ParentTemplateID);
+                cmd.Parameters.AddWithValue("ChildTemplateID", TemplateID);
+                cmd.Parameters.AddWithValue("Seq", Sequence);
+                cmd.ExecuteNonQuery();
+            }
+
+            if (openConX)
+                ConX.Close();
+
+            return true;
+        }
+
+
         public bool LoadChildTemplates(ref HashSet<int> IDs, MySqlConnection ConX = null, bool StubsOnly = false)
         {
             bool rv = true;
@@ -207,7 +251,8 @@ namespace NXtelData
                 string sql = @"SELECT " + fields + @"
                     FROM template t
                     JOIN templatetree tt ON t.TemplateID=tt.ChildTemplateID
-                    WHERE tt.ParentTemplateID=" + TemplateID;
+                    WHERE tt.ParentTemplateID=" + TemplateID + @"
+                    ORDER BY tt.Seq,tt.ChildTemplateID;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 using (var rdr = cmd.ExecuteReader())
                 {
@@ -336,6 +381,33 @@ namespace NXtelData
             foreach (var t in ChildTemplates)
                 val += t.CountChildrenInternal();
             return val;
+        }
+
+        public void SetSelectedTemplates()
+        {
+            var sel = (ChildTemplates ?? new Templates()).Select(t => t.TemplateID).Distinct().OrderBy(i => i);
+            SelectedTemplates = string.Join(",", sel);
+        }
+
+        public override void Fixup()
+        {
+            // Templates
+            ChildTemplates = new Templates();
+            Templates templates = null;
+            foreach (string cid in (SelectedTemplates ?? "").Split(','))
+            {
+                int id;
+                int.TryParse(cid, out id);
+                if (id <= 0)
+                    continue;
+                if (ChildTemplates.Any(t => t.TemplateID == id))
+                    continue;
+                if (templates == null)
+                    templates = Templates.Load();
+                var matched = templates.FirstOrDefault(t => t.TemplateID == id);
+                if (matched != null)
+                    ChildTemplates.Add(matched);
+            }
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿@model NXtelData.Template
+﻿@model NXtelManager.Models.TemplateEditModel
 @{
-    var template = Model;
+    var template = Model.Template;
     ViewBag.Title = "Edit Template";
-    var btnCaption = "Edit Template";
     string templateID = @template.TemplateID <= 0 ? "NEW" : @template.TemplateID.ToString();
     string x = @template.TemplateID <= 0 ? "" : @template.X.ToString();
     string y = @template.TemplateID <= 0 ? "" : @template.Y.ToString();
@@ -29,13 +28,49 @@
                 <td class="data">@Html.TextArea("URL", template.URL)</td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">
-                    <button onclick="launchEditor();return false;" class="btn btn-default">@btnCaption</button>
-                </td>
+                <td class="lbl" style="vertical-align:top">Content:</td>
                 <td class="data">
-                    <div id="canvasframePreview">
+                    <div id="canvasframePreview" style="float:left">
                         <canvas id="framePreview" width="960" height="1000" style="width: 576px; height: 500px;"></canvas>
                     </div>
+                    <a id="EditContent" href="#" class="ordered ordered-btn edit"onclick="launchEditor();return false;"
+                       style="display:inline-block;margin:4px;float:left;display:none" title="Edit template content">Edit</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="lbl" style="vertical-align:top">Templates:</td>
+                <td id="PageTemplates" class="data">
+                    @Html.Hidden("SelectedTemplates", template.SelectedTemplates)
+                    <table style="display:inline">
+                        <tbody id="tbodyPageTemplates">
+                            @for (int i = 0; i < template.ChildTemplates.Count; i++)
+                            {
+                                string id = "trPageTemplate" + (i + 1).ToString();
+                                string tid = template.ChildTemplates[i].TemplateID.ToString();
+                                int children = template.ChildTemplates[i].CountChildren();
+                                string desc = @template.ChildTemplates[i].Description + (children == 0 ? "" : " (+" + children + ")");
+                                <tr id="@id" class="template ordered" data-template-id="@tid">
+                                    <td>
+                                        @Html.Hidden("Templates[" + i + "].TemplateID", template.ChildTemplates[i].TemplateID)
+                                    @Html.Hidden("Templates[" + i + "].Description", template.ChildTemplates[i].Description)
+                                    @Html.ActionLink(@desc, "Edit", "Template", new { id = template.ChildTemplates[i].TemplateID }, null)
+                                </td>
+                                <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
+                                <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
+                                <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
+                            </tr>
+                            }
+                        </tbody>
+                        <tbody style="display:none">
+                            <tr id="trPageTemplateXXX" class="template ordered">
+                                <td>@Html.DropDownList("TemplateMasterListXXX", Model.Templates)</td>
+                                <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
+                                <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
+                                <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="#" class="ordered ordered-btn add" title="Add template" style="display:inline-block;position:relative;top:-3px">Add</a>
                 </td>
             </tr>
             <tr>
@@ -77,4 +112,102 @@
 @section Scripts {
     <script type="text/javascript" src="~/Scripts/teletext-editor.js"></script>
     <script type="text/javascript" src="~/Scripts/editor.js"></script>
+<script type="text/javascript">
+    var nextID = 0;
+
+    $("#PageTemplates .ordered-btn.add").click(function (event) {
+        event.preventDefault();
+        addTemplate(this);
+    });
+
+    $("#tbodyPageTemplates .ordered-btn.delete").click(function (event) {
+        event.preventDefault();
+        deleteTemplate(this);
+    });
+
+    $("#tbodyPageTemplates .ordered-btn.up").click(function (event) {
+        event.preventDefault();
+        moveTemplateUp(this);
+    });
+
+    $("#tbodyPageTemplates .ordered-btn.down").click(function (event) {
+        event.preventDefault();
+        moveTemplateDown(this);
+    });
+
+    function getNextID() {
+        var rv = nextID - 1;
+        nextID = rv;
+        return rv.toString();
+    }
+
+    jQuery.fn.outerHTML = function (s) {
+        return s
+            ? this.before(s).remove()
+            : jQuery("<div>").append(this.eq(0).clone()).html();
+    };
+
+    function addTemplate(btn) {
+        var id = getNextID();
+        var html = $("#trPageTemplateXXX").outerHTML().replace(/XXX/g, id);
+        $("#tbodyPageTemplates").append(html);
+        $("#trPageTemplate" + id + " .ordered-btn.delete").click(function (event) {
+            event.preventDefault();
+            deleteTemplate(this);
+        });
+        $("#trPageTemplate" + id + " .ordered-btn.up").click(function (event) {
+            event.preventDefault();
+            moveTemplateUp(this);
+        });
+        $("#trPageTemplate" + id + " .ordered-btn.down").click(function (event) {
+            event.preventDefault();
+            moveTemplateDown(this);
+        });
+        $("#trPageTemplate" + id + " select").change(function (event) {
+            event.preventDefault();
+            setSelectedTemplates();
+        });
+        setSelectedTemplates();
+    }
+
+    function deleteTemplate(btn) {
+        var row = $(btn).parents("tr.template.ordered");
+        $(row.remove());
+        setSelectedTemplates();
+    }
+
+    function moveTemplateUp(btn) {
+        var row = $(btn).parents("tr.template.ordered");
+        var first = $("#tbodyPageTemplates tr:first-child")
+        if (row !== first)
+            $(row).insertBefore(row.prev());
+        setSelectedTemplates();
+    }
+
+    function moveTemplateDown(btn) {
+        var row = $(btn).parents("tr.template.ordered");
+        var last = $("#tbodyPageTemplates tr:last-child")
+        if (row !== last)
+            $(row).insertAfter(row.next());
+        setSelectedTemplates();
+    }
+
+    function setSelectedTemplates() {
+        var val = "";
+        var join = "";
+        $("#tbodyPageTemplates tr").each(function (index, row) {
+            var id = $(row).attr("id").replace(/trPageTemplate/g, "") * 1;
+            if (id > 0) {
+                var id = $(row).data("template-id") * 1;
+                val += join + id.toString();
+            } else {
+                var id = $("#TemplateMasterList" + id.toString()).val();
+                if (id > 0)
+                    val += join + id.toString();
+            }
+            join = ",";
+        });
+        $("#SelectedTemplates").val(val);
+    }
+</script>
 }

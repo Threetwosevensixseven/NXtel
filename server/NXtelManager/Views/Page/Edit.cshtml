@@ -2,7 +2,6 @@
 @{
     var page = Model.Page;
     ViewBag.Title = "Edit Page";
-    var btnCaption = "Edit Page";
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
     string frame = @page.PageID <= 0 ? "" : @page.Frame;
@@ -39,13 +38,13 @@
                 <td class="data">@Html.TextArea("URL", page.URL)</td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">
-                    <button onclick="launchEditor();return false;" class="btn btn-default">@btnCaption</button>
-                </td>
+                <td class="lbl" style="vertical-align:top">Content:</td>
                 <td class="data">
-                    <div id="canvasframePreview">
+                    <div id="canvasframePreview" style="float:left">
                         <canvas id="framePreview" width="960" height="1000" style="width: 576px; height: 500px;"></canvas>
                     </div>
+                    <a id="EditContent" href="#" class="ordered ordered-btn edit" onclick="launchEditor();return false;"
+                       style="display:inline-block;margin:4px;float:left;display:none" title="Edit page content">Edit</a>
                 </td>
             </tr>
             <tr>

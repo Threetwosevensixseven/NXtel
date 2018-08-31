@@ -1,6 +1,5 @@
 ﻿$(document).ready(function () {
     showPreview();
-
     $("#export").on("click", "a", function (event) {
         var data = $(this).attr("href");
         if (data.startsWith("http"))
@@ -13,13 +12,13 @@
         x.document.write(iframe);
         x.document.close();
     });
-
     $("#URL").on("keyup", function (event) {
         var data = $.trim($("#URL").val());
         data = data.split("#").pop();
         $("#URL").val(data);
         showPreview();
     });
+    $("#EditContent").show();
 });
 
 function launchEditor() {

@@ -103,6 +103,9 @@ a.ordered-btn.add {
     background-image: url('/Content/Images/btn-add.png');
 }
 
+a.ordered-btn.edit {
+    background-image: url('/Content/Images/btn-edit.png');
+}
 
 a.ordered-btn:hover {
     background-image: url('/Content/Images/btn-delete-highlight.png');
@@ -118,4 +121,8 @@ a.ordered-btn.down:hover {
 
 a.ordered-btn.add:hover {
     background-image: url('/Content/Images/btn-add-highlight.png');
+}
+
+a.ordered-btn.edit:hover {
+    background-image: url('/Content/Images/btn-edit-highlight.png');
 }

@@ -162,5 +162,68 @@ namespace NXtelData
                     ConX.Close();
             }
         }
+
+        public bool DeleteChildenForTemplate(int TemplateID, out string Err, MySqlConnection ConX = null)
+        {
+            Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                string sql = @"DELETE FROM templatetree WHERE ParentTemplateID=" + TemplateID;
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public bool SaveChildenForTemplate(int TemplateID, out string Err, MySqlConnection ConX = null)
+        {
+            Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                var rv = DeleteChildenForTemplate(TemplateID, out Err, ConX);
+                if (!string.IsNullOrWhiteSpace(Err))
+                    return false;
+                int seq = 10;
+                foreach (var item in this)
+                {
+                    item.Sequence = seq;
+                    item.SaveChildForTemplate(TemplateID, ConX);
+                    seq += 10;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }

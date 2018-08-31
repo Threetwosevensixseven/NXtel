@@ -203,6 +203,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Attributes\MultipleButtonAttribute.cs" />
     <Compile Include="Models\PageViewModels.cs" />
+    <Compile Include="Models\TemplateViewModels.cs" />
     <Compile Include="MySqlInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -216,6 +217,8 @@
     <Content Include="Content\Images\btn-delete.png" />
     <Content Include="Content\Images\btn-down-highlight.png" />
     <Content Include="Content\Images\btn-down.png" />
+    <Content Include="Content\Images\btn-edit-highlight.png" />
+    <Content Include="Content\Images\btn-edit.png" />
     <Content Include="Content\Images\btn-up-highlight.png" />
     <Content Include="Content\Images\btn-up.png" />
     <Content Include="Content\Images\title.png" />
