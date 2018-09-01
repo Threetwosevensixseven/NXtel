@@ -90,6 +90,22 @@
                 <td class="data">@Html.TextBox("Height", height, new { maxlength = 2 })</td>
             </tr>
             <tr>
+                <td class="lbl"></td>
+                <td class="data">
+                    @Html.CheckBox("IsContainer", template.IsContainer, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsContainer)?</span>
+                    @Html.CheckBox("IsRepeatingItem", template.IsRepeatingItem, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsRepeatingItem)?</span>
+                    @Html.CheckBox("CanExpand", template.CanExpand, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.CanExpand)?</span>
+                    @Html.CheckBox("StickToTop", template.StickToTop, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToTop)?</span>
+                    @Html.CheckBox("StickToBottom", template.StickToBottom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToBottom)?</span>
+                    @Html.CheckBox("ContinuedOver", template.ContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedOver)?</span>
+                    @Html.CheckBox("ContinuedFrom", template.ContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedFrom)?</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="lbl">Orphan/Widow:</td>
+                <td class="data">@Html.TextBox("MinOrphanWidowRows", template.MinOrphanWidowRows, new { maxlength = 2 })</td>
+            </tr>
+            <tr>
                 <td class="lbl">Expression:</td>
                 <td class="data">@Html.TextBox("Expression", template.Expression, new { maxlength = 300, style = "width:100%;max-width:initial" })</td>
             </tr>
@@ -98,7 +114,7 @@
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this template?');" />
-    @Html.ActionLink("Back to Template List", "Index")
+    @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
 }
 
 @section head {

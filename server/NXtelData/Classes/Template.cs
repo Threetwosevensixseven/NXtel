@@ -21,6 +21,14 @@ namespace NXtelData
         public Feed Feed { get; set; }
         public Templates ChildTemplates { get; set; }
         public string SelectedTemplates { get; set; }
+        public bool IsContainer { get; set; }
+        public bool IsRepeatingItem { get; set; }
+        public bool CanExpand { get; set; }
+        public bool StickToTop { get; set; }
+        public bool StickToBottom { get; set; }
+        public bool ContinuedOver { get; set; }
+        public bool ContinuedFrom { get; set; }
+        public byte MinOrphanWidowRows { get; set; }
 
         public Template()
         {
@@ -81,8 +89,10 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"INSERT INTO template
-                    (Description,X,Y,Width,Height,Expression,URL,Contents)
-                    VALUES(@Description,@X,@Y,@Width,@Height,@Expression,@URL,@Contents);
+                    (Description,X,Y,Width,Height,Expression,URL,Contents,IsContainer,IsRepeatingItem,CanExpand,
+                    StickToTop,StickToBottom,ContinuedOver,ContinuedFrom,MinOrphanWidowRows)
+                    VALUES(@Description,@X,@Y,@Width,@Height,@Expression,@URL,@Contents,@IsContainer,@IsRepeatingItem,@CanExpand,
+                    @StickToTop,@StickToBottom,@ContinuedOver,@ContinuedFrom,@MinOrphanWidowRows);
                     SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
@@ -93,6 +103,14 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
                     cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
                     cmd.Parameters.AddWithValue("Contents", Contents);
+                    cmd.Parameters.AddWithValue("IsContainer", IsContainer);
+                    cmd.Parameters.AddWithValue("IsRepeatingItem", IsRepeatingItem);
+                    cmd.Parameters.AddWithValue("CanExpand", CanExpand);
+                    cmd.Parameters.AddWithValue("StickToTop", StickToTop);
+                    cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
+                    cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
+                    cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
+                    cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
                         TemplateID = rv;
@@ -125,8 +143,10 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"UPDATE template
-                    SET Description=@Description,X=@X,Y=@Y,Width=@Width,Height=@Height,
-                    Expression=@Expression,URL=@URL,Contents=@Contents
+                    SET Description=@Description,X=@X,Y=@Y,Width=@Width,Height=@Height,Expression=@Expression,URL=@URL,
+                    Contents=@Contents,IsContainer=@IsContainer,IsRepeatingItem=@IsRepeatingItem,CanExpand=@CanExpand,
+                    StickToTop=@StickToTop,StickToBottom=@StickToBottom,ContinuedOver=@ContinuedOver,
+                    ContinuedFrom=@ContinuedFrom,MinOrphanWidowRows=@MinOrphanWidowRows
                     WHERE TemplateID=@TemplateID;
                     SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -139,6 +159,14 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
                     cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
                     cmd.Parameters.AddWithValue("Contents", Contents);
+                    cmd.Parameters.AddWithValue("IsContainer", IsContainer);
+                    cmd.Parameters.AddWithValue("IsRepeatingItem", IsRepeatingItem);
+                    cmd.Parameters.AddWithValue("CanExpand", CanExpand);
+                    cmd.Parameters.AddWithValue("StickToTop", StickToTop);
+                    cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
+                    cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
+                    cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
+                    cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The template could not be saved.";
@@ -288,8 +316,16 @@ namespace NXtelData
             this.Width = rdr.GetByte("Width");
             this.Height = rdr.GetByte("Height");
             this.Expression = rdr.GetStringNullable("Expression").Trim();
-            this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
+            this.Contents = rdr.GetBytesNullable("Contents");
+            this.IsContainer = rdr.GetBoolean("IsContainer");
+            this.IsRepeatingItem = rdr.GetBoolean("IsRepeatingItem");
+            this.CanExpand = rdr.GetBoolean("CanExpand");
+            this.StickToTop = rdr.GetBoolean("StickToTop");
+            this.StickToBottom = rdr.GetBoolean("StickToBottom");
+            this.ContinuedOver = rdr.GetBoolean("ContinuedOver");
+            this.ContinuedFrom = rdr.GetBoolean("ContinuedFrom");
+            this.MinOrphanWidowRows = rdr.GetByte("MinOrphanWidowRows");
             this.ConvertContentsFromURL();
         }
 

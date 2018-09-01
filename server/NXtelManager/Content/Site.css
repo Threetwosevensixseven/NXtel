@@ -37,6 +37,17 @@ table.edit td.lbl {
     white-space: nowrap;
 }
 
+span.lbl {
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 0 4px 0 4px;
+}
+
+input[type=checkbox].inline {
+    position: relative;
+    top: 2px;
+}
+
 table.edit td.data {
     width: 99%;
 }

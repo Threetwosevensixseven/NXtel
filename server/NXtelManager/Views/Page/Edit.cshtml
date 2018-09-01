@@ -125,7 +125,7 @@
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this page?');" />
-    @Html.ActionLink("Back to Page List", "Index")
+    @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
 }
 
 @section head {
