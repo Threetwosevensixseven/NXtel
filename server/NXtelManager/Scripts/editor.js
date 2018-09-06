@@ -19,6 +19,7 @@
         showPreview();
     });
     $("#EditContent").show();
+    $("#EditZXNet").show();
 });
 
 function launchEditor() {
@@ -45,6 +46,12 @@ function backtoNXtel() {
     $("html").removeClass("with-iframe");
     $(".container").show();
     $(".navbar").show();
+}
+
+function launchZXNet() {
+    var data = $("#URL").val();
+    var url = "https://zxnet.co.uk/teletext/editor#" + data;
+    window.open(url); 
 }
 
 function showPreview() {

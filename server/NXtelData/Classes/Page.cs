@@ -25,6 +25,7 @@ namespace NXtelData
         public Routes Routing { get; set; }
         public string SelectedTemplates { get; set; }
         public string SelectedRoutes { get; set; }
+        public int ContentHeight { get; set; }
 
         public Page()
         {

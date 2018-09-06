@@ -219,9 +219,12 @@
     <Content Include="Content\Images\btn-down.png" />
     <Content Include="Content\Images\btn-edit-highlight.png" />
     <Content Include="Content\Images\btn-edit.png" />
+    <Content Include="Content\Images\btn-open-highlight.png" />
+    <Content Include="Content\Images\btn-open.png" />
     <Content Include="Content\Images\btn-up-highlight.png" />
     <Content Include="Content\Images\btn-up.png" />
     <Content Include="Content\Images\title.png" />
+    <Content Include="Content\Images\wait.gif" />
     <Content Include="Content\teletext.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -234,6 +237,7 @@
     <Content Include="fonts\TeletextKit.eot" />
     <Content Include="fonts\TeletextKit.ttf" />
     <Content Include="fonts\TeletextKit.woff" />
+    <None Include="Properties\PublishProfiles\FolderDeploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\editor.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -294,7 +298,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

@@ -1,5 +1,6 @@
 ﻿@{ 
     bool LoggedIn = ViewBag.NotLoggedID == null;
+    bool ShowHeader = ViewBag.HideHeader == null;
 }
 <!DOCTYPE html>
 <html>
@@ -20,17 +21,22 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("NXtel", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @if (ShowHeader) {
+                    @Html.ActionLink("NXtel", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                }
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    @if (User.Identity.IsAuthenticated && LoggedIn)
+                    @if (User.Identity.IsAuthenticated && LoggedIn && ShowHeader)
                     {
                     <li>@Html.ActionLink("Pages", "Index", "Page")</li>
                     <li>@Html.ActionLink("Templates", "Index", "Template")</li>
                     }
                 </ul>
-                @Html.Partial("_LoginPartial")
+                @if (ShowHeader)
+                {
+                    @Html.Partial("_LoginPartial")
+                }
             </div>
         </div>
     </div>

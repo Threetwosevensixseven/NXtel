@@ -118,6 +118,11 @@ a.ordered-btn.edit {
     background-image: url('/Content/Images/btn-edit.png');
 }
 
+a.ordered-btn.open {
+    background-image: url('/Content/Images/btn-open.png');
+}
+
+
 a.ordered-btn:hover {
     background-image: url('/Content/Images/btn-delete-highlight.png');
 }
@@ -137,3 +142,8 @@ a.ordered-btn.add:hover {
 a.ordered-btn.edit:hover {
     background-image: url('/Content/Images/btn-edit-highlight.png');
 }
+
+a.ordered-btn.open:hover {
+    background-image: url('/Content/Images/btn-open-highlight.png');
+}
+

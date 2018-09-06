@@ -63,7 +63,7 @@ namespace NXtelData
                 }
             }
             foreach (var t in list)
-                t.LoadChildTemplates(ref ids, ConX);
+                t.LoadChildTemplates(ref ids, t, ConX);
 
             if (openConX)
                 ConX.Close();
@@ -95,7 +95,7 @@ namespace NXtelData
                     }
                 }
                 foreach (var t in list)
-                    t.LoadChildTemplates(ref ids, con, true);
+                    t.LoadChildTemplates(ref ids, t, con, true);
             }
             return list;
         }

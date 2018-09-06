@@ -156,6 +156,9 @@ namespace NXtelServer
 
                 if(client.ProcessInput(data, received, out nextPage))
                 {
+                    //if (nextPage)
+
+
                     Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
                     //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
                     clientSocket.BeginSend(nextPage.Contents7BitEncoded, 0, nextPage.Contents7BitEncoded.Length,
@@ -210,7 +213,9 @@ namespace NXtelServer
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+            }
         }
 
         private static string HandleCommand(Socket clientSocket, string Input)

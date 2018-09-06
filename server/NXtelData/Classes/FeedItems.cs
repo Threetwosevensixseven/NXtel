@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace NXtelData
 {
-    public class FeedItems: List<FeedItem>
+    public class FeedItems : List<FeedItem>
     {
         public void Load(string XML, string Expression)
         {
@@ -18,21 +18,39 @@ namespace NXtelData
         public void Load(XmlDocument Doc, string Expression)
         {
             Clear();
-            var title = Template.GetExpression("@title", Expression);
-            var text = Template.GetExpression("@text", Expression);
-            var url = Template.GetExpression("@url", Expression);
-            var titles = Doc.SelectNodes(title);
-            var texts = Doc.SelectNodes(text);
-            var urls = Doc.SelectNodes(url);
-            for (int i = 0; i < titles.Count; i++)
+            var xitems = Template.GetExpression("@feed.item", Expression);
+            var items = Doc.SelectNodes(xitems);
+            if (items.Count == 0)
+                return;
+            int count = 0;
+            var itemXpaths = new Dictionary<int, string>();
+            while (true)
             {
-                var fi = new FeedItem();
-                fi.Title = (titles[i].FirstChild.Value ?? "").Trim();
-                if (texts.Count - 1 >= i)
-                    fi.Text = (texts[i].FirstChild.Value ?? "").Trim();
-                if (urls.Count - 1 >= i)
-                    fi.URL = (urls[i].FirstChild.Value ?? "").Trim();
-                Add(fi);
+                string val = Template.GetExpression("@feed.item." + count, Expression);
+                if (string.IsNullOrWhiteSpace(val))
+                    break;
+                itemXpaths.Add(count, val);
+                count++;
+            }
+            foreach (XmlNode item in items)
+            {
+                try
+                {
+                    var fi = new FeedItem();
+                    bool filled = false;
+                    for (int i = 0; i < count; i++)
+                    {
+                        var node = item.SelectSingleNode(itemXpaths[i]);
+                        if (node != null && node.FirstChild != null)
+                        {
+                            fi.Values.Add(i, (node.FirstChild.Value ?? "").Trim());
+                            filled = true;
+                        }
+                    }
+                    if (filled)
+                        this.Add(fi);
+                }
+                catch { }
             }
         }
     }

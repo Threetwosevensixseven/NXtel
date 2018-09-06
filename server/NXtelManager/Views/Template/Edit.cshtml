@@ -33,8 +33,10 @@
                     <div id="canvasframePreview" style="float:left">
                         <canvas id="framePreview" width="960" height="1000" style="width: 576px; height: 500px;"></canvas>
                     </div>
-                    <a id="EditContent" href="#" class="ordered ordered-btn edit"onclick="launchEditor();return false;"
+                    <a id="EditContent" href="#" class="ordered ordered-btn edit" onclick="launchEditor();return false;"
                        style="display:inline-block;margin:4px;float:left;display:none" title="Edit template content">Edit</a>
+                    <a id="EditZXNet" href="#" class="ordered ordered-btn open" onclick="launchZXNet();return false;"
+                       style="display:inline-block;margin:4px;float:left;display:none" title="Open in ZXNet">Open in ZXNet</a>
                 </td>
             </tr>
             <tr>
@@ -52,13 +54,13 @@
                                 <tr id="@id" class="template ordered" data-template-id="@tid">
                                     <td>
                                         @Html.Hidden("Templates[" + i + "].TemplateID", template.ChildTemplates[i].TemplateID)
-                                    @Html.Hidden("Templates[" + i + "].Description", template.ChildTemplates[i].Description)
-                                    @Html.ActionLink(@desc, "Edit", "Template", new { id = template.ChildTemplates[i].TemplateID }, null)
-                                </td>
-                                <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
-                                <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
-                                <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
-                            </tr>
+                                        @Html.Hidden("Templates[" + i + "].Description", template.ChildTemplates[i].Description)
+                                        @Html.ActionLink(@desc, "Edit", "Template", new { id = template.ChildTemplates[i].TemplateID }, null)
+                                    </td>
+                                    <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
+                                    <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
+                                    <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
+                                </tr>
                             }
                         </tbody>
                         <tbody style="display:none">
@@ -92,13 +94,20 @@
             <tr>
                 <td class="lbl"></td>
                 <td class="data">
-                    @Html.CheckBox("IsContainer", template.IsContainer, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsContainer)?</span>
-                    @Html.CheckBox("IsRepeatingItem", template.IsRepeatingItem, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsRepeatingItem)?</span>
-                    @Html.CheckBox("CanExpand", template.CanExpand, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.CanExpand)?</span>
-                    @Html.CheckBox("StickToTop", template.StickToTop, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToTop)?</span>
-                    @Html.CheckBox("StickToBottom", template.StickToBottom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToBottom)?</span>
-                    @Html.CheckBox("ContinuedOver", template.ContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedOver)?</span>
-                    @Html.CheckBox("ContinuedFrom", template.ContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedFrom)?</span>
+                    @Html.CheckBox("IsContainer", template.IsContainer, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsContainer)</span>
+                    @Html.CheckBox("IsRepeatingItem", template.IsRepeatingItem, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsRepeatingItem)</span>
+                    @Html.CheckBox("CanExpand", template.CanExpand, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.CanExpand)</span>
+                    @Html.CheckBox("StickToTop", template.StickToTop, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToTop)</span>
+                    @Html.CheckBox("StickToBottom", template.StickToBottom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToBottom)</span>
+            </tr>
+            <tr>
+                <td class="lbl"></td>
+                <td class="data">
+                    @Html.CheckBox("ContinuedOver", template.ContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedOver)</span>
+                    @Html.CheckBox("ContinuedFrom", template.ContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedFrom)</span>
+                    @Html.CheckBox("NotContinuedOver", template.NotContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.NotContinuedOver)</span>
+                    @Html.CheckBox("NotContinuedFrom", template.NotContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.NotContinuedFrom)</span>
+                    @Html.CheckBox("KeepTogether", template.KeepTogether, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.KeepTogether)</span>
                 </td>
             </tr>
             <tr>

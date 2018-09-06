@@ -95,6 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Character.cs" />
     <Compile Include="Classes\DB.cs" />
     <Compile Include="Classes\Feed.cs" />
     <Compile Include="Classes\FeedItem.cs" />

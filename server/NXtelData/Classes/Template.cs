@@ -20,6 +20,7 @@ namespace NXtelData
         public int Sequence { get; set; }
         public Feed Feed { get; set; }
         public Templates ChildTemplates { get; set; }
+        public Template ParentTemplate { get; set; }
         public string SelectedTemplates { get; set; }
         public bool IsContainer { get; set; }
         public bool IsRepeatingItem { get; set; }
@@ -28,7 +29,12 @@ namespace NXtelData
         public bool StickToBottom { get; set; }
         public bool ContinuedOver { get; set; }
         public bool ContinuedFrom { get; set; }
+        public bool NotContinuedOver { get; set; }
+        public bool NotContinuedFrom { get; set; }
+        public bool KeepTogether { get; set; }
         public byte MinOrphanWidowRows { get; set; }
+        public int? CurrentFeedItem { get; set; }
+        public int FilledHeight { get; set; }
 
         public Template()
         {
@@ -56,7 +62,7 @@ namespace NXtelData
                 var ids = new HashSet<int>();
                 if (item.TemplateID >= 0)
                 {
-                    item.LoadChildTemplates(ref ids, con);
+                    item.LoadChildTemplates(ref ids, item, con);
                     item.SetSelectedTemplates();
                 }
             }
@@ -90,9 +96,11 @@ namespace NXtelData
                     con.Open();
                     string sql = @"INSERT INTO template
                     (Description,X,Y,Width,Height,Expression,URL,Contents,IsContainer,IsRepeatingItem,CanExpand,
-                    StickToTop,StickToBottom,ContinuedOver,ContinuedFrom,MinOrphanWidowRows)
+                    StickToTop,StickToBottom,ContinuedOver,ContinuedFrom,NotContinuedOver,NotContinuedFrom,KeepTogether,
+                    MinOrphanWidowRows)
                     VALUES(@Description,@X,@Y,@Width,@Height,@Expression,@URL,@Contents,@IsContainer,@IsRepeatingItem,@CanExpand,
-                    @StickToTop,@StickToBottom,@ContinuedOver,@ContinuedFrom,@MinOrphanWidowRows);
+                    @StickToTop,@StickToBottom,@ContinuedOver,@ContinuedFrom,@NotContinuedOver,@NotContinuedFrom,@KeepTogether,
+                    @MinOrphanWidowRows);
                     SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
@@ -110,6 +118,9 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
                     cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
                     cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
+                    cmd.Parameters.AddWithValue("NotContinuedOver", NotContinuedOver);
+                    cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
+                    cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
                     cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
@@ -146,7 +157,8 @@ namespace NXtelData
                     SET Description=@Description,X=@X,Y=@Y,Width=@Width,Height=@Height,Expression=@Expression,URL=@URL,
                     Contents=@Contents,IsContainer=@IsContainer,IsRepeatingItem=@IsRepeatingItem,CanExpand=@CanExpand,
                     StickToTop=@StickToTop,StickToBottom=@StickToBottom,ContinuedOver=@ContinuedOver,
-                    ContinuedFrom=@ContinuedFrom,MinOrphanWidowRows=@MinOrphanWidowRows
+                    ContinuedFrom=@ContinuedFrom,NotContinuedOver=@NotContinuedOver,NotContinuedFrom=@NotContinuedFrom,
+                    KeepTogether=@KeepTogether,MinOrphanWidowRows=@MinOrphanWidowRows
                     WHERE TemplateID=@TemplateID;
                     SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -166,6 +178,9 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
                     cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
                     cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
+                    cmd.Parameters.AddWithValue("NotContinuedOver", NotContinuedOver);
+                    cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
+                    cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
                     cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
@@ -262,7 +277,7 @@ namespace NXtelData
         }
 
 
-        public bool LoadChildTemplates(ref HashSet<int> IDs, MySqlConnection ConX = null, bool StubsOnly = false)
+        public bool LoadChildTemplates(ref HashSet<int> IDs, Template ParentTemplate, MySqlConnection ConX = null, bool StubsOnly = false)
         {
             bool rv = true;
             bool openConX = ConX == null;
@@ -287,6 +302,7 @@ namespace NXtelData
                     while (rdr.Read())
                     {
                         var item = new Template();
+                        item.ParentTemplate = ParentTemplate;
                         item.Read(rdr, StubsOnly);
                         if (!IDs.Contains(item.TemplateID))
                         {
@@ -296,7 +312,7 @@ namespace NXtelData
                     }
                 }
                 foreach (var child in ChildTemplates)
-                    child.LoadChildTemplates(ref IDs, ConX);
+                    child.LoadChildTemplates(ref IDs, child, ConX);
             }
             finally
             {
@@ -329,46 +345,172 @@ namespace NXtelData
             this.ConvertContentsFromURL();
         }
 
+        public Feed GetFeedRecursive()
+        {
+            if (Feed != null)
+                return Feed;
+            if (ParentTemplate != null)
+                return ParentTemplate.GetFeedRecursive();
+            return null;
+        }
+
+        public Template GetRootTemplate()
+        {
+            if (ParentTemplate == null)
+                return this;
+            return ParentTemplate.GetRootTemplate();
+        }
+
+        public Template GetContainer()
+        {
+            if (IsContainer)
+                return this;
+            if (ParentTemplate == null)
+                return null;
+            return ParentTemplate.GetContainer();
+        }
+
+
+        public int? GetCurrentFeedItem()
+        {
+            if (CurrentFeedItem != null)
+                return CurrentFeedItem;
+            if (ParentTemplate != null)
+                return ParentTemplate.GetCurrentFeedItem();
+            return null;
+        }
+
         public void Compose(Page Page)
         {
+            int added;
             if (Page == null)
                 return;
             if (Contents == null)
                 Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
             if (Contents.Length != 960)
                 Contents = Pad(Contents, 960, 32);
+            if (IsRepeatingItem)
+            {
+                var feed = GetFeedRecursive();
+                var container = this.GetRootTemplate().FlattenTemplates().FirstOrDefault(t => t.IsContainer);
+                for (int i = 0; i < feed.Items.Count; i++)
+                {
+                    CurrentFeedItem = i;
+                    var page = new Page();
+                    foreach (var ct in FlattenTemplates() ?? new Templates())
+                    {
+                        if (ct == this)
+                            continue;
+                        ct.Compose(page);
+                    }
+                }
+                CurrentFeedItem = null;
+                return;
+            }
             string val = "";
             var now = DateTime.Now;
-            if ((Expression ?? "").ToLower() == "@pageframe")
+            string expr = (Expression ?? "").ToLower();
+            if (expr == "@pageframe")
                 val = Page.PageNo.ToString() + Page.Frame;
-            else if ((Expression ?? "").ToLower() == "@page")
+            else if (expr == "@page")
                 val = Page.PageNo.ToString();
-            else if ((Expression ?? "").ToLower() == "@pageframe")
+            else if (expr == "@pageframe")
                 val = Page.Frame;
-            else if ((Expression ?? "").ToLower() == "@date")
+            else if (expr == "@date")
                 val = now.ToString("ddd dd MMM");
-            else if ((Expression ?? "").ToLower() == "@time")
+            else if (expr == "@time")
                 val = now.ToString("HH:mm:ss");
-            else if ((Expression ?? "").ToLower() == "@year")
+            else if (expr == "@year")
                 val = now.ToString("yyyy");
-            else if ((Expression ?? "").ToLower() == "@version")
+            else if (expr == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
-            else if ((Expression ?? "").ToLower().Contains("@feed="))
+            else if (expr.StartsWith("@feed.item.data"))
             {
-                string url = GetExpression("@feed", Expression);
-                var feed = Feed.Load(url, Expression);
+                string dataItem = GetExpression("@feed.item.data", Expression);
+                int dataItemIndex;
+                int.TryParse(dataItem, out dataItemIndex);
+                int? cfi = GetCurrentFeedItem();
+                var feed = GetFeedRecursive();
+                if (cfi != null && cfi >= 0 && cfi < feed.Items.Count)
+                {
+                    var feedItem = feed.Items[(int)cfi];
+                    if (feedItem.Values.ContainsKey(dataItemIndex))
+                    {
+                        var container = GetContainer();
+                        val = (feedItem.Values[dataItemIndex] ?? "").Trim();
+                        var words = feedItem.SplitByWords(dataItemIndex, Width);
+                        added = 0;
+                        int line = 0;
+                        int y = Y;
+                        foreach (var w in words)
+                        {
+                            var word = (w.Trim() + new String(' ', Width));
+                            if (line >= Height)
+                                added++;
+                            if (container != null)
+                                container.FilledHeight++;
+
+                            int i = 0;
+                            for (int x = X; x < X + Width; x++)
+                            {
+                                byte b = 32;
+                                if (word[i] > 255)
+                                {
+                                    b = Character.Substitute(word[i]);
+                                    if (b != 0)
+                                        Page.SetByte(x, y, b);
+                                }
+                                else
+                                {
+                                    b = Convert.ToByte(word[i++]);
+                                    Page.SetByte(x, y, b);
+                                }
+                            }
+                            line++;
+                            y++;
+                        }
+                    }
+                }
+                return;
+            }
+            else if (expr.Contains("@feed="))
+            {
+                var container = this.FlattenTemplates().FirstOrDefault(t => t.IsContainer);
+                var repeatingItem = this.FlattenTemplates().FirstOrDefault(t => t.IsRepeatingItem);
+                if (container != null && repeatingItem != null)
+                {
+                    string url = GetExpression("@feed", Expression);
+                    Feed = Feed.Load(url, Expression);
+                }
             }
             if (val != "")
                 val = val.PadLeft(Width);
-            int added = 0;
+            added = 0;
             for (int y = Y; y < Y + Height; y++)
             {
                 for (int x = X; x < X + Width; x++)
                 {
                     byte b = 32;
-                    if (added < val.Length) b = Convert.ToByte(val[added++]);
-                    else b = GetByte(x, y);
-                    Page.SetByte(x, y, b);
+                    if (added < val.Length)
+                    {
+                        if (val[added] > 255)
+                        {
+                            b = Character.Substitute(val[added]);
+                            if (b != 0)
+
+                                Page.SetByte(x, y, b);
+                        }
+                        else
+                        {
+                            b = Convert.ToByte(val[added++]);
+                            Page.SetByte(x, y, b);
+                        }
+                    }
+                    else
+                    {
+                        b = GetByte(x, y);
+                        Page.SetByte(x, y, b);
+                    }
                 }
             }
         }
@@ -384,7 +526,7 @@ namespace NXtelData
                     continue;
                 if (expr.Length < 2)
                     continue;
-                return expr[1].Trim().ToLower();
+                return expr[1].Trim();
             }
             return "";
         }

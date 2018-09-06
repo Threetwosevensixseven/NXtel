@@ -88,21 +88,13 @@ namespace NXtelManager.Controllers
                             // Send email
                             var code = await UserManager.GenerateEmailConfirmationTokenAsync(currentUser.Result.Id);
                             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Url.Scheme);
-                            await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your account", string.Format("Please confirm your account by clicking this link: <a href=\"{0}\">link</a>", callbackUrl));
+                            await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
                             // Show message
                             ViewBag.NotLoggedIn = true;
-                            //return View("DisplayEmail");
                             return RedirectToAction("DisplayEmail");
                         }
-                        // Some validation
-                        //return RedirectToAction("SilentLogOff");
-                        
                         return RedirectToLocal(returnUrl);
                     }
-
-
-                //case SignInStatus.Success:
-                //    return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -179,16 +171,14 @@ namespace NXtelManager.Controllers
                 if (result.Succeeded)
                 {
                     AuthenticationManager.SignOut();
-                    //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    string code = HttpUtility.UrlEncode(await UserManager.GenerateEmailConfirmationTokenAsync(user.Id));
+                    //string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
 
-                    //return RedirectToAction("Index", "Home");
-                    //return RedirectToAction("DisplayEmail");
                     ViewBag.NotLoggedIn = true;
                     return View("DisplayEmail");
                 }
@@ -211,12 +201,27 @@ namespace NXtelManager.Controllers
             try
             {
                 var result = await UserManager.ConfirmEmailAsync(userId, code);
-                return View(result.Succeeded ? "ConfirmEmail" : "Error");
+                if (result.Succeeded)
+                {
+                    //var url = Url.Action("ConfirmedEmail", "Account", null, Request.Url.Scheme).Replace("nxtel.seven-fff.com", "www.nxtel.org");
+                    return View("ConfirmEmail");
+                    //return new RedirectResult(url);
+                }
+                else
+                {
+                    return View("Error");
+                }
             }
             catch
             {
                 return View("Error");
             }
+        }
+
+        [AllowAnonymous]
+        public ActionResult ConfirmedEmail()
+        {
+            return View("ConfirmEmail");
         }
 
         //
@@ -246,8 +251,8 @@ namespace NXtelManager.Controllers
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(user.Id, "Reset your NXtel password", string.Format("Please reset your NXtel password by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
