@@ -20,6 +20,7 @@
     });
     $("#EditContent").show();
     $("#EditZXNet").show();
+    $("#EditEditTF").show();
 });
 
 function launchEditor() {
@@ -53,6 +54,13 @@ function launchZXNet() {
     var url = "https://zxnet.co.uk/teletext/editor#" + data;
     window.open(url); 
 }
+
+function launchEditTF() {
+    var data = $("#URL").val();
+    var url = "https://edit.tf/#" + data;
+    window.open(url);
+}
+
 
 function showPreview() {
     var data = $("#URL").val();

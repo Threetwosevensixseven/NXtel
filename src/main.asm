@@ -31,6 +31,42 @@ Start:
                         ld i, a
                         im 1
 
+                        jp ESPTest
+
+
+                        //MFBreak()
+
+                        /*di
+
+                        LD A,%10000000
+                        LD E,2
+                        SETAE
+                        ld (Test1), a
+
+                        LD E,0
+                        LD D,192
+                        PIXELAD
+                        //ld (Test1), hl
+
+                        LD E,0
+                        LD D,191
+                        PIXELAD
+                        PIXELDN
+                        PIXELDN
+                        PIXELDN
+                        PIXELDN
+                        PIXELDN
+                        PIXELDN
+                        PIXELDN
+                        //ld (Test2), hl
+
+Freeze:
+                        jp Freeze
+
+
+Test1:                  dw 0
+Test2:                  dw 0*/
+
                         Turbo(MHz14)
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging

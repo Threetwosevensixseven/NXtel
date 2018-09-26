@@ -26,6 +26,7 @@ namespace NXtelData
         public string SelectedTemplates { get; set; }
         public string SelectedRoutes { get; set; }
         public int ContentHeight { get; set; }
+        public int ContentCurrentLine { get; set; }
 
         public Page()
         {

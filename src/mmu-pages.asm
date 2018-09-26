@@ -210,6 +210,8 @@ P38Size = $-$C000
 output_bin "..\banks\Bank38.bin", zeusmmu(38), P38Size
 zeusprinthex "P38Size = ", P38Size
 
+; PAGE 39 & 40 (16K PAGE 19) - ESPAT BUFFERS
+
 org MMUTemp16
 disp 0
 

@@ -164,7 +164,7 @@ mend
 
 
 
-SetSpritePattern        macro (Address, NextPatternNo, DataPatternNo)
+SetSpritePattern        macro(Address, NextPatternNo, DataPatternNo)
                         ld hl, Address+(DataPatternNo*256)
                         ld a, NextPatternNo
                         call WriteSpritePattern
@@ -267,5 +267,15 @@ NextRegRead             macro(Register)
                         out (c), a
                         inc b
                         in a, (c)
+mend
+
+
+
+MFBreak                 macro()
+                        push af
+                        ld a, r
+                        di
+                        in a, ($3f)
+                        rst 8
 mend
 

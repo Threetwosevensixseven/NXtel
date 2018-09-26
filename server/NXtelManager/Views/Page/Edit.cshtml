@@ -47,7 +47,9 @@
                        style="display:inline-block;margin:4px;float:left;display:none" title="Edit page content">Edit</a>
                     <a id="EditZXNet" href="#" class="ordered ordered-btn open" onclick="launchZXNet();return false;"
                        style="display:inline-block;margin:4px;float:left;display:none" title="Open in ZXNet">Open in ZXNet</a>
-                </td>
+                    <a id="EditEditTF" href="#" class="ordered ordered-btn open" onclick="launchEditTF(); return false;"
+                       style="display:inline-block;margin:4px;float:left;display:none" title="Open in edit-tf">Open in edit-tf</a>
+              </td>
             </tr>
             <tr>
                 <td class="lbl" style="vertical-align:top">Templates:</td>
@@ -128,6 +130,7 @@
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this page?');" />
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
 }
 
 @section head {

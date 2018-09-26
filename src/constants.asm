@@ -107,6 +107,7 @@ Dummy                   equ 0
 ; Printing
 BS                      equ 8
 CR                      equ 13
+LF                      equ 10
 Ink                     equ 16
 Paper                   equ 17
 Flash                   equ 18

@@ -34,7 +34,7 @@ namespace NXtelData
         public bool KeepTogether { get; set; }
         public byte MinOrphanWidowRows { get; set; }
         public int? CurrentFeedItem { get; set; }
-        public int FilledHeight { get; set; }
+        public int RepeatingItemLinesAdded { get; set; }
 
         public Template()
         {
@@ -370,6 +370,14 @@ namespace NXtelData
             return ParentTemplate.GetContainer();
         }
 
+        public Template GetRepeatingItem()
+        {
+            if (IsRepeatingItem)
+                return this;
+            if (ParentTemplate == null)
+                return null;
+            return ParentTemplate.GetRepeatingItem();
+        }
 
         public int? GetCurrentFeedItem()
         {
@@ -389,6 +397,11 @@ namespace NXtelData
                 Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
             if (Contents.Length != 960)
                 Contents = Pad(Contents, 960, 32);
+            if (IsContainer)
+            {
+                //Page.ContentHeight = Height;
+                Page.ContentCurrentLine = Y - 1;
+            }
             if (IsRepeatingItem)
             {
                 var feed = GetFeedRecursive();
@@ -396,12 +409,12 @@ namespace NXtelData
                 for (int i = 0; i < feed.Items.Count; i++)
                 {
                     CurrentFeedItem = i;
-                    var page = new Page();
+                    //var page = new Page();
                     foreach (var ct in FlattenTemplates() ?? new Templates())
                     {
                         if (ct == this)
                             continue;
-                        ct.Compose(page);
+                        ct.Compose(Page);
                     }
                 }
                 CurrentFeedItem = null;
@@ -424,8 +437,17 @@ namespace NXtelData
                 val = now.ToString("yyyy");
             else if (expr == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
+            else if (expr.StartsWith("@feed.item.number"))
+            {
+                int? cfi = GetCurrentFeedItem();
+                if (cfi != null)
+                    val = ((int)cfi + 1).ToString();
+            }
             else if (expr.StartsWith("@feed.item.data"))
             {
+                var firi = GetRepeatingItem();
+                if (firi != null)
+                    firi.RepeatingItemLinesAdded = 0;
                 string dataItem = GetExpression("@feed.item.data", Expression);
                 int dataItemIndex;
                 int.TryParse(dataItem, out dataItemIndex);
@@ -441,14 +463,20 @@ namespace NXtelData
                         var words = feedItem.SplitByWords(dataItemIndex, Width);
                         added = 0;
                         int line = 0;
-                        int y = Y;
                         foreach (var w in words)
                         {
+                            if (Page.ContentHeight >= container.Height)
+                                return;
                             var word = (w.Trim() + new String(' ', Width));
                             if (line >= Height)
+                            {
                                 added++;
-                            if (container != null)
-                                container.FilledHeight++;
+                                if (firi != null)
+                                    firi.RepeatingItemLinesAdded++;
+                            }
+                            Page.ContentHeight++;
+                            Page.ContentCurrentLine++;
+                            int y = Page.ContentCurrentLine;
 
                             int i = 0;
                             for (int x = X; x < X + Width; x++)
@@ -486,7 +514,13 @@ namespace NXtelData
             if (val != "")
                 val = val.PadLeft(Width);
             added = 0;
-            for (int y = Y; y < Y + Height; y++)
+            int yline = Y;
+            var ri = GetRepeatingItem();
+            if (ri != null)
+                yline = Page.ContentCurrentLine + 1 + ri.RepeatingItemLinesAdded;
+            if (this.TemplateID == 25)
+                Debug.Print(yline.ToString());
+            for (int y = yline; y < yline + Height; y++)
             {
                 for (int x = X; x < X + Width; x++)
                 {

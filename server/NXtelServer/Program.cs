@@ -154,7 +154,7 @@ namespace NXtelServer
 
                 //Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
 
-                if(client.ProcessInput(data, received, out nextPage))
+                if (client.ProcessInput(data, received, out nextPage))
                 {
                     //if (nextPage)
 
@@ -213,8 +213,10 @@ namespace NXtelServer
                     }
                 }
             }
+            catch (SocketException) { }
             catch (Exception ex)
             {
+                var x = ex.GetType();
             }
         }
 
