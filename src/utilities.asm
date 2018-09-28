@@ -258,6 +258,15 @@ pend
 
 
 ESPTest                 proc
+
+                        ld c, 'N'
+                        ld b, 9                         ; B=9: Specific UART BAUD rate to be set from lookup table.
+                        ld de, -12                       ; DEFW 14,14,15,15,16,16,17,14 ;2000000 -14
+                        rst 8
+                        noflow
+                        db $92                          ; m_DRVAPI
+                        //jr c, Error
+
                         ld c, 'N'                       ; We want to open the ESPAT driver for use
                         ld b, $F9                       ; Open the channel
                         ld ix, Channel                  ; D>N>TCP,192.168.1.3,10000
@@ -269,6 +278,16 @@ ESPTest                 proc
                         ld (ESPAT_cmd_handle), a
 
                         ld c, 'N'
+                        ld b, 10                        ; B=10: Set output buffer mode for channel
+                        ld e, a                         ; DE is channel, 0 for default - IPD only will not work on CMD channel.
+                        ld d, 0
+                        ld ix, 0                        ; HL is mode 2-255 characters 1=immediate send, 0=wait for CR or 256 chars.
+                        rst 8
+                        noflow
+                        db $92                          ; m_DRVAPI
+                        jr c, Error
+
+                        ld c, 'N'
                         ld b, $05                       ; B=5: Set CMD and IPD timeouts
                         ld de, 10                       ; DE=receive (1st parameter)
                         ld ix, 10                       ; HL=send (2nd parameter)
@@ -276,7 +295,7 @@ ESPTest                 proc
                         noflow
                         db $92                          ; m_DRVAPI
                         jr c, Error
-
+Reprint:
                         ld hl, Text
                         ld (Pointer), hl
                         ld hl, TextLen
@@ -301,6 +320,8 @@ PrintLoop:
                         ld a, h
                         or l
                         jp nz, PrintLoop
+
+                        jp Reprint
 
                         Border(Blue)
 Freeze:
