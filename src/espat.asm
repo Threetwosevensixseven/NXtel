@@ -162,12 +162,16 @@ Wait:                   ld bc, zeuskeyaddr("1")
                         ld a, d
                         and zeuskeymask("2")
                         jp z, TestReceive
+                        ld a, d
+                        and zeuskeymask("3")
+                        jp z, Start2
                         jp Wait
 
 Menu:                   db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db "ESPAT TEST MENU", CR, CR, CR
                         db "   1    Send", CR
                         db "   2    Receive", CR
+                        db "   3    NXtel Demo", CR
                         db "CS+4    Back to this menu", CR, CR, CR
                         db At, 21, 0, "Choose Option..."
 MenuLen                 equ $-Menu

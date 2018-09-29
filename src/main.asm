@@ -67,6 +67,7 @@ Freeze:
 Test1:                  dw 0
 Test2:                  dw 0*/
 
+Start2:
                         Turbo(MHz14)
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
