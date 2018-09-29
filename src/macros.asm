@@ -13,6 +13,17 @@ mend
 
 
 
+PrintULAString          macro(Text, Length)
+                        ld a, 2                         ; upper screen
+                        call 5633                       ; open channel
+Loop:                   ld de, Text                     ; address of string
+                        ld bc, Length                   ; length of string to print
+                        call 8252                       ; print our string
+                        //jp Loop                         ; repeat until screen is full
+mend
+
+
+
 Turbo                   macro(Mode)
                         nextreg TurboRegister, Mode
 mend
@@ -26,6 +37,12 @@ Border                  macro(Colour)
                           ld a, Colour
                         endif
                         out (ULA_PORT), a
+                        if Colour=0
+                          xor a
+                        else
+                          ld a, Colour*8
+                        endif
+                        ld (23624), a
 mend
 
 
@@ -277,5 +294,15 @@ MFBreak                 macro()
                         di
                         in a, ($3f)
                         rst 8
+mend
+
+
+
+SendESP                 macro(String)
+                        if(String <> "")
+                          db String
+                        endif
+                        //db CR
+                        db LF
 mend
 

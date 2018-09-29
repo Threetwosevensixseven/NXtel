@@ -31,7 +31,7 @@ Start:
                         ld i, a
                         im 1
 
-                        jp ESPTest
+                        jp ESPTestMenu
 
 
                         //MFBreak()
@@ -142,6 +142,7 @@ PrintTimeCall:          ld hl, PrintTime
 
                         include "utilities.asm"         ; Utility routines
                         include "esxDOS.asm"
+                        include "espat.asm"
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
                         include "mmu-pages.asm"

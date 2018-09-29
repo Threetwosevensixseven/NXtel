@@ -189,6 +189,21 @@ ClsAttr                 proc
 pend
 
 
+
+Cls                     proc
+                        ld (EXIT+1), sp                 ; Save the stack
+                        ld sp, ATTRS_8x8                ; Set stack to end of screen
+                        ld de, $0000                    ; All pixels unset
+                        ld b, e                         ; Loop 256 times: 12 words * 256 = 6144 bytes
+                        noflow
+CLS_LOOP:               defs 12, $D5                    ; 12 lots of push de
+                        djnz CLS_LOOP
+EXIT:                   ld sp, $0000                    ; Restore the stack
+                        ret
+pend
+
+
+
 DoFlash                 proc
                         ld a, [Frame]SMC
                         inc a
@@ -254,107 +269,4 @@ Loop:
                         ret
 pend
 */
-
-
-
-ESPTest                 proc
-
-                        ld c, 'N'
-                        ld b, 9                         ; B=9: Specific UART BAUD rate to be set from lookup table.
-                        ld de, -12                       ; DEFW 14,14,15,15,16,16,17,14 ;2000000 -14
-                        rst 8
-                        noflow
-                        db $92                          ; m_DRVAPI
-                        //jr c, Error
-
-                        ld c, 'N'                       ; We want to open the ESPAT driver for use
-                        ld b, $F9                       ; Open the channel
-                        ld ix, Channel                  ; D>N>TCP,192.168.1.3,10000
-                        ld de, ChannelLen
-                        rst 8
-                        noflow
-                        db $92                          ; m_DRVAPI
-                        jr c, Error
-                        ld (ESPAT_cmd_handle), a
-
-                        ld c, 'N'
-                        ld b, 10                        ; B=10: Set output buffer mode for channel
-                        ld e, a                         ; DE is channel, 0 for default - IPD only will not work on CMD channel.
-                        ld d, 0
-                        ld ix, 0                        ; HL is mode 2-255 characters 1=immediate send, 0=wait for CR or 256 chars.
-                        rst 8
-                        noflow
-                        db $92                          ; m_DRVAPI
-                        jr c, Error
-
-                        ld c, 'N'
-                        ld b, $05                       ; B=5: Set CMD and IPD timeouts
-                        ld de, 10                       ; DE=receive (1st parameter)
-                        ld ix, 10                       ; HL=send (2nd parameter)
-                        rst 8
-                        noflow
-                        db $92                          ; m_DRVAPI
-                        jr c, Error
-Reprint:
-                        ld hl, Text
-                        ld (Pointer), hl
-                        ld hl, TextLen
-                        ld (ToPrint), hl
-PrintLoop:
-                        ld hl, (Pointer)
-                        ld e, (hl)
-                        ld c, 'N'
-                        ld b, $FB                       ; B=$FB: Output character
-                        ld a, (ESPAT_cmd_handle)
-                        ld d, a
-                        rst 8
-                        noflow
-                        db $92                          ; m_DRVAPI
-                        jr c, SendError
-                        ld hl, (Pointer)
-                        inc hl
-                        ld (Pointer), hl
-                        ld hl, (ToPrint)
-                        dec hl
-                        ld (ToPrint), hl
-                        ld a, h
-                        or l
-                        jp nz, PrintLoop
-
-                        jp Reprint
-
-                        Border(Blue)
-Freeze:
-                        jp Freeze
-Error:
-                        ld (ErrNo), a
-                        Border(Red)
-                        jp Freeze
-SendError:
-                        cp 1
-                        jp z, PrintLoop
-                        jp Error
-
-ErrNo:                  db 0
-ESPAT_cmd_handle:       db 0
-Channel:                db "TCP,192.168.1.3,10000"
-ChannelLen              equ $-Channel
-Text:                   db CR, LF
-                        db "Far out in the uncharted backwaters of the unfashionable end of ", CR, LF
-                        db "the western spiral arm of the Galaxy lies a small unregarded ", CR, LF
-                        db "yellow sun.", CR, LF, CR, LF
-                        db "Orbiting this at a distance of roughly ninety-two million miles ", CR, LF
-                        db "is an utterly insignificant little blue green planet whose ape-", CR, LF
-                        db "descended life forms are so amazingly primitive that they still ", CR, LF
-                        db "think digital watches are a pretty neat idea.", CR, LF, CR, LF
-                        db "This planet has - or rather had - a problem, which was this: most ", CR, LF
-                        db "of the people on it were unhappy for pretty much of the time. ", CR, LF
-                        db "Many solutions were suggested for this problem, but most of these ", CR, LF
-                        db "were largely concerned with the movements of small green pieces ", CR, LF
-                        db "of paper, which is odd because on the whole it wasn't the small ", CR, LF
-                        db "green pieces of paper that were unhappy.", CR, LF
-TextLen                 equ $-Text
-Pointer:                dw 0
-ToPrint                 dw 0
-pend
 
