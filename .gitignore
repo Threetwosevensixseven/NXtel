@@ -11,7 +11,8 @@
 /server/Version/obj
 /server/NXtelData/bin
 /server/NXtelData/obj
-
+/server/ESPATTest/bin
+/server/ESPATTest/obj
 /demos/NXtelDemo2
 /demos/NexTelDemo1
 /server/.vs/config
