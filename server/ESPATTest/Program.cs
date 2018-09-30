@@ -34,17 +34,27 @@ namespace ESPATTest
         {
             while (true)
             {
-                if (Console.KeyAvailable)
+                foreach (char c in GetText())
                 {
-                    var key = Console.ReadKey(true);
-                    //Console.Write(key.KeyChar);
-                    var send = new byte[] { Convert.ToByte(key.KeyChar) };
-                    foreach (KeyValuePair<Socket, Client> client in clientList)
-                    {
+                    Thread.Sleep(5);
+                    if (clientList.Count == 0)
+                        continue;
+                    var send = new byte[] { Convert.ToByte(c) };
+                    var client = clientList.FirstOrDefault();
                         client.Key.BeginSend(send, 0, send.Length,
-                            SocketFlags.None, new AsyncCallback(SendData), client.Key);
-                    }
+                        SocketFlags.None, new AsyncCallback(SendData), client.Key);
                 }
+                //if (Console.KeyAvailable)
+                //{
+                //    var key = Console.ReadKey(true);
+                //    //Console.Write(key.KeyChar);
+                //    var send = new byte[] { Convert.ToByte(key.KeyChar) };
+                //    foreach (KeyValuePair<Socket, Client> client in clientList)
+                //    {
+                //        client.Key.BeginSend(send, 0, send.Length,
+                //            SocketFlags.None, new AsyncCallback(SendData), client.Key);
+                //    }
+                //}
             }
         }
 
@@ -113,5 +123,40 @@ namespace ESPATTest
             }
         }
 
+        private static string GetText()
+        {
+            var sb = new StringBuilder();
+            sb.Append("\r\r");
+            sb.Append("It is an important and popular fact that things are not always ");
+            sb.Append("what they seem. For instance, on the planet Earth, man had always ");
+            sb.Append("assumed that he was more intelligent than dolphins because he had ");
+            sb.Append("achieved so much - the wheel, New York, wars and so on - whilst ");
+            sb.Append("all the dolphins had ever done was muck about in the water having ");
+            sb.Append("a good time. But conversely, the dolphins had always believed ");
+            sb.Append("that they were far more intelligent than man - for precisely the ");
+            sb.Append("same reasons.");
+            sb.Append("\r\r");
+            sb.Append("Curiously enough, the dolphins had long known of the impending ");
+            sb.Append("destruction of  the planet Earth and had made many attempts to ");
+            sb.Append("alert mankind of the danger; but most of their communications ");
+            sb.Append("were misinterpreted as amusing attempts to punch footballs or ");
+            sb.Append("whistle for tidbits, so they eventually gave up and left the ");
+            sb.Append("Earth by their own means shortly before the Vogons arrived.");
+            sb.Append("\r\r");
+            sb.Append("The last ever dolphin  message was misinterpreted as a ");
+            sb.Append("surprisingly sophisticated attempt to do a double-backwards-");
+            sb.Append("somersault through a hoop whilst whistling the \"Star Sprangled ");
+            sb.Append("Banner\", but in fact the message was this: So long and thanks for ");
+            sb.Append("all the fish.");
+            sb.Append("\r\r");
+            sb.Append("In fact there was only one species on the planet more intelligent ");
+            sb.Append("than  dolphins, and they spent a lot of their time in behavioural ");
+            sb.Append("research laboratories running round inside wheels and conducting" );
+            sb.Append("frighteningly elegant and subtle experiments on man.");
+            sb.Append("\r\r");
+            sb.Append("The fact that once again man completely misinterpreted this ");
+            sb.Append("relationship was entirely according to these creatures' plans.");
+            return sb.ToString();
+        }
     }
 }

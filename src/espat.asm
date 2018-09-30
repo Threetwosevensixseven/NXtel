@@ -17,7 +17,7 @@ ESPSendTest             proc
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI
-                        jr c, Error
+                        jp c, Error
                         ld (ESPAT_cmd_handle), a
 
                         ld c, 'N'
@@ -56,7 +56,20 @@ PrintLoop:
                         db $92                          ; m_DRVAPI
                         jr c, SendError
 
-Wait:                   ld bc, zeuskeyaddr("4")
+                        ld c, 'N'
+                        ld b, $FC                       ; B=$fc: input character
+                        ld a, (ESPAT_cmd_handle)
+                        ld d, a
+                        rst 8
+                        noflow
+                        db $92                          ; m_DRVAPI
+                        jr c, NoInput
+                        rst 16                          ; Print input character in a
+                        ld a, 255
+                        ld(23692), a                    ; Turn off ULA scroll
+NoInput:
+
+                        ld bc, zeuskeyaddr("4")
                         in a, (c)
                         and zeuskeymask("4")
                         jp nz, NoKey
@@ -188,6 +201,8 @@ TestSend                proc
                         call Cls
                         PrintULAString(TestSend.Text, TestSend.TextLen)
                         ei
+                        ld a, BrightWhiteBlackP
+                        ld (23693), a
                         jp ESPSendTest
 Text                    db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db "ESPAT TEST SEND", CR, CR
