@@ -34,63 +34,17 @@ namespace ESPATTest
         {
             while (true)
             {
-                string Input = Console.ReadLine();
-
-                if (Input == "clients")
+                if (Console.KeyAvailable)
                 {
-                    if (clientList.Count == 0) continue;
-                    int clientNumber = 0;
+                    var key = Console.ReadKey(true);
+                    //Console.Write(key.KeyChar);
+                    var send = new byte[] { Convert.ToByte(key.KeyChar) };
                     foreach (KeyValuePair<Socket, Client> client in clientList)
                     {
-                        Client currentClient = client.Value;
-                        clientNumber++;
-                        Console.WriteLine(string.Format("Client #{0} (From: {1}:{2}, Connection time: {3})", clientNumber,
-                        currentClient.remoteEndPoint.Address.ToString(), currentClient.remoteEndPoint.Port, currentClient.connectedAt));
+                        client.Key.BeginSend(send, 0, send.Length,
+                            SocketFlags.None, new AsyncCallback(SendData), client.Key);
                     }
                 }
-
-                if (Input.StartsWith("kill"))
-                {
-                    string[] _Input = Input.Split(' ');
-                    int clientID = 0;
-                    try
-                    {
-                        if (Int32.TryParse(_Input[1], out clientID) && clientID >= clientList.Keys.Count)
-                        {
-                            int currentClient = 0;
-                            foreach (Socket currentSocket in clientList.Keys.ToArray())
-                            {
-                                currentClient++;
-                                if (currentClient == clientID)
-                                {
-                                    currentSocket.Shutdown(SocketShutdown.Both);
-                                    currentSocket.Close();
-                                    clientList.Remove(currentSocket);
-                                    Console.WriteLine("Client has been disconnected and cleared up.");
-                                }
-                            }
-                        }
-                        else { Console.WriteLine("Could not kick client: invalid client number specified."); }
-                    }
-                    catch { Console.WriteLine("Could not kick client: invalid client number specified."); }
-                }
-
-                if (Input == "killall")
-                {
-                    int deletedClients = 0;
-                    foreach (Socket currentSocket in clientList.Keys.ToArray())
-                    {
-                        currentSocket.Shutdown(SocketShutdown.Both);
-                        currentSocket.Close();
-                        clientList.Remove(currentSocket);
-                        deletedClients++;
-                    }
-
-                    Console.WriteLine("{0} clients have been disconnected and cleared up.", deletedClients);
-                }
-
-                if (Input == "lock") { newClients = false; Console.WriteLine("Refusing new connections."); }
-                if (Input == "unlock") { newClients = true; Console.WriteLine("Accepting new connections."); }
             }
         }
 
@@ -107,8 +61,8 @@ namespace ESPATTest
             //Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
             var send = new byte[] { Convert.ToByte('A') };
-            newSocket.BeginSend(send, 0, send.Length,
-                SocketFlags.None, new AsyncCallback(SendData), newSocket);
+            newSocket.BeginSend(send, 0, send.Length, SocketFlags.None, new AsyncCallback(SendData), newSocket);
+            newSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), newSocket);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
         }
 
@@ -118,7 +72,7 @@ namespace ESPATTest
             {
                 Socket clientSocket = (Socket)result.AsyncState;
                 clientSocket.EndSend(result);
-                clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
+                //clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
             }
             catch { }
         }
