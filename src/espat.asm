@@ -2,12 +2,12 @@
 
 ESPSendTest             proc
 
-                        ld c, 'N'
+                        /*ld c, 'N'
                         ld b, 9                         ; B=9: Specific UART BAUD rate to be set from lookup table.
-                        ld de, -12                      ; DEFW 14,14,15,15,16,16,17,14 ;2000000 -14
+                        ld de, -12                        ; DEFW 14,14,15,15,16,16,17,14 ;2000000 -14
                         rst 8
                         noflow
-                        db $92                          ; m_DRVAPI
+                        db $92*/                          ; m_DRVAPI
                         //jr c, Error
 
                         ld c, 'N'                       ; We want to open the ESPAT driver for use
@@ -33,7 +33,7 @@ ESPSendTest             proc
                         ld c, 'N'
                         ld b, $05                       ; B=5: Set CMD and IPD timeouts
                         ld de, 10                       ; DE=receive (1st parameter)
-                        ld ix, 10                       ; HL=send (2nd parameter)
+                        ld ix, 2000                     ; HL=send (2nd parameter)
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI

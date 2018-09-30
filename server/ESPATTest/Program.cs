@@ -34,8 +34,14 @@ namespace ESPATTest
         {
             while (true)
             {
+                //int count = 0;
                 foreach (char c in GetText())
                 {
+                    //if (count >= 200)
+                    //{
+                    //    Thread.Sleep(100);
+                    //    count = 0;
+                    //}
                     Thread.Sleep(5);
                     if (clientList.Count == 0)
                         continue;
@@ -43,6 +49,7 @@ namespace ESPATTest
                     var client = clientList.FirstOrDefault();
                         client.Key.BeginSend(send, 0, send.Length,
                         SocketFlags.None, new AsyncCallback(SendData), client.Key);
+                    //count++;
                 }
                 //if (Console.KeyAvailable)
                 //{
@@ -137,20 +144,20 @@ namespace ESPATTest
             sb.Append("same reasons.");
             sb.Append("\r\r");
             sb.Append("Curiously enough, the dolphins had long known of the impending ");
-            sb.Append("destruction of  the planet Earth and had made many attempts to ");
+            sb.Append("destruction of the planet Earth and had made many attempts to ");
             sb.Append("alert mankind of the danger; but most of their communications ");
             sb.Append("were misinterpreted as amusing attempts to punch footballs or ");
             sb.Append("whistle for tidbits, so they eventually gave up and left the ");
             sb.Append("Earth by their own means shortly before the Vogons arrived.");
             sb.Append("\r\r");
-            sb.Append("The last ever dolphin  message was misinterpreted as a ");
+            sb.Append("The last ever dolphin message was misinterpreted as a ");
             sb.Append("surprisingly sophisticated attempt to do a double-backwards-");
             sb.Append("somersault through a hoop whilst whistling the \"Star Sprangled ");
             sb.Append("Banner\", but in fact the message was this: So long and thanks for ");
             sb.Append("all the fish.");
             sb.Append("\r\r");
             sb.Append("In fact there was only one species on the planet more intelligent ");
-            sb.Append("than  dolphins, and they spent a lot of their time in behavioural ");
+            sb.Append("than dolphins, and they spent a lot of their time in behavioural ");
             sb.Append("research laboratories running round inside wheels and conducting" );
             sb.Append("frighteningly elegant and subtle experiments on man.");
             sb.Append("\r\r");
