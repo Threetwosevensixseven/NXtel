@@ -31,7 +31,7 @@ namespace NXtelServer
             //Page.Update("welcome-date.bin", 1, 0, "Welcome (Date)");
             new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 2380);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 10000); //2380
             serverSocket.Bind(endPoint);
             serverSocket.Listen(0);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
@@ -112,7 +112,8 @@ namespace NXtelServer
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //string output = "-- NXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
             //output += "Please input your password:\n\r";
-            var page = Page.Load(0, 0);
+            //var page = Page.Load(0, 0);
+            var page = Page.Load(9999, 0);
             client.PageHistory.Push(page);
             //page.SetVersion(Version);
             client.clientState = ClientStates.Logging;
@@ -157,12 +158,18 @@ namespace NXtelServer
                 if (client.ProcessInput(data, received, out nextPage))
                 {
                     //if (nextPage)
-
-
                     Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
                     //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
                     clientSocket.BeginSend(nextPage.Contents7BitEncoded, 0, nextPage.Contents7BitEncoded.Length,
                         SocketFlags.None, new AsyncCallback(SendData), clientSocket);
+
+                    /*foreach (byte b in nextPage.Contents7BitEncoded)
+                    {
+                        var send = new byte[] { b };
+                        clientSocket.BeginSend(send, 0, send.Length,
+                            SocketFlags.None, new AsyncCallback(SendData), clientSocket);
+                        //Thread.Sleep(5);
+                    }*/
                 }
 
                 // 0x2E & 0X0D => return/intro

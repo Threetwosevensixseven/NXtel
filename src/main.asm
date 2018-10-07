@@ -17,6 +17,7 @@ Cspect optionbool 15, -15, "Cspect", false
 ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
+Carousel optionbool 665, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
                         org $6000
@@ -31,11 +32,9 @@ Start:
                         ld i, a
                         im 1
 
-                        jp ESPTestMenu
-
+                        //jp ESPTestMenu
 
                         //MFBreak()
-
                         /*di
 
                         LD A,%10000000
@@ -95,12 +94,16 @@ IsNext:                 ld a, $CD                       ; call NN
                         ld (PrintTimeCall), a
 
 NextPage:
-                        ld a, (Pages.Current)           ; Load next page
+                        MMU6(0, false)
+                        MMU7(1, false)
+                        ld a, (PagesCount)
+                        ld e, a
+                        ld a, (PagesCurrent)            ; Load next page
                         inc a
-                        cp Pages.Count
+                        cp e
                         jp c, SavePage
                         xor a
-SavePage:               ld (Pages.Current), a
+SavePage:               ld (PagesCurrent), a
                         ld hl, Pages.Table
                         add a, a
                         add a, a
@@ -122,12 +125,22 @@ SavePage:               ld (Pages.Current), a
                         ex de, hl
                         ld (PageDuration), hl
                         ex af, af'
+                        MMU7(30, false)
                         call LoadPage                   ; Bank in a (e.g. 31), Page in b (0..7)
                         call RenderBuffer               ; display page
 MainLoop:
                         ei
                         halt
 
+/*                        ld bc, zeuskeyaddr("4")
+                        in a, (c)
+                        and zeuskeymask("4")
+                        jp nz, NoKey
+                        ld bc, zeuskeyaddr("[shift]")
+                        in a, (c)
+                        and zeuskeymask("[shift]")
+                        jp z, BackToMenu*/
+NoKey:
                         call DoFlash
 PrintTimeCall:          ld hl, PrintTime
 
@@ -140,13 +153,18 @@ PrintTimeCall:          ld hl, PrintTime
                         ld hl, 0
                         ld (PageTimer), hl
                         jp NextPage
+PagesCurrent:           db -1
+//BackToMenu:
+//                        PageBankZX(0, true)
+//                        jp ESPTestMenu
 
                         include "utilities.asm"         ; Utility routines
                         include "esxDOS.asm"
                         include "espat.asm"
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
-                        include "mmu-pages.asm"
+                        include "page0.asm"             ; 16K page 0
+                        include "mmu-pages.asm"         ; 8k banks
 /*
 org $BE00
                         loop 257
@@ -170,7 +188,11 @@ PrintTimeCallX:         ld hl, PrintTime
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif
 
-                        output_sna "..\bin\NXtel.sna", $FF40, Start
+                        if Carousel
+                          output_sna "..\carousel\NXtelCarousel.sna", $FF40, Start
+                        else
+                          output_sna "..\bin\NXtel.sna", $FF40, Start
+                        endif
 
                         zeusinvoke "..\build\deploy.bat"
 

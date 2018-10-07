@@ -28,16 +28,16 @@ ESPSendTest             proc
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI
-                        jr c, Error
+                        jp c, Error
 
                         ld c, 'N'
                         ld b, $05                       ; B=5: Set CMD and IPD timeouts
                         ld de, 10                       ; DE=receive (1st parameter)
-                        ld ix, 2000                     ; HL=send (2nd parameter)
+                        ld ix, 10                       ; HL=send (2nd parameter)
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI
-                        jr c, Error
+                        jp c, Error
 
 Reprint:
                         ld hl, Text
@@ -51,10 +51,10 @@ PrintLoop:
                         ld b, $FB                       ; B=$FB: Output character
                         ld a, (ESPAT_cmd_handle)
                         ld d, a
-                        rst 8
-                        noflow
-                        db $92                          ; m_DRVAPI
-                        jr c, SendError
+                        //rst 8
+                        //noflow
+                        //db $92                          ; m_DRVAPI
+                        //jr c, SendError
 
                         ld c, 'N'
                         ld b, $FC                       ; B=$fc: input character
@@ -64,6 +64,14 @@ PrintLoop:
                         noflow
                         db $92                          ; m_DRVAPI
                         jr c, NoInput
+                        cp Teletext.CLS
+                        jp nz, NotCLS
+                        Border(Magenta)
+Freeze2:
+                        ei
+                        halt
+                        jp Freeze2
+NotCLS:
                         rst 16                          ; Print input character in a
                         ld a, 255
                         ld(23692), a                    ; Turn off ULA scroll
@@ -141,7 +149,8 @@ Text:                   SendESP("")
                         SendESP("green pieces of paper that were unhappy. ")
 TextLen                 equ $-Text
 Pointer:                dw 0
-ToPrint                 dw 0
+ToPrint:                dw 0
+TestChar:               db 0
 
 Close:
                         ld c, 'N'
@@ -173,18 +182,18 @@ Wait:                   ld bc, zeuskeyaddr("1")
                         and zeuskeymask("1")
                         jp z, TestSend
                         ld a, d
+                        //and zeuskeymask("2")
+                        //jp z, TestReceive
+                        //ld a, d
                         and zeuskeymask("2")
-                        jp z, TestReceive
-                        ld a, d
-                        and zeuskeymask("3")
                         jp z, Start2
                         jp Wait
 
 Menu:                   db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db "ESPAT TEST MENU", CR, CR, CR
-                        db "   1    Send", CR
-                        db "   2    Receive", CR
-                        db "   3    NXtel Demo", CR
+                        db "   1    Send and Receive", CR
+                        //db "   2    Receive", CR
+                        db "   2    NXtel Demo", CR
                         db "CS+4    Back to this menu", CR, CR, CR
                         db At, 21, 0, "Choose Option..."
 MenuLen                 equ $-Menu
@@ -205,7 +214,7 @@ TestSend                proc
                         ld (23693), a
                         jp ESPSendTest
 Text                    db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
-                        db "ESPAT TEST SEND", CR, CR
+                        //db "ESPAT TEST", CR, CR
 TextLen                 equ $-Text
 pend
 

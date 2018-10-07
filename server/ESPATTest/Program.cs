@@ -77,8 +77,6 @@ namespace ESPATTest
             //output += "Please input your password:\n\r";
             //Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
-            var send = new byte[] { Convert.ToByte('A') };
-            newSocket.BeginSend(send, 0, send.Length, SocketFlags.None, new AsyncCallback(SendData), newSocket);
             newSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), newSocket);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
         }
@@ -134,36 +132,59 @@ namespace ESPATTest
         {
             var sb = new StringBuilder();
             sb.Append("\r\r");
-            sb.Append("It is an important and popular fact that things are not always ");
-            sb.Append("what they seem. For instance, on the planet Earth, man had always ");
-            sb.Append("assumed that he was more intelligent than dolphins because he had ");
-            sb.Append("achieved so much - the wheel, New York, wars and so on - whilst ");
-            sb.Append("all the dolphins had ever done was muck about in the water having ");
-            sb.Append("a good time. But conversely, the dolphins had always believed ");
-            sb.Append("that they were far more intelligent than man - for precisely the ");
+            sb.Append("It is an important and popular\rfact that things are not always\r");
+            sb.Append("what they seem. For instance, on\rthe planet Earth, man had always\r");
+            sb.Append("assumed that he was more\rintelligent than dolphins\rbecause he had");
+            sb.Append("achieved so much -\rthe wheel, New York, wars and so\ron - whilst ");
+            sb.Append("all the dolphins had\rever done was muck about in the\rwater having ");
+            sb.Append("a good time. But\rconversely, the dolphins had\ralways believed ");
+            sb.Append("that they were\rfar more intelligent than man -\rfor precisely the ");
             sb.Append("same reasons.");
             sb.Append("\r\r");
-            sb.Append("Curiously enough, the dolphins had long known of the impending ");
-            sb.Append("destruction of the planet Earth and had made many attempts to ");
-            sb.Append("alert mankind of the danger; but most of their communications ");
-            sb.Append("were misinterpreted as amusing attempts to punch footballs or ");
-            sb.Append("whistle for tidbits, so they eventually gave up and left the ");
-            sb.Append("Earth by their own means shortly before the Vogons arrived.");
+            sb.Append("Curiously enough, the dolphins\rhad long known of the impending\r");
+            sb.Append("destruction of the planet Earth\rand had made many attempts to\r");
+            sb.Append("alert mankind of the danger;\rbut most of their communications\r");
+            sb.Append("were misinterpreted as amusing\rattempts to punch footballs or\r");
+            sb.Append("whistle for tidbits, so they\reventually gave up and left the\r");
+            sb.Append("Earth by their own means shortly\rbefore the Vogons arrived.");
             sb.Append("\r\r");
-            sb.Append("The last ever dolphin message was misinterpreted as a ");
-            sb.Append("surprisingly sophisticated attempt to do a double-backwards-");
-            sb.Append("somersault through a hoop whilst whistling the \"Star Sprangled ");
-            sb.Append("Banner\", but in fact the message was this: So long and thanks for ");
+            sb.Append("The last ever dolphin message\rwas misinterpreted as a\r");
+            sb.Append("surprisingly sophisticated\rattempt to do a double-\rbackwards-");
+            sb.Append("somersault through a\rhoop whilst whistling the \"Star\rSpangled ");
+            sb.Append("Banner\", but in fact\rthe message was this: So long\rand thanks for ");
             sb.Append("all the fish.");
             sb.Append("\r\r");
-            sb.Append("In fact there was only one species on the planet more intelligent ");
-            sb.Append("than dolphins, and they spent a lot of their time in behavioural ");
-            sb.Append("research laboratories running round inside wheels and conducting" );
-            sb.Append("frighteningly elegant and subtle experiments on man.");
+            sb.Append("In fact there was only one\rspecies on the planet more\rintelligent ");
+            sb.Append("than dolphins, and\rthey spent a lot of their time\rin behavioural ");
+            sb.Append("research\rlaboratories running round\rinside wheels and conducting\r" );
+            sb.Append("frighteningly elegant and subtle\rexperiments on man.");
             sb.Append("\r\r");
-            sb.Append("The fact that once again man completely misinterpreted this ");
-            sb.Append("relationship was entirely according to these creatures' plans.");
+            sb.Append("The fact that once again man\rcompletely misinterpreted this\r");
+            sb.Append("relationship was entirely\raccording to these creatures'\rplans.");
             return sb.ToString();
         }
+
+        private static string SplitLines(StringBuilder SB, int maxStringLength)
+        {
+            string text = SB.ToString();
+            char[] splitOnCharacters = new char[] { ' ', '-', '\r' };
+            var sb = new StringBuilder();
+            var index = 0;
+            while (text.Length > index)
+            {
+                if (index != 0)
+                    sb.Append('\r');
+                var splitAt = index + maxStringLength <= text.Length
+                    ? text.Substring(index, maxStringLength).LastIndexOfAny(splitOnCharacters)
+                    : text.Length - index;
+                if (splitAt != -1 && splitAt < (text.Length - 1) && text[splitAt] == '-')
+                    splitAt++;
+                splitAt = (splitAt == -1) ? maxStringLength : splitAt;
+                sb.Append(text.Substring(index, splitAt).Trim());
+                index += splitAt;
+            }
+            return sb.ToString();
+        }
+
     }
 }

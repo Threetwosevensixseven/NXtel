@@ -54,6 +54,22 @@ PortOut                 macro(Port, Value)
 mend
 
 
+DebugPrintA             macro()
+                        jp BEGIN
+DEBUG_VAL:              db 0
+BEGIN:
+                        ld (DEBUG_VAL), a
+                        ld a, 2                         ; upper screen
+                        call 5633                       ; open channel
+                        ld a, (DEBUG_VAL)
+                        ld c, a
+                        ld b, 0                         ; Print this byte
+                        call 6683                       ; As a decimal
+                        ld a, 32
+                        rst 16
+mend
+
+
 
 PageBankZX              macro(Bank, ReEnableInterrupts)
                         ld bc, 0x7ffd

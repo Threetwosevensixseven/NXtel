@@ -104,6 +104,13 @@ Dummy                   equ 0
 
 
 
+; Teletext
+Teletext                proc
+  CLS                   equ 12
+pend
+
+
+
 ; Printing
 BS                      equ 8
 CR                      equ 13
