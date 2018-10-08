@@ -93,6 +93,12 @@ Start2:
 IsNext:                 ld a, $CD                       ; call NN
                         ld (PrintTimeCall), a
 
+                        ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
+                        ld a, (ResourcesCount)
+                        add a, a
+                        add hl, a
+                        ld (PagesTable), hl             ; Store Pages.Table address
+
 NextPage:
                         MMU6(0, false)
                         MMU7(1, false)
@@ -104,7 +110,7 @@ NextPage:
                         jp c, SavePage
                         xor a
 SavePage:               ld (PagesCurrent), a
-                        ld hl, Pages.Table
+                        ld hl, [PagesTable]SMC
                         add a, a
                         add a, a
                         add hl, a
