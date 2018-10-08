@@ -18,7 +18,7 @@ FileName:
 Resources proc Table:
 
   ; Bank  FName  Index  Notes
-  db  30,    30  ;   0  Layer 2 Teletext renderer
+/*  db  30,    30  ;   0  Layer 2 Teletext renderer
   //db  31,    31  ;   1  Pages31.P0 to Pages31.P7
   db  32,    32  ;   1  Pages32.P0 to Pages32.P7
   db  33,    33  ;   2  Pages33.P0 to Pages33.P7
@@ -27,7 +27,7 @@ Resources proc Table:
   db  36,    36  ;   5  Pages36.P0 to Pages36.P7
   db  37,    37  ;   6  Pages37.P0 to Pages37.P7
   db  38,    38  ;   7  Pages38.P0 to Pages38.P7
-
+*/
   struct
     Bank        ds 1
     FName       ds 1
@@ -45,7 +45,7 @@ pend
 Pages proc Table:
 
   ; Bank  Slot  Duration    Notes
-
+/*
   //db  33,    1, dw 32767+NOC;   Engineering Test Page
 
   db  37,    5, dw 350+NOC  ;   Title
@@ -113,7 +113,7 @@ Pages proc Table:
   //db  31,    5  ;   5  double-height-copy-down
   //db  31,    6  ;   6  double-height-overflow
   //db  31,    7  ;   7  double-height-overflow2
-
+*/
   struct
     Bank        ds 1
     Slot        ds 1

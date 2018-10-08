@@ -22,3 +22,6 @@
 /server/NXtelManager/App_Data/*.ldf
 /server/NXtelManager/App_Data/Settings.xml
 /server/NXtelManager/Publish
+/carousel/creator/csharp/NXtelCarousel/bin
+/carousel/creator/csharp/NXtelCarousel/obj
+
