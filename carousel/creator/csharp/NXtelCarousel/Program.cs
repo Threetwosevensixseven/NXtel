@@ -12,13 +12,16 @@ namespace NXtelCarousel
     {
         const int LEN = 2;
         const int SNAP_LEN = 131103;
-        const int SNAP_PADLEN = 0x22000;
+        const int SNAP_PADLEN = 0x24000;
         const int BANK_PADLEN = 0x2000;
         const string MSG = " Oi, stay out of my code!";
         public static Random RNG = new Random(SNAP_LEN);
+        public static bool PadWithRandom;
 
         static int Main(string[] args)
         {
+
+
             // Set up input snapshot
             string inputBinary = GetFileName("InputBinary");
             if (!File.Exists(inputBinary))
@@ -42,6 +45,9 @@ namespace NXtelCarousel
             if (!Directory.Exists(Path.GetDirectoryName(outputBinary)))
                 Directory.CreateDirectory(Path.GetDirectoryName(outputBinary));
             string outputBinaryName = Path.GetFileName(outputBinary);
+
+            // Read padding preference
+            PadWithRandom = (ConfigurationManager.AppSettings["PadWithRandom"] ?? "1") == "1";
 
             // Read CSVFile
             var lines = File.ReadAllLines(inputCSV);
@@ -76,7 +82,7 @@ namespace NXtelCarousel
             Bank bank = null;
             foreach (var file in files.Keys)
             {
-                byte bankNo = Convert.ToByte((fileNo / 8) + 30);
+                byte bankNo = Convert.ToByte((fileNo / 8) + 31);
                 if (!banks.Any(b => b.BankNo == bankNo))
                 {
                     bank = new Bank(bankNo);
@@ -85,11 +91,11 @@ namespace NXtelCarousel
                 var bytes = ReadPage(file);
                 bank.Bytes.AddRange(bytes);
             }
-            foreach (var b in banks)
+            if (bank != null)
             {
-                var bytes = b.Bytes.ToArray();
+                var bytes = bank.Bytes.ToArray();
                 Pad(ref bytes, 1024 * 8);
-                b.Bytes = bytes.ToList();
+                bank.Bytes = bytes.ToList();
             }
 
             // Read input binary
@@ -105,12 +111,15 @@ namespace NXtelCarousel
 
             // Write tables
             int p = 0x9000;
-            binary[p++] = Convert.ToByte(banks.Count);              // ResourcesCount
+            binary[p++] = Convert.ToByte(banks.Count + 1);          // ResourcesCount (including page 30 for code)
             binary[p++] = Convert.ToByte(pages.Count);              // PagesCount
             byte[] fn = Encoding.ASCII.GetBytes(outputBinaryName);
             Pad(ref fn, 31, '\0');
             for (int i = 0; i < fn.Length; i++)
-                binary[p++] = fn[i];                            // Filename, null-terminated
+                binary[p++] = fn[i];                                // Filename, null-terminated
+            binary[p++] = 30;                                       // Resources.Bank (page 30 for code)
+            binary[p++] = 30;                                       // Resources.Bank (page 30 for code)
+
             foreach (var b in banks)                                // Write Resources.Table
             {
                 binary[p++] = b.BankNo;                             // Resources.Bank
@@ -118,8 +127,8 @@ namespace NXtelCarousel
             }
             foreach (var page in pages)                             // Write Pages.Table
             {
-                binary[p++] = page.Bank;                            // Pages.Bank
-                binary[p++] = page.Slot;                            // Pages.Slot
+                binary[p++] = Convert.ToByte(page.Bank + 31);       // Pages.Bank
+                binary[p++] = Convert.ToByte(page.Slot);            // Pages.Slot
                 binary[p++] = page.DurationLSB;                     
                 binary[p++] = page.DurationMSB;                     // Pages.Duration
             }
@@ -135,6 +144,10 @@ namespace NXtelCarousel
             var file = (ConfigurationManager.AppSettings[AppSetting] ?? "").Trim();
             if (!(file.StartsWith(Path.DirectorySeparatorChar.ToString()) || file.Contains(":")))
                 file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, file);
+            if (Path.DirectorySeparatorChar == '/')
+                file = file.Replace(@"\", @"/");
+            else if (Path.DirectorySeparatorChar == '\\')
+                file = file.Replace(@"/", @"\");
             return file;
         }
 
@@ -152,8 +165,14 @@ namespace NXtelCarousel
             var before = Bytes.Length;
             Array.Resize<byte>(ref Bytes, Length);
             for (int i = before; i < Bytes.Length; i++)
-                Bytes[i] = Convert.ToByte(Character ?? RNG.Next(256));
+            {
+                if (Character != null)
+                    Bytes[i] = Convert.ToByte(Character);
+                else if (PadWithRandom)
+                    Bytes[i] = Convert.ToByte(RNG.Next(256));
+                else
+                    Bytes[i] = 0;
+            }
         }
-
     }
 }

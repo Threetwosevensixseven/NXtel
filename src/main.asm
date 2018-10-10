@@ -17,7 +17,7 @@ Cspect optionbool 15, -15, "Cspect", false
 ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
-Carousel optionbool 665, -15, "Carousel", false
+//Carousel optionbool 665, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
                         org $6000
@@ -194,11 +194,7 @@ PrintTimeCallX:         ld hl, PrintTime
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif
 
-                        if Carousel
-                          output_sna "..\carousel\NXtelCarousel.sna", $FF40, Start
-                        else
-                          output_sna "..\bin\NXtel.sna", $FF40, Start
-                        endif
+                        output_sna "..\bin\NXtel.sna", $FF40, Start
 
                         zeusinvoke "..\build\deploy.bat"
 

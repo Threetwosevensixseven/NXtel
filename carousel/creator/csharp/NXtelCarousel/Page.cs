@@ -19,9 +19,9 @@ namespace NXtelCarousel
             this.Duration = Duration;
         }
 
-        public byte DurationLSB { get { return Convert.ToByte(Duration % 256); } }
+        public byte DurationLSB { get { return Convert.ToByte((Duration * 50) % 256); } }
 
-        public byte DurationMSB { get { return Convert.ToByte(Duration / 256); } }
+        public byte DurationMSB { get { return Convert.ToByte((Duration * 50) / 256); } }
 
     }
 }
