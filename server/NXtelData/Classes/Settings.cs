@@ -28,10 +28,10 @@ namespace NXtelData
             try
             {
                 string xml = File.ReadAllText(FileName);
-                StringReader reader = new StringReader(xml);
+                var reader = new StringReader(xml);
                 using (reader)
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+                    var serializer = new XmlSerializer(typeof(Settings));
                     settings = (Settings)serializer.Deserialize(reader);
                     reader.Close();
                 }
@@ -44,15 +44,16 @@ namespace NXtelData
             return settings;
         }
 
-        public void Save()
+        public string ToXML()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            TextWriter writer = new StreamWriter(FileName);
+            var serializer = new XmlSerializer(GetType());
+            var writer = new StreamWriter(FileName);
             using (writer)
             {
                 serializer.Serialize(writer, this);
                 writer.Close();
             }
+            return writer.ToString();
         }
 
         private string FileName

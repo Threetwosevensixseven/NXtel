@@ -107,7 +107,9 @@ Dummy                   equ 0
 ; Teletext
 Teletext                proc
   CLS                   equ 12
+  Escape                equ 27
   Space                 equ 32
+  SetBit7               equ 128
 pend
 
 

@@ -104,6 +104,7 @@
     <Compile Include="Classes\PageBase.cs" />
     <Compile Include="Classes\Route.cs" />
     <Compile Include="Classes\Routes.cs" />
+    <Compile Include="Classes\ServerStatus.cs" />
     <Compile Include="Classes\Template.cs" />
     <Compile Include="Classes\Templates.cs" />
     <Compile Include="Classes\Settings.cs" />

@@ -24,16 +24,24 @@ namespace NXtelServer
 
         static void Main(string[] args)
         {
-            DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
-            Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
-            Console.WriteLine("Starting NXtel Server v" + Version);
-            new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
-            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380
-            serverSocket.Bind(endPoint);
-            serverSocket.Listen(0);
-            serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
-            Console.WriteLine("Listening for connections on port " + endPoint.Port + "...");
+            try
+            {
+                DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
+                Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                Console.WriteLine("Starting NXtel Server v" + Version);
+                new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
+                serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380
+                serverSocket.Bind(endPoint);
+                serverSocket.Listen(0);
+                serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+                Console.WriteLine("Listening for connections on port " + endPoint.Port + "...");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
         }
 
         private static void AcceptConnection(IAsyncResult result)
@@ -44,14 +52,14 @@ namespace NXtelServer
             Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, ClientStates.NotLogged);
             clientList.Add(newSocket, client);
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-            var page = Page.Load(0, 0);
+            var page = Page.Load(Options.StartPageNo, Options.StartFrameNo);
             //var page = Page.Load(9999, 0);
             //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\docs\TestPages\Welcome7Bit.bin", page.Contents7BitEncoded);
             //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\docs\TestPages\Welcome8Bit.bin", page.Contents);
             client.PageHistory.Push(page);
             //page.SetVersion(Version);
             client.clientState = ClientStates.Logging;
-            Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+            Console.WriteLine(string.Format("Sending page {0} (To: {1}:{2}", Options.StartPage, client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
             try
             {

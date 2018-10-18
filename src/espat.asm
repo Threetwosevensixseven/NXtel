@@ -2,6 +2,9 @@
 
 ESPSendTest             proc
                         Turbo(MHz35)
+                        xor a
+                        ld (Bit7Mask), a                ; Clear bit 7 mask
+
                         /*ld c, 'N'
                         ld b, 9                         ; B=9: Specific UART BAUD rate to be set from lookup table.
                         ld de, -12                        ; DEFW 14,14,15,15,16,16,17,14 ;2000000 -14
@@ -86,6 +89,13 @@ PrintLoop:
                         ld (BufferFillCount), hl
                         jp NoInput
 NotCLS:
+                        cp Teletext.Escape              ; 27 ($1B) means next character should have bit 7 set
+                        jp nz, NotEscape
+                        ld a, Teletext.SetBit7
+                        ld (Bit7Mask), a                ; Set bit 7 mask
+                        jp NoInput                      ; And read next character
+NotEscape:
+                        or [Bit7Mask]SMC
                         push af
                         //rst 16                          ; Print input character in a
 
@@ -106,6 +116,9 @@ NotCLS:
                         ei
                         inc hl
                         ld (BufferPointer), hl
+
+                        xor a
+                        ld (Bit7Mask), a                ; Clear bit 7 mask
 NoInput:
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
@@ -163,7 +176,7 @@ SendError:
 
 ErrNo:                  db 0
 ESPAT_cmd_handle:       db 0
-Channel:                db "TCP,192.168.1.3,2380"
+Channel:                db "TCP,192.168.1.3,23280"
 ChannelLen              equ $-Channel
 Text:                   SendESP("")
                         SendESP("Far out in the uncharted backwaters of the unfashionable end of ")

@@ -1,0 +1,24 @@
+﻿@model NXtelData.ServerStatus
+@{
+    ViewBag.Title = "Server";
+    
+}
+<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Message</h3>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <p>Server Location:</p>
+    <pre>@Model.Location</pre>
+    <p>Server Status: <b style="color:@Model.StatusColor">@Model.Status</b></p>
+    <br />
+    <div>
+        <input type="submit" value="Refresh" name="action:Refresh" class="btn btn-default" />
+        <input type="submit" value="Start" name="action:Start" class="btn btn-success @Model.StartClass" />
+        <input type="submit" value="Stop" name="action:Stop" class="btn btn-danger @Model.StopClass" />
+        <input type="submit" value="Restart" name="action:Restart" class="btn btn-warning @Model.StopClass" />
+        <span>@Html.CheckBox("StartVisible", @Model.StartVisible)&nbsp;Start&nbsp;Visible?</span>
+    </div>
+}
