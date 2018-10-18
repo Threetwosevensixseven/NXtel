@@ -8,6 +8,19 @@ namespace NXtelData
 {
     public static class Options
     {
+        public static int TCPListeningPort
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["TCPListeningPort"] ?? "").Trim();
+                int val;
+                int.TryParse(cfg, out val);
+                if (val <= 0)
+                    val = 10;
+                return val;
+            }
+        }
+
         public static int UpdateFeedMins
         {
             get

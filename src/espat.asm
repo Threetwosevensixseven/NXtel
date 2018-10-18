@@ -1,7 +1,7 @@
 ; espat.asm
 
 ESPSendTest             proc
-
+                        Turbo(MHz35)
                         /*ld c, 'N'
                         ld b, 9                         ; B=9: Specific UART BAUD rate to be set from lookup table.
                         ld de, -12                        ; DEFW 14,14,15,15,16,16,17,14 ;2000000 -14
@@ -12,12 +12,12 @@ ESPSendTest             proc
 
                         ld c, 'N'                       ; We want to open the ESPAT driver for use
                         ld b, $F9                       ; Open the channel
-                        ld ix, Channel                  ; D>N>TCP,192.168.1.3,10000
+                        ld ix, Channel                  ; D>N>TCP,192.168.1.3,2380
                         ld de, ChannelLen
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI
-                        jp c, Error
+                        jp c, TextError
                         ld (ESPAT_cmd_handle), a
 
                         ld c, 'N'
@@ -38,6 +38,16 @@ ESPSendTest             proc
                         noflow
                         db $92                          ; m_DRVAPI
                         jp c, Error
+/*
+                        ld c, 'N'
+                        ld b, $04                       ; B=4: Set CMD or IPD values
+                        ld de, 0                        ; DE=0 clear buffer (1st parameter)
+                        ld ix, 0                        ; HL=0 clear buffer (2st parameter)
+                        rst 8
+                        noflow
+                        db $92                          ; m_DRVAPI
+                        jp c, Error
+*/
 
 Reprint:
                         ld hl, Text
@@ -45,16 +55,16 @@ Reprint:
                         ld hl, TextLen
                         ld (ToPrint), hl
 PrintLoop:
-                        ld hl, (Pointer)
+                        /*ld hl, (Pointer)
                         ld e, (hl)
                         ld c, 'N'
                         ld b, $FB                       ; B=$FB: Output character
                         ld a, (ESPAT_cmd_handle)
                         ld d, a
-                        //rst 8
-                        //noflow
-                        //db $92                          ; m_DRVAPI
-                        //jr c, SendError
+                        rst 8
+                        noflow
+                        db $92                          ; m_DRVAPI
+                        jr c, SendError*/
 
                         ld c, 'N'
                         ld b, $FC                       ; B=$fc: input character
@@ -66,24 +76,45 @@ PrintLoop:
                         jr c, NoInput
                         cp Teletext.CLS
                         jp nz, NotCLS
-                        Border(Magenta)
-Freeze2:
+
+                        MMU7(30, false)                 ; CLS marks the start of the buffer filling.
+                        call ClearESPBuffer             ; 960 characters of the page should follow.
                         ei
-                        halt
-                        jp Freeze2
+                        ld hl, DisplayBuffer
+                        ld (BufferPointer), hl
+                        ld hl, 960
+                        ld (BufferFillCount), hl
+                        jp NoInput
 NotCLS:
-                        rst 16                          ; Print input character in a
+                        push af
+                        //rst 16                          ; Print input character in a
+
+                        ld hl, [BufferFillCount]SMC    ; Check to see if buffer filled yet
+                        dec hl
+                        ld (BufferFillCount), hl
+                        ld a, l
+                        or h
+                        jp z, BufferFilled
+
                         ld a, 255
                         ld(23692), a                    ; Turn off ULA scroll
+                        pop af
+
+                        ld hl, [BufferPointer]SMC
+                        MMU7(30, false)
+                        ld (hl), a
+                        ei
+                        inc hl
+                        ld (BufferPointer), hl
 NoInput:
+                        ld bc, zeuskeyaddr("[shift]")
+                        in a, (c)
+                        and zeuskeymask("[shift]")
+                        jp nz, PrintLoop
 
                         ld bc, zeuskeyaddr("4")
                         in a, (c)
                         and zeuskeymask("4")
-                        jp nz, NoKey
-                        ld bc, zeuskeyaddr("[shift]")
-                        in a, (c)
-                        and zeuskeymask("[shift]")
                         jp z, Close
 NoKey:
 
@@ -98,8 +129,9 @@ NoKey:
                         jp nz, PrintLoop
 
                         jp Reprint
-
-                        Border(Blue)
+BufferFilled:
+                        MMU7(30, false)
+                        call RenderBuffer               ; display page
 Freeze:
                         jp Freeze
 Error:
@@ -117,19 +149,21 @@ Error2:                 ld bc, zeuskeyaddr("4")
 SendError:
                         cp 1
                         jp nz, Error
-                        ld bc, zeuskeyaddr("4")
-                        in a, (c)
-                        and zeuskeymask("4")
-                        jp nz, PrintLoop
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
                         and zeuskeymask("[shift]")
+                        jp nz, PrintLoop
+
+                        ld bc, zeuskeyaddr("4")
+                        in a, (c)
+                        and zeuskeymask("4")
                         jp z, Close
+
                         jp PrintLoop
 
 ErrNo:                  db 0
 ESPAT_cmd_handle:       db 0
-Channel:                db "TCP,192.168.1.3,10000"
+Channel:                db "TCP,192.168.1.3,2380"
 ChannelLen              equ $-Channel
 Text:                   SendESP("")
                         SendESP("Far out in the uncharted backwaters of the unfashionable end of ")
@@ -173,7 +207,9 @@ ESPTestMenu             proc
                         halt
                         di
                         call Cls
-                        PrintULAString(ESPTestMenu.Menu, ESPTestMenu.MenuLen)
+                        if not enabled ZeusDebug
+                          PrintULAString(ESPTestMenu.Menu, ESPTestMenu.MenuLen)
+                        endif
                         ei
                         Border(Black)
 Wait:                   ld bc, zeuskeyaddr("1")
@@ -186,14 +222,14 @@ Wait:                   ld bc, zeuskeyaddr("1")
                         //jp z, TestReceive
                         //ld a, d
                         and zeuskeymask("2")
-                        jp z, Start2
+                        jp z, RunCarousel
                         jp Wait
 
 Menu:                   db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db "ESPAT TEST MENU", CR, CR, CR
                         db "   1    Send and Receive", CR
                         //db "   2    Receive", CR
-                        db "   2    NXtel Demo", CR
+                        db "   2    Carousel Demo", CR
                         db "CS+4    Back to this menu", CR, CR, CR
                         db At, 21, 0, "Choose Option..."
 MenuLen                 equ $-Menu
@@ -208,7 +244,9 @@ TestSend                proc
                         halt
                         di
                         call Cls
-                        PrintULAString(TestSend.Text, TestSend.TextLen)
+                        if not enabled ZeusDebug
+                          PrintULAString(TestSend.Text, TestSend.TextLen)
+                        endif
                         ei
                         ld a, BrightWhiteBlackP
                         ld (23693), a
@@ -243,4 +281,66 @@ Text                    db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db "ESPAT TEST RECEIVE", CR, CR
 TextLen                 equ $-Text
 pend
+
+
+TextError               proc
+                        sub a, $80
+                        cp 1
+                        jp c, Unknown
+                        cp 9
+                        jp nc, Unknown
+Print:
+                        ld (ErrValue), a
+
+                        ld d, a
+                        ld e, ErrorMessages.Size
+                        mul
+                        ld hl, ErrorMessages.Table - 1
+                        add hl, de
+                        push hl
+
+                        ld (MsgAddr), hl
+                        ei
+Loop:
+                        pop hl
+                        inc hl
+                        push hl
+                        ld a, (hl)
+                        or a
+                        jp z, End
+                        rst 16
+                        jp Loop
+End:
+                        pop hl
+                        Border(Red)
+                        jp ESPSendTest.Error
+Unknown:
+                        xor a
+                        jp Print
+ErrValue                db 0
+MsgAddr                 dw 0
+pend
+
+
+
+ErrorMessages           proc Table:
+
+  ; Message                                              Index  ErrNo
+  PadString("Unknown error", 40)                         ;   0    $80
+  PadString("Max channels of this type open", 40)        ;   1    $81
+  PadString("Invalid parameter", 40)                     ;   2    $82
+  PadString("Invalid connect type", 40)                  ;   3    $83
+  PadString("Syntax error in string", 40)                ;   4    $84
+  PadString("Parse error in connect address", 40)        ;   5    $85
+  PadString("Parse error at end of connect address", 40) ;   6    $86
+  PadString("Error sending on connection", 40)           ;   7    $87
+  PadString("Failed to connect to destination", 40)      ;   8    $88
+  PadString("Connect address is a far call", 40)         ;   9    $89
+
+  Size          equ 40
+  Len           equ $-Table
+  Count         equ Len/Size
+pend
+
+
 

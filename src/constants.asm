@@ -107,6 +107,7 @@ Dummy                   equ 0
 ; Teletext
 Teletext                proc
   CLS                   equ 12
+  Space                 equ 32
 pend
 
 

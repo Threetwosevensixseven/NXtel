@@ -32,7 +32,9 @@ Start:
                         ld i, a
                         im 1
 
-                        //jp ESPTestMenu
+//BFreeze:                Border(Red)
+//                       Border(Yellow)
+//                        jp BFreeze
 
                         //MFBreak()
                         /*di
@@ -67,7 +69,6 @@ Test1:                  dw 0
 Test2:                  dw 0*/
 
 Start2:
-                        Turbo(MHz14)
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
@@ -93,6 +94,19 @@ Start2:
 IsNext:                 ld a, $CD                       ; call NN
                         ld (PrintTimeCall), a
 
+                        ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
+                        ld a, (ResourcesCount)
+                        add a, a
+                        add hl, a
+                        ld (PagesTable), hl             ; Store Pages.Table address
+
+
+
+                        MMU7(1, true)
+                        jp ESPTestMenu
+
+RunCarousel:
+                        Turbo(MHz14)
                         ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
                         ld a, (ResourcesCount)
                         add a, a

@@ -322,3 +322,11 @@ SendESP                 macro(String)
                         db LF
 mend
 
+
+
+PadString               macro(String, Len)
+                        db String
+                        ds Len - length(String), 0
+mend
+
+

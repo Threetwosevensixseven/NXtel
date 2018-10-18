@@ -27,79 +27,13 @@ namespace NXtelServer
             DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
             Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             Console.WriteLine("Starting NXtel Server v" + Version);
-            //Page.Update("welcome.bin", 0, 0, "Welcome");
-            //Page.Update("welcome-date.bin", 1, 0, "Welcome (Date)");
             new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 10000); //2380
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380
             serverSocket.Bind(endPoint);
             serverSocket.Listen(0);
             serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
             Console.WriteLine("Listening for connections on port " + endPoint.Port + "...");
-        }
-
-        private static void backgroundThread()
-        {
-            while (true)
-            {
-                string Input = Console.ReadLine();
-
-                if (Input == "clients")
-                {
-                    if (clientList.Count == 0) continue;
-                    int clientNumber = 0;
-                    foreach (KeyValuePair<Socket, Client> client in clientList)
-                    {
-                        Client currentClient = client.Value;
-                        clientNumber++;
-                        Console.WriteLine(string.Format("Client #{0} (From: {1}:{2}, ECurrentState: {3}, Connection time: {4})", clientNumber,
-                        currentClient.remoteEndPoint.Address.ToString(), currentClient.remoteEndPoint.Port, currentClient.clientState, currentClient.connectedAt));
-                    }
-                }
-
-                if (Input.StartsWith("kill"))
-                {
-                    string[] _Input = Input.Split(' ');
-                    int clientID = 0;
-                    try
-                    {
-                        if (Int32.TryParse(_Input[1], out clientID) && clientID >= clientList.Keys.Count)
-                        {
-                            int currentClient = 0;
-                            foreach (Socket currentSocket in clientList.Keys.ToArray())
-                            {
-                                currentClient++;
-                                if (currentClient == clientID)
-                                {
-                                    currentSocket.Shutdown(SocketShutdown.Both);
-                                    currentSocket.Close();
-                                    clientList.Remove(currentSocket);
-                                    Console.WriteLine("Client has been disconnected and cleared up.");
-                                }
-                            }
-                        }
-                        else { Console.WriteLine("Could not kick client: invalid client number specified."); }
-                    }
-                    catch { Console.WriteLine("Could not kick client: invalid client number specified."); }
-                }
-
-                if (Input == "killall")
-                {
-                    int deletedClients = 0;
-                    foreach (Socket currentSocket in clientList.Keys.ToArray())
-                    {
-                        currentSocket.Shutdown(SocketShutdown.Both);
-                        currentSocket.Close();
-                        clientList.Remove(currentSocket);
-                        deletedClients++;
-                    }
-
-                    Console.WriteLine("{0} clients have been disconnected and cleared up.", deletedClients);
-                }
-
-                if (Input == "lock") { newClients = false; Console.WriteLine("Refusing new connections."); }
-                if (Input == "unlock") { newClients = true; Console.WriteLine("Accepting new connections."); }
-            }
         }
 
         private static void AcceptConnection(IAsyncResult result)
@@ -110,18 +44,22 @@ namespace NXtelServer
             Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, ClientStates.NotLogged);
             clientList.Add(newSocket, client);
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-            //string output = "-- NXTEL TEST SERVER (" + serverSocket.SocketType + ") --\n\r\n\r";
-            //output += "Please input your password:\n\r";
-            //var page = Page.Load(0, 0);
-            var page = Page.Load(9999, 0);
+            var page = Page.Load(0, 0);
+            //var page = Page.Load(9999, 0);
+            //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\docs\TestPages\Welcome7Bit.bin", page.Contents7BitEncoded);
+            //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\docs\TestPages\Welcome8Bit.bin", page.Contents);
             client.PageHistory.Push(page);
             //page.SetVersion(Version);
             client.clientState = ClientStates.Logging;
             Console.WriteLine("Sending page 0a (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
-            newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length, 
-                SocketFlags.None, new AsyncCallback(SendData), newSocket);
-            serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+            try
+            {
+                newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
+                    SocketFlags.None, new AsyncCallback(SendData), newSocket);
+                serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+            }
+            catch { }
         }
 
         private static void SendData(IAsyncResult result)
@@ -224,6 +162,70 @@ namespace NXtelServer
             catch (Exception ex)
             {
                 var x = ex.GetType();
+            }
+        }
+
+        private static void backgroundThread()
+        {
+            while (true)
+            {
+                string Input = Console.ReadLine();
+
+                if (Input == "clients")
+                {
+                    if (clientList.Count == 0) continue;
+                    int clientNumber = 0;
+                    foreach (KeyValuePair<Socket, Client> client in clientList)
+                    {
+                        Client currentClient = client.Value;
+                        clientNumber++;
+                        Console.WriteLine(string.Format("Client #{0} (From: {1}:{2}, ECurrentState: {3}, Connection time: {4})", clientNumber,
+                        currentClient.remoteEndPoint.Address.ToString(), currentClient.remoteEndPoint.Port, currentClient.clientState, currentClient.connectedAt));
+                    }
+                }
+
+                if (Input.StartsWith("kill"))
+                {
+                    string[] _Input = Input.Split(' ');
+                    int clientID = 0;
+                    try
+                    {
+                        if (Int32.TryParse(_Input[1], out clientID) && clientID >= clientList.Keys.Count)
+                        {
+                            int currentClient = 0;
+                            foreach (Socket currentSocket in clientList.Keys.ToArray())
+                            {
+                                currentClient++;
+                                if (currentClient == clientID)
+                                {
+                                    currentSocket.Shutdown(SocketShutdown.Both);
+                                    currentSocket.Close();
+                                    clientList.Remove(currentSocket);
+                                    Console.WriteLine("Client has been disconnected and cleared up.");
+                                }
+                            }
+                        }
+                        else { Console.WriteLine("Could not kick client: invalid client number specified."); }
+                    }
+                    catch { Console.WriteLine("Could not kick client: invalid client number specified."); }
+                }
+
+                if (Input == "killall")
+                {
+                    int deletedClients = 0;
+                    foreach (Socket currentSocket in clientList.Keys.ToArray())
+                    {
+                        currentSocket.Shutdown(SocketShutdown.Both);
+                        currentSocket.Close();
+                        clientList.Remove(currentSocket);
+                        deletedClients++;
+                    }
+
+                    Console.WriteLine("{0} clients have been disconnected and cleared up.", deletedClients);
+                }
+
+                if (Input == "lock") { newClients = false; Console.WriteLine("Refusing new connections."); }
+                if (Input == "unlock") { newClients = true; Console.WriteLine("Accepting new connections."); }
             }
         }
 

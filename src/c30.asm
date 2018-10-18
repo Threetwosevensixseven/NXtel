@@ -9,6 +9,7 @@ DisplayBuffer           proc
                         endif
 pend
 
+zeusprinthex DisplayBuffer
 
 
 Fonts                   proc
@@ -38,6 +39,16 @@ ClsLayer2               proc
                         ld hl, $0008                    ; Top Left (8, 0)
                         ld (RenderBuffer.Coordinates), hl
                         ret
+pend
+
+
+
+
+ClearESPBuffer          proc
+                        FillLDIR(DisplayBuffer, DisplayBuffer.Length, Teletext.Space)
+                        call ClsLayer2
+                        ret
+
 pend
 
 
