@@ -2,6 +2,8 @@
 
 ESPSendTest             proc
                         Turbo(MHz35)
+                        PageBankZX(0, true)
+
                         xor a
                         ld (Bit7Mask), a                ; Clear bit 7 mask
 
@@ -176,8 +178,8 @@ SendError:
 
 ErrNo:                  db 0
 ESPAT_cmd_handle:       db 0
-//Channel:                db "TCP,192.168.1.3,23280"
-Channel:                db "TCP,nx.nxtel.org,23280"
+Channel:                db "TCP,192.168.1.3,23280"
+//Channel:              db "TCP,nx.nxtel.org,23280"
 ChannelLen              equ $-Channel
 Text:                   SendESP("")
                         SendESP("Far out in the uncharted backwaters of the unfashionable end of ")
@@ -209,11 +211,11 @@ Close:
                         noflow
                         db $92                          ; m_DRVAPI
                         //jp c, Error
-                        jp ESPTestMenu
+                        jp MainMenu
 pend
 
 
-
+/*
 ESPTestMenu             proc
                         di
                         ClsAttrFull(BrightWhiteBlackP)
@@ -248,9 +250,9 @@ Menu:                   db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db At, 21, 0, "Choose Option..."
 MenuLen                 equ $-Menu
 pend
+*/
 
-
-
+/*
 TestSend                proc
                         di
                         ClsAttrFull(BrightWhiteBlackP)
@@ -269,9 +271,9 @@ Text                    db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         //db "ESPAT TEST", CR, CR
 TextLen                 equ $-Text
 pend
+*/
 
-
-
+/*
 TestReceive             proc
                         Border(Green)
                         di
@@ -295,7 +297,7 @@ Text                    db At, 0, 0, Ink, 7, Paper, 0, PrBright, 1, Flash, 0
                         db "ESPAT TEST RECEIVE", CR, CR
 TextLen                 equ $-Text
 pend
-
+*/
 
 TextError               proc
                         sub a, $80

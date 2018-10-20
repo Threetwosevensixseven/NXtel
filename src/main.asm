@@ -32,7 +32,14 @@ Start:
                         ld a, $3F
                         ld i, a
                         im 1
-
+/*
+                        ei
+                        ld a, MainMenu.ItemCount
+                        ld (ReadMenuKeys.ItemCount), a
+                        ld hl, MainMenu.Addresses
+                        ld (ReadMenuKeys.Addresses), hl
+                        jp ReadMenuKeys
+*/
 //BFreeze:                Border(Red)
 //                       Border(Yellow)
 //                        jp BFreeze
@@ -103,10 +110,6 @@ IsNext:                 ld a, $CD                       ; call NN
                         call Welcome
                         call LoadSettings
                         jp MainMenu
-
-                        MMU7(1, true)
-                        jp ESPTestMenu
-
 RunCarousel:
                         Turbo(MHz14)
                         ld hl, Resources.Table          ; Calculate Pages.Table address dynamically

@@ -184,17 +184,61 @@ Welcome                 proc
 Return:                 MMU6(0, false)
                         call RenderBuffer
                         ei
-                        call WaitNoKey
-CheckKey:               ld bc, zeuskeyaddr("[enter]")
+                        ld a, -1
+Wait:
+                        halt
+                        inc a
+                        cp 150
+                        jp c, Wait
+                        jp MainMenu
+pend
+
+
+
+ReadMenuKeys            proc
+                        xor a
+                        ld (CurrentKey), a
+                        ld c, low(K_54321)
+Loop:
+                        add a, a
+                        ld hl, MenuKey.Table
+                        add hl, a
+                        ld b, (hl)
+                        inc hl
+                        ld e, (hl)
                         in a, (c)
-                        and zeuskeymask("[enter]")
-                        ret z
-                        jp CheckKey
+                        and e
+                        jp z, Match
+                        ld a, (ItemCount)
+                        ld d, a
+                        ld a, [CurrentKey]SMC
+                        inc a
+                        cp d
+                        jp c, SaveCurrentKey
+                        xor a
+SaveCurrentKey:         ld (CurrentKey), a
+                        jp Loop
+ItemCount:              db 0
+Addresses:              dw 0
+Match:
+                        ld a, (CurrentKey)
+                        add a, a
+                        ld hl, (Addresses)
+                        add hl, a
+                        ld e, (hl)
+                        inc hl
+                        ld d, (hl)
+                        ex de, hl
+                        jp (hl)
 pend
 
 
 
 MainMenu                proc
+                        ld a, ItemCount
+                        ld (ReadMenuKeys.ItemCount), a
+                        ld hl, Addresses
+                        ld (ReadMenuKeys.Addresses), hl
                         MMU6(31, false)
                         MMU7(30, false)
                         jp MainMenu31
@@ -202,11 +246,33 @@ Return:                 MMU6(0, false)
                         call RenderBuffer
                         ei
                         call WaitNoKey
+                        jp ReadMenuKeys
+Addresses:              dw MenuConnect                          ; Key 1
+                        dw MenuDemo                             ; Key 2
+                        dw MenuNotImplemented                   ; Key 3
+                        dw MenuNotImplemented                   ; Key 4
+ItemCount               equ ($-Addresses)/2
+pend
 
 
 
-Freeze                  jp Freeze
+MenuConnect             proc
+                        jp ESPSendTest
+pend
 
+
+
+MenuDemo                proc
+                        jp RunCarousel
+pend
+
+
+
+MenuNotImplemented      proc
+                        Border(Red)
+                        halt:halt:halt:halt:halt
+                        Border(Black)
+                        jp MainMenu
 pend
 
 

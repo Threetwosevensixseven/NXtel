@@ -11,7 +11,7 @@ mend
 
 
 
-VersionOnlyValue        equ "V"+VersionPrefix+"."+BuildNoValue
+VersionOnlyValue        equ "v"+VersionPrefix+"."+BuildNoValue
 VersionOnlyWidth        equ FWV+FW0+FWFullStop+FW1+FWFullStop+BuildNoWidth
 
 Rst8                    macro(Command)
@@ -25,6 +25,9 @@ Rst8                    macro(Command)
                         endif
 mend
 
+
+
+VersionTimeValue        equ VersionOnlyValue + " " + BuildTimeValue
 
 
 PrintULAString          macro(Text, Length)
@@ -343,4 +346,10 @@ PadString               macro(String, Len)
                         ds Len - length(String), 0
 mend
 
+
+
+PadStringLeftSpaces     macro(String, Len)
+                        ds Len - length(String), 32
+                        db String
+mend
 

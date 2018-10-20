@@ -82,7 +82,12 @@ Welcome31                       proc
                                 ld de, DisplayBuffer
                                 ld bc, Menus.Size
                                 ldir
+                                ld hl, Version
+                                ld de, DisplayBuffer+667
+                                ld bc, 12
+                                ldir
                                 jp Welcome.Return
+Version:                        PadStringLeftSpaces(VersionOnlyValue, 12)
 pend
 
 
