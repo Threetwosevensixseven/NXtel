@@ -166,10 +166,19 @@ namespace NXtelServer
                     }
                 }
             }
-            catch (SocketException) { }
+            catch (SocketException)
+            {
+                Socket clientSocket = (Socket)result.AsyncState;
+                clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
+            }
             catch (Exception ex)
             {
-                var x = ex.GetType();
+                Console.WriteLine();
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine();
+                Socket clientSocket = (Socket)result.AsyncState;
+                clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
             }
         }
 

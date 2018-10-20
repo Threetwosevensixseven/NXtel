@@ -10,6 +10,15 @@ P30Size = $-$E000
 output_bin "..\banks\Bank30.bin", zeusmmu(30), P30Size
 zeusprinthex "P30Size = ", P30Size
 
+; PAGE 31 - BANK31.BIN - Config file and menus
+org $C000
+dispto zeusmmu(31)
+include "c31.asm"
+P31Size = $-$C000
+output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
+zeusprinthex "P31Size = ", P31Size
+
+/*
 ; PAGE 31 - BANK31.BIN - Pages A
 org $C000
 dispto zeusmmu(31)
@@ -49,6 +58,7 @@ pend
 P31Size = $-$C000
 output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
 zeusprinthex "P31Size = ", P31Size
+*/
 
 ; PAGE 32 - BANK32.BIN - Pages B
 org $C000

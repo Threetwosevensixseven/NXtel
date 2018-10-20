@@ -1,6 +1,8 @@
 /docs/~*.xlsx
 /src/ZeusBak
 /fonts/ZeusBak
+/build/ZeusBak
+/getenv/bin/ZeusBak
 /bin/NXtel.snx
 *.suo
 *.user
@@ -24,4 +26,3 @@
 /server/NXtelManager/Publish
 /carousel/creator/csharp/NXtelCarousel/bin
 /carousel/creator/csharp/NXtelCarousel/obj
-

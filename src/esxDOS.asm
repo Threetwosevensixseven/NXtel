@@ -182,5 +182,14 @@ Handle:                 ds 1                            ; File handle (0..255)
 GetDate:
                         Rst8(esxDOS.M_GETDATE)          ; Get the current date/time
                         ret
+
+Error:
+                        ld iy, FileName
+Error2:                 push af
+                        PageBankZX(0, false)            ; Force MMU reset
+                        MMU5(8, false)
+                        pop af
+                        jp esxDOSerror4
+FileNameBuffer:         ds 20
 pend
 

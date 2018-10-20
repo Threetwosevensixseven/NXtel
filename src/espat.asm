@@ -176,7 +176,8 @@ SendError:
 
 ErrNo:                  db 0
 ESPAT_cmd_handle:       db 0
-Channel:                db "TCP,192.168.1.3,23280"
+//Channel:                db "TCP,192.168.1.3,23280"
+Channel:                db "TCP,nx.nxtel.org,23280"
 ChannelLen              equ $-Channel
 Text:                   SendESP("")
                         SendESP("Far out in the uncharted backwaters of the unfashionable end of ")

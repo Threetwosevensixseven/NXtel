@@ -9,7 +9,6 @@ DisplayBuffer           proc
                         endif
 pend
 
-zeusprinthex DisplayBuffer
 
 
 Fonts                   proc

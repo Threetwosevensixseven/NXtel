@@ -7,14 +7,14 @@ LoadResources           proc
 
                         ld ix, FileName
                         call esxDOS.fOpen
-                        jp c, Error
+                        jp c, esxDOS.Error
 
                         ld bc, $0002
                         ld de, $2000                    ; bcde = $22000 = 139264 = first bank
                         ld ixl, esxDOS.esx_seek_set
                         ld l, esxDOS.esx_seek_set
                         call esxDOS.fSeek
-                        jp c, Error
+                        jp c, esxDOS.Error
                         xor a
                         push af
                         ld iy, Resources.Table
@@ -26,7 +26,7 @@ NextBank:
                         ld ix, $E000
                         ld bc, $2000
                         call esxDOS.fRead
-                        jp c, Error
+                        jp c, esxDOS.Error
                         pop af
                         inc a
                         cp e
@@ -37,20 +37,21 @@ NextBank:
                         jp NextBank
 Finish:
                         call esxDOS.fClose
-                        jp c, Error
+                        jp c, esxDOS.Error
                         ret
-Error:
+/*Error:
                         di
                         MMU5(8, false)
                         ld iy, FileName
-                        jp esxDOSerror
+                        Border(Blue)
+                        jp esxDOSerror*/
 pend
 
 
 
 SetupDataFileSystem     proc
                         call esxDOS.GetSetDrive
-                        jp c, LoadResources.Error
+                        jp c, esxDOS.Error
                         ld (esxDOS.DefaultDrive), a
                         ret
 pend
@@ -61,6 +62,8 @@ esxDOSerror             proc
                         nextreg $02, 1
                         ei
                         halt
+                        Border(Red)
+                        Border(Yellow)
 Freeze:                 jp Freeze
 pend
 
@@ -152,4 +155,35 @@ Loop:
                         ret
 pend
 */
+
+
+
+NextPaletteRGB8Proc     proc
+                        ld bc, Sprite_Register_Port     ; Port to select ZX Next register
+                        ld a, PaletteControlRegister    ; (R/W) Register $43 (67) => Palette Control
+                        out (c), a
+                        ld bc, Sprite_Value_Port        ; Port to access ZX Next register
+Palette equ $+1:        ld a, %1 010 xxxx               ; 010 = Sprites first palette
+                        out (c), a
+                        ld bc, Sprite_Register_Port
+                        ld a, PaletteIndexRegister      ; (R/W) Register $40 (64) => Palette Index
+                        out (c), a
+                        ld bc, Sprite_Value_Port
+                        out (c), e
+                        ld bc, Sprite_Register_Port
+                        ld a, PaletteValueRegister      ; (R/W) Register $41 (65) => Palette Value (8 bit colour)
+                        out (c), a
+                        ld bc, Sprite_Value_Port
+                        out (c), d
+                        ret
+pend
+
+
+
+LoadSettings            proc
+                        MMU6(31, false)
+                        jp LoadSettings31
+Return:                 MMU6(0, true)
+                        ret
+pend
 
