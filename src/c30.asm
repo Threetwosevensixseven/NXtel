@@ -74,6 +74,7 @@ RenderBuffer            proc
                         ld (Stack), sp
                         ld sp, $FFFF
 
+                        Turbo(MHz14)
                         call GetTime
                         ld a, [WhichLayer2]SMC+1
                         xor 1
@@ -351,6 +352,7 @@ Return:
                         ld a, 12
 ShowLayer2:             nextreg $12, a
                         PortOut($123B, $02)             ; Show layer 2 and disable write paging
+                        Turbo(MHz35)
                         ld sp, [Stack]SMC
                         ret
 Colours:

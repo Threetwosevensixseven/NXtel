@@ -133,28 +133,16 @@ Loop:                   ld a, (hl)
 pend
 
 
-/*
-WaitKey                 proc
-                        ei
-                        push af
+
+WaitNoKey               proc
                         xor a
                         in a, ($FE)
                         cpl
                         and 15
                         halt
-                        jr nz, WaitKey
-Loop:
-                        xor a
-                        in a, ($FE)
-                        cpl
-                        and 15
-                        halt
-                        jr z, Loop
-                        pop af
-                        di
+                        jr nz, WaitNoKey
                         ret
 pend
-*/
 
 
 
@@ -186,4 +174,83 @@ LoadSettings            proc
 Return:                 MMU6(0, true)
                         ret
 pend
+
+
+
+Welcome                 proc
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp Welcome31
+Return:                 MMU6(0, false)
+                        call RenderBuffer
+                        ei
+                        call WaitNoKey
+CheckKey:               ld bc, zeuskeyaddr("[enter]")
+                        in a, (c)
+                        and zeuskeymask("[enter]")
+                        ret z
+                        jp CheckKey
+pend
+
+
+
+MainMenu                proc
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp MainMenu31
+Return:                 MMU6(0, false)
+                        call RenderBuffer
+                        ei
+                        call WaitNoKey
+
+
+
+Freeze                  jp Freeze
+
+pend
+
+
+
+MenuKey                 proc Table:
+
+  ; Address    Mask  Index  Row
+  db    $F7, %00001  ;   0  K_54321
+  db    $F7, %00010  ;   1  K_54321
+  db    $F7, %00100  ;   2  K_54321
+  db    $F7, %01000  ;   3  K_54321
+  db    $F7, %10000  ;   4  K_54321
+  db    $EF, %10000  ;   5  K_67890
+  db    $EF, %01000  ;   6  K_67890
+  db    $EF, %00100  ;   7  K_67890
+  db    $EF, %00010  ;   8  K_67890
+  db    $FD, %00001  ;   9  K_GFDSA
+  db    $7F, %10000  ;  10  K_BNMSsSp
+  db    $FE, %01000  ;  11  K_VCXZCs
+  db    $FD, %00100  ;  12  K_GFDSA
+  db    $FB, %00100  ;  13  K_TREWQ
+  db    $FD, %01000  ;  14  K_GFDSA
+  db    $FD, %10000  ;  15  K_GFDSA
+  db    $BF, %10000  ;  16  K_HJKLEn
+  db    $DF, %00100  ;  17  K_YUIOP
+  db    $BF, %01000  ;  18  K_HJKLEn
+  db    $BF, %00100  ;  19  K_HJKLEn
+  db    $BF, %00010  ;  20  K_HJKLEn
+  db    $7F, %00100  ;  21  K_BNMSsSp
+  db    $7F, %01000  ;  22  K_BNMSsSp
+  db    $DF, %00010  ;  23  K_YUIOP
+  db    $DF, %00001  ;  24  K_YUIOP
+  db    $FB, %00001  ;  25  K_TREWQ
+  db    $FB, %01000  ;  26  K_TREWQ
+  db    $FD, %00010  ;  27  K_GFDSA
+  db    $FB, %10000  ;  28  K_TREWQ
+  db    $DF, %01000  ;  29  K_YUIOP
+  db    $FE, %10000  ;  30  K_VCXZCs
+  db    $FB, %00010  ;  31  K_TREWQ
+  db    $FE, %00100  ;  32  K_VCXZCs
+  db    $DF, %10000  ;  33  K_YUIOP
+  db    $FE, %00010  ;  34  K_VCXZCs
+
+pend
+
+
 

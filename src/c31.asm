@@ -37,10 +37,28 @@ LoadSettings31                  proc
                                 call esxDOS.fOpen
                                 jp c, Error
 
+                                ld a, (esxDOS.Handle)
+                                ld e, a                         ; e'= file handle
+                                ld hl, FileBuffer               ; hl'= char *buf
+                                ld bc, FileBufferLen            ; bc'= bufsz > 0
+                                exx
+                                ld hl, KeyBuffer                ; hl = char *name
+                                ld de, ValueBuffer              ; de = char *val
+                                ld bc, ValueBufferLen           ; bc = valsz not including space for terminating 0 > 0
+                                call GetEnv
+                                jp c, Red
+                                jp LoadSettings.Return
+Freeze:
+                                jp Freeze
+Red:
+                                Border(Red)
+                                jp Freeze
                                 jp LoadSettings.Return
 
 ConfigFileName:                 db "NXTEL.CFG", 0               ; Relative to application
 ConfigFileNameLen               equ $-ConfigFileName
+KeyBuffer:                      db "URL2", 0
+KeyBufferLen                    equ $-KeyBuffer
 Error:
                                 push af
                                 ld hl, ConfigFileName
@@ -51,5 +69,37 @@ Error:
                                 MMU5(8, false)
                                 pop af
                                 jp esxDOS.Error2
+ValueBuffer:                    ds 151
+ValueBufferLen                  equ $-ValueBuffer-1
+FileBuffer:                     ds 128
+FileBufferLen                   equ $-FileBuffer
+
+pend
+
+
+Welcome31                       proc
+                                ld hl, Menus.Welcome
+                                ld de, DisplayBuffer
+                                ld bc, Menus.Size
+                                ldir
+                                jp Welcome.Return
+pend
+
+
+MainMenu31                      proc
+                                ld hl, Menus.Main
+                                ld de, DisplayBuffer
+                                ld bc, Menus.Size
+                                ldir
+                                jp MainMenu.Return
+pend
+
+
+
+Menus                           proc
+  Welcome:                      import_bin "..\pages\ClientWelcome.bin"
+  Main:                         import_bin "..\pages\MainMenu.bin"
+  Connect:                      import_bin "..\pages\ConnectMenu.bin"
+  Size                          equ 1000
 pend
 

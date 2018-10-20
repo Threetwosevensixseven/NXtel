@@ -23,6 +23,7 @@ NoDivMMC                = ZeusDebug
                         org $6000
 Start:
                         di
+
                         ld iy, $5C3A
                         ld sp, Stack
                         //ld a, $BE
@@ -99,8 +100,9 @@ IsNext:                 ld a, $CD                       ; call NN
                         add a, a
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
-
+                        call Welcome
                         call LoadSettings
+                        jp MainMenu
 
                         MMU7(1, true)
                         jp ESPTestMenu

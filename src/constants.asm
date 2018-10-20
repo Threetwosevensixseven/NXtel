@@ -114,6 +114,18 @@ pend
 
 
 
+; Keyboard
+K_BNMSsSp               equ 32766                       ; B, N, M, Symbol Shift, Space
+K_HJKLEn                equ 49150                       ; H, J, K, L, Enter
+K_YUIOP                 equ 57342                       ; Y, U, I, O, P
+K_67890                 equ 61438                       ; 6, 7, 8, 9, 0
+K_54321                 equ 63486                       ; 5, 4, 3, 2, 1
+K_TREWQ                 equ 64510                       ; T, R, E, W, Q
+K_GFDSA                 equ 65022                       ; G, F, D, S, A
+K_VCXZCs                equ 65278
+
+
+
 ; Printing
 BS                      equ 8
 CR                      equ 13
