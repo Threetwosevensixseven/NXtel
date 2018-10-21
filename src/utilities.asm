@@ -209,7 +209,7 @@ Loop:
                         in a, (c)
                         and e
                         jp z, Match
-                        ld a, (ItemCount)
+                        ld a, [ItemCount]SMC
                         ld d, a
                         ld a, [CurrentKey]SMC
                         inc a
@@ -218,12 +218,10 @@ Loop:
                         xor a
 SaveCurrentKey:         ld (CurrentKey), a
                         jp Loop
-ItemCount:              db 0
-Addresses:              dw 0
 Match:
                         ld a, (CurrentKey)
                         add a, a
-                        ld hl, (Addresses)
+                        ld hl, [Addresses]SMC
                         add hl, a
                         ld e, (hl)
                         inc hl
@@ -248,7 +246,7 @@ Return:                 MMU6(0, false)
                         call WaitNoKey
                         jp ReadMenuKeys
 Addresses:              dw MenuConnect                          ; Key 1
-                        dw MenuDemo                             ; Key 2
+                        dw RunCarousel                             ; Key 2
                         dw MenuNotImplemented                   ; Key 3
                         dw MenuNotImplemented                   ; Key 4
 ItemCount               equ ($-Addresses)/2
@@ -263,6 +261,8 @@ MenuConnect             proc
 Return:                 MMU6(0, false)
                         call RenderBuffer
                         ei
+                        call WaitNoKey
+                        jp ReadMenuConnectKeys
 Freeze:                 jp Freeze
                         //jp ESPSendTest
 None:
@@ -272,8 +272,55 @@ pend
 
 
 
-MenuDemo                proc
-                        jp RunCarousel
+ReadMenuConnectKeys     proc
+                        xor a
+                        ld (CurrentKey), a
+                        ld c, low(K_54321)
+Loop:
+                        add a, a
+                        ld hl, MenuKey.Table
+                        add hl, a
+                        ld b, (hl)
+                        inc hl
+                        ld e, (hl)
+                        in a, (c)
+                        and e
+                        jp z, Match
+                        ld a, [ItemCount]SMC
+zeusprinthex "ItemCount", ItemCount
+                        ld d, a
+                        ld a, [CurrentKey]SMC
+                        inc a
+                        cp d
+                        jp c, SaveCurrentKey
+                        xor a
+SaveCurrentKey:         ld (CurrentKey), a
+                        jp Loop
+Match:
+                        di
+                        MMU6(31, false)
+                        ld a, (CurrentKey)
+                        ld d, a
+                        ld e, ConnectMenuServer.Size
+                        mul
+                        add de, ConnectMenuServer.Table
+                        ex de, hl
+                        push hl
+                        ld de, ESPSendTest.Channel
+                        ld bc, ConnectMenuServer.Size
+                        ldir
+                        pop hl
+                        push hl
+                        ld bc, ConnectMenuServer.Size
+                        xor a
+                        cpir
+                        pop de
+                        or a
+                        sbc hl, de
+                        dec hl
+                        ld (ESPSendTest.ChannelLen), hl
+                        MMU6(0, false)
+                        jp ESPSendTest
 pend
 
 

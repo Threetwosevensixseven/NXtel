@@ -248,7 +248,10 @@ LastKey:
                                 ld hl, BackText                 ; hl = Source Back to Main Menu text
                                 ld bc, BackTextLen
                                 ldir
-                                ld (DisplayBuffer+892), a
+                                ld (DisplayBuffer+932), a
+                                ld a, (CurrentItem)
+                                inc a
+                                ld (ReadMenuConnectKeys.ItemCount), a
                                 jp MenuConnect.Return
 BackText:                       db "Back to Main Menu"
 BackTextLen                     equ $-BackText

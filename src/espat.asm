@@ -17,8 +17,11 @@ ESPSendTest             proc
 
                         ld c, 'N'                       ; We want to open the ESPAT driver for use
                         ld b, $F9                       ; Open the channel
-                        ld ix, Channel                  ; D>N>TCP,192.168.1.3,2380
-                        ld de, ChannelLen
+                        ld ix, Channel                  ; TCP,192.168.1.3,22380
+                        ld de, [ChannelLen]SMC
+
+zeusprinthex Channel, ChannelLen
+
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI
@@ -178,9 +181,7 @@ SendError:
 
 ErrNo:                  db 0
 ESPAT_cmd_handle:       db 0
-Channel:                db "TCP,192.168.1.3,23280"
-//Channel:              db "TCP,nx.nxtel.org,23280"
-ChannelLen              equ $-Channel
+Channel:                ds ConnectMenuServer.Size
 Text:                   SendESP("")
                         SendESP("Far out in the uncharted backwaters of the unfashionable end of ")
                         SendESP("the western spiral arm of the Galaxy lies a small unregarded ")
