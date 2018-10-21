@@ -190,7 +190,7 @@ Wait:
                         inc a
                         cp 150
                         jp c, Wait
-                        jp MainMenu
+                        ret
 pend
 
 
@@ -257,7 +257,17 @@ pend
 
 
 MenuConnect             proc
-                        jp ESPSendTest
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp ConnectMenu31
+Return:                 MMU6(0, false)
+                        call RenderBuffer
+                        ei
+Freeze:                 jp Freeze
+                        //jp ESPSendTest
+None:
+                        MMU6(0, false)
+                        jp MenuNotImplemented
 pend
 
 
