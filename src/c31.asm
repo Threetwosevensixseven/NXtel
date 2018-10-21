@@ -33,9 +33,8 @@ import_bin "..\getenv\bin\makebin.bin"
 
 
 LoadSettings31                  proc
-                                ld ix, ConfigFileName
-                                call esxDOS.fOpen
-                                jp c, Error
+                                //call esxDOS.fClose
+                                //jp c, Error
 
                                 FillLDIR(ConnectMenuDisplay, ConnectMenuDisplay.Length, 0)
                                 ld a, "1"
@@ -43,11 +42,21 @@ LoadSettings31                  proc
                                 xor a
                                 ld (CurrentRow), a
 ReadURLLoop:
-                                ld bc, 0
+
+                                ld ix, ConfigFileName
+                                ld hl, ConfigFileName
+                                call esxDOS.fOpen
+                                jp c, Error
+
+                                /*ld bc, 0
                                 ld de, bc
                                 ld l, c
                                 call esxDOS.fSeek
                                 jp c, Error
+                                ld bc, 1
+                                ld hl, LoadSettings31.ValueBuffer
+                                call esxDOS.fRead
+                                jp c, Error */
 
                                 FillLDIR(LoadSettings31.ValueBuffer, LoadSettings31.ValueBufferLen, 0)
 
@@ -114,6 +123,10 @@ EndServerLine:
                                 ld (CurrentRow), a
                                 jp ReadURLLoop
 NoMoreLines:
+
+                                call esxDOS.fClose
+                                jp c, Error
+
                                 ld a, (CurrentRow)
                                 ld (ConnectMenu31.ItemCount), a
                                 jp LoadSettings.Return
@@ -213,12 +226,32 @@ NextLine:
                                 ld a, (CurrentItem)
                                 inc a
                                 cp d
-                                jp z, MenuConnect.Return
+                                jp z, LastKey
                                 ld (CurrentItem), a
                                 ld a, (CurrentDigit)
                                 inc a
                                 ld (CurrentDigit), a
                                 jp FillItemsLoop
+LastKey:
+                                ld hl, DisplayBuffer+282
+                                ld a, (CurrentItem)
+                                inc a
+                                ld e, a
+                                ld d, 80                        ; Two teletext display lines
+                                mul
+                                add hl, de
+                                ld a, (CurrentDigit)
+                                inc a
+                                ld (hl), a
+                                add hl, 3
+                                ex de, hl                       ; de = Position in display buffer
+                                ld hl, BackText                 ; hl = Source Back to Main Menu text
+                                ld bc, BackTextLen
+                                ldir
+                                ld (DisplayBuffer+892), a
+                                jp MenuConnect.Return
+BackText:                       db "Back to Main Menu"
+BackTextLen                     equ $-BackText
 pend
 
 

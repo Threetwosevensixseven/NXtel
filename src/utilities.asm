@@ -188,7 +188,7 @@ Return:                 MMU6(0, false)
 Wait:
                         halt
                         inc a
-                        cp 150
+                        cp 1//50
                         jp c, Wait
                         ret
 pend
