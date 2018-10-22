@@ -262,6 +262,8 @@ namespace NXtelData
             this.PageNo = rdr.GetInt32("PageNo");
             this.FrameNo = rdr.GetInt32("FrameNo");
             this.Title = rdr.GetString("Title").Trim();
+            if (string.IsNullOrEmpty(this.Title))
+                this.Title = "None";
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();

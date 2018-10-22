@@ -56,5 +56,39 @@ namespace NXtelManager.Controllers
             model.StartVisible = Status.StartVisible;
             return View("Index", model);
         }
+
+        [HttpPost]
+        [MultipleButton("DownloadLog")]
+        public ActionResult DownloadLog(ServerStatus Status)
+        {
+            string log = "";
+            string fileName = Options.LogFile;
+            try
+            {
+                var fs = System.IO.File.Open(fileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
+                return File(fs, "text/plain", Path.GetFileName(fileName));
+            }
+            catch (Exception ex)
+            {
+            }
+            return RedirectToAction("Index");
+        }
+
+        //[HttpPost]
+        //[MultipleButton("EmptyLog")]
+        //public ActionResult EmptyLog(ServerStatus Status)
+        //{
+        //    ServerStatus.KillAll();
+        //    try
+        //    {
+        //        if (System.IO.File.Exists(Options.LogFile))
+        //            System.IO.File.Delete(Options.LogFile);
+        //    }
+        //    catch { }
+        //    ServerStatus.Start(Status.StartVisible);
+        //    var model = new ServerStatus();
+        //    model.StartVisible = Status.StartVisible;
+        //    return View("Index", model);
+        //}
     }
 }

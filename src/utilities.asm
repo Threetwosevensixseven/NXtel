@@ -287,7 +287,6 @@ Loop:
                         and e
                         jp z, Match
                         ld a, [ItemCount]SMC
-zeusprinthex "ItemCount", ItemCount
                         ld d, a
                         ld a, [CurrentKey]SMC
                         inc a
@@ -297,6 +296,12 @@ zeusprinthex "ItemCount", ItemCount
 SaveCurrentKey:         ld (CurrentKey), a
                         jp Loop
 Match:
+                        ld a, (CurrentKey)
+                        inc a
+                        ld d, a
+                        ld a, (ItemCount)
+                        cp d
+                        jp z, MainMenu
                         di
                         MMU6(31, false)
                         ld a, (CurrentKey)

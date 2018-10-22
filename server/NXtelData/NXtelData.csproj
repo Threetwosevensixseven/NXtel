@@ -108,6 +108,7 @@
     <Compile Include="Classes\Template.cs" />
     <Compile Include="Classes\Templates.cs" />
     <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Classes\ConsoleLogger.cs" />
     <Compile Include="Extensions\MySqlCommandExtensions.cs" />
     <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />

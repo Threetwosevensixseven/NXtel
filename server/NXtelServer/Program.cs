@@ -24,23 +24,31 @@ namespace NXtelServer
 
         static void Main(string[] args)
         {
-            try
+            using (var logger = new ConsoleLogger(Options.LogFile))
             {
-                DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
-                Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
-                Console.WriteLine("Starting NXtel Server v" + Version);
-                new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
-                serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380
-                serverSocket.Bind(endPoint);
-                serverSocket.Listen(0);
-                serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
-                Console.WriteLine("Listening for connections on port " + endPoint.Port + "...");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                try
+                {
+                    DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
+                    Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                    Console.WriteLine("Starting NXtel Server v" + Version);
+                    var now = DateTime.Now;
+                    Console.WriteLine(now.ToShortDateString() + " " + now.ToLongTimeString());
+                    new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
+                    serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380
+                    serverSocket.Bind(endPoint);
+                    serverSocket.Listen(0);
+                    serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+                    Console.WriteLine("Listening for connections on port " + endPoint.Port + "...");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
+                while (true)
+                {
+                }
             }
         }
 
@@ -168,8 +176,12 @@ namespace NXtelServer
             }
             catch (SocketException)
             {
-                Socket clientSocket = (Socket)result.AsyncState;
-                clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
+                try
+                {
+                    Socket clientSocket = (Socket)result.AsyncState;
+                    clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
+                }
+                catch { }
             }
             catch (Exception ex)
             {

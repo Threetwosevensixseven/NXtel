@@ -103,5 +103,19 @@ namespace NXtelData
                 return Instances.Length > 0 ? "active" : "hidden";
             }
         }
+
+        public long LogFileSize
+        {
+            get
+            {
+                long size = 0;
+                try
+                {
+                    size = new FileInfo(Options.LogFile).Length;
+                }
+                catch { }
+                return size;
+            }
+        }
     }
 }

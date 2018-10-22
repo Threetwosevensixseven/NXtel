@@ -71,7 +71,16 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["ServerLocation"] ?? "").Trim().ToLower();
+                string cfg = (ConfigurationManager.AppSettings["ServerLocation"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
+        public static string LogFile
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["LogFile"] ?? "").Trim();
                 return cfg;
             }
         }

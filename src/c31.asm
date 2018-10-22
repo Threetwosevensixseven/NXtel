@@ -134,7 +134,6 @@ NoMoreLines:
 ConfigFileName:                 db "NXTEL.CFG", 0               ; Relative to application
 ConfigFileNameLen               equ $-ConfigFileName
 KeyBuffer:                      db "URL", [URLNumber]"1", 0
-zeusprinthex KeyBuffer
 KeyBufferLen                    equ $-KeyBuffer
 Error:
                                 push af
@@ -170,6 +169,7 @@ pend
 
 
 MainMenu31                      proc
+                                Border(Black)
                                 ld hl, Menus.Main
                                 ld de, DisplayBuffer
                                 ld bc, Menus.Size
@@ -180,6 +180,7 @@ pend
 
 
 ConnectMenu31                   proc
+                                Border(Black)
                                 ld a, (ItemCount)
                                 or a
                                 jp z, MenuConnect.None
@@ -250,7 +251,7 @@ LastKey:
                                 ldir
                                 ld (DisplayBuffer+932), a
                                 ld a, (CurrentItem)
-                                inc a
+                                add a, 2
                                 ld (ReadMenuConnectKeys.ItemCount), a
                                 jp MenuConnect.Return
 BackText:                       db "Back to Main Menu"
@@ -272,9 +273,7 @@ ConnectMenuDisplay proc Table:
   Size   equ 36
   Count  equ 7
   Length equ Size*Count
-
   ds Length, 0
-  zeusprinthex Table
 pend
 
 
@@ -283,8 +282,6 @@ ConnectMenuServer proc Table:
   Size   equ 100
   Count  equ 7
   Length equ Size*Count
-
   ds Length, 0
-  zeusprinthex Table
 pend
 

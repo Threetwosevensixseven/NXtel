@@ -19,9 +19,6 @@ ESPSendTest             proc
                         ld b, $F9                       ; Open the channel
                         ld ix, Channel                  ; TCP,192.168.1.3,22380
                         ld de, [ChannelLen]SMC
-
-zeusprinthex Channel, ChannelLen
-
                         rst 8
                         noflow
                         db $92                          ; m_DRVAPI
@@ -150,8 +147,8 @@ NoKey:
 BufferFilled:
                         MMU7(30, false)
                         call RenderBuffer               ; display page
-Freeze:
-                        jp Freeze
+                        ei
+                        jp Error2
 Error:
                         ld (ErrNo), a
                         Border(Red)
