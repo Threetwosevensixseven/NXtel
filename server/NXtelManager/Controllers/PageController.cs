@@ -9,7 +9,7 @@ using NXtelManager.Models;
 
 namespace NXtelManager.Controllers
 {
-    [Authorize( Roles = "PageEditor")]
+    [Authorize(Roles = "PageEditor")]
     public class PageController : Controller
     {
         public ActionResult Index()

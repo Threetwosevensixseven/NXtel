@@ -84,5 +84,14 @@ namespace NXtelData
                 return cfg;
             }
         }
+
+        public static bool UpdateSQL
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["UpdateSQL"] ?? "").Trim().ToLower();
+                return cfg == "true";
+            }
+        }
     }
 }

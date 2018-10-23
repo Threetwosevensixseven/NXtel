@@ -4,7 +4,7 @@
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
-<table>
+<table class="paged" style="width:auto">
     <thead>
         <tr>
             <th>Template</th>
@@ -23,3 +23,11 @@
 </table>
 <br />
 @Html.ActionLink("New Template", "Edit", "Template", null, new { @class = "btn btn-primary" })
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("table.paged").DataTable();
+        });
+    </script>
+}

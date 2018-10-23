@@ -1,6 +1,6 @@
 ﻿@model NXtelData.ServerStatus
 @{
-    ViewBag.Title = "Server";
+    ViewBag.Title = "Admin Console";
     
 }
 <h2>@ViewBag.Title</h2>
@@ -10,6 +10,8 @@
 {
     @Html.AntiForgeryToken()
 
+    @Html.ActionLink("Manage Users", "Index", "User")
+    <br /><br />
     <p>Server Location:</p>
     <pre>@Model.Location</pre>
     <p>Log File (<b>@Model.LogFileSize Bytes</b>):</p>
@@ -26,6 +28,6 @@
     <br />
     <div>
         <input type="submit" value="Download Log" name="action:DownloadLog" class="btn btn-default" />
-        @*<input type="submit" value="Empty Log" name="action:EmptyLog" class="btn btn-danger" />*@
+        <input type="submit" value="Empty Log" name="action:EmptyLog" class="btn btn-danger" />
     </div>
 }

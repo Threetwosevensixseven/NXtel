@@ -12,6 +12,7 @@ namespace NXtelManager.Models
         public string PhoneNumber { get; set; }
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
+        public string Mailbox { get; set; }
     }
 
     public class ManageLoginsViewModel

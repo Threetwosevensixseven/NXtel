@@ -90,24 +90,26 @@ namespace NXtelManager
                     new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
 
-            var RoleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context.Get<ApplicationDbContext>()));
-            IdentityResult roleResult = null;
-            if (!RoleManager.RoleExists("Admin"))
-                roleResult = RoleManager.Create(new IdentityRole("Admin"));
-            if (!RoleManager.RoleExists("PageEditor"))
-                roleResult = RoleManager.Create(new IdentityRole("PageEditor"));
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context.Get<ApplicationDbContext>()));
+            IdentityResult result = null;
+            if (!roleManager.RoleExists("Admin"))
+                result = roleManager.Create(new IdentityRole("Admin"));
+            if (!roleManager.RoleExists("PageEditor"))
+                result = roleManager.Create(new IdentityRole("PageEditor"));
 
-            var user = manager.FindByName("robin.verhagen.guest@gmail.com");
+            ApplicationUser user = manager.FindByName("robin.verhagen.guest@gmail.com");
             if (!manager.IsInRole(user.Id, "Admin"))
-                roleResult = manager.AddToRole(user.Id, "Admin");
+                result = manager.AddToRole(user.Id, "Admin");
             if (!manager.IsInRole(user.Id, "PageEditor"))
-                roleResult = manager.AddToRole(user.Id, "PageEditor");
+                result = manager.AddToRole(user.Id, "PageEditor");
+            //user.Mailbox = "123456789";
+            //result = manager.Update(user);
 
-            user = manager.FindByName("darran@xalior.com");
-            if (!manager.IsInRole(user.Id, "Admin"))
-                roleResult = manager.AddToRole(user.Id, "Admin");
-            if (!manager.IsInRole(user.Id, "PageEditor"))
-                roleResult = manager.AddToRole(user.Id, "PageEditor");
+            //user = manager.FindByName("darran@xalior.com");
+            //if (!manager.IsInRole(user.Id, "Admin"))
+            //    roleResult = manager.AddToRole(user.Id, "Admin");
+            //if (!manager.IsInRole(user.Id, "PageEditor"))
+            //    roleResult = manager.AddToRole(user.Id, "PageEditor");
 
             return manager;
         }
@@ -123,7 +125,9 @@ namespace NXtelManager
 
         public override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
         {
-            return user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+            var userIdentity = user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+            userIdentity.Result.AddClaim(new Claim("Mailbox", (user.Mailbox ?? "").ToString()));
+            return userIdentity;
         }
 
         public static ApplicationSignInManager Create(IdentityFactoryOptions<ApplicationSignInManager> options, IOwinContext context)

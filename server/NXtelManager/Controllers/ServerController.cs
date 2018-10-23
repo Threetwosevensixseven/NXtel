@@ -74,21 +74,21 @@ namespace NXtelManager.Controllers
             return RedirectToAction("Index");
         }
 
-        //[HttpPost]
-        //[MultipleButton("EmptyLog")]
-        //public ActionResult EmptyLog(ServerStatus Status)
-        //{
-        //    ServerStatus.KillAll();
-        //    try
-        //    {
-        //        if (System.IO.File.Exists(Options.LogFile))
-        //            System.IO.File.Delete(Options.LogFile);
-        //    }
-        //    catch { }
-        //    ServerStatus.Start(Status.StartVisible);
-        //    var model = new ServerStatus();
-        //    model.StartVisible = Status.StartVisible;
-        //    return View("Index", model);
-        //}
+        [HttpPost]
+        [MultipleButton("EmptyLog")]
+        public ActionResult EmptyLog(ServerStatus Status)
+        {
+            ServerStatus.KillAll();
+            try
+            {
+                if (System.IO.File.Exists(Options.LogFile))
+                    System.IO.File.Delete(Options.LogFile);
+            }
+            catch { }
+            ServerStatus.Start(Status.StartVisible);
+            var model = new ServerStatus();
+            model.StartVisible = Status.StartVisible;
+            return View("Index", model);
+        }
     }
 }

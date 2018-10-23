@@ -32,7 +32,7 @@
                 <ul class="nav navbar-nav">
                     @if (User.Identity.IsAuthenticated && LoggedIn && ShowHeader && admin)
                     {
-                      <li>@Html.ActionLink("Server", "Index", "Server")</li>
+                      <li>@Html.ActionLink("Admin", "Index", "Server")</li>
                     }
                     @if (User.Identity.IsAuthenticated && LoggedIn && ShowHeader && pageEditor)
                     {

@@ -147,3 +147,20 @@ a.ordered-btn.open:hover {
     background-image: url('/Content/Images/btn-open-highlight.png');
 }
 
+table.pad-right th, table.pad-right td {
+    padding-right: 10px;
+}
+
+.dataTables_wrapper .col-sm-5, 
+.dataTables_wrapper .col-sm-6, 
+.dataTables_wrapper .col-sm-7 {
+    width: unset; 
+}
+
+table.dataTable thead tr .sorting::after,
+table.dataTable thead tr .sorting_asc::after,
+table.dataTable thead tr .sorting_desc::after,
+table.dataTable thead tr .sorting_asc_disabled::after,
+table.dataTable thead tr .sorting_desc_disabled::after {
+    top: 0px;
+}

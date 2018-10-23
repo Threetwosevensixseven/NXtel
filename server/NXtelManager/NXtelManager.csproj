@@ -192,6 +192,8 @@
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\ServerController.cs" />
     <Compile Include="Controllers\TemplateController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Extensions\IdentityExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -213,6 +215,7 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\datatables.min.css" />
     <Content Include="Content\Images\btn-add-highlight.png" />
     <Content Include="Content\Images\btn-add.png" />
     <Content Include="Content\Images\btn-delete-highlight.png" />
@@ -241,6 +244,7 @@
     <Content Include="fonts\TeletextKit.woff" />
     <None Include="Properties\PublishProfiles\FolderDeploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\datatables.min.js" />
     <Content Include="Scripts\editor.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -298,6 +302,8 @@
     <Content Include="Views\Account\DisplayEmail.cshtml" />
     <Content Include="Views\Home\Title.cshtml" />
     <Content Include="Views\Server\Index.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\User\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

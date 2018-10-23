@@ -105,10 +105,13 @@
     <Compile Include="Classes\Route.cs" />
     <Compile Include="Classes\Routes.cs" />
     <Compile Include="Classes\ServerStatus.cs" />
+    <Compile Include="Classes\SQL.cs" />
     <Compile Include="Classes\Template.cs" />
     <Compile Include="Classes\Templates.cs" />
     <Compile Include="Classes\Settings.cs" />
     <Compile Include="Classes\ConsoleLogger.cs" />
+    <Compile Include="Classes\User.cs" />
+    <Compile Include="Classes\Users.cs" />
     <Compile Include="Extensions\MySqlCommandExtensions.cs" />
     <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />

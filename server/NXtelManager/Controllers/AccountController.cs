@@ -167,6 +167,10 @@ namespace NXtelManager.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var rng = new Random();
+                user.Mailbox = rng.Next(1000, 9999).ToString().PadLeft(4, '0')
+                    + rng.Next(0, 99999).ToString().PadLeft(5, '0'); // TODO: This needs to check for duplicates
+
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {

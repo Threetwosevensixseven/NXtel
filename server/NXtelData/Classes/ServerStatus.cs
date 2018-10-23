@@ -88,7 +88,14 @@ namespace NXtelData
             }
         }
 
-        public string StartClass
+        public static void StartIfStopped()
+        {
+            var status = new ServerStatus();
+            if (status.Instances.Length == 0)
+                Start();
+        }
+
+    public string StartClass
         {
             get
             {
