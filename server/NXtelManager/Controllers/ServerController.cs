@@ -11,7 +11,7 @@ using NXtelManager.Attributes;
 
 namespace NXtelManager.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ServerController : Controller
     {
         public ActionResult Index()

@@ -26,3 +26,4 @@
 /server/NXtelManager/Publish
 /carousel/creator/csharp/NXtelCarousel/bin
 /carousel/creator/csharp/NXtelCarousel/obj
+/build/*.lnk

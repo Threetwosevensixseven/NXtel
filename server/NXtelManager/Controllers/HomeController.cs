@@ -10,23 +10,14 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                return RedirectToAction("Index", "Server");
+            else if (User.Identity.IsAuthenticated && User.IsInRole("PageEditor"))
                 return RedirectToAction("Index", "Page");
+            else if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Manage");
             else
                 return View("Title");
-            //return View();
         }
-
-        //public ActionResult About()
-        //{
-        //    ViewBag.Message = "Your application description page.";
-        //    return View();
-        //}
-
-        //public ActionResult Contact()
-        //{
-        //    ViewBag.Message = "Your contact page.";
-        //    return View();
-        //}
     }
 }
