@@ -12,7 +12,7 @@ namespace NXtelManager.Controllers
         {
             if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                 return RedirectToAction("Index", "Server");
-            else if (User.Identity.IsAuthenticated && User.IsInRole("PageEditor"))
+            else if (User.Identity.IsAuthenticated && User.IsInRole("Page Editor"))
                 return RedirectToAction("Index", "Page");
             else if (User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Manage");

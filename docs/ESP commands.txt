@@ -2,3 +2,15 @@ AT+CWLAP to list the AP's
 AT+CWJAP="network","password" to join
 AT+CIFSR will tell you the IP address etc.
 AT+CIUPDATE to update ESP formware over the network
+
+AT+CIPMUX=0
+AT+CIPSTART="TCP","192.168.1.3",23280,7200
+AT+CIPSEND=1
+_
+AT+CIPSEND=5
+*200_
+AT+CIPCLOSE
+
+AT+CIPSTART="TCP","nx.nxtel.org",23280,7200
+
+AT+CIPSTART="TCP","glasstty.com",6503,7200

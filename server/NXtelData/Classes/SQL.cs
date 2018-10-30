@@ -20,8 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateUserMailbox(ConX);
-            UpdateAllUserMailboxes(ConX);
+            CreateGetUniqueMailbox(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -89,6 +88,69 @@ namespace NXtelData
 
             if (openConX)
                 ConX.Close();
+        }
+
+        public static void UpdateRoles(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"UPDATE AspNetRoles 
+                    SET Name='Page Editor' 
+                    WHERE Name='PageEditor';";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateGetUniqueMailbox(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"DROP PROCEDURE IF EXISTS sp_GetUniqueMailbox$$
+CREATE PROCEDURE sp_GetUniqueMailbox()
+BEGIN
+    SET @Mailbox='';
+    SET @Count=1;
+    WHILE(@Count<>0) DO
+        SELECT @Mailbox:=CAST(CAST(RAND()*900000000+100000000 AS unsigned) AS char(9));
+        SELECT @Count:=COUNT(*) FROM AspNetUsers WHERE Mailbox=@Mailbox;
+    END WHILE;
+    SELECT @Mailbox AS Mailbox;
+END$$";
+                var script = new MySqlScript(ConX, sql);
+                script.Delimiter = "$$";
+                script.Execute();
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
         }
 
     }

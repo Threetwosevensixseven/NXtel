@@ -102,6 +102,8 @@
     <Compile Include="Classes\FeedItems.cs" />
     <Compile Include="Classes\Options.cs" />
     <Compile Include="Classes\PageBase.cs" />
+    <Compile Include="Classes\Role.cs" />
+    <Compile Include="Classes\Roles.cs" />
     <Compile Include="Classes\Route.cs" />
     <Compile Include="Classes\Routes.cs" />
     <Compile Include="Classes\ServerStatus.cs" />

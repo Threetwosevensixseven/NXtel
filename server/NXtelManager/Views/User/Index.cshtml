@@ -1,32 +1,53 @@
 ﻿@model NXtelData.Users
+@using Microsoft.AspNet.Identity;
 @{
     ViewBag.Title = "Manage Users";
+    string myID = (User.Identity as System.Security.Claims.ClaimsIdentity).GetUserID();
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
-    <table class="paged" style="width:auto">
-        <thead>
-            <tr>
-                <th>Mailbox</th>
-                <th>Email</th>
-                <th class="text-center">Confirmed</th>
-                <th class="text-center">Editor</th>
-                <th class="text-center">Admin</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (NXtelData.User user in Model)
-            {
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <table class="paged" style="width:auto">
+            <thead>
                 <tr>
-                    <td>@Html.ActionLink(@user.Mailbox, "Edit", "User", new { id = user.ID }, null)</td>
-                    <td>@Html.ActionLink(@user.Email, "Edit", "User", new { id = user.ID }, null)</td>
-                    <td class="text-center">@Html.CheckBoxFor(u => @user.EmailConfirmed, new { onclick = "return false" })</td>
-                    <td class="text-center">@Html.CheckBoxFor(u => @user.IsPageEditor, new { onclick = "return false" })</td>
-                    <td class="text-center">@Html.CheckBoxFor(u => @user.IsAdmin, new { onclick = "return false" })</td>
+                    <th>Mailbox</th>
+                    <th>Email</th>
+                    <th class="text-center">Confirmed</th>
+                    <th class="text-center">Editor</th>
+                    <th class="text-center">Admin</th>
+                    <th></th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (NXtelData.User user in Model)
+                {
+                    <tr>
+                        <td>@Html.ActionLink(@user.Mailbox, "Edit", "User", new { id = user.ID }, null)</td>
+                        <td>@Html.ActionLink(@user.Email, "Edit", "User", new { id = user.ID }, null)</td>
+                        <td class="text-center">@Html.CheckBoxFor(u => @user.EmailConfirmed, new { onclick = "return false" })</td>
+                        <td class="text-center">@Html.CheckBoxFor(u => @user.IsPageEditor, new { onclick = "return false" })</td>
+                        <td class="text-center">@Html.CheckBoxFor(u => @user.IsAdmin, new { onclick = "return false" })</td>
+                        <td>
+                            @if (!@user.EmailConfirmed)
+                            {
+                                <input type="submit" value="Confirm" name="action:Confirm" title="Confirm User" class="btn ordered-btn check" onclick="return confirmUser('@user.ID','@user.Email');" />
+                            }
+                        </td>
+                        <td>
+                            @if (!@user.IsAdmin && @user.ID != myID)
+                            {
+                                <input type="submit" value="Delete" name="action:Delete" title="Delete User" class="btn ordered-btn" onclick="return deleteUser('@user.ID','@user.Email');" />
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <input id="UserID" name="UserID" type="hidden" value="123" />
+    }
 
 @section scripts {
     <script type="text/javascript">
@@ -43,9 +64,39 @@
                   {
                       targets: [2, 3, 4],
                       orderDataType: 'dom-checkbox'
-                  }
+                  },
+                  {
+                      targets: [5, 6],
+                      searchable: false,
+                      orderable: false
+                    }
                 ]
             });
         });
+
+        function deleteUser(userID, email) {
+            $("#UserID").val("");
+            if (!confirm("Are you sure you want to delete user " + email + "?"))
+                return false;
+            $("#UserID").val(userID);
+            return true;
+        }
+
+        function confirmUser(userID, email) {
+            $("#UserID").val("");
+            if (!confirm("Are you sure you want to confirm user " + email + "?"))
+                return false;
+            $("#UserID").val(userID);
+            return true;
+        }
     </script>
+    <style type="text/css">
+        input[type=submit].btn.ordered-btn {
+            background: url('/Content/Images/btn-delete.png') center center no-repeat;
+            width: 16px;
+            height: 16px;
+            text-indent: -9999px;
+            display: block;
+        }
+    </style>
 }

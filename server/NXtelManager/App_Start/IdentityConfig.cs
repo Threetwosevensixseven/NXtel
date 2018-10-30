@@ -20,11 +20,18 @@ namespace NXtelManager
     {
         public Task SendAsync(IdentityMessage message)
         {
-            SmtpClient client = new SmtpClient();
-            return client.SendMailAsync(ConfigurationManager.AppSettings["AdminEmailAddress"],
-                                        message.Destination,
-                                        message.Subject,
-                                        message.Body);
+            try
+            {
+                SmtpClient client = new SmtpClient();
+                return client.SendMailAsync(ConfigurationManager.AppSettings["AdminEmailAddress"],
+                                            message.Destination,
+                                            message.Subject,
+                                            message.Body);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 
@@ -90,26 +97,26 @@ namespace NXtelManager
                     new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
 
-            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context.Get<ApplicationDbContext>()));
-            IdentityResult result = null;
-            if (!roleManager.RoleExists("Admin"))
-                result = roleManager.Create(new IdentityRole("Admin"));
-            if (!roleManager.RoleExists("PageEditor"))
-                result = roleManager.Create(new IdentityRole("PageEditor"));
+            //var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context.Get<ApplicationDbContext>()));
+            //IdentityResult result = null;
+            //if (!roleManager.RoleExists("Admin"))
+            //    result = roleManager.Create(new IdentityRole("Admin"));
+            //if (!roleManager.RoleExists("Page Editor"))
+            //    result = roleManager.Create(new IdentityRole("Page Editor"));
 
-            ApplicationUser user = manager.FindByName("robin.verhagen.guest@gmail.com");
-            if (!manager.IsInRole(user.Id, "Admin"))
-                result = manager.AddToRole(user.Id, "Admin");
-            if (!manager.IsInRole(user.Id, "PageEditor"))
-                result = manager.AddToRole(user.Id, "PageEditor");
+            //ApplicationUser user = manager.FindByName("robin.verhagen.guest@gmail.com");
+            //if (!manager.IsInRole(user.Id, "Admin"))
+            //    result = manager.AddToRole(user.Id, "Admin");
+            //if (!manager.IsInRole(user.Id, "Page Editor"))
+            //    result = manager.AddToRole(user.Id, "Page Editor");
             //user.Mailbox = "123456789";
             //result = manager.Update(user);
 
             //user = manager.FindByName("darran@xalior.com");
             //if (!manager.IsInRole(user.Id, "Admin"))
             //    roleResult = manager.AddToRole(user.Id, "Admin");
-            //if (!manager.IsInRole(user.Id, "PageEditor"))
-            //    roleResult = manager.AddToRole(user.Id, "PageEditor");
+            //if (!manager.IsInRole(user.Id, "Page Editor"))
+            //    roleResult = manager.AddToRole(user.Id, "Page Editor");
 
             return manager;
         }

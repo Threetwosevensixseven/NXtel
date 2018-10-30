@@ -107,10 +107,16 @@ namespace NXtelServer
                     return;
                 }
 
+                //for (int i = 0; i < received; i++)
+                //{
+                //    Console.WriteLine("Received: " + data[i] + " (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                //}
+
                 //Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
 
                 if (client.ProcessInput(data, received, out nextPage))
                 {
+
                     //if (nextPage)
                     Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
                     //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
@@ -174,14 +180,20 @@ namespace NXtelServer
                     }
                 }
             }
-            catch (SocketException)
+            catch (Exception ex) when (ex is SocketException || ex is ObjectDisposedException)
             {
+                if (ex is ObjectDisposedException)
+                    Console.WriteLine("Caught ObjectDisposedException, retrying...");
                 try
                 {
                     Socket clientSocket = (Socket)result.AsyncState;
                     clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
                 }
-                catch { }
+                catch
+                {
+                    if (ex is ObjectDisposedException)
+                        Console.WriteLine("Nope, retry didn't work!");
+                }
             }
             catch (Exception ex)
             {

@@ -88,6 +88,22 @@ mend
 
 
 
+ULAPrintSetup           macro()
+                        ld a, 2                         ; upper screen
+                        call 5633                       ; open channel
+mend
+
+
+
+ULAPrint                macro(Char)
+                        ld a, Char
+                        rst 16
+                        ld a, 255
+                        ld(23692), a                    ; Turn off ULA scroll
+mend
+
+
+
 PageBankZX              macro(Bank, ReEnableInterrupts)
                         ld bc, 0x7ffd
                         di

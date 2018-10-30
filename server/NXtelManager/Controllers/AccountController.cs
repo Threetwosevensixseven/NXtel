@@ -168,9 +168,7 @@ namespace NXtelManager.Controllers
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
                 var rng = new Random();
-                user.Mailbox = rng.Next(1000, 9999).ToString().PadLeft(4, '0')
-                    + rng.Next(0, 99999).ToString().PadLeft(5, '0'); // TODO: This needs to check for duplicates
-
+                user.Mailbox = NXtelData.User.GetUniqueMailbox();
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -181,8 +179,15 @@ namespace NXtelManager.Controllers
                     string code = HttpUtility.UrlEncode(await UserManager.GenerateEmailConfirmationTokenAsync(user.Id));
                     //string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    await UserManager.SendEmailAsync(user.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
-
+                    try
+                    {
+                        await UserManager.SendEmailAsync(user.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                    }
+                    catch
+                    {
+                        ViewBag.NotLoggedIn = true;
+                        return View("Error");
+                    }
                     ViewBag.NotLoggedIn = true;
                     return View("DisplayEmail");
                 }

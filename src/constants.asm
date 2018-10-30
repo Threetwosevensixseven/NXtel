@@ -1,5 +1,16 @@
 ; constants.asm
 
+; UART
+UART_RxD                equ $143B                       ; Also used to set the baudrate
+UART_TxD                equ $133B                       ; Also reads status
+UART_SetBaud            equ UART_RxD                    ; Sets baudrate
+UART_GetStatus          equ UART_TxD                    ; Reads status bits
+UART_mRX_DATA_READY     equ %xxxxx 0 0 1                ; Status bit masks
+UART_mTX_BUSY           equ %xxxxx 0 1 0                ; Status bit masks
+UART_mRX_FIFO_FULL      equ %xxxxx 1 0 0                ; Status bit masks
+
+
+
 ; Sprite I/O ports
 Sprite_Pattern_Port     equ $5B
 Sprite_Sprite_Port      equ $57
@@ -111,6 +122,12 @@ Teletext                proc
   Space                 equ 32
   SetBit7               equ 128
 pend
+
+
+
+; ParaSys
+BootParaBase            equ $4010
+s                       equ Start
 
 
 

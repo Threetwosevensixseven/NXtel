@@ -94,7 +94,8 @@ tr:first-child>td>a.ordered-btn.up, tr:last-child>td>a.ordered-btn.down {
     visibility: hidden;
 }
 
-a.ordered-btn {
+a.ordered-btn,
+input[type=submit].btn.ordered-btn {
     background: url('/Content/Images/btn-delete.png') center center no-repeat;
     width: 16px;
     height: 16px;
@@ -102,49 +103,69 @@ a.ordered-btn {
     display: block;
 }
 
-a.ordered-btn.up {
+a.ordered-btn.up,
+input[type=submit].btn.ordered-btn.up {
     background-image: url('/Content/Images/btn-up.png');
 }
 
-a.ordered-btn.down {
+a.ordered-btn.down,
+input[type=submit].btn.ordered-btn.down {
     background-image: url('/Content/Images/btn-down.png');
 }
 
-a.ordered-btn.add {
+a.ordered-btn.add,
+input[type=submit].btn.ordered-btn.add {
     background-image: url('/Content/Images/btn-add.png');
 }
 
-a.ordered-btn.edit {
+a.ordered-btn.edit,
+input[type=submit].btn.ordered-btn.edit {
     background-image: url('/Content/Images/btn-edit.png');
 }
 
-a.ordered-btn.open {
+a.ordered-btn.open,
+input[type=submit].btn.ordered-btn.open {
     background-image: url('/Content/Images/btn-open.png');
 }
 
+a.ordered-btn.check,
+input[type=submit].btn.ordered-btn.check {
+    background-image: url('/Content/Images/btn-check.png');
+}
 
-a.ordered-btn:hover {
+a.ordered-btn:hover,
+input[type=submit].btn.ordered-btn:hover {
     background-image: url('/Content/Images/btn-delete-highlight.png');
 }
 
-a.ordered-btn.up:hover {
+a.ordered-btn.up:hover,
+input[type=submit].btn.ordered-btn.up:hover {
     background-image: url('/Content/Images/btn-up-highlight.png');
 }
 
-a.ordered-btn.down:hover {
+a.ordered-btn.down:hover,
+input[type=submit].btn.ordered-btn.down:hover {
     background-image: url('/Content/Images/btn-down-highlight.png');
 }
 
-a.ordered-btn.add:hover {
+a.ordered-btn.add:hover,
+input[type=submit].btn.ordered-btn.add:hover {
     background-image: url('/Content/Images/btn-add-highlight.png');
 }
 
-a.ordered-btn.edit:hover {
+a.ordered-btn.edit:hover,
+input[type=submit].btn.ordered-btn.edit:hover {
     background-image: url('/Content/Images/btn-edit-highlight.png');
 }
 
-a.ordered-btn.open:hover {
+a.ordered-btn.open:hover,
+input[type=submit].btn.ordered-btn.open:hover {
     background-image: url('/Content/Images/btn-open-highlight.png');
+}
+
+a.ordered-btn.check:hover,
+input[type=submit].btn.ordered-btn.check:hover {
+    background-image: url('/Content/Images/btn-check-highlight.png');
 }
 
 table.pad-right th, table.pad-right td {

@@ -2,7 +2,7 @@
     bool LoggedIn = ViewBag.NotLoggedID == null;
     bool ShowHeader = ViewBag.HideHeader == null;
     bool admin = User.IsInRole("Admin");
-    bool pageEditor = User.IsInRole("PageEditor");
+    bool pageEditor = User.IsInRole("Page Editor");
     string version = "v" + MvcApplication.ApplicationVersion;
 }
 <!DOCTYPE html>

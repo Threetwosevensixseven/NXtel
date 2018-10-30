@@ -15,5 +15,13 @@ namespace Microsoft.AspNet.Identity
             // Test for null to avoid issues during local testing
             return (claim != null) ? claim.Value : string.Empty;
         }
+
+        public static string GetUserID(this IIdentity identity)
+        {
+            var claim = ((ClaimsIdentity)identity).FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+            // Test for null to avoid issues during local testing
+            return (claim != null) ? claim.Value : string.Empty;
+        }
+
     }
 }

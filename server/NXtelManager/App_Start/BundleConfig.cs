@@ -10,7 +10,8 @@ namespace NXtelManager
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js",
-                        "~/Scripts/datatables.min.js"));
+                        "~/Scripts/datatables.min.js",
+                        "~/Scripts/bootstrap-multiselect.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
@@ -27,6 +28,7 @@ namespace NXtelManager
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/datatables.min.css",
+                      "~/Content/bootstrap-multiselect.css",
                       "~/Content/site.css"));
         }
     }
