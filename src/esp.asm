@@ -26,13 +26,78 @@ pend                                                    ; So jump there to conti
 
 
 ESPReceive              proc
-BootRxD                 ld a, high UART_GetStatus       ; Are there any characters waiting?
+                        ld a, high UART_GetStatus       ; Are there any characters waiting?
                         in a, (low UART_GetStatus)      ; This inputs from the 16-bit address UART_GetStatus
                         rrca                            ; Check UART_mRX_DATA_READY flag in bit 0
                         ret nc                          ; Return immmediately if not ready (we call this in a tight loop)
                         ld a, high UART_RxD             ; Otherwise Read the byte
                         in a, (low UART_RxD)            ; from the UART Rx port
+                        cp 32
+                        jp c, PrintHex
+                        cp 128
+                        jp nc, PrintHex
                         rst 16                          ; and print it with the ROM ULA print routine.
                         ret
+pend
+
+
+
+ESPReceiveWaitOK        proc
+                        ld hl, WaitFor
+NotReady:               ld a, 255
+                        ld(23692), a                    ; Turn off ULA scroll
+                        ld a, high UART_GetStatus       ; Are there any characters waiting?
+                        in a, (low UART_GetStatus)      ; This inputs from the 16-bit address UART_GetStatus
+                        rrca                            ; Check UART_mRX_DATA_READY flag in bit 0
+                        jp nc, NotReady                 ; If not, retry
+                        ld a, high UART_RxD             ; Otherwise Read the byte
+                        in a, (low UART_RxD)            ; from the UART Rx port
+                        cp (hl)
+                        jp z, Match
+                        ld hl, WaitFor
+Print:                  push hl
+                        cp 32
+                        jp c, PrintHex2
+                        cp 128
+                        jp nc, PrintHex2
+                        rst 16                          ; and print it with the ROM ULA print routine.
+PrintReturn:            pop hl
+                        ld de, WaitForEnd
+                        CpHL(de)
+                        jp nz, NotReady
+                        ret
+WaitFor:                db "OK", CR, LF
+WaitForEnd:
+Match:                  inc hl
+                        jp Print
+pend
+
+
+
+PrintHex2               proc
+                        ld d, a
+                        ld a, '['
+                        rst 16
+                        ld a, d
+                        and %11110000
+                        rrca
+                        rrca
+                        rrca
+                        rrca
+                        add 48
+                        cp ':'
+                        jp c, PrintLeft
+                        add a, 7
+PrintLeft:              rst 16
+                        ld a, d
+                        and %00001111
+                        add 48
+                        cp ':'
+                        jp c, PrintRight
+                        add a, 7
+PrintRight:             rst 16
+                        ld a, ']'
+                        rst 16
+                        jp ESPReceiveWaitOK.PrintReturn
 pend
 

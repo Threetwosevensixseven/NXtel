@@ -29,16 +29,26 @@ Start:
                         ld i, a
                         im 2
                         ei
-                        ESPSend("AT+GMR")
+                        Border(White)
                         ULAPrintSetup()
+                        ESPSend("AT+CIPCLOSE")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPMUX=0")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPSTART=""TCP"",""nx.nxtel.org"",23280,7200")
+                        //ESPSend("AT+CIPSTART=""TCP"",""IRATA.ONLINE"",8005,7200")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPSEND=1")
+                        call ESPReceiveWaitOK
+                        ESPSend("_")
 MainLoop:
                         call ESPReceive
                         jp MainLoop
 
-                        //include "nxtermutils.asm"
+                        include "nxtermutils.asm"
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
-                        //include "ParaBootStub.asm"      ; Parasys remote debugger slave stub
+                        include "ParaBootStub.asm"      ; Parasys remote debugger slave stub
                         include "esp.asm"
 
 org $BE00
