@@ -17,7 +17,8 @@ Cspect optionbool 15, -15, "Cspect", false
 ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
-//Carousel optionbool 665, -15, "Carousel", false
+ULAMonochrome optionbool 665, -15, "ULA", true
+//Carousel optionbool 710, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
                         org $6000
@@ -29,20 +30,30 @@ Start:
                         ld i, a
                         im 2
                         ei
-                        Border(White)
-                        ULAPrintSetup()
+                        Turbo(MHz14)
+                        Border(Black)
+                        ClsAttrFull(BrightWhiteBlackP)
+                        ULAPrintSetup(BrightWhiteBlackP)
+                        ESPSend("ATE0")
+                        call ESPReceiveWaitOK
                         ESPSend("AT+CIPCLOSE")
                         call ESPReceiveWaitOK
                         ESPSend("AT+CIPMUX=0")
                         call ESPReceiveWaitOK
+                        //ESPSend("AT+CIPSTART=""TCP"",""192.168.1.3"",23280,7200")
                         ESPSend("AT+CIPSTART=""TCP"",""nx.nxtel.org"",23280,7200")
                         //ESPSend("AT+CIPSTART=""TCP"",""IRATA.ONLINE"",8005,7200")
-                        call ESPReceiveWaitOK
+                        /*call ESPReceiveWaitOK
                         ESPSend("AT+CIPSEND=1")
                         call ESPReceiveWaitOK
-                        ESPSend("_")
+                        Border(Blue)
+                        Pause(100)
+                        Border(White)
+                        ESPSend("_")*/
 MainLoop:
+                        di
                         call ESPReceive
+                        ei
                         jp MainLoop
 
                         include "nxtermutils.asm"
@@ -62,4 +73,8 @@ org $BFBF
                         endif
 
                         output_sna "..\bin\NXterm.sna", $FF40, Start
+
+                        if enabled UploadNext
+                          zeusinvoke "..\build\UploadNXterm.bat"
+                        endif
 

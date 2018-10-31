@@ -88,9 +88,12 @@ mend
 
 
 
-ULAPrintSetup           macro()
+ULAPrintSetup           macro(Colour)
                         ld a, 2                         ; upper screen
                         call 5633                       ; open channel
+                        ld a, Colour
+                        ld (23693), a
+                        ld (23695), a
 mend
 
 
@@ -367,5 +370,14 @@ mend
 PadStringLeftSpaces     macro(String, Len)
                         ds Len - length(String), 32
                         db String
+mend
+
+
+
+Pause                   macro(Frames)
+                        zeusprint Frames
+                        ld hl, Frames
+                        ld (PauseProc.Timer), hl
+                        call PauseProc
 mend
 

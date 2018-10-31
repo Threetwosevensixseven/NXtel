@@ -43,7 +43,9 @@ pend
 
 
 ESPReceiveWaitOK        proc
-                        ld hl, WaitFor
+                        di
+                        ld hl, FirstChar
+                        ld (StateJump), hl
 NotReady:               ld a, 255
                         ld(23692), a                    ; Turn off ULA scroll
                         ld a, high UART_GetStatus       ; Are there any characters waiting?
@@ -52,9 +54,18 @@ NotReady:               ld a, 255
                         jp nc, NotReady                 ; If not, retry
                         ld a, high UART_RxD             ; Otherwise Read the byte
                         in a, (low UART_RxD)            ; from the UART Rx port
-                        cp (hl)
-                        jp z, Match
-                        ld hl, WaitFor
+                        jp [StateJump]SMC
+FirstChar:              cp 'O'
+                        jp z, MatchOK
+                        cp 'E'
+                        jp z, MatchError
+                        cp 'S'
+                        jp z, MatchSendFail
+                        jp Print
+SubsequentChar:         cp (hl)
+                        jp z, MatchSubsequent
+                        ld hl, FirstChar
+                        ld (StateJump), hl
 Print:                  push hl
                         cp 32
                         jp c, PrintHex2
@@ -62,23 +73,61 @@ Print:                  push hl
                         jp nc, PrintHex2
                         rst 16                          ; and print it with the ROM ULA print routine.
 PrintReturn:            pop hl
-                        ld de, WaitForEnd
+                        ld de, [Compare]SMC
                         CpHL(de)
                         jp nz, NotReady
+                        ei
+                        ld a, [Colour]White
+                        //out (ULA_PORT), a
+                        //halt
                         ret
-WaitFor:                db "OK", CR, LF
-WaitForEnd:
-Match:                  inc hl
+MatchSubsequent:        inc hl
                         jp Print
+MatchOK:                ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, OKEnd
+                        ld (Compare), hl
+                        push af
+                        ld a, White
+                        ld (Colour), a
+                        pop af
+                        ld hl, OK
+                        jp Print
+MatchError:             ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, ErrorEnd
+                        ld (Compare), hl
+                        push af
+                        ld a, Red
+                        ld (Colour), a
+                        pop af
+                        ld hl, Error
+                        jp Print
+MatchSendFail:          ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, SendFailEnd
+                        ld (Compare), hl
+                        push af
+                        ld a, Magenta
+                        ld (Colour), a
+                        pop af
+                        ld hl, Error
+                        jp Print
+OK:                     db "K", CR, LF
+OKEnd:
+Error:                  db "RROR", CR, LF
+ErrorEnd:
+SendFail:               db "END FAIL", CR, LF
+SendFailEnd:
 pend
 
 
 
 PrintHex2               proc
                         ld d, a
-                        ld a, '['
-                        rst 16
-                        ld a, d
+                        ;ld a, "\"
+                        ;rst 16
+                        ;ld a, d
                         and %11110000
                         rrca
                         rrca
@@ -96,8 +145,8 @@ PrintLeft:              rst 16
                         jp c, PrintRight
                         add a, 7
 PrintRight:             rst 16
-                        ld a, ']'
-                        rst 16
+                        //ld a, ']'
+                        //rst 16
                         jp ESPReceiveWaitOK.PrintReturn
 pend
 

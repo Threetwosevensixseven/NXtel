@@ -182,8 +182,26 @@ namespace NXtelServer
             }
             catch (Exception ex) when (ex is SocketException || ex is ObjectDisposedException)
             {
-                if (ex is ObjectDisposedException)
-                    Console.WriteLine("Caught ObjectDisposedException, retrying...");
+                //if (ex is ObjectDisposedException)
+                //    Console.WriteLine("Caught ObjectDisposedException, retrying...");
+                try
+                {
+                    Socket clientSocket = (Socket)result.AsyncState;
+                    clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
+                }
+                catch
+                {
+                    //if (ex is ObjectDisposedException)
+                    //    Console.WriteLine("Nope, retry didn't work!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine();
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine();
+                Console.WriteLine("Retrying...");
                 try
                 {
                     Socket clientSocket = (Socket)result.AsyncState;
@@ -194,15 +212,6 @@ namespace NXtelServer
                     if (ex is ObjectDisposedException)
                         Console.WriteLine("Nope, retry didn't work!");
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine();
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                Console.WriteLine();
-                Socket clientSocket = (Socket)result.AsyncState;
-                clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
             }
         }
 

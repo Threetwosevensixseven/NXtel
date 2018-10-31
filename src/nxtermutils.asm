@@ -2,9 +2,9 @@
 
 PrintHex                proc
                         ld d, a
-                        ld a, '['
-                        rst 16
-                        ld a, d
+                        ;ld a, "\"
+                        ;rst 16
+                        ;ld a, d
                         and %11110000
                         rrca
                         rrca
@@ -22,8 +22,21 @@ PrintLeft:              rst 16
                         jp c, PrintRight
                         add a, 7
 PrintRight:             rst 16
-                        ld a, ']'
-                        rst 16
+                        //ld a, ']'
+                        //rst 16
+                        ret
+pend
+
+
+
+PauseProc               proc
+Wait:                   halt
+                        ld hl, [Timer]SMC
+                        dec hl
+                        ld (Timer), hl
+                        ld a, h
+                        or l
+                        jp nz, Wait
                         ret
 pend
 
