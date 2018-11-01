@@ -50,11 +50,16 @@ Start:
                         Pause(100)
                         Border(White)
                         ESPSend("_")*/
+                        call ESPReceiveIPDInit
 MainLoop:
-                        di
-                        call ESPReceive
-                        ei
+                        call ESPReceiveIPD
+                        //jp z, Received
+                        //jp c, Error
                         jp MainLoop
+Received:               Border(Green)
+                        jp Received
+Error:                  Border(Red)
+                        jp Error
 
                         include "nxtermutils.asm"
                         include "constants.asm"         ; Global constants

@@ -1,5 +1,8 @@
 ; constants.asm
 
+; Testing
+PrintIPDPacket          equ true
+
 ; UART
 UART_RxD                equ $143B                       ; Also used to set the baudrate
 UART_TxD                equ $133B                       ; Also reads status
