@@ -330,8 +330,20 @@ mend
 
 
 
+Contention              macro(OnOff)
+                        NextRegRead(8)
+                        if OnOff
+                          and %1011 1111
+                        else
+                          or %0100 0000
+                        endif
+                        nextreg 8, a
+mend
+
+
+
 NextRegRead             macro(Register)
-                        ld bc, Sprite_Register_Port
+                        ld bc, Sprite_Register_Port     ; Sprite_Register_Port = $243B
                         ld a, Register
                         out (c), a
                         inc b

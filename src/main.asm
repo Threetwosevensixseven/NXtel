@@ -23,15 +23,18 @@ NoDivMMC                = ZeusDebug
                         org $6000
 Start:
                         di
-
                         ld iy, $5C3A
                         ld sp, Stack
-                        //ld a, $BE
-                        //ld i, a
-                        //im 2
-                        ld a, $3F
+                        ld a, $BE
                         ld i, a
                         im 1
+                        Turbo(MHz14)
+                        Contention(false)
+                        Border(Black)
+                        ClsAttrFull(BrightWhiteBlackP)
+                        ei
+                        halt
+                        ULAPrintSetup(BrightWhiteBlackP)
 /*
                         ei
                         ld a, MainMenu.ItemCount
@@ -108,6 +111,9 @@ IsNext:                 ld a, $CD                       ; call NN
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
                         call Welcome
+
+FreezeXX:               jp FreezeXX
+
                         call LoadSettings
                         jp MainMenu
 RunCarousel:

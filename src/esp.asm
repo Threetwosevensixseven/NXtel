@@ -1,7 +1,7 @@
 ; esp.asm
 
 ESPReceiveIPDInit       proc
-                        ld a, $FE                       ; $FE = di
+                        ld a, $F3                       ; $F3 = di
                         ld (ESPReceiveIPD), a
                         ld hl, ESPReceiveIPD.SizeBuffer
                         ld (ESPReceiveIPD.SizePointer), hl

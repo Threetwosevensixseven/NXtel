@@ -29,10 +29,12 @@ Start:
                         ld a, $BE
                         ld i, a
                         im 2
-                        ei
                         Turbo(MHz14)
+                        Contention(false)
                         Border(Black)
                         ClsAttrFull(BrightWhiteBlackP)
+                        ei
+                        halt
                         ULAPrintSetup(BrightWhiteBlackP)
                         ESPSend("ATE0")
                         call ESPReceiveWaitOK

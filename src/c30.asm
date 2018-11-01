@@ -325,7 +325,7 @@ NoResetHeldChar:
                         //                  Coordinates: XX,         YY
                         //                               ||          ||
 
-                        zeusdatabreakpoint 2, "((e-8)/6)=10 && (d/8)= 5", $+disp
+                        //zeusdatabreakpoint 2, "((e-8)/6)=10 && (d/8)= 5", $+disp
                         //zeusdatabreakpoint 2, "((((e-8)/6)>0) && (((e-8)/6)<4)) && ((d/8)= 5)", $+disp
                         nop
 
