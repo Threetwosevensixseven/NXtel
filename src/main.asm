@@ -17,7 +17,8 @@ Cspect optionbool 15, -15, "Cspect", false
 ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
-//Carousel optionbool 665, -15, "Carousel", false
+ULAMonochrome optionbool 665, -15, "ULA", true
+//Carousel optionbool 710, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
                         org $6000
@@ -34,7 +35,6 @@ Start:
                         ClsAttrFull(BrightWhiteBlackP)
                         ei
                         halt
-                        ULAPrintSetup(BrightWhiteBlackP)
 /*
                         ei
                         ld a, MainMenu.ItemCount

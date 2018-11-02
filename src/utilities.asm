@@ -183,8 +183,13 @@ Welcome                 proc
                         jp Welcome31
 Return:                 MMU6(0, false)
                         call RenderBuffer
+                        if ULAMonochrome
+                          ld a, $10
+                          or [WhichScreen]SMC
+                          ld bc, $7FFD
+                          out (c), a
+                        endif
                         ei
-                        ld a, -1
 Wait:
                         halt
                         inc a

@@ -42,7 +42,6 @@ pend
 
 
 
-
 ClearESPBuffer          proc
                         FillLDIR(DisplayBuffer, DisplayBuffer.Length, Teletext.Space)
                         call ClsLayer2
@@ -79,10 +78,15 @@ RenderBuffer            proc
                         ld a, [WhichLayer2]SMC+1
                         xor 1
                         ld (WhichLayer2), a
-                        call z, PageLayer2Primary
-                        call nz, PageLayer2Secondary
+                        call z, PagePrimaryScreen
+                        call nz, PageSecondaryScreen
                         call ClsLayer2
-
+                        if ULAMonochrome
+                           ClsAttrFull(BrightWhiteBlackP)
+                          //call Cls                      ; Attributes stay at BrightWhiteBlackP
+                          //MMU5(8, false)                ; FZX driver is in 16K page 4 at $A000
+                          //ld (FZX_COL), hl
+                        endif
                         ld hl, [PrintLength]DisplayBuffer.Length
                         //ld hl, 880
                         push hl
@@ -136,135 +140,167 @@ ProcessRead2:
 NotBlastThrough:        or [OrOffset]SMC
                         and [AndOffset]SMC              ; Blast through chars are 64..95 inclusive
 BlastThrough:
-                        ex af, af'
+                        //ex af, af'
                         ld hl, [FontInUse]Fonts.SAA5050
                         push af
-                        ld a, h
-                        cp high Fonts.SAADouble
-                        jp z, NoFill
 
-                        push bc
-                        push hl
-                        push de
+                        if ULAMonochrome
+                          push af
+                          push hl
+                          MMU5(8, false)                ; FZX driver is in 16K page 4 at $A000
+                          ld (FZX_FONT), hl
+                          ld hl, (Coordinates)
+                          ld a, 191
+                          sub h
+                          ld h, a
+                          cp $C0
+                          jp nc, ULAOutOfRange
+                          ld (FZX_COL), hl
+                          pop hl
+                          pop af
+                          call FZX_START
+                          jp ULAContinue1
+ULAOutOfRange:            pop hl
+                          pop af
+                          jp ULAContinue1
+Background1:              db 0
+Background2:              db 0
+Background3:              db 0
+IsFlashing:               db 0
+Foreground:               db 0
+Coordinates:              dw 0
+ULAContinue1:
+                        else
 
-                        ld a, 8
-                        ld (FillCounter), a
-                        add d
-                        cp $C0
-                        jp nc, OutOfScreen
-                        ld d, a
-                        ex de, hl
-FillLoop:               ld a, (Background1)
-                        ld (hl), a
-                        ld de, hl
-                        inc e
-                        ld bc, 5
-                        for n = 1 to 5
-                          ldi
-                        next ;n
-                        add hl, 256-5
-                        ld a, [FillCounter]SMC
-                        dec a
-                        ld (FillCounter), a
-                        jp nz, FillLoop
+                          ld a, h
+                          cp high Fonts.SAADouble
+                          jp z, NoFill
+
+                          push bc
+                          push hl
+                          push de
+
+                          ld a, 8
+                          ld (FillCounter), a
+                          add d
+                          cp $C0
+                          jp nc, OutOfScreen
+                          ld d, a
+                          ex de, hl
+FillLoop:                 ld a, (Background1)
+                          ld (hl), a
+                          ld de, hl
+                          inc e
+                          ld bc, 5
+                          for n = 1 to 5
+                            ldi
+                          next ;n
+                          add hl, 256-5
+                          ld a, [FillCounter]SMC
+                          dec a
+                          ld (FillCounter), a
+                          jp nz, FillLoop
 OutOfScreen:
-                        pop de
-                        pop hl
-                        pop bc
+                          pop de
+                          pop hl
+                          pop bc
 
 
-NoFill:                 pop af
-                        ld a, (hl)
-                        ex af, af'
-                        ld (DebugPrint.Char), a
-                        inc hl
-                        inc hl
-                        add a, -32
-                        ld d, a
-                        ld e, 3
-                        mul
-                        add hl, de
-                        inc hl
-                        ld e, (hl)
-                        inc hl
-                        ld d, (hl)                      ; de = Character offset
-                        inc hl
-                        ld a, (hl)
-                        inc hl
-                        ld c, (hl)
-                        inc hl
-                        ld b, (hl)                      ; bc = next Character offset
-                        swapnib
-                        and %1111                       ; a  = Character leading
-                        push hl
-                        add hl, bc
-                        dec hl
-                        ld bc, hl                       ; bc = next Character address
-                        pop hl
-                        add hl, de
-                        add hl, -4
-                        ld de, [Coordinates]SMC
-                        call DebugPrint
-                        or a
-                        jp z, FontLines
-                        push bc
-                        ld b, a
+NoFill:                   pop af
+                          ld a, (hl)
+                          ex af, af'
+                          ld (DebugPrint.Char), a
+                          inc hl
+                          inc hl
+                          add a, -32
+                          ld d, a
+                          ld e, 3
+                          mul
+                          add hl, de
+                          inc hl
+                          ld e, (hl)
+                          inc hl
+                          ld d, (hl)                      ; de = Character offset
+                          inc hl
+                          ld a, (hl)
+                          inc hl
+                          ld c, (hl)
+                          inc hl
+                          ld b, (hl)                      ; bc = next Character offset
+                          swapnib
+                          and %1111                       ; a  = Character leading
+                          push hl
+                          add hl, bc
+                          dec hl
+                          ld bc, hl                       ; bc = next Character address
+                          pop hl
+                          add hl, de
+                          add hl, -4
+                          ld de, [Coordinates]SMC
+                          call DebugPrint
+                          or a
+                          jp z, FontLines
+                          push bc
+                          ld b, a
 Leading:
-                        ld a, [Background1]$00
-                        for n = 0 to 5
-                          ld (de), a
-                          inc e
-                        next;n
-                        inc d
-                        ld a, e
-                        add a, -6
-                        ld e, a
-                        ex af, af'
-                        dec a
-                        ex af, af'
-                        djnz Leading
-                        pop bc
+                          ld a, [Background1]$00
+                          for n = 0 to 5
+                            ld (de), a
+                            inc e
+                          next;n
+                          inc d
+                          ld a, e
+                          add a, -6
+                          ld e, a
+                          ex af, af'
+                          dec a
+                          ex af, af'
+                          djnz Leading
+                          pop bc
 FontLines:
-                        CpHL(bc)
-                        push bc
-                        jp z, Trailing
+                          CpHL(bc)
+                          push bc
+                          jp z, Trailing
 CharLines:
-                        ex af, af'
-                        dec a
-                        ex af, af'
-                        ld c, (hl)
-                        inc hl
-                        ld b, 6
-                        push de
+                          ex af, af'
+                          dec a
+                          ex af, af'
+                          ld c, (hl)
+                          inc hl
+                          ld b, 6
+                          push de
 Rotate:
-                        bit 7, c
-                        ld a, [Background2]%00
-                        jp z, BG
-                        ld a, [Foreground]$FF
-                        or [IsFlashing]$00
-BG:                     ld (de), a
-                        rlc c
-                        inc e
-                        djnz Rotate
-                        pop de
-                        inc d
-                        pop bc
-                        jp FontLines
-Trailing:
-                        ex af, af'
-                        ld b, a
-                        or a
-                        jp z, EndChar
-TrailingLoop:           ld a, [Background3]$00
-                        for n = 0 to 5
-                          ld (de), a
+                          bit 7, c
+                          ld a, [Background2]%00
+                          jp z, BG
+                          ld a, [Foreground]$FF
+                          or [IsFlashing]$00
+BG:                       ld (de), a
+                          rlc c
                           inc e
-                        next;n
-                        inc d
-                        ld a, e
-                        add a, -6
-                        ld e, a
-                        djnz TrailingLoop
+                          djnz Rotate
+                          pop de
+                          inc d
+                          pop bc
+                          jp FontLines
+Trailing:
+                          ex af, af'
+                          ld b, a
+                          or a
+                          jp z, EndChar
+TrailingLoop:             ld a, [Background3]$00
+                          for n = 0 to 5
+                            ld (de), a
+                            inc e
+                          next;n
+                          inc d
+                          ld a, e
+                          add a, -6
+                          ld e, a
+                          djnz TrailingLoop
+
+
+                        endif
 EndChar:
                         pop bc                          ; Discard, balance stack
                         pop hl                          ; Display buffer next char
@@ -313,7 +349,6 @@ NoDoubleHeightThisLine: ld e, 8
                         ld (FontInUse), hl
                         pop hl
 NoNextRow:              ld (Coordinates), de
-
                         ld a, [ResetHeldCharNextTime]SMC
                         or a
                         jp z, NoResetHeldChar
@@ -337,7 +372,9 @@ NoResetHeldChar:
                         jp nz, Read
 Abort:                  pop bc
 Return:
-                        PageResetBottom48K()
+                        if not ULAMonochrome
+                          PageResetBottom48K()
+                        endif
                         xor a
                         ld (DoFlash.Frame), a
                         inc a
@@ -350,8 +387,19 @@ Return:
                         ld a, 9
                         jp z, ShowLayer2
                         ld a, 12
-ShowLayer2:             nextreg $12, a
-                        PortOut($123B, $02)             ; Show layer 2 and disable write paging
+ShowLayer2:
+                        if ULAMonochrome
+                          cp 12
+                          jp z, AltULA
+MainULA:                  ld a, 0
+                          jp ULASwitchCont
+                          ld a, 8
+AltULA:
+ULASwitchCont:            ld (Welcome.WhichScreen), a
+                        else
+                          nextreg $12, a
+                          PortOut($123B, $02)           ; Show layer 2 and disable write paging
+                        endif
                         Turbo(MHz35)
                         ld sp, [Stack]SMC
                         ret
@@ -622,7 +670,7 @@ NotHold:                nop
                         // Breaks during the hold graphics calculation for the current char
                         //                                                              Coordinates: XX,         YY
                         //                                                                           ||          ||
-                        zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a, c, b', c'), ((e-8)/6)=99 && (d/8)= 2", $+disp
+                        //zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a, c, b', c'), ((e-8)/6)=99 && (d/8)= 2", $+disp
                         nop
 
 
@@ -658,22 +706,32 @@ pend
 
 
 
-PageLayer2Primary       proc
-                        PageLayer2Bottom48K(9, false)
-                        ld a, 9*2
-                        ld (GetTime.Page), a
-                        ld a, (RenderBuffer.WhichLayer2)
+PagePrimaryScreen       proc
+                        if ULAMonochrome
+                          MMU2(10, false)
+                          MMU3(11, false)
+                        else
+                          PageLayer2Bottom48K(9, false)
+                          ld a, 9*2
+                          ld (GetTime.Page), a
+                          ld a, (RenderBuffer.WhichLayer2)
+                        endif
                         or a
                         ret
 pend
 
 
 
-PageLayer2Secondary     proc
-                        PageLayer2Bottom48K(12, false)
-                        ld a, 12*2
-                        ld (GetTime.Page), a
-                        ld a, (RenderBuffer.WhichLayer2)
+PageSecondaryScreen     proc
+                        if ULAMonochrome
+                          MMU2(14, false)
+                          MMU3(15, false)
+                        else
+                          PageLayer2Bottom48K(12, false)
+                          ld a, 12*2
+                          ld (GetTime.Page), a
+                          ld a, (RenderBuffer.WhichLayer2)
+                        endif
                         or a
                         ret
 pend
