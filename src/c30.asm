@@ -72,8 +72,9 @@ pend
 RenderBuffer            proc
                         ld (Stack), sp
                         ld sp, $FFFF
-
-                        Turbo(MHz14)
+                        if not ULAMonochrome
+                          Turbo(MHz14)
+                        endif
                         call GetTime
                         ld a, [WhichLayer2]SMC+1
                         xor 1
@@ -400,7 +401,9 @@ ULASwitchCont:            ld (Welcome.WhichScreen), a
                           nextreg $12, a
                           PortOut($123B, $02)           ; Show layer 2 and disable write paging
                         endif
-                        Turbo(MHz35)
+                        if not ULAMonochrome
+                          Turbo(MHz35)
+                        endif
                         ld sp, [Stack]SMC
                         ret
 Colours:

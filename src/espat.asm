@@ -1,7 +1,9 @@
 ; espat.asm
 
 ESPSendTest             proc
-                        Turbo(MHz35)
+                        if not ULAMonochrome
+                          Turbo(MHz35)
+                        endif
                         PageBankZX(0, true)
 
                         xor a

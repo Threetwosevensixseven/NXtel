@@ -111,10 +111,11 @@ IsNext:                 ld a, $CD                       ; call NN
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
                         call Welcome
+                        call ParseCfgFile
 
 FreezeXX:               jp FreezeXX
+                        //call LoadSettings
 
-                        call LoadSettings
                         jp MainMenu
 RunCarousel:
                         Turbo(MHz14)
@@ -195,6 +196,7 @@ PagesCurrent:           db -1
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
                         include "page0.asm"             ; 16K page 0
+                        include "page1.asm"             ; 16K page 1
                         include "page4.asm"             ; 16K page 4
                         include "mmu-pages.asm"         ; 8k banks
 /*
