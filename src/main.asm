@@ -35,50 +35,6 @@ Start:
                         ClsAttrFull(BrightWhiteBlackP)
                         ei
                         halt
-/*
-                        ei
-                        ld a, MainMenu.ItemCount
-                        ld (ReadMenuKeys.ItemCount), a
-                        ld hl, MainMenu.Addresses
-                        ld (ReadMenuKeys.Addresses), hl
-                        jp ReadMenuKeys
-*/
-//BFreeze:                Border(Red)
-//                       Border(Yellow)
-//                        jp BFreeze
-
-                        //MFBreak()
-                        /*di
-
-                        LD A,%10000000
-                        LD E,2
-                        SETAE
-                        ld (Test1), a
-
-                        LD E,0
-                        LD D,192
-                        PIXELAD
-                        //ld (Test1), hl
-
-                        LD E,0
-                        LD D,191
-                        PIXELAD
-                        PIXELDN
-                        PIXELDN
-                        PIXELDN
-                        PIXELDN
-                        PIXELDN
-                        PIXELDN
-                        PIXELDN
-                        //ld (Test2), hl
-
-Freeze:
-                        jp Freeze
-
-
-Test1:                  dw 0
-Test2:                  dw 0*/
-
 Start2:
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
@@ -111,11 +67,10 @@ IsNext:                 ld a, $CD                       ; call NN
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
                         call Welcome
+                        PageBankZX(1, true)
                         call ParseCfgFile
-
-FreezeXX:               jp FreezeXX
-                        //call LoadSettings
-
+                        call LoadSettings
+Frz:                    jp Frz
                         jp MainMenu
 RunCarousel:
                         Turbo(MHz14)

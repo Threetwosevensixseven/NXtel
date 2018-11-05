@@ -4,6 +4,7 @@ Page1Temp16  equ $
 Page1Start32 equ Ringo
 Page1Start16 equ Page1Start32
 org              Page1Start32
+dispto zeuspage(1)
 
 CfgBuffer:                                              ; CfgBuffer is 8KB minus the size of the linked list.
                                                         ; It starts at the bottom of 8k bank 2 ($C000),
@@ -16,7 +17,7 @@ PreloadedCfgLen equ $-CfgBuffer
 
 org CfgFileStart-CfgList.Size                           ; The CfgList linked list is positioned near
 CfgList proc                                            ; the top of 8k bank 2, and grows downwards.
-  struct                                                ; The first record is at $DFE6-$DFF5.
+  struct                                                ; The first record is at $DFE4-$DFF3.
     LineAddr            ds 1
     LineAddrMSB         ds 1
     KeyAddr             ds 2
@@ -41,11 +42,12 @@ EOLStyle proc                                           ;
   IsDouble equ %10
 pend
 
-org $DFF6                                               ; The Cfg global vars are positioned right at
-CfgFileStart:      dw CfgBuffer                         ; the top of 8k bank 2, between $DFF6 and $FFFF.
+org $DFF4                                               ; The Cfg global vars are positioned right at
+CfgFileStart:      dw CfgBuffer                         ; the top of 8k bank 2, between $DFF4 and $FFFF.
 CfgFileEnd:        dw PreloadedCfgAddr
 CfgFileLen:        dw PreloadedCfgLen
 CfgNextLineStart:  dw 0
+CfgLastRecord:     dw 0
 CfgLineEndings:    db 0
 
 org $E000
@@ -132,8 +134,8 @@ ParseFile:
 //=========================================================================================================
 
 ParseLine:
-                        zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, $DD76)", $
-                        //zeusdatabreakpoint 0, $
+                        zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, ix)", $+disp
+                        //zeusdatabreakpoint 0, $+disp
 
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
                         ld a, (hl)
@@ -298,6 +300,9 @@ SetupNextLine:
                         xor a
                         ld (ix+(CfgList.Size*2)-1), a   ; Clear NextLine pointer
                         ld (ix+(CfgList.Size*2)-2), a   ; on last record of linked list
+                        ld de, ix
+                        add de, CfgList.Size
+                        ld (CfgLastRecord), de          ; Save the last CfgList record
                         ret                             ; Return to the routine that called ParseCfgFile
 NotLastLine:            ld de, ix
                         ld bc, de
@@ -363,7 +368,236 @@ ExtendLF:
                         ret
 
 FileName:               db "NXtel.cfg", 0
+pend
 
+
+
+CfgFindKey              proc                            ; de = address of key to search for
+                        zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, de)", $+disp
+                        ld (SearchKey), de
+                        ld ix, CfgList                  ; First linked list record
+RecordLoop:             ld de, [SearchKey]SMC
+                        ld a, (ix+CfgList.KeyLen)
+                        or (ix+CfgList.KeyLenMSB)
+                        jp z, NoKey
+                        ld b, a                         ; b = key length
+                        ld hl, (ix+CfgList.KeyAddr)     ; hl = address of record key
+                        zeusdatabreakpoint 2, "zeusdisplayaddr(true, 1, hl)", $+disp
+KeyLoop:                ld a, (de)
+                        ld c, (hl)
+                        cp (hl)
+                        jp nz, NoKey
+                        inc hl
+                        inc de
+                        dec b
+                        jp nz, KeyLoop
+Success:
+                        ld hl, (ix+CfgList.ValueAddr)   ; Return hl = Value Address
+                        ld bc, (ix+CfgList.ValueLen)    ; Return bc = Value Length
+                        or a                            ; Return nc = Success
+                        ret
+NoKey:
+                        ld bc, -CfgList.Size
+                        add ix, bc
+                        push hl
+                        ld hl, CfgLastRecord
+                        ld bc, ix
+                        CpHL(bc)
+                        jp c, NotFound
+                        pop hl
+                        jp RecordLoop
+NotFound:
+                        pop hl
+                        scf
+                        ret
+pend
+
+
+
+LoadSettings            proc
+                        FillLDIR(ConnectMenuDisplay, ConnectMenuDisplay.Length, 0)
+                        ld a, "1"
+                        ld (URLNumber), a
+                        xor a
+                        ld (CurrentRow), a
+ReadURLLoop:
+                        FillLDIR(LoadSettings.ValueBuffer, LoadSettings.ValueBufferLen, 0)
+
+                        ld de, KeyBuffer                ; Address of key to search for (URL1..URL7)
+                        call CfgFindKey
+                        jp c, NoMoreLines               ; If key isn't present then return
+
+                        push hl
+                        ld a, [CurrentRow]SMC
+                        ld d, a
+                        ld e, ConnectMenuDisplay.Size
+                        mul
+                        ld hl, ConnectMenuDisplay.Table
+                        add hl, de
+                        pop de
+                        ex de, hl
+CopyDisplayLoop:
+                        ld a, (hl)
+                        or a
+                        jp z, EndServerLine
+                        cp ","
+                        jp z, EndDisplayLine
+                        ldi
+                        ld a, b
+                        or c
+                        jp nz, CopyDisplayLoop
+EndDisplayLine:
+                        inc hl                          ; Skip comma after display text
+                        dec bc
+                        push hl
+                        ld a, (CurrentRow)
+                        ld d, a
+                        ld e, ConnectMenuServer.Size
+                        mul
+                        ld hl, ConnectMenuServer.Table
+                        add hl, de
+                        ex de, hl
+                        pop hl
+CopyServerLoop:
+                        ld a, (hl)
+                        or a
+                        jp z, EndServerLine
+                        ldi
+                        ld a, b
+                        or c
+                        jp nz, CopyServerLoop
+EndServerLine:
+                        ld a, (URLNumber)
+                        inc a
+                        cp "8"
+                        jp nc, NoMoreLines
+                        ld (URLNumber), a
+                        ld a, (CurrentRow)
+                        inc a
+                        ld (CurrentRow), a
+                        jp ReadURLLoop
+NoMoreLines:
+                        ld a, (CurrentRow)
+                        ld (ConnectMenu31.ItemCount), a
+                        ret
+
+ConfigFileName:         db "NXTEL.CFG", 0               ; Relative to application
+ConfigFileNameLen       equ $-ConfigFileName
+KeyBuffer:              db "URL", [URLNumber]"1", 0
+KeyBufferLen            equ $-KeyBuffer
+Error:
+                        push af
+                        ld hl, ConfigFileName
+                        ld de, esxDOS.FileNameBuffer
+                        ld iy, de
+                        ld bc, ConfigFileNameLen
+                        ldir
+                        MMU5(8, false)
+                        pop af
+                        jp esxDOS.Error2
+ValueBuffer:            ds 151
+ValueBufferLen          equ $-ValueBuffer-1
+FileBuffer:             ds 128
+FileBufferLen           equ $-FileBuffer
+
+pend
+
+
+ConnectMenu31                   proc
+                                Border(Black)
+                                ld a, (ItemCount)
+                                or a
+                                jp z, MenuConnect.None
+                                xor a
+                                ld (CurrentItem), a
+                                ld a, "1"
+                                ld (CurrentDigit), a
+
+                                ld hl, Menus.Connect
+                                ld de, DisplayBuffer
+                                ld bc, Menus.Size
+                                ldir
+FillItemsLoop:
+                                ld hl, DisplayBuffer+282
+                                ld a, [CurrentItem]SMC
+                                ld e, a
+                                ld d, 80                        ; Two teletext display lines
+                                mul
+                                add hl, de
+                                ld a, [CurrentDigit]SMC
+                                ld (hl), a
+                                add hl, 3
+                                push hl                         ; Position in display buffer
+
+                                ld hl, ConnectMenuDisplay.Table
+                                ld a, (CurrentItem)
+                                ld e, a
+                                ld d, ConnectMenuDisplay.Size
+                                mul
+                                add hl, de                      ; hl = Source position
+                                pop de                          ; de = Destination position
+                                ld bc, ConnectMenuDisplay.Size
+
+                                ld a, (hl)
+                                or a
+                                jp z, NextLine
+                                ldir
+                                ld a, b
+                                or c
+                                jp z, NextLine
+NextLine:
+                                ld a, [ItemCount]SMC
+                                ld d, a
+                                ld a, (CurrentItem)
+                                inc a
+                                cp d
+                                jp z, LastKey
+                                ld (CurrentItem), a
+                                ld a, (CurrentDigit)
+                                inc a
+                                ld (CurrentDigit), a
+                                jp FillItemsLoop
+LastKey:
+                                ld hl, DisplayBuffer+282
+                                ld a, (CurrentItem)
+                                inc a
+                                ld e, a
+                                ld d, 80                        ; Two teletext display lines
+                                mul
+                                add hl, de
+                                ld a, (CurrentDigit)
+                                inc a
+                                ld (hl), a
+                                add hl, 3
+                                ex de, hl                       ; de = Position in display buffer
+                                ld hl, BackText                 ; hl = Source Back to Main Menu text
+                                ld bc, BackTextLen
+                                ldir
+                                ld (DisplayBuffer+932), a
+                                ld a, (CurrentItem)
+                                add a, 2
+                                ld (ReadMenuConnectKeys.ItemCount), a
+                                jp MenuConnect.Return
+BackText:                       db "Back to Main Menu"
+BackTextLen                     equ $-BackText
+pend
+
+
+
+ConnectMenuDisplay proc Table:
+  Size   equ 36
+  Count  equ 7
+  Length equ Size*Count
+  ds Length, 0
+pend
+
+
+
+ConnectMenuServer proc Table:
+  Size   equ 100
+  Count  equ 7
+  Length equ Size*Count
+  ds Length, 0
 pend
 
 Page1End32   equ $-1
@@ -372,5 +606,8 @@ Page1Size equ Page1End32-Page1Start32+1
 if Page1Size<>(Page1End16-Page1Start16+1)
   zeuserror "Page1Size calculation error"
 endif
+zeusprinthex "Page1Size = ", Page1Size
 org Page1Temp16
+dispto Ringo
+
 

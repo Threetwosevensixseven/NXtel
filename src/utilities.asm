@@ -168,21 +168,11 @@ pend
 
 
 
-LoadSettings            proc
-                        MMU6(31, false)
-                        jp LoadSettings31
-Return:                 MMU6(0, true)
-                        ret
-pend
-
-
-
 Welcome                 proc
                         MMU6(31, false)
                         MMU7(30, false)
                         jp Welcome31
-Return:                 MMU6(0, false)
-                        call RenderBuffer
+Return:                 call RenderBuffer
                         if ULAMonochrome
                           ld a, $10
                           or [WhichScreen]SMC
@@ -190,8 +180,7 @@ Return:                 MMU6(0, false)
                           out (c), a
                         endif
                         ei
-Wait:
-                        halt
+Wait:                   halt
                         inc a
                         cp 1//50
                         jp c, Wait
@@ -262,6 +251,8 @@ pend
 MenuConnect             proc
                         MMU6(31, false)
                         MMU7(30, false)
+zeusprinthex Welcome31, ConnectMenu31
+
                         jp ConnectMenu31
 Return:                 MMU6(0, false)
                         call RenderBuffer
@@ -382,8 +373,5 @@ MenuKey                 proc Table:
   db    $FE, %00100  ;  32  K_VCXZCs
   db    $DF, %10000  ;  33  K_YUIOP
   db    $FE, %00010  ;  34  K_VCXZCs
-
 pend
-
-
 

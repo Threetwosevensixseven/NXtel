@@ -1,4 +1,6 @@
-; c30.asm
+; c30.asm - Teletext renderer, fonts and buffers
+
+// This gets mapped in at $E000-$FFFF
 
 DisplayBuffer           proc
                         ds 1000, 32
