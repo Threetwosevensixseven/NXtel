@@ -173,8 +173,7 @@ ReadMenuKeys            proc
                         xor a
                         ld (CurrentKey), a
                         ld c, low(K_54321)
-Loop:
-                        add a, a
+Loop:                   add a, a
                         ld hl, MenuKey.Table
                         add hl, a
                         ld b, (hl)
@@ -209,10 +208,7 @@ pend
 FlipULAScreen           proc
                         if ULAMonochrome
                           ld a, $10
-                          //ld b, [WhichScreen]SMC
-                          //zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, b)", $+disp
-                          //or b
-                          or [WhichScreen]SMC
+                          or [WhichULAScreen]SMC
                           ld bc, $7FFD
                           out (c), a
                         endif

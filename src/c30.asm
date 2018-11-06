@@ -70,7 +70,7 @@ RenderBuffer            proc
                         endif
                         MMU6(14, false)
                         call GetTime
-                        ld a, [WhichLayer2]SMC
+                        ld a, [WhichLayer2]9
                         xor 5
                         ld (WhichLayer2), a
                         cp 12
@@ -378,12 +378,6 @@ Return:
                         nextreg $4B, $E3                ; Global sprite transparency index
                         nextreg $4A, $00                ; Transparency fallback colour (black)
                         ld a, (WhichLayer2)
-                        if not ULAMonochrome
-                          or a
-                          ld a, 9
-                          jp z, ShowLayer2
-                          ld a, 12
-                        endif
 ShowLayer2:
                         if ULAMonochrome
                           cp 9
@@ -392,8 +386,10 @@ ShowLayer2:
                           ld a, 8
 ULASwitchCont:            MMU2(10, false)
                           MMU3(11, false)
-                          ld (FlipULAScreen.WhichScreen), a
+                          ld (FlipULAScreen.WhichULAScreen), a
                         else
+                          xor 5
+                          zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, a)", $+disp
                           nextreg $12, a
                           PortOut($123B, $02)           ; Show layer 2 and disable write paging
                         endif
@@ -709,6 +705,7 @@ PagePrimaryScreen       proc
                           MMU2(10, false)
                           MMU3(11, false)
                         else
+                          zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(9, false)
                           ld a, 9*2
                           ld (GetTime.Page), a
@@ -726,6 +723,7 @@ PageSecondaryScreen     proc
                           MMU2(14, false)
                           MMU3(15, false)
                         else
+                          zeusdatabreakpoint 2, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(12, false)
                           ld a, 12*2
                           ld (GetTime.Page), a

@@ -113,7 +113,7 @@ ULAScreen               macro(Shadow, ReEnableInterrupts)
                         else
                           ld a, $10
                         endif
-                        or [WhichScreen]SMC
+                        or [WhichULAScreen]SMC
                         ld bc, $7FFD
                         out (c), a
                         if (ReEnableInterrupts)
