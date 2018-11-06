@@ -86,12 +86,15 @@ IsNext:                 ld a, $CD                       ; call NN
                         jp MainMenu
 RunCarousel:
                         Turbo(MHz14)
+                        MMU6(0, false)
+                        MMU7(1, false)
                         ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
                         ld a, (ResourcesCount)
                         add a, a
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
 NextPage:
+                        //dbbreak
                         MMU6(0, false)
                         MMU7(1, false)
                         ld a, (PagesCount)

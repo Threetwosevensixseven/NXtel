@@ -18,7 +18,6 @@ LoadResources           proc
                         xor a
                         push af
                         ld iy, Resources.Table
-                        //dbbreak
 NextBank:
                         ld a, (ResourcesCount)
                         ld e, a
