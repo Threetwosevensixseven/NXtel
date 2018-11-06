@@ -68,6 +68,7 @@ RenderBuffer            proc
                         if not ULAMonochrome
                           Turbo(MHz14)
                         endif
+                        MMU6(14, false)
                         call GetTime
                         ld a, [WhichLayer2]SMC
                         xor 5
@@ -107,9 +108,6 @@ RenderBuffer            proc
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
-
-                        //Freeze()
-
 Read:
                         ld a, (HoldNext)
                         ld (HoldActive), a
@@ -293,8 +291,6 @@ TrailingLoop:             ld a, [Background3]$00
                           add a, -6
                           ld e, a
                           djnz TrailingLoop
-
-
                         endif
 EndChar:
                         pop bc                          ; Discard, balance stack

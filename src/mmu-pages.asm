@@ -18,48 +18,6 @@ P31Size = $-$C000
 output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
 zeusprinthex "P31Size = ", P31Size
 
-/*
-; PAGE 31 - BANK31.BIN - Pages A
-org $C000
-dispto zeusmmu(31)
-Pages31 proc
-
-//db "PAGE31MARKER"
-
-
-  align 1024
-  P0: import_bin "..\carousel\pages\Horsenburger.bin"
-  align 1024
-  P1: import_bin "..\carousel\pages\CarlAttrill.bin"
-  align 1024
-  P2: import_bin "..\carousel\pages\AndyJenkinson.bin"
-
-/*
-  align 1024
-  P0: import_bin "..\pages\telstar-91a-raw.bin"
-  align 1024
-  P1: import_bin "..\pages\dont-panic-raw.bin"
-  align 1024
-  P2: import_bin "..\pages\double-height.bin"
-*/
-/*
-  align 1024
-  P3: import_bin "..\pages\double-height2.bin"
-  align 1024
-  P4: import_bin "..\pages\flash-steady.bin"
-  align 1024
-  P5: import_bin "..\pages\double-height-copy-down.bin"
-  align 1024
-  P6: import_bin "..\pages\double-height-overflow.bin"
-  align 1024
-  P7: import_bin "..\pages\double-height-overflow2.bin"
-*/
-pend
-P31Size = $-$C000
-output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
-zeusprinthex "P31Size = ", P31Size
-*/
-
 ; PAGE 32 - BANK32.BIN - Pages B
 org $C000
 dispto zeusmmu(32)

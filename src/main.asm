@@ -126,7 +126,7 @@ SavePage:               ld (PagesCurrent), a
                         MMU7(30, false)
                         call LoadPage                   ; Bank in a (e.g. 31), Page in b (0..7)
                         call RenderBuffer               ; display page
-                        //call FlipULAScreen
+                        call FlipULAScreen
                         //MMU6(0, false)
                         //MMU7(1, false)
 MainLoop:
@@ -134,6 +134,7 @@ MainLoop:
                         halt
 NoKey:
                         call DoFlash
+                        MMU7(30, true)
 PrintTimeCall:          ld hl, PrintTime
 
                         ld hl, [PageTimer]SMC

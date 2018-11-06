@@ -412,6 +412,7 @@ mend
 
 
 Freeze                  macro()
+                        MMU6(31, false)
 Loop:                   Border(Red)
                         Border(Blue)
                         jp Loop

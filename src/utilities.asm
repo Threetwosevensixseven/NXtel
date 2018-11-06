@@ -18,6 +18,7 @@ LoadResources           proc
                         xor a
                         push af
                         ld iy, Resources.Table
+                        //dbbreak
 NextBank:
                         ld a, (ResourcesCount)
                         ld e, a
@@ -250,7 +251,7 @@ Return:                 call RenderBuffer
                         call WaitNoKey
                         jp ReadMenuKeys
 Addresses:              dw MenuConnect                          ; Key 1
-                        dw RunCarousel                             ; Key 2
+                        dw RunCarousel                          ; Key 2
                         dw MenuNotImplemented                   ; Key 3
                         dw MenuNotImplemented                   ; Key 4
 ItemCount               equ ($-Addresses)/2

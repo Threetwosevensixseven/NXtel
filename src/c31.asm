@@ -15,9 +15,10 @@ Welcome31               proc
 Version:                PadStringLeftSpaces(VersionOnlyValue, 12)
 pend
 
-//zeusprinthex Welcome31, MainMenu31, Menus.Welcome, Menus.Main, DisplayBuffer
+db "MARKER01"
 
 MainMenu31              proc
+                        //Freeze()
                         Border(Black)
                         ld hl, Menus.Main
                         ld de, DisplayBuffer
