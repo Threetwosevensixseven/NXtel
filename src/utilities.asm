@@ -257,9 +257,9 @@ pend
 MenuConnect             proc
                         MMU6(31, false)
                         MMU7(30, false)
-                        jp ConnectMenu31
-Return:                 MMU6(0, false)
-                        call RenderBuffer
+                        jp MenuConnect31
+Return:                 call RenderBuffer
+                        call FlipULAScreen
                         ei
                         call WaitNoKey
                         jp ReadMenuConnectKeys
@@ -268,6 +268,7 @@ Freeze:                 jp Freeze
 None:
                         MMU6(0, false)
                         jp MenuNotImplemented
+ItemCount:              db 0
 pend
 
 

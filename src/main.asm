@@ -36,19 +36,6 @@ Start:
                         ei
                         halt
 Start2:
-                        /*di
-                        MMU2(10, false)
-                        FillLDIR(SCREEN, PIXELS_COUNT, %00100010)
-                        FillLDIR(ATTRS_8x8, ATTRS_8x8_COUNT, BrightWhiteBlackP)
-                        ULAScreen(false, true)
-                        halt:halt:halt:halt
-                        di
-                        MMU2(14, false)
-                        FillLDIR(SCREEN, PIXELS_COUNT, %01000100)
-                        FillLDIR(ATTRS_8x8, ATTRS_8x8_COUNT, BrightWhiteBlackP)
-                        ULAScreen(true, true)
-                        halt:halt:halt:halt
-                        jp Start2*/
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
@@ -67,7 +54,7 @@ Start2:
                         NextRegRead(%00)
                         cp 10                           ; Next and CSpect 1.14.1 has clock
                         jp z, IsNext
-                        cp 8                            ; ZEsarUX doesn't (yet)
+                        cp 8                            ; ZEsarUX and Zeus doesn't yet
                         jp nz, IsNext
                         ld a, $C9                       ; ret
                         ld (GetTime), a                 ; Disable clock
@@ -94,7 +81,6 @@ RunCarousel:
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
 NextPage:
-                        //dbbreak
                         MMU6(0, false)
                         MMU7(1, false)
                         ld a, (PagesCount)
@@ -130,8 +116,6 @@ SavePage:               ld (PagesCurrent), a
                         call LoadPage                   ; Bank in a (e.g. 31), Page in b (0..7)
                         call RenderBuffer               ; display page
                         call FlipULAScreen
-                        //MMU6(0, false)
-                        //MMU7(1, false)
 MainLoop:
                         ei
                         halt

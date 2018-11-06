@@ -478,7 +478,7 @@ EndServerLine:
                         jp ReadURLLoop
 NoMoreLines:
                         ld a, (CurrentRow)
-                        ld (ConnectMenu31.ItemCount), a
+                        ld (MenuConnect.ItemCount), a
                         ret
 
 ConfigFileName:         db "NXTEL.CFG", 0               ; Relative to application
@@ -501,87 +501,6 @@ FileBuffer:             ds 128
 FileBufferLen           equ $-FileBuffer
 
 pend
-
-
-ConnectMenu31                   proc
-                                Border(Black)
-                                ld a, (ItemCount)
-                                or a
-                                jp z, MenuConnect.None
-                                xor a
-                                ld (CurrentItem), a
-                                ld a, "1"
-                                ld (CurrentDigit), a
-
-                                ld hl, Menus.Connect
-                                ld de, DisplayBuffer
-                                ld bc, Menus.Size
-                                ldir
-FillItemsLoop:
-                                ld hl, DisplayBuffer+282
-                                ld a, [CurrentItem]SMC
-                                ld e, a
-                                ld d, 80                        ; Two teletext display lines
-                                mul
-                                add hl, de
-                                ld a, [CurrentDigit]SMC
-                                ld (hl), a
-                                add hl, 3
-                                push hl                         ; Position in display buffer
-
-                                ld hl, ConnectMenuDisplay.Table
-                                ld a, (CurrentItem)
-                                ld e, a
-                                ld d, ConnectMenuDisplay.Size
-                                mul
-                                add hl, de                      ; hl = Source position
-                                pop de                          ; de = Destination position
-                                ld bc, ConnectMenuDisplay.Size
-
-                                ld a, (hl)
-                                or a
-                                jp z, NextLine
-                                ldir
-                                ld a, b
-                                or c
-                                jp z, NextLine
-NextLine:
-                                ld a, [ItemCount]SMC
-                                ld d, a
-                                ld a, (CurrentItem)
-                                inc a
-                                cp d
-                                jp z, LastKey
-                                ld (CurrentItem), a
-                                ld a, (CurrentDigit)
-                                inc a
-                                ld (CurrentDigit), a
-                                jp FillItemsLoop
-LastKey:
-                                ld hl, DisplayBuffer+282
-                                ld a, (CurrentItem)
-                                inc a
-                                ld e, a
-                                ld d, 80                        ; Two teletext display lines
-                                mul
-                                add hl, de
-                                ld a, (CurrentDigit)
-                                inc a
-                                ld (hl), a
-                                add hl, 3
-                                ex de, hl                       ; de = Position in display buffer
-                                ld hl, BackText                 ; hl = Source Back to Main Menu text
-                                ld bc, BackTextLen
-                                ldir
-                                ld (DisplayBuffer+932), a
-                                ld a, (CurrentItem)
-                                add a, 2
-                                ld (ReadMenuConnectKeys.ItemCount), a
-                                jp MenuConnect.Return
-BackText:                       db "Back to Main Menu"
-BackTextLen                     equ $-BackText
-pend
-
 
 
 ConnectMenuDisplay proc Table:

@@ -15,10 +15,9 @@ Welcome31               proc
 Version:                PadStringLeftSpaces(VersionOnlyValue, 12)
 pend
 
-db "MARKER01"
+
 
 MainMenu31              proc
-                        //Freeze()
                         Border(Black)
                         ld hl, Menus.Main
                         ld de, DisplayBuffer
@@ -29,10 +28,94 @@ pend
 
 
 
+MenuConnect31           proc
+                        Border(Black)
+                        ld a, (MenuConnect.ItemCount)
+                        ld (ItemCount), a
+                        or a
+                        jp z, MenuConnect.None
+                        xor a
+                        ld (CurrentItem), a
+                        ld a, "1"
+                        ld (CurrentDigit), a
+                        ld hl, Menus.Connect
+                        ld de, DisplayBuffer
+                        ld bc, Menus.Size
+                        ldir
+FillItemsLoop:          ld hl, DisplayBuffer+282
+                        ld a, [CurrentItem]SMC
+                        ld e, a
+                        ld d, 80                        ; Two teletext display lines
+                        mul
+                        add hl, de
+                        ld a, [CurrentDigit]SMC
+                        ld (hl), a
+                        add hl, 3
+                        push hl                         ; Position in display buffer
+                        nextreg $57, 3
+                        ld hl, ConnectMenuDisplay.Table
+                        ld a, (CurrentItem)
+                        ld e, a
+                        ld d, ConnectMenuDisplay.Size
+                        mul
+                        add hl, de                      ; hl = Source position
+                        ld de, TempBuffer
+                        ld bc, ConnectMenuDisplay.Size
+                        ldir
+                        nextreg $57, 30
+                        ld hl, TempBuffer
+                        pop de                          ; de = Destination position
+                        ld bc, ConnectMenuDisplay.Size
+                        ldir
+                        ld a, (hl)
+                        or a
+                        jp z, NextLine
+                        ldir
+                        ld a, b
+                        or c
+                        jp z, NextLine
+NextLine:               ld a, [ItemCount]SMC
+                        ld d, a
+                        ld a, (CurrentItem)
+                        inc a
+                        cp d
+                        jp z, LastKey
+                        ld (CurrentItem), a
+                        ld a, (CurrentDigit)
+                        inc a
+                        ld (CurrentDigit), a
+                        jp FillItemsLoop
+LastKey:                ld hl, DisplayBuffer+282
+                        ld a, (CurrentItem)
+                        inc a
+                        ld e, a
+                        ld d, 80                        ; Two teletext display lines
+                        mul
+                        add hl, de
+                        ld a, (CurrentDigit)
+                        inc a
+                        ld (hl), a
+                        add hl, 3
+                        ex de, hl                       ; de = Position in display buffer
+                        ld hl, BackText                 ; hl = Source Back to Main Menu text
+                        ld bc, BackTextLen
+                        ldir
+                        ld (DisplayBuffer+932), a
+                        ld a, (CurrentItem)
+                        add a, 2
+                        ld (ReadMenuConnectKeys.ItemCount), a
+                        jp MenuConnect.Return
+BackText:               db "Back to Main Menu"
+BackTextLen             equ $-BackText
+TempBuffer:             ds 40
+pend
+
+
+
 Menus                   proc
   Welcome:              import_bin "..\pages\ClientWelcome.bin"
   Main:                 import_bin "..\pages\MainMenu.bin"
   Connect:              import_bin "..\pages\ConnectMenu.bin"
-  Size                   equ 1000
+  Size                  equ 1000
 pend
 
