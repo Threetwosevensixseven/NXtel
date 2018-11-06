@@ -134,7 +134,7 @@ ParseFile:
 //=========================================================================================================
 
 ParseLine:
-                        zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, ix)", $+disp
+                        //zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, ix)", $+disp
                         //zeusdatabreakpoint 0, $+disp
 
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
@@ -373,7 +373,7 @@ pend
 
 
 CfgFindKey              proc                            ; de = address of key to search for
-                        zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, de)", $+disp
+                        //zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, de)", $+disp
                         ld (SearchKey), de
                         ld ix, CfgList                  ; First linked list record
 RecordLoop:             ld de, [SearchKey]SMC
@@ -382,7 +382,7 @@ RecordLoop:             ld de, [SearchKey]SMC
                         jp z, NoKey
                         ld b, a                         ; b = key length
                         ld hl, (ix+CfgList.KeyAddr)     ; hl = address of record key
-                        zeusdatabreakpoint 2, "zeusdisplayaddr(true, 1, hl)", $+disp
+                        //zeusdatabreakpoint 2, "zeusdisplayaddr(true, 1, hl)", $+disp
 KeyLoop:                ld a, (de)
                         ld c, (hl)
                         cp (hl)
@@ -606,7 +606,7 @@ Page1Size equ Page1End32-Page1Start32+1
 if Page1Size<>(Page1End16-Page1Start16+1)
   zeuserror "Page1Size calculation error"
 endif
-zeusprinthex "Page1Size = ", Page1Size
+zeusprinthex "Pg1Size = ", Page1Size
 org Page1Temp16
 dispto Ringo
 

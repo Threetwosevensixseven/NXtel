@@ -107,8 +107,24 @@ mend
 
 
 
+ULAScreen               macro(Shadow, ReEnableInterrupts)
+                        if (Shadow)
+                          ld a, $18
+                        else
+                          ld a, $10
+                        endif
+                        or [WhichScreen]SMC
+                        ld bc, $7FFD
+                        out (c), a
+                        if (ReEnableInterrupts)
+                          ei
+                        endif
+mend
+
+
+
 PageBankZX              macro(Bank, ReEnableInterrupts)
-                        ld bc, 0x7ffd
+                        ld bc, $7FFD
                         di
                         ld a, (Bank & 7) | 16
                         out (c), a
@@ -391,5 +407,13 @@ Pause                   macro(Frames)
                         ld hl, Frames
                         ld (PauseProc.Timer), hl
                         call PauseProc
+mend
+
+
+
+Freeze                  macro()
+Loop:                   Border(Red)
+                        Border(Blue)
+                        jp Loop
 mend
 

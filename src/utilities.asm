@@ -168,27 +168,6 @@ pend
 
 
 
-Welcome                 proc
-                        MMU6(31, false)
-                        MMU7(30, false)
-                        jp Welcome31
-Return:                 call RenderBuffer
-                        if ULAMonochrome
-                          ld a, $10
-                          or [WhichScreen]SMC
-                          ld bc, $7FFD
-                          out (c), a
-                        endif
-                        ei
-Wait:                   halt
-                        inc a
-                        cp 1//50
-                        jp c, Wait
-                        ret
-pend
-
-
-
 ReadMenuKeys            proc
                         xor a
                         ld (CurrentKey), a
@@ -226,6 +205,37 @@ pend
 
 
 
+FlipULAScreen           proc
+                        if ULAMonochrome
+                          ld a, $10
+                          //ld b, [WhichScreen]SMC
+                          //zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, b)", $+disp
+                          //or b
+                          or [WhichScreen]SMC
+                          ld bc, $7FFD
+                          out (c), a
+                        endif
+                        ret
+pend
+
+
+
+Welcome                 proc
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp Welcome31
+Return:                 call RenderBuffer
+                        call FlipULAScreen
+                        ei
+Wait:                   halt
+                        inc a
+                        cp 100
+                        jp c, Wait
+                        ret
+pend
+
+
+
 MainMenu                proc
                         ld a, ItemCount
                         ld (ReadMenuKeys.ItemCount), a
@@ -234,8 +244,8 @@ MainMenu                proc
                         MMU6(31, false)
                         MMU7(30, false)
                         jp MainMenu31
-Return:                 MMU6(0, false)
-                        call RenderBuffer
+Return:                 call RenderBuffer
+                        call FlipULAScreen
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
@@ -251,8 +261,6 @@ pend
 MenuConnect             proc
                         MMU6(31, false)
                         MMU7(30, false)
-zeusprinthex Welcome31, ConnectMenu31
-
                         jp ConnectMenu31
 Return:                 MMU6(0, false)
                         call RenderBuffer

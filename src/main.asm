@@ -32,10 +32,23 @@ Start:
                         Turbo(MHz14)
                         Contention(false)
                         Border(Black)
-                        ClsAttrFull(BrightWhiteBlackP)
+                        ClsAttrFull(DimBlackBlackP)
                         ei
                         halt
 Start2:
+                        /*di
+                        MMU2(10, false)
+                        FillLDIR(SCREEN, PIXELS_COUNT, %00100010)
+                        FillLDIR(ATTRS_8x8, ATTRS_8x8_COUNT, BrightWhiteBlackP)
+                        ULAScreen(false, true)
+                        halt:halt:halt:halt
+                        di
+                        MMU2(14, false)
+                        FillLDIR(SCREEN, PIXELS_COUNT, %01000100)
+                        FillLDIR(ATTRS_8x8, ATTRS_8x8_COUNT, BrightWhiteBlackP)
+                        ULAScreen(true, true)
+                        halt:halt:halt:halt
+                        jp Start2*/
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
@@ -60,17 +73,16 @@ Start2:
                         ld (GetTime), a                 ; Disable clock
 IsNext:                 ld a, $CD                       ; call NN
                         ld (PrintTimeCall), a
-
                         ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
                         ld a, (ResourcesCount)
                         add a, a
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
                         call Welcome
-                        PageBankZX(1, true)
+                        MMU6(2, false)
+                        MMU7(3, false)
                         call ParseCfgFile
                         call LoadSettings
-Frz:                    jp Frz
                         jp MainMenu
 RunCarousel:
                         Turbo(MHz14)
@@ -79,7 +91,6 @@ RunCarousel:
                         add a, a
                         add hl, a
                         ld (PagesTable), hl             ; Store Pages.Table address
-
 NextPage:
                         MMU6(0, false)
                         MMU7(1, false)
@@ -115,18 +126,12 @@ SavePage:               ld (PagesCurrent), a
                         MMU7(30, false)
                         call LoadPage                   ; Bank in a (e.g. 31), Page in b (0..7)
                         call RenderBuffer               ; display page
+                        //call FlipULAScreen
+                        //MMU6(0, false)
+                        //MMU7(1, false)
 MainLoop:
                         ei
                         halt
-
-/*                        ld bc, zeuskeyaddr("4")
-                        in a, (c)
-                        and zeuskeymask("4")
-                        jp nz, NoKey
-                        ld bc, zeuskeyaddr("[shift]")
-                        in a, (c)
-                        and zeuskeymask("[shift]")
-                        jp z, BackToMenu*/
 NoKey:
                         call DoFlash
 PrintTimeCall:          ld hl, PrintTime
@@ -141,9 +146,6 @@ PrintTimeCall:          ld hl, PrintTime
                         ld (PageTimer), hl
                         jp NextPage
 PagesCurrent:           db -1
-//BackToMenu:
-//                        PageBankZX(0, true)
-//                        jp ESPTestMenu
 
                         include "utilities.asm"         ; Utility routines
                         include "esxDOS.asm"
@@ -192,5 +194,5 @@ PrintTimeCallX:         ld hl, PrintTime
                         endif
 
                         //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
-                        //zeusdatabreakpoint 11, "addr=RenderBuffer.IsSeparated", zeusmmu(30), $2000
+                        //zeusdatabreakpoint 3, "pc<$4000", 0, zeusmmu(33)
 

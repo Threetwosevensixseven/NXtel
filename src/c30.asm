@@ -35,20 +35,11 @@ pend
 
 
 
-ClsLayer2               proc
-                        //FillLDIR($0000, $C000, $00)
-                        ld hl, $0008                    ; Top Left (8, 0)
-                        ld (RenderBuffer.Coordinates), hl
-                        ret
-pend
-
-
-
 ClearESPBuffer          proc
                         FillLDIR(DisplayBuffer, DisplayBuffer.Length, Teletext.Space)
-                        call ClsLayer2
+::ResetESPBuffer:       ld hl, $0008                    ; Top Left (8, 0)
+                        ld (RenderBuffer.Coordinates), hl
                         ret
-
 pend
 
 
@@ -78,17 +69,17 @@ RenderBuffer            proc
                           Turbo(MHz14)
                         endif
                         call GetTime
-                        ld a, [WhichLayer2]SMC+1
-                        xor 1
+                        ld a, [WhichLayer2]SMC
+                        xor 5
                         ld (WhichLayer2), a
+                        cp 12
                         call z, PagePrimaryScreen
+                        cp 12
                         call nz, PageSecondaryScreen
-                        call ClsLayer2
+                        call ResetESPBuffer
                         if ULAMonochrome
                            ClsAttrFull(BrightWhiteBlackP)
-                          //call Cls                      ; Attributes stay at BrightWhiteBlackP
-                          //MMU5(8, false)                ; FZX driver is in 16K page 4 at $A000
-                          //ld (FZX_COL), hl
+                          call Cls30
                         endif
                         ld hl, [PrintLength]DisplayBuffer.Length
                         //ld hl, 880
@@ -116,6 +107,9 @@ RenderBuffer            proc
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
+
+                        //Freeze()
+
 Read:
                         ld a, (HoldNext)
                         ld (HoldActive), a
@@ -143,10 +137,11 @@ ProcessRead2:
 NotBlastThrough:        or [OrOffset]SMC
                         and [AndOffset]SMC              ; Blast through chars are 64..95 inclusive
 BlastThrough:
-                        //ex af, af'
+                        if not ULAMonochrome
+                          ex af, af'
+                        endif
                         ld hl, [FontInUse]Fonts.SAA5050
                         push af
-
                         if ULAMonochrome
                           push af
                           push hl
@@ -174,15 +169,12 @@ Foreground:               db 0
 Coordinates:              dw 0
 ULAContinue1:
                         else
-
                           ld a, h
                           cp high Fonts.SAADouble
                           jp z, NoFill
-
                           push bc
                           push hl
                           push de
-
                           ld a, 8
                           ld (FillCounter), a
                           add d
@@ -368,6 +360,10 @@ NoResetHeldChar:
                         nop
 
                         pop bc                          ; Remaining length
+
+                        //zeusdatabreakpoint 4, "zeusprint(1, bc),bc=1", $+disp
+                        //nop
+
                         dec bc
                         push bc
                         ld a, b
@@ -386,19 +382,21 @@ Return:
                         nextreg $4B, $E3                ; Global sprite transparency index
                         nextreg $4A, $00                ; Transparency fallback colour (black)
                         ld a, (WhichLayer2)
-                        or a
-                        ld a, 9
-                        jp z, ShowLayer2
-                        ld a, 12
+                        if not ULAMonochrome
+                          or a
+                          ld a, 9
+                          jp z, ShowLayer2
+                          ld a, 12
+                        endif
 ShowLayer2:
                         if ULAMonochrome
-                          cp 12
-                          jp z, AltULA
-MainULA:                  ld a, 0
-                          jp ULASwitchCont
+                          cp 9
+                          ld a, 0
+                          jp nz, ULASwitchCont
                           ld a, 8
-AltULA:
-ULASwitchCont:            ld (Welcome.WhichScreen), a
+ULASwitchCont:            MMU2(10, false)
+                          MMU3(11, false)
+                          ld (FlipULAScreen.WhichScreen), a
                         else
                           nextreg $12, a
                           PortOut($123B, $02)           ; Show layer 2 and disable write paging
@@ -421,8 +419,6 @@ Colours:
                         ld a, 1
                         ld (ResetHeldCharNextTime), a
 NotGfx:
-
-
                         xor a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
@@ -713,6 +709,7 @@ pend
 
 PagePrimaryScreen       proc
                         if ULAMonochrome
+                          //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, 10)", $+disp
                           MMU2(10, false)
                           MMU3(11, false)
                         else
@@ -729,6 +726,7 @@ pend
 
 PageSecondaryScreen     proc
                         if ULAMonochrome
+                          //zeusdatabreakpoint 2, "zeusprinthex(1, $AAAA, 14)", $+disp
                           MMU2(14, false)
                           MMU3(15, false)
                         else
@@ -744,10 +742,15 @@ pend
 
 
 InitLayer2              proc
-                        PageLayer2Bottom48K(12, false)
-                        FillLDIR($0000, $C000, $00)
-                        PageLayer2Bottom48K(9, false)
-                        FillLDIR($0000, $C000, $00)
+                        if ULAMonochrome
+                          ld a, 12
+                          ld (RenderBuffer.WhichLayer2), a
+                        else
+                          PageLayer2Bottom48K(12, false)
+                          FillLDIR($0000, $C000, $00)
+                          PageLayer2Bottom48K(9, false)
+                          FillLDIR($0000, $C000, $00)
+                        endif
                         PageResetBottom48K()
                         ret
 pend
@@ -847,6 +850,20 @@ Bank18:                 nextreg $50, a
                         ld hl, DisplayBuffer.Length
                         ld (RenderBuffer.PrintLength), hl
                         nextreg $50, 255
+                        ret
+pend
+
+
+
+Cls30                   proc
+                        ld (EXIT+1), sp                 ; Save the stack
+                        ld sp, ATTRS_8x8                ; Set stack to end of screen
+                        ld de, $0000                    ; All pixels unset
+                        ld b, e                         ; Loop 256 times: 12 words * 256 = 6144 bytes
+                        noflow
+CLS_LOOP:               defs 12, $D5                    ; 12 lots of push de
+                        djnz CLS_LOOP
+EXIT:                   ld sp, $0000                    ; Restore the stack
                         ret
 pend
 

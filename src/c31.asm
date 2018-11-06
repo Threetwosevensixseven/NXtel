@@ -15,7 +15,7 @@ Welcome31               proc
 Version:                PadStringLeftSpaces(VersionOnlyValue, 12)
 pend
 
-
+//zeusprinthex Welcome31, MainMenu31, Menus.Welcome, Menus.Main, DisplayBuffer
 
 MainMenu31              proc
                         Border(Black)
