@@ -10,7 +10,7 @@ CfgBuffer:                                              ; CfgBuffer is 8KB minus
                                                         ; It starts at the bottom of 8k bank 2 ($C000),
                                                         ; and grows upwards.
 if enabled ZeusDebug
-  import_bin "..\sd\NXtel.cfg"                          ; When running in Zeus, the cfg file contents
+  import_bin "..\sd\NXtel2.cfg"                         ; When running in Zeus, the cfg file contents
 endif                                                   ; will already be planted in memory in the buffer.
 PreloadedCfgAddr equ $-1
 PreloadedCfgLen equ $-CfgBuffer
@@ -367,7 +367,7 @@ ExtendLF:
                         pop af
                         ret
 
-FileName:               db "NXtel.cfg", 0
+FileName:               db "NXtel2.cfg", 0
 pend
 
 

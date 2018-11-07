@@ -263,8 +263,6 @@ Return:                 call RenderBuffer
                         ei
                         call WaitNoKey
                         jp ReadMenuConnectKeys
-Freeze:                 jp Freeze
-                        //jp ESPSendTest
 None:
                         MMU6(0, false)
                         jp MenuNotImplemented
@@ -327,7 +325,8 @@ Match:
                         dec hl
                         ld (ESPSendTest.ChannelLen), hl
                         MMU6(0, false)
-                        jp ESPSendTest
+                        //jp ESPSendTest
+                        call ESPConnect
 pend
 
 
@@ -379,5 +378,47 @@ MenuKey                 proc Table:
   db    $FE, %00100  ;  32  K_VCXZCs
   db    $DF, %10000  ;  33  K_YUIOP
   db    $FE, %00010  ;  34  K_VCXZCs
+pend
+
+
+
+PrintHex                proc
+                        ld d, a
+                        ;ld a, "\"
+                        ;rst 16
+                        ;ld a, d
+                        and %11110000
+                        rrca
+                        rrca
+                        rrca
+                        rrca
+                        add 48
+                        cp ':'
+                        jp c, PrintLeft
+                        add a, 7
+PrintLeft:              //rst 16
+                        ld a, d
+                        and %00001111
+                        add 48
+                        cp ':'
+                        jp c, PrintRight
+                        add a, 7
+PrintRight:             //rst 16
+                        //ld a, ']'
+                        //rst 16
+                        ret
+pend
+
+
+
+PauseProc               proc
+Wait:                   halt
+                        ld hl, [Timer]SMC
+                        dec hl
+                        ld (Timer), hl
+                        ld a, h
+                        or l
+                        jp nz, Wait
+                        ret
 pend
 

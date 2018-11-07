@@ -26,9 +26,9 @@ Start:
                         di
                         ld iy, $5C3A
                         ld sp, Stack
-                        ld a, $BE
+                        ld a, $80
                         ld i, a
-                        im 1
+                        im 2
                         Turbo(MHz14)
                         Contention(false)
                         Border(Black)
@@ -138,19 +138,20 @@ PagesCurrent:           db -1
                         include "utilities.asm"         ; Utility routines
                         include "esxDOS.asm"
                         include "espat.asm"
+                        include "esp.asm"
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
                         include "page0.asm"             ; 16K page 0
                         include "page1.asm"             ; 16K page 1
                         include "page4.asm"             ; 16K page 4
                         include "mmu-pages.asm"         ; 8k banks
-/*
-org $BE00
+
+org $8000
                         loop 257
-                          db $BF
+                          db $81
                         lend
-org $BFBF
-                        push af
+org $8181
+                        /*push af
                         push bc
                         push de
                         push hl
@@ -159,10 +160,10 @@ PrintTimeCallX:         ld hl, PrintTime
                         pop hl
                         pop de
                         pop bc
-                        pop af
+                        pop af*/
                         ei
                         reti
-*/
+
                         if zeusver < 73
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif

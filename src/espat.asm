@@ -242,7 +242,7 @@ Loop:
                         ld a, (hl)
                         or a
                         jp z, End
-                        rst 16
+                        //rst 16
                         jp Loop
 End:
                         pop hl

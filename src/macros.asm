@@ -54,12 +54,12 @@ Border                  macro(Colour)
                           ld a, Colour
                         endif
                         out (ULA_PORT), a
-                        if Colour=0
+                        /*if Colour=0
                           xor a
                         else
                           ld a, Colour*8
                         endif
-                        ld (23624), a
+                        ld (23624), a*/
 mend
 
 
@@ -412,7 +412,6 @@ mend
 
 
 Freeze                  macro()
-                        MMU6(31, false)
 Loop:                   Border(Red)
                         Border(Blue)
                         jp Loop

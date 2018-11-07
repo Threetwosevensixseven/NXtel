@@ -1,5 +1,37 @@
 ; esp.asm
 
+ESPConnect              proc
+                        Turbo(MHz14)
+                        ESPSend("ATE0")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPCLOSE")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPMUX=0")
+                        call ESPReceiveWaitOK
+                        //ESPSend("AT+CIPSTART=""TCP"",""192.168.1.3"",23280,7200")
+                        ESPSend("AT+CIPSTART=""TCP"",""nx.nxtel.org"",23280,7200")
+                        //ESPSend("AT+CIPSTART=""TCP"",""IRATA.ONLINE"",8005,7200")
+                        call ESPReceiveIPDInit
+MainLoop:
+                        call ESPReceiveIPD
+                        jp z, Received
+                        //jp c, Error
+                        jp MainLoop
+Received:
+                        nextreg $57, 30
+                        ld hl, ESPBuffer+1
+                        ld de, DisplayBuffer
+                        ld bc, DisplayBuffer.Length
+                        ldir
+                        call RenderBuffer
+                        FlipScreen()
+Freeze:                 jp Freeze
+                        //Freeze()
+                        ret
+pend
+
+
+
 ESPReceiveIPDInit       proc
                         ld a, $F3                       ; $F3 = di
                         ld (ESPReceiveIPD), a
@@ -21,29 +53,33 @@ ESPReceiveIPD           proc
                         ld a, high UART_GetStatus       ; Are there any characters waiting?
                         in a, (low UART_GetStatus)      ; This inputs from the 16-bit address UART_GetStatus
                         rrca                            ; Check UART_mRX_DATA_READY flag in bit 0
-                        ret nc                          ; Return immmediately if not ready (we call this in a tight loop)
+                        jp nc, Return                   ; Return immmediately if not ready (we call this in a tight loop)
                         ld a, high UART_RxD             ; Otherwise Read the byte
                         in a, (low UART_RxD)            ; from the UART Rx port
                         jp [StateJump]SMC
 FirstChar:              cp '+'
+                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
                         jp z, MatchPlusIPD
 SubsequentChar:         cp (hl)
+                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
                         jp z, MatchSubsequent
-Print:                  if enabled PrintIPDPacket
+Print:                  /*if enabled PrintIPDPacket
                           push hl
                           cp 32
                           jp c, Hex
                           cp 128
                           jp nc, Hex
-                          rst 16                          ; and print it with the ROM ULA print routine.
-                        endif
-PrintReturn:            if enabled PrintIPDPacket
-                          pop hl
-                        endif
+                          //rst 16                          ; and print it with the ROM ULA print routine.
+                        endif*/
+//PrintReturn:            if enabled PrintIPDPacket
+                          //pop hl
+                        //endif
                         ld de, [Compare]SMC
                         CpHL(de)
                         jp z, MatchSize
-Return:                 ei
+Return:                 ld a, 1
+                        or a                            ; Clear Z flag
+                        ei
                         ret
 MatchPlusIPD:           ld hl, SubsequentChar
                         ld (StateJump), hl
@@ -59,8 +95,8 @@ MatchSize:              ld hl, CaptureSize
 MatchSubsequent:        inc hl
                         ld (CurrentState), hl
                         jp Print
-Hex:                    call PrintHex
-                        jp PrintReturn
+//Hex:                    call PrintHex
+//                        jp PrintReturn
 CaptureSize:            cp ':'
                         jp z, EndOfSize
                         cp ';'
@@ -71,6 +107,7 @@ CaptureSize:            cp ':'
                         ld (SizePointer), hl
                         jp Print
 FillBuffer:             ld b, a
+                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
                         ld hl, [FillBufferPointer]SMC
                         ld (hl), a
                         inc hl
@@ -125,12 +162,14 @@ FinishedCounting:
                         ld hl, ESPBuffer
                         ld (FillBufferPointer), hl
                         jp Print
-PacketCompleted:        ld b, a
+PacketCompleted:        //ld b, a
                         ld a, $C9                       ; $C9 = ret
                         ld (ESPReceiveIPD), a
-                        ld a, b
-                        jp Print
-
+                        //ld a, b
+                        //jp Print
+                        xor a                           ; Clear Z flag
+                        ei
+                        ret
 PlusIPD:                db "IPD,"
 PlusIPDEnd:
 SizeBuffer:             ds 6
@@ -189,7 +228,7 @@ Print:                  push hl
                         jp c, PrintHex2
                         cp 128
                         jp nc, PrintHex2
-                        rst 16                          ; and print it with the ROM ULA print routine.
+                        //rst 16                          ; and print it with the ROM ULA print routine.
 PrintReturn:            pop hl
                         ld de, [Compare]SMC
                         CpHL(de)
@@ -277,7 +316,7 @@ ESPReceive              proc
                         jp c, PrintHex
                         cp 128
                         jp nc, PrintHex
-                        rst 16                          ; and print it with the ROM ULA print routine.
+                        //rst 16                          ; and print it with the ROM ULA print routine.
                         ret
 pend
 
@@ -297,14 +336,14 @@ PrintHex2               proc
                         cp ':'
                         jp c, PrintLeft
                         add a, 7
-PrintLeft:              rst 16
+PrintLeft:              //rst 16
                         ld a, d
                         and %00001111
                         add 48
                         cp ':'
                         jp c, PrintRight
                         add a, 7
-PrintRight:             rst 16
+PrintRight:             //rst 16
                         //ld a, ']'
                         //rst 16
                         jp ESPReceiveWaitOK.PrintReturn
