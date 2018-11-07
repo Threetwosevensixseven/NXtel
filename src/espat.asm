@@ -149,6 +149,7 @@ NoKey:
 BufferFilled:
                         MMU7(30, false)
                         call RenderBuffer               ; display page
+                        FlipScreen()
                         ei
                         jp Error2
 Error:

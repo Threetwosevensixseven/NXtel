@@ -221,7 +221,7 @@ Welcome                 proc
                         MMU7(30, false)
                         jp Welcome31
 Return:                 call RenderBuffer
-                        call FlipULAScreen
+                        FlipScreen()
                         ei
 Wait:                   halt
                         inc a
@@ -241,7 +241,7 @@ MainMenu                proc
                         MMU7(30, false)
                         jp MainMenu31
 Return:                 call RenderBuffer
-                        call FlipULAScreen
+                        FlipScreen()
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
@@ -259,7 +259,7 @@ MenuConnect             proc
                         MMU7(30, false)
                         jp MenuConnect31
 Return:                 call RenderBuffer
-                        call FlipULAScreen
+                        FlipScreen()
                         ei
                         call WaitNoKey
                         jp ReadMenuConnectKeys
@@ -314,6 +314,7 @@ Match:
                         push hl
                         ld de, ESPSendTest.Channel
                         ld bc, ConnectMenuServer.Size
+                        nextreg $57, 3
                         ldir
                         pop hl
                         push hl

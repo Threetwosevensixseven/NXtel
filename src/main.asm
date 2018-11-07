@@ -115,7 +115,7 @@ SavePage:               ld (PagesCurrent), a
                         MMU7(30, false)
                         call LoadPage                   ; Bank in a (e.g. 31), Page in b (0..7)
                         call RenderBuffer               ; display page
-                        call FlipULAScreen
+                        FlipScreen()
 MainLoop:
                         ei
                         halt

@@ -418,3 +418,12 @@ Loop:                   Border(Red)
                         jp Loop
 mend
 
+
+
+FlipScreen              macro()
+                        if ULAMonochrome
+                          call FlipULAScreen
+                        endif
+mend
+
+
