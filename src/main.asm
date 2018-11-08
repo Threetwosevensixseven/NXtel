@@ -137,7 +137,7 @@ PagesCurrent:           db -1
 
                         include "utilities.asm"         ; Utility routines
                         include "esxDOS.asm"
-                        include "espat.asm"
+                        //include "espat.asm"
                         include "esp.asm"
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros

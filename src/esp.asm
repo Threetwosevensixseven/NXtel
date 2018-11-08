@@ -8,9 +8,16 @@ ESPConnect              proc
                         call ESPReceiveWaitOK
                         ESPSend("AT+CIPMUX=0")
                         call ESPReceiveWaitOK
-                        //ESPSend("AT+CIPSTART=""TCP"",""192.168.1.3"",23280,7200")
-                        ESPSend("AT+CIPSTART=""TCP"",""nx.nxtel.org"",23280,7200")
-                        //ESPSend("AT+CIPSTART=""TCP"",""IRATA.ONLINE"",8005,7200")
+                        ld hl, ConnStringCommand        ; Start of the command to send
+                        ld a, [ConnStringLen]SMC        ; Read the length without preamble
+                        add a, ConnStringPreambleLen    ; Add the "AT_CIPSTART=" preamble
+                        ld e, a                         ; Length of the command to send, including preamble and CRLF
+                        call Connect
+                        Pause(10)
+                        /*ESPSend("AT+CIPSEND=1")
+                        call ESPReceiveWaitOK
+                        Pause(1)
+                        ESPSend("_")*/
                         call ESPReceiveIPDInit
 MainLoop:
                         call ESPReceiveIPD
@@ -28,6 +35,20 @@ Received:
 Freeze:                 jp Freeze
                         //Freeze()
                         ret
+Connect:
+                        ld bc, UART_GetStatus           ; UART Tx port also gives the UART status when read
+ReadNextChar:           ld d, (hl)                      ; Read the next byte of the text to be sent
+WaitNotBusy:            in a, (c)                       ; Read the UART status
+                        and UART_mTX_BUSY               ; and check the busy bit (bit 1)
+                        jr nz, WaitNotBusy              ; If busy, keep trying until not busy
+                        out (c), d                      ; Otherwise send the byte to the UART Tx port
+                        inc hl                          ; Move to next byte of the text
+                        dec e                           ; Check whether there are any more bytes of text
+                        jp nz, ReadNextChar             ; If there are, read and repeat
+                        ret
+ConnStringCommand:      db "AT+CIPSTART="
+ConnStringPreambleLen   equ $-ConnStringCommand
+ConnString:             ds 102
 pend
 
 
@@ -35,6 +56,8 @@ pend
 ESPReceiveIPDInit       proc
                         ld a, $F3                       ; $F3 = di
                         ld (ESPReceiveIPD), a
+                        ld a, Teletext.ClearBit7
+                        ld (ESPReceiveIPD.Bit7), a
                         ld hl, ESPReceiveIPD.SizeBuffer
                         ld (ESPReceiveIPD.SizePointer), hl
                         FillLDIR(ESPReceiveIPD.SizeBuffer, ESPReceiveIPD.SizeBufferLen, 0)
@@ -108,7 +131,10 @@ CaptureSize:            cp ':'
                         jp Print
 FillBuffer:             ld b, a
                         //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
+                        cp Teletext.Escape
+                        jp z, EscapeNextChar
                         ld hl, [FillBufferPointer]SMC
+                        or [Bit7]SMC
                         ld (hl), a
                         inc hl
                         ld (FillBufferPointer), hl
@@ -118,8 +144,17 @@ FillBuffer:             ld b, a
                         dec hl
                         ld a, h
                         or l
+                        ld a, Teletext.ClearBit7
+                        ld (Bit7), a
                         ld a, b
                         jp z, PacketCompleted
+                        jp Print
+EscapeNextChar:         ld a, Teletext.SetBit7
+                        ld (Bit7), a
+                        ld hl, (PacketSize)
+                        dec hl
+                        ld (PacketSize), hl
+                        ld a, b
                         jp Print
 EndOfSize:              ld hl, FillBuffer
                         ld (StateJump), hl

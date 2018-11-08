@@ -310,7 +310,8 @@ Match:
                         add de, ConnectMenuServer.Table
                         ex de, hl
                         push hl
-                        ld de, ESPSendTest.Channel
+                        //ld de, ESPSendTest.Channel
+                        ld de, ESPConnect.ConnString
                         ld bc, ConnectMenuServer.Size
                         nextreg $57, 3
                         ldir
@@ -322,10 +323,19 @@ Match:
                         pop de
                         or a
                         sbc hl, de
+                        inc hl
+                        ld a, l
+                        ld (ESPConnect.ConnStringLen), a
                         dec hl
-                        ld (ESPSendTest.ChannelLen), hl
+                        dec hl
+                        ld de, ESPConnect.ConnString
+                        add hl, de
+                        ld a, CR
+                        ld (hl), a
+                        inc hl
+                        ld a, LF
+                        ld (hl), a
                         MMU6(0, false)
-                        //jp ESPSendTest
                         call ESPConnect
 pend
 

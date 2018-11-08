@@ -403,7 +403,6 @@ mend
 
 
 Pause                   macro(Frames)
-                        zeusprint Frames
                         ld hl, Frames
                         ld (PauseProc.Timer), hl
                         call PauseProc

@@ -124,6 +124,7 @@ Teletext                proc
   CLS                   equ 12
   Escape                equ 27
   Space                 equ 32
+  ClearBit7             equ 0
   SetBit7               equ 128
 pend
 
