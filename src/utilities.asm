@@ -392,7 +392,7 @@ pend
 
 
 
-PrintHex                proc
+/*PrintHex                proc
                         ld d, a
                         ;ld a, "\"
                         ;rst 16
@@ -417,7 +417,7 @@ PrintRight:             //rst 16
                         //ld a, ']'
                         //rst 16
                         ret
-pend
+pend*/
 
 
 

@@ -108,7 +108,9 @@ Patty                   equ BlockMiddleEnd
 Ringo                   equ BlockUpper                  ; Ringo was the drummer
 PeteBest                equ BlockUpperEnd
 StuartSutcliffe         equ PeteBest+1
-
+KEYBOARD                equ $02BF
+FLAGS                   equ $5C3B
+LAST_K                  equ $5C08
 
 
 ; Maths
@@ -116,7 +118,7 @@ EVEN                    equ %11111110                   ; and EVEN   ->  a = a /
 MOD_8                   equ %00000111                   ; and MOD_8  ->  a = a % 8
 SMC                     equ 0                           ; Placeholder for SMC in code
 Dummy                   equ 0
-
+None                    equ 0
 
 
 ; Teletext
