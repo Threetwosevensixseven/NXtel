@@ -425,3 +425,11 @@ FlipScreen              macro()
 mend
 
 
+
+ResetLastKeypress       macro()
+                        xor a
+                        //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $
+                        ld (ReadKey.LastKey), a
+
+mend
+

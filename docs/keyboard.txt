@@ -1,0 +1,16 @@
+INIT:
+Set last key pressed to null
+
+REPEATEDLY:
+Read current key pressed
+if zero then
+    set last key pressed to zero
+    return no key pressed
+endif
+cp with last key pressed
+if match then
+   return no key pressed
+endif
+set last key pressed
+return key pressed
+
