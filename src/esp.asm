@@ -13,11 +13,7 @@ ESPConnect              proc
                         add a, ConnStringPreambleLen    ; Add the "AT_CIPSTART=" preamble
                         ld e, a                         ; Length of the command to send, including preamble and CRLF
                         call Connect
-                        Pause(10)
-                        /*ESPSend("AT+CIPSEND=1")
-                        call ESPReceiveWaitOK
-                        Pause(1)
-                        ESPSend("_")*/
+StartReceive:           Pause(10)
                         call ESPReceiveIPDInit
 MainLoop:
                         call ESPReceiveIPD
@@ -32,22 +28,19 @@ Received:
                         ldir
                         call RenderBuffer
                         FlipScreen()
-
                         ResetLastKeypress()
 WaitForKeyPress:
-                        call ReadKey
-                        jp c, KeyPressed
+                        call ReadKey                    ; a = char
+                        jp c, KeyPressed                ; carry = char received
                         jp WaitForKeyPress
-
-Freeze:                 jp Freeze
-                        //Freeze()
 KeyPressed:
-                        Border(Yellow)
-                        ei
-                        halt:halt:halt:halt:halt:halt
-                        Border(Black)
-                        jp WaitForKeyPress
-                        ret
+                        ld (CharToSend), a
+                        ESPSend("AT+CIPSEND=1")
+                        call ESPReceiveWaitOK
+                        call ESPReceiveWaitPrompt
+                        ld d, [CharToSend]SMC
+                        call ESPSendChar
+                        jp StartReceive
 Connect:
                         ld bc, UART_GetStatus           ; UART Tx port also gives the UART status when read
 ReadNextChar:           ld d, (hl)                      ; Read the next byte of the text to be sent
@@ -353,49 +346,28 @@ pend                                                    ; So jump there to conti
 
 
 
-/*ESPReceive            proc
+ESPSendChar             proc
+                        ld bc, UART_GetStatus           ; UART Tx port also gives the UART status when read
+WaitNotBusy:            in a, (c)                       ; Read the UART status
+                        and UART_mTX_BUSY               ; and check the busy bit (bit 1)
+                        jr nz, WaitNotBusy              ; If busy, keep trying until not busy
+                        out (c), d                      ; Otherwise send the byte to the UART Tx port
+                        ret
+pend
+
+
+
+ESPReceiveWaitPrompt    proc
                         ld a, high UART_GetStatus       ; Are there any characters waiting?
                         in a, (low UART_GetStatus)      ; This inputs from the 16-bit address UART_GetStatus
                         rrca                            ; Check UART_mRX_DATA_READY flag in bit 0
-                        ret nc                          ; Return immmediately if not ready (we call this in a tight loop)
+                        jp nc, ESPReceiveWaitPrompt
                         ld a, high UART_RxD             ; Otherwise Read the byte
                         in a, (low UART_RxD)            ; from the UART Rx port
-                        /*cp 32
-                        jp c, PrintHex
-                        cp 128
-                        jp nc, PrintHex*/
-                        //rst 16                          ; and print it with the ROM ULA print routine.
-                        ret
-pend*/
-
-
-
-/*PrintHex2               proc
-                        ld d, a
-                        ;ld a, "\"
-                        ;rst 16
-                        ;ld a, d
-                        and %11110000
-                        rrca
-                        rrca
-                        rrca
-                        rrca
-                        add 48
-                        cp ':'
-                        jp c, PrintLeft
-                        add a, 7
-PrintLeft:              //rst 16
-                        ld a, d
-                        and %00001111
-                        add 48
-                        cp ':'
-                        jp c, PrintRight
-                        add a, 7
-PrintRight:             //rst 16
-                        //ld a, ']'
-                        //rst 16
-                        jp ESPReceiveWaitOK.PrintReturn
-pend*/
+                        cp '>'
+                        ret z
+                        jp ESPReceiveWaitPrompt
+pend
 
 
 
