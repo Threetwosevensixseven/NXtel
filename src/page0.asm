@@ -20,13 +20,14 @@ Resources proc Table:
   ; Bank  FName  Index  Notes
   db  30,    30  ;   0  Layer 2 Teletext renderer
   db  31,    31  ;   1  Config file and menus
-  db  32,    32  ;   2  Pages33.P0 to Pages33.P7
+//  db  32,    32  ;   2  Keyboard handler
   db  33,    33  ;   2  Pages33.P0 to Pages33.P7
   db  34,    34  ;   3  Pages34.P0 to Pages34.P7
   db  35,    35  ;   4  Pages35.P0 to Pages35.P7
   db  36,    36  ;   5  Pages36.P0 to Pages36.P7
   db  37,    37  ;   6  Pages37.P0 to Pages37.P7
   db  38,    38  ;   7  Pages38.P0 to Pages38.P7
+  db  39,    39  ;   8  Pages38.P0 to Pages38.P7
 
   struct
     Bank        ds 1
@@ -46,22 +47,17 @@ Pages proc Table:
 
   ; Bank  Slot  Duration    Notes
 
-//  db  31,    0, dw 250+NOC  ;   Title
-//  db  31,    1, dw 150+NOC  ;   Title
-//  db  31,    2, dw 200+NOC  ;   Title
-//  db  31,    1, dw 500+NOC  ;   Title
-
   db  37,    5, dw 350+NOC  ;   Title
   db  37,    7, dw  50+NOC  ;   Blank
 
-  db  32,    0, dw 200+CLK  ;   0
-  db  32,    1, dw 200+CLK  ;   1
-  db  32,    2, dw 200+CLK  ;   2
-  db  32,    3, dw 200+CLK  ;   3
-  db  32,    4, dw 200+NOC  ;   4
-  db  32,    5, dw 200+NOC  ;   5
-  db  32,    6, dw 200+NOC  ;   6
-  db  32,    7, dw 200+CLK  ;   7
+  db  39,    0, dw 200+CLK  ;   0
+  db  39,    1, dw 200+CLK  ;   1
+  db  39,    2, dw 200+CLK  ;   2
+  db  39,    3, dw 200+CLK  ;   3
+  db  39,    4, dw 200+NOC  ;   4
+  db  39,    5, dw 200+NOC  ;   5
+  db  39,    6, dw 200+NOC  ;   6
+  db  39,    7, dw 200+CLK  ;   7
 
   db  33,    0, dw 200+NOC  ;   0
   db  33,    1, dw 200+CLK  ;   1

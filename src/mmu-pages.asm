@@ -19,29 +19,12 @@ output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
 zeusprinthex "P31Size = ", P31Size
 
 ; PAGE 32 - BANK32.BIN - Pages B
-org $C000
+/*org $C000
 dispto zeusmmu(32)
-Pages32 proc
-  align 1024
-  P0: import_bin "..\pages\demo1\telstar-0.bin"
-  align 1024
-  P1: import_bin "..\pages\demo1\telstar-0a.bin"
-  align 1024
-  P2: import_bin "..\pages\demo1\telstar-8a.bin"
-  align 1024
-  P3: import_bin "..\pages\demo1\telstar-91b.bin"
-  align 1024
-  P4: import_bin "..\pages\demo1\sh001.bin"
-  align 1024
-  P5: import_bin "..\pages\demo1\bizzley.bin"
-  align 1024
-  P6: import_bin "..\pages\demo1\sh002.bin"
-  align 1024
-  P7: import_bin "..\pages\demo1\charts.bin"
-pend
+
 P32Size = $-$C000
 output_bin "..\banks\Bank32.bin", zeusmmu(32), P32Size
-zeusprinthex "P32Size = ", P32Size
+zeusprinthex "P32Size = ", P32Size  */
 
 ; PAGE 33 - BANK33.BIN - Pages C
 org $C000
@@ -193,7 +176,30 @@ P38Size = $-$C000
 output_bin "..\banks\Bank38.bin", zeusmmu(38), P38Size
 zeusprinthex "P38Size = ", P38Size
 
-; PAGE 39 & 40 (16K PAGE 19) - ESPAT BUFFERS
+; PAGE 39 - BANK39.BIN - Pages B
+org $C000
+dispto zeusmmu(39)
+Pages39 proc
+  align 1024
+  P0: import_bin "..\pages\demo1\telstar-0.bin"
+  align 1024
+  P1: import_bin "..\pages\demo1\telstar-0a.bin"
+  align 1024
+  P2: import_bin "..\pages\demo1\telstar-8a.bin"
+  align 1024
+  P3: import_bin "..\pages\demo1\telstar-91b.bin"
+  align 1024
+  P4: import_bin "..\pages\demo1\sh001.bin"
+  align 1024
+  P5: import_bin "..\pages\demo1\bizzley.bin"
+  align 1024
+  P6: import_bin "..\pages\demo1\sh002.bin"
+  align 1024
+  P7: import_bin "..\pages\demo1\charts.bin"
+pend
+P39Size = $-$C000
+output_bin "..\banks\Bank39.bin", zeusmmu(39), P39Size
+zeusprinthex "P39Size = ", P39Size
 
 org MMUTemp16
 disp 0

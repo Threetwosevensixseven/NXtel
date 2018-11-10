@@ -143,6 +143,7 @@ PagesCurrent:           db -1
                         include "macros.asm"            ; Zeus macros
                         include "page0.asm"             ; 16K page 0
                         include "page1.asm"             ; 16K page 1
+                        include "page3.asm"             ; 16K page 3
                         include "page4.asm"             ; 16K page 4
                         include "mmu-pages.asm"         ; 8k banks
 
@@ -151,16 +152,23 @@ org $8000
                           db $81
                         lend
 org $8181
-                        /*push af
+                        push af
                         push bc
                         push de
                         push hl
-                        call DoFlash
-PrintTimeCallX:         ld hl, PrintTime
+                        NextRegRead($56)
+                        push af
+                        nextreg $56, 6
+                        //call ReadKey6
+                        //call DoFlash
+//PrintTimeCallX:       //ld hl, PrintTime
+
+                        pop af
+                        nextreg $56, a
                         pop hl
                         pop de
                         pop bc
-                        pop af*/
+                        pop af
                         ei
                         reti
 

@@ -30,7 +30,7 @@ Received:
                         FlipScreen()
                         ResetLastKeypress()
 WaitForKeyPress:
-                        call ReadKey                    ; a = char
+                        call ReadKeyOLD                 ; a = char
                         jp c, KeyPressed                ; carry = char received
                         jp WaitForKeyPress
 KeyPressed:
@@ -371,7 +371,7 @@ pend
 
 
 
-Matrix proc Table:
+MatrixOLD proc Table:
 
   ; Mark   Row   Bit0   Bit1   Bit2   Bit3   Bit4  Index  Row      Modifier
   db $FF,  $7F,   $20,  None,   $6D,   $6E,   $62  ;   0  BNMSsSp  None
@@ -420,20 +420,20 @@ pend
 
 
 
-ReadKey                 proc
-                        ld hl, Matrix.Table
+ReadKeyOLD              proc
+                        ld hl, MatrixOLD.Table
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
                         and zeuskeymask("[shift]")
                         jp nz, NoCaps
-Caps:                   ld hl, Matrix.Table+Matrix.CS
+Caps:                   ld hl, MatrixOLD.Table+MatrixOLD.CS
                         jp NoSymbol
 NoCaps                  ld b, high zeuskeyaddr("[sym]")
                         in a, (c)
                         and zeuskeymask("[sym]")
                         jp nz, NoSymbol
-Symbol:                 ld hl, Matrix.Table+Matrix.SS
-NoSymbol:               ld e, Matrix.Count
+Symbol:                 ld hl, MatrixOLD.Table+MatrixOLD.SS
+NoSymbol:               ld e, MatrixOLD.Count
 NewRow:                 ld a, (hl)
                         inc hl
                         dec e
@@ -442,7 +442,7 @@ NewRow:                 ld a, (hl)
                         ld b, (hl)
                         inc hl
                         dec e
-                        ld a, Matrix.Mask
+                        ld a, MatrixOLD.Mask
                         ld (Mask), a
                         jp NewRow
 NotNewRow:              or a
