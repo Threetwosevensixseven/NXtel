@@ -19,7 +19,7 @@ pend
 
 
 
-ProcessKey                 proc
+ProcessKey              proc
                         ld hl, Matrix.Table
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
@@ -118,7 +118,7 @@ pend
 
 
 KeyBuffer               proc
-                        ds 1024
+                        ds 10//1024
   EndAddr:
   WritePointer:         dw 0
   ReadPointer:          dw 0

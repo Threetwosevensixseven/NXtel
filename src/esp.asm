@@ -2,6 +2,8 @@
 
 ESPConnect              proc
                         Turbo(MHz14)
+                        nextreg $56, 6
+                        call InitKey
                         ESPSend("ATE0")
                         call ESPReceiveWaitOK
                         ESPSend("AT+CIPCLOSE")
@@ -19,6 +21,20 @@ MainLoop:
                         call ESPReceiveIPD
                         jp z, Received
                         //jp c, Error
+                        NextRegRead($56)
+                        ld (RestoreKeyPage), a
+                        nextreg $56, 6
+                        call ReadKey
+                        jp nc, NoKey
+SendKey:
+                        ld (CharToSend2), a
+                        ESPSend("AT+CIPSEND=1")
+                        call ESPReceiveWaitOK
+                        call ESPReceiveWaitPrompt
+                        ld d, [CharToSend2]SMC
+                        call ESPSendChar
+
+NoKey:                  nextreg $56, [RestoreKeyPage]SMC
                         jp MainLoop
 Received:
                         nextreg $57, 30
@@ -28,6 +44,13 @@ Received:
                         ldir
                         call RenderBuffer
                         FlipScreen()
+                        nextreg $56, 6
+                        call InitKey
+                        ei
+                        jp StartReceive
+
+
+
                         ResetLastKeypress()
 WaitForKeyPress:
                         call ReadKeyOLD                 ; a = char

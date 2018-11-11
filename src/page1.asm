@@ -527,6 +527,6 @@ if Page1Size<>(Page1End16-Page1Start16+1)
 endif
 zeusprinthex "Pg1Size = ", Page1Size
 org Page1Temp16
-dispto Ringo
+disp 0
 
 

@@ -166,5 +166,5 @@ Page4End32  equ Page4End16+zeuspage(4)
 Page4Size equ Page4End32-Page4Start32+1
 zeusprinthex "Pg4Size = ", Page4Size
 org Page4Temp16
-dispto Ringo
+disp 0
 

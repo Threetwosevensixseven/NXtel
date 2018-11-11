@@ -159,10 +159,9 @@ org $8181
                         NextRegRead($56)
                         push af
                         nextreg $56, 6
-                        //call ReadKey6
+                        call ProcessKey
                         //call DoFlash
 //PrintTimeCallX:       //ld hl, PrintTime
-
                         pop af
                         nextreg $56, a
                         pop hl
