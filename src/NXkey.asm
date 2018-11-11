@@ -48,28 +48,14 @@ MainLoop:
                         di
                         nextreg $56, 6
                         ei
-                        ld hl, (KeyBuffer.CharsAvailable)
-                        ld a, h
-                        or l
-                        jp z, MainLoop
-ProcessChar:
-                        ex de, hl
-                        ld hl, (KeyBuffer.ReadPointer)
-                        ld a, (hl)
-                        inc hl
-                        ld bc, KeyBuffer.EndAddr
-                        CpHL(bc)
-                        jp nz, NoReadWrap
-                        ld hl, KeyBuffer
-NoReadWrap:             ld (KeyBuffer.ReadPointer), hl
-                        dec de
-                        ld (KeyBuffer.CharsAvailable), de
+                        call ReadKey
+                        jp nc, MainLoop
                         rst 16
                         ld a, 255
                         ld(23692), a                    ; Turn off ULA scroll
                         jp MainLoop
 
-                        include "nxkeyutils.asm"         ; Utility routines
+                        include "nxkeyutils.asm"        ; Utility routines
                         include "constants.asm"         ; Global constants
                         include "macros.asm"            ; Zeus macros
                         include "page3.asm"             ; 16K page 3
@@ -84,7 +70,7 @@ org $8181
                         NextRegRead($56)
                         push af
                         nextreg $56, 6
-                        call ReadKey
+                        call ProcessKey
                         //call DoFlash
 //PrintTimeCallX:       //ld hl, PrintTime
 

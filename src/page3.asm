@@ -19,7 +19,7 @@ pend
 
 
 
-ReadKey                 proc
+ProcessKey                 proc
                         ld hl, Matrix.Table
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
@@ -93,6 +93,27 @@ BufferFull:
                         Pause(8000)
                         Border(Black)
                         ret
+pend
+
+ReadKey                 proc
+                        ld hl, (KeyBuffer.CharsAvailable)
+                        ld a, h
+                        or l
+                        ret z                           ; Clear carry (no key)
+ProcessChar:
+                        ex de, hl
+                        ld hl, (KeyBuffer.ReadPointer)
+                        ld a, (hl)
+                        inc hl
+                        ld bc, KeyBuffer.EndAddr
+                        CpHL(bc)
+                        jp nz, NoReadWrap
+                        ld hl, KeyBuffer
+NoReadWrap:             ld (KeyBuffer.ReadPointer), hl
+                        dec de
+                        ld (KeyBuffer.CharsAvailable), de
+                        scf                             ; Set carry (key pressed)
+                        ret                             ; a = char
 pend
 
 

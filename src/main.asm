@@ -1,4 +1,4 @@
-; main.asm
+   ; main.asm
 
 zeusemulate             "Next"
 zoLogicOperatorsHighPri = false
