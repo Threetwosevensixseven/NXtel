@@ -18,7 +18,8 @@ ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
 ULAMonochrome optionbool 665, -15, "ULA", true
-//Carousel optionbool 710, -15, "Carousel", false
+LogESP optionbool 710, -15, "Log", true
+//Carousel optionbool 755, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
                         org $6000
@@ -39,6 +40,7 @@ Start2:
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
+                        ESPLogInit()
                         PageBankZX(0, false)            ; Force MMU reset
                         call ClsAttr
                         MMU7(30, false)
@@ -72,7 +74,6 @@ IsNext:                 ld a, $CD                       ; call NN
                         call LoadSettings
                         jp MainMenu
 RunCarousel:
-                        Turbo(MHz14)
                         MMU6(0, false)
                         MMU7(1, false)
                         ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
@@ -191,4 +192,7 @@ org $8181
 
                         //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
                         //zeusdatabreakpoint 3, "pc<$4000", 0, zeusmmu(33)
+                        if enabled LogESP
+                          zeusmem zeusmmu(32),"ESP Log",24,true,true,false
+                        endif
 

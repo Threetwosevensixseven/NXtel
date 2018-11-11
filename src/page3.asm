@@ -118,7 +118,7 @@ pend
 
 
 KeyBuffer               proc
-                        ds 10//1024
+                        ds 1024
   EndAddr:
   WritePointer:         dw 0
   ReadPointer:          dw 0

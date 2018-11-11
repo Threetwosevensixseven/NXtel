@@ -65,9 +65,6 @@ pend
 RenderBuffer            proc
                         ld (Stack), sp
                         ld sp, $FFFF
-                        if not ULAMonochrome
-                          Turbo(MHz14)
-                        endif
                         MMU6(14, false)
                         call GetTime
                         ld a, [WhichLayer2]9
@@ -392,9 +389,6 @@ ULASwitchCont:            MMU2(10, false)
                           zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, a)", $+disp
                           nextreg $12, a
                           PortOut($123B, $02)           ; Show layer 2 and disable write paging
-                        endif
-                        if not ULAMonochrome
-                          Turbo(MHz35)
                         endif
                         ld sp, [Stack]SMC
                         ret

@@ -378,16 +378,6 @@ mend
 
 
 
-SendESP                 macro(String)
-                        if(String <> "")
-                          db String
-                        endif
-                        //db CR
-                        db LF
-mend
-
-
-
 PadString               macro(String, Len)
                         db String
                         ds Len - length(String), 0
@@ -431,5 +421,36 @@ ResetLastKeypress       macro()
                         //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $
                         ld (ReadKeyOLD.LastKey), a
 
+mend
+
+
+
+ESPLogInit              macro()
+                        if enabled LogESP
+                          nextreg $55, 32
+                          FillLDIR($A000, $2000, $00)     ; Clear ESP log
+                          ld hl, ESPLogStart
+                          ld (ESPLogPointer), hl
+                          ld hl, 0
+                          ld (ESPLogLen), hl
+                        endif
+mend
+
+
+
+ESPLog                  macro()
+                        if enabled LogESP
+                          call ESPLogProc
+                        endif
+mend
+
+
+ESPLogText              macro(Text)
+                        if enabled LogESP
+                          for n := 1 to length(Text)
+                            ld a, Text[n]
+                            call ESPLogProc
+                          next;n
+                        endif
 mend
 
