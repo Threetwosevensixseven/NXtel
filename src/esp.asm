@@ -14,7 +14,8 @@ ESPConnect              proc
                         add a, ConnStringPreambleLen    ; Add the "AT_CIPSTART=" preamble
                         ld e, a                         ; Length of the command to send, including preamble and CRLF
                         call Connect
-StartReceive:           Pause(10)
+                        call ESPReceiveWaitOK
+StartReceive:           //Pause(10)
                         call ESPReceiveIPDInit
 MainLoop:
                         call ESPReceiveIPD
