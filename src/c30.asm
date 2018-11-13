@@ -367,9 +367,7 @@ Return:
                         if not ULAMonochrome
                           PageResetBottom48K()
                         endif
-                        xor a
-                        ld (DoFlash.Frame), a
-                        inc a
+                        ld a, 1
                         ld (DoFlash.OnOff), a
                         nextreg $14, $E3                ; Global L2 transparency colour
                         nextreg $4B, $E3                ; Global sprite transparency index

@@ -128,6 +128,14 @@ Teletext                proc
   Space                 equ 32
   ClearBit7             equ 0
   SetBit7               equ 128
+  Black                 equ 0
+  Red                   equ 1
+  Green                 equ 2
+  Yellow                equ 3
+  Blue                  equ 4
+  Magenta               equ 5
+  Cyan                  equ 6
+  White                 equ 7
 pend
 
 

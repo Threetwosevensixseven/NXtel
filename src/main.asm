@@ -18,7 +18,7 @@ ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
 ULAMonochrome optionbool 665, -15, "ULA", true
-LogESP optionbool 710, -15, "Log", true
+LogESP optionbool 710, -15, "Log", false
 //Carousel optionbool 755, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
@@ -161,7 +161,7 @@ org $8181
                         push af
                         nextreg $56, 6
                         call ProcessKey
-                        //call DoFlash
+                        call DoFlash
 //PrintTimeCallX:       //ld hl, PrintTime
                         pop af
                         nextreg $56, a

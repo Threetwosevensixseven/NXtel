@@ -367,7 +367,7 @@ ExtendLF:
                         pop af
                         ret
 
-FileName:               db "NXtel2.cfg", 0
+FileName:               db "NXtel.cfg", 0
 pend
 
 
@@ -481,7 +481,7 @@ NoMoreLines:
                         ld (MenuConnect.ItemCount), a
                         ret
 
-ConfigFileName:         db "NXTEL.CFG", 0               ; Relative to application
+ConfigFileName:         db "nxtel.cfg", 0               ; Relative to application
 ConfigFileNameLen       equ $-ConfigFileName
 KeyBuffer:              db "URL", [URLNumber]"1", 0
 KeyBufferLen            equ $-KeyBuffer

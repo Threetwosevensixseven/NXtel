@@ -91,10 +91,11 @@ pend
 
 
 DoFlash                 proc
-                        ld a, [Frame]SMC
-                        inc a
+                        ld hl, [Frame]SMC
+                        inc hl
+                        ld (Frame), hl
+                        ld a, l
                         and 31
-                        ld (Frame), a
                         ret nz
                         nextreg $43, %0 001 000 0       ; Set Layer 2 primary palette, incrementing
                         nextreg $40, 64                 ; Start at index 64
@@ -211,22 +212,6 @@ FlipULAScreen           proc
                           ld bc, $7FFD
                           out (c), a
                         endif
-                        ret
-pend
-
-
-
-Welcome                 proc
-                        MMU6(31, false)
-                        MMU7(30, false)
-                        jp Welcome31
-Return:                 call RenderBuffer
-                        FlipScreen()
-                        ei
-Wait:                   halt
-                        inc a
-                        cp 100
-                        jp c, Wait
                         ret
 pend
 
@@ -392,32 +377,96 @@ pend
 
 
 
-/*PrintHex                proc
-                        ld d, a
-                        ;ld a, "\"
-                        ;rst 16
-                        ;ld a, d
-                        and %11110000
-                        rrca
-                        rrca
-                        rrca
-                        rrca
-                        add 48
-                        cp ':'
-                        jp c, PrintLeft
-                        add a, 7
-PrintLeft:              //rst 16
-                        ld a, d
-                        and %00001111
-                        add 48
-                        cp ':'
-                        jp c, PrintRight
-                        add a, 7
-PrintRight:             //rst 16
-                        //ld a, ']'
-                        //rst 16
-                        ret
-pend*/
+Splash proc Table:
+
+  ;    X            Colour  Index   Y
+  db  26,    Teletext.Cyan  ;   0  94
+  db  32,    Teletext.Cyan  ;   1  94
+  db  38,    Teletext.Cyan  ;   2  94
+  db  44,    Teletext.Cyan  ;   3  94
+  db  50,    Teletext.Cyan  ;   4  94
+  db  56,    Teletext.Cyan  ;   5  94
+  db  62,    Teletext.Cyan  ;   6  94
+  db  68,   Teletext.Green  ;   7  94
+  db  74,   Teletext.Green  ;   8  94
+  db  80,   Teletext.Green  ;   9  94
+  db  86,   Teletext.Green  ;  10  94
+  db  92,   Teletext.Green  ;  11  94
+  db  98,   Teletext.Green  ;  12  94
+  db 104,   Teletext.Green  ;  13  94
+  db 110,  Teletext.Yellow  ;  14  94
+  db 116,  Teletext.Yellow  ;  15  94
+  db 122,  Teletext.Yellow  ;  16  94
+  db 128,  Teletext.Yellow  ;  17  94
+  db 134,  Teletext.Yellow  ;  18  94
+  db 140, Teletext.Magenta  ;  19  94
+  db 146, Teletext.Magenta  ;  20  94
+  db 152, Teletext.Magenta  ;  21  94
+  db 158, Teletext.Magenta  ;  22  94
+  db 164, Teletext.Magenta  ;  23  94
+  db 170, Teletext.Magenta  ;  24  94
+  db 176, Teletext.Magenta  ;  25  94
+  db 182,     Teletext.Red  ;  26  94
+  db 188,     Teletext.Red  ;  27  94
+
+  struct
+    X           ds 1
+    Colour      ds 1
+  Size send
+
+  Len           equ $-Table
+  Count         equ Len/Size
+  Y             equ 6
+pend
+
+
+
+Welcome                 proc
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp Welcome31
+Return:                 call RenderBuffer
+                        FlipScreen()
+                        ei
+                        ld a, -1
+                        ld (Pause), a
+                        ld (Record), a
+Wait:
+                        halt
+                        ld a, [Pause]SMC
+                        inc a
+                        ld (Pause), a
+                        and %11
+                        jp nz, Wait
+                        ld a, [Record]SMC
+                        inc a
+                        ld (Record), a
+                        cp Splash.Count
+                        ret z
+                        MMU0(21, false)
+                        ld a, (Record)
+                        add a, a
+                        ld hl, Splash.Table
+                        add hl, a
+                        ld e, (hl)                      ; e = X
+                        inc hl
+                        ld a, (hl)                      ; a = Colour
+                        ld d, Splash.Y                  ; d = Y
+                        ex de, hl
+                        ld (hl), a
+                        inc l
+                        ld (hl), a
+                        inc l
+                        ld (hl), a
+                        inc h
+                        ld (hl), a
+                        dec l
+                        ld (hl), a
+                        dec l
+                        ld (hl), a
+                        MMU0(255, true)
+                        jp Wait
+pend
 
 
 

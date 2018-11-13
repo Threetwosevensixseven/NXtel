@@ -15,10 +15,8 @@ ESPConnect              proc
                         ld e, a                         ; Length of the command to send, including preamble and CRLF
                         call Connect
                         call ESPReceiveWaitOK
-StartReceive:           //Pause(10)
-                        call ESPReceiveIPDInit
-MainLoop:
-                        call ESPReceiveIPD
+StartReceive:           call ESPReceiveIPDInit
+MainLoop:               call ESPReceiveIPD
                         jp z, Received
                         //jp c, Error
                         NextRegRead($56)
@@ -33,6 +31,7 @@ SendKey:
                         call ESPReceiveWaitPrompt
                         ld d, [CharToSend2]SMC
                         call ESPSendChar
+                        call ESPReceiveWaitOK
 NoKey:
                         nextreg $56, [RestoreKeyPage]SMC
                         jp MainLoop
