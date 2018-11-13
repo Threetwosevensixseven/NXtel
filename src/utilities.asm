@@ -234,6 +234,7 @@ Addresses:              dw MenuConnect                          ; Key 1
                         dw RunCarousel                          ; Key 2
                         dw MenuNotImplemented                   ; Key 3
                         dw MenuNotImplemented                   ; Key 4
+                        dw MenuNotImplemented                   ; Key 5
 ItemCount               equ ($-Addresses)/2
 pend
 

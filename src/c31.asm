@@ -2,11 +2,12 @@
 
 // This gets mapped in at $C000-$DFFF
 
+include "dzx7_mega.asm"
+
 Welcome31               proc
-                        ld hl, Menus.Welcome
-                        ld de, DisplayBuffer
-                        ld bc, Menus.Size
-                        ldir
+                        ld hl, Menus.Welcome            ; Source address (compressed data)
+                        ld de, DisplayBuffer            ; Destination address (decompressing)
+                        call dzx7_mega
                         ld hl, Version
                         ld de, DisplayBuffer+667
                         ld bc, 12
@@ -19,10 +20,9 @@ pend
 
 MainMenu31              proc
                         Border(Black)
-                        ld hl, Menus.Main
-                        ld de, DisplayBuffer
-                        ld bc, Menus.Size
-                        ldir
+                        ld hl, Menus.Main               ; Source address (compressed data)
+                        ld de, DisplayBuffer            ; Destination address (decompressing)
+                        call dzx7_mega
                         jp MainMenu.Return
 pend
 
@@ -38,10 +38,9 @@ MenuConnect31           proc
                         ld (CurrentItem), a
                         ld a, "1"
                         ld (CurrentDigit), a
-                        ld hl, Menus.Connect
-                        ld de, DisplayBuffer
-                        ld bc, Menus.Size
-                        ldir
+                        ld hl, Menus.Connect            ; Source address (compressed data)
+                        ld de, DisplayBuffer            ; Destination address (decompressing)
+                        call dzx7_mega
 FillItemsLoop:          ld hl, DisplayBuffer+282
                         ld a, [CurrentItem]SMC
                         ld e, a
@@ -113,9 +112,9 @@ pend
 
 
 Menus                   proc
-  Welcome:              import_bin "..\pages\ClientWelcome.bin"
-  Main:                 import_bin "..\pages\MainMenu.bin"
-  Connect:              import_bin "..\pages\ConnectMenu.bin"
+  Welcome:              import_bin "..\pages\zx7\ClientWelcome.bin.zx7"
+  Main:                 import_bin "..\pages\zx7\MainMenu.bin.zx7"
+  Connect:              import_bin "..\pages\zx7\ConnectMenu.bin.zx7"
   Size                  equ 1000
 pend
 

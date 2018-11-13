@@ -1,0 +1,135 @@
+===============
+FZX FONT DRIVER
+===============
+BY EINAR SAUKAS
+===============
+
+  The FZX driver code is a free reference implementation of proportional PRINT
+  for the ZX-Spectrum, that supports the FZX font format standard.
+
+  After installing this driver, any FZX font can be used from Sinclair BASIC
+  using PRINT #4.
+
+
+=====
+USAGE
+=====
+
+  To create the channel and attach it to stream #4, load this driver from tape
+  (together with any FZX font of your choice) and execute it only once, as
+  follows:
+
+CLEAR 59999: LOAD "Sinclair"CODE 60000: LOAD "FZXdriver"CODE 65000: RANDOMIZE USR 65000
+
+  Afterwards, you can use PRINT #4 to print your text, for instance:
+
+PRINT #4;AT 0,0;"FZX driver code (c) Einar Saukas"'"FZX font format (c) Andrew Owen"
+FOR f=32 TO 127: PRINT #4;CHR$ f;: NEXT f
+
+  This driver supports regular ASCII characters (from space afterwards), AT
+  control codes (specifying hires coordinates), and you can also use apostrophe
+  as carriage return.
+
+
+========
+ASSEMBLY
+========
+
+  The easiest way to use this driver in Assembly is as follows:
+
+        call    65000           ; activate driver (call it only once)
+        ...
+        ld      a, 4
+        call    $1601           ; open channel #4
+        ld      a, 'Z'
+        rst     $10             ; print letter 'Z'
+
+  For instance, if you want to execute PRINT #4;AT 100,0;"Hello world!" but in
+  Assembly, you could use the following implementation that uses 255 as string
+  terminator (although it only works if lastchar < 255, and you won't be able
+  to put cursor AT column 255):
+
+        call    65000           ; activate driver (call it only once)
+        ...
+        ld      a, 4
+        call    $1601           ; open channel #4
+        ld      hl, STRING
+LOOP:   ld      a, (hl)         ; for each character of this string...
+        cp      255
+        ret     z               ; check string terminator
+        rst     $10             ; print character
+        inc     hl
+        jr      LOOP
+STRING: defb 22, 100, 0, 'Hello world!', 255
+
+  Alternatively you could skip channel initialization from the FZX driver and
+  call the routine directly at "entry point" 2, without using channels. In this
+  case, the code above will look as follows:
+
+        ld      hl, STRING
+LOOP:   ld      a, (hl)         ; for each character of this string...
+        cp      255
+        ret     z               ; check string terminator
+        push    hl              ; preserve HL
+        call    FZX_START       ; print character
+        pop     hl              ; recover HL
+        inc     hl
+        jr      LOOP
+STRING: defb 22, 100, 0, 'Hello world!', 255
+
+
+======
+CONFIG
+======
+
+  The driver code is compiled starting at address 65000 by default. If you want
+  a different address, change "org 65000" at the beginning of the source code,
+  then recompile it.
+
+  The font is located at address 60000 by default. If you want to use a font
+  located at another address without recompiling the code (so you can alternate
+  between several fonts in memory for instance), you can directly change the
+  font address stored at addresses DRIVER+60 and DRIVER+61 (addresses 65060 and
+  65061 by default). From BASIC, it can be done as follows:
+
+POKE 65061,INT (FONT/256): POKE 65060,FONT-256*PEEK 65061
+
+  From Assembly, setting a new font address is even easier:
+  
+        ld hl, FONT
+        ld (65060), hl
+
+  Whenever the routine moves to a new line, it restarts at pixel column 0 by
+  default. However if your program uses a PAPER color different from BORDER, it
+  may look better to keep a small distance from the border. To configure the
+  distance (in pixels) from the left margin, you can directly change the value
+  stored at address DRIVER+237 (address 65237 by default). From BASIC, it can
+  be done as follows:
+
+POKE 65237, MARGIN
+
+
+=======
+LICENSE
+=======
+
+  You can freely use the FZX driver code in your programs (even for commercial
+  releases), or adapt this code according to your needs. In particular, porting
+  this code to other platforms is permitted and encouraged.
+
+  The only requirement is that you must clearly indicate in your documentation
+  that you have either used this code or created a derivative work based on it.
+
+
+=======
+CREDITS
+=======
+
+  FZX font driver - Copyright (c) 2013 Einar Saukas
+
+  FZX font format - Copyright (c) 2013 Andrew Owen
+
+  Additional thanks to Alone Coder for suggesting a small optimization to move
+  down a pixel line (that made the code 1 byte shorter and slightly faster), to
+  Paul van der Laan for extensive assistance on both standard and terminology,
+  and to Claus Jahn for the excellent FZX Editor at www.zxmodules.de
