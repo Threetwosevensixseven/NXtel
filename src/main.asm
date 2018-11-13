@@ -5,6 +5,7 @@ zoLogicOperatorsHighPri = false
 zoSupportStringEscapes  = false
 zxAllowFloatingLabels   = false
 zoParaSysNotEmulate     = false
+zoDebug                 = true
 Zeus_PC                 = Start
 Stack                   equ Start
 Zeus_P7FFD              = $10

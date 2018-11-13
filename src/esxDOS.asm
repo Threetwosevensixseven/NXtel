@@ -60,6 +60,24 @@ fOpen:
 
 
 
+; Function:             Create file
+; In:                   IX = oointer to file name (ASCIIZ)
+;                       B  = open mode
+;                       A  = Drive
+; Out:                  A  = file handle
+;                       On error: Carry set
+;                         A = 5   File not found
+;                         A = 7   Name error - not 8.3?
+;                         A = 11  Drive not found
+;
+fCreate:
+                        ld a, (DefaultDrive)            ; get drive we're on
+                        ld b, FA_OVERWRITE              ; b = open mode
+                        Rst8(esxDOS.F_OPEN)             ; open read mode
+                        ld (Handle), a
+                        ret                             ; Returns a file handler in 'A' register.
+
+
 ; Function:             Read bytes from a file
 ; In:                   A  = file handle
 ;                       IX = address to load into
@@ -78,15 +96,13 @@ fRead:
 ;                       BC = number of bytes to write
 ; Out:                  Carry flag is set if write fails.
 fWrite:
-                        ld ix, 16384                    ; ix = memory address to save from
-                        ld bc, 6912                     ; bc = bytes to write
                         ld a, (Handle)                  ; a  = file handler
                         Rst8(esxDOS.F_WRITE)            ; write file
                         ret
 
 
 
-; Function:             Write bytes to a file
+; Function:             Close file
 ; In:                   A  = file handle
 ; Out:                  Carry flag active if error when closing
 fClose:

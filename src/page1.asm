@@ -10,7 +10,7 @@ CfgBuffer:                                              ; CfgBuffer is 8KB minus
                                                         ; It starts at the bottom of 8k bank 2 ($C000),
                                                         ; and grows upwards.
 if enabled ZeusDebug
-  import_bin "..\sd\NXtel2.cfg"                         ; When running in Zeus, the cfg file contents
+  import_bin "..\sd\NXtel.cfg"                          ; When running in Zeus, the cfg file contents
 endif                                                   ; will already be planted in memory in the buffer.
 PreloadedCfgAddr equ $-1
 PreloadedCfgLen equ $-CfgBuffer
@@ -55,12 +55,12 @@ ParseCfgFile            proc
                         if not enabled ZeusDebug        ; When running in Zeus, the cfg file contents
                           ld ix, FileName               ; will already be planted in memory in the buffer.
                           call esxDOS.fOpen             ; Otherwise, open cfg file.
-                          jp c, esxDOS.Error
+                          jp c, CreateDefaultCfgFile
                           ld ix, CfgBuffer              ; ix = address to load into
                           ld (CfgFileStart), ix
                           ld bc, $1C00                  ; bc = number of bytes to read
                           call esxDOS.fRead             ; Read the entire file (or most of it if huge)
-                          jp c, esxDOS.Error            ; into the buffer.
+                          jp c, LoadSettings.Error      ; into the buffer.
                           dec hl
                           ld (CfgFileEnd), hl
                           ld (CfgFileLen), bc
@@ -82,6 +82,21 @@ ParseCfgFile            proc
                         ld a, EOLStyle.LF               ; There are no line endings at all!
                         ld (CfgLineEndings), a          ; Why not assume LF, for simplicity ;)
                         jp SetupEOL
+
+CreateDefaultCfgFile:
+                        if not enabled ZeusDebug
+                          cp 5                          ; Only trap "No such file or dir"
+                          jp nz, LoadSettings.Error     ; Otherwise display standard error message
+                          ld ix, FileName
+                          call esxDOS.fCreate
+                          jp c, LoadSettings.Error
+                          ld ix, DefaultCfg.File
+                          ld bc, DefaultCfg.Len
+                          call esxDOS.fWrite
+                          jp c, LoadSettings.Error
+                          call esxDOS.fClose
+                          jp ParseCfgFile
+                        endif
 IsCR:
                         ld b, a                         ; Preserve first char of line ending
                         inc hl
@@ -519,6 +534,15 @@ ConnectMenuServer proc Table:
   ds Length, 0
 pend
 
+
+
+DefaultCfg proc File:
+  import_bin "..\banks\Default.cfg"
+  Len equ $-File
+pend
+
+
+
 Page1End32   equ $-1
 Page1End16   equ Page1End32
 Page1Size equ Page1End32-Page1Start32+1
@@ -528,5 +552,4 @@ endif
 zeusprinthex "Pg1Size = ", Page1Size
 org Page1Temp16
 disp 0
-
 
