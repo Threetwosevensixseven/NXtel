@@ -20,7 +20,9 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            DeleteBadTelesoftwareFiles(ConX);
+            LinkPagesAndFiles(ConX);
+            PageFileFK(ConX);
+            PageFileFKConstraint(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -198,6 +200,191 @@ END$$";
 
                 string sql = @"DELETE FROM telesoftware 
                     WHERE TeleSoftwareID<=0;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateToPageFrameNo(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                    ADD COLUMN `ToPageFrameNo` DECIMAL(11,2) NULL;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateFromPageFrameNo(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                    ADD COLUMN `FromPageFrameNo` DECIMAL(11,2) NULL;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void UpdateToPageFrameNo(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"update `page` 
+                    set ToPageFrameNo=PageNo+(FrameNo/100);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void UpdateFromPageFrameNo(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"update `page` 
+                    set FromPageFrameNo=PageNo+(FrameNo/100);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void LinkPagesAndFiles(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                        ADD COLUMN `TeleSoftwareID` INT NULL;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void PageFileFK(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                    ADD INDEX `FK_page_TeleSoftwareID_idx` (`TeleSoftwareID` ASC);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void PageFileFKConstraint(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                        ADD CONSTRAINT `FK_page_TeleSoftwareID` FOREIGN KEY (`TeleSoftwareID`) 
+                        REFERENCES `nxtel`.`telesoftware` (`TeleSoftwareID`)
+                        ON DELETE CASCADE
+                        ON UPDATE CASCADE;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

@@ -27,6 +27,10 @@ namespace NXtelData
         public string SelectedRoutes { get; set; }
         public int ContentHeight { get; set; }
         public int ContentCurrentLine { get; set; }
+        public int ToPageNo { get; set; }
+        public int ToFrameNo { get; set; }
+        public int? TeleSoftwareID { get; set; }
+        public Pages PageRange { get; set; }
 
         public Page()
         {
@@ -34,6 +38,7 @@ namespace NXtelData
             Title = URL = SelectedTemplates = SelectedRoutes = "";
             Templates = new Templates();
             Routing = new Routes();
+            PageRange = new Pages();
             this.ConvertContentsFromURL();
         }
 
@@ -60,11 +65,42 @@ namespace NXtelData
             }
         }
 
+        public string ToFrame
+        {
+            get
+            {
+                return ((char)Convert.ToByte(((byte)"a"[0]) + ToFrameNo)).ToString();
+            }
+            set
+            {
+                if (value == null || value.Trim().Length == 0)
+                {
+                    ToFrameNo = 0;
+                    return;
+                }
+                char chr = (value.Trim().ToLower())[0];
+                if (chr < 'a')
+                    ToFrameNo = 0;
+                else if (chr > 'z')
+                    ToFrameNo = 25;
+                else
+                    ToFrameNo = chr - 'a';
+            }
+        }
+
         public string PageAndFrame
         {
             get
             {
                 return PageNo + Frame;
+            }
+        }
+
+        public string ToPageAndFrame
+        {
+            get
+            {
+                return ToPageNo + ToFrame;
             }
         }
 
@@ -147,8 +183,10 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"INSERT INTO page
-                        (PageNo,FrameNo,Title,Contents,BoxMode,URL)
-                        VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL);
+                        (PageNo,FrameNo,Title,Contents,BoxMode,URL,
+                        FromPageFrameNo,ToPageFrameNo,TeleSoftwareID)
+                        VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,
+                        @FromPageFrameNo,@ToPageFrameNo,@TeleSoftwareID);
                         SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("PageNo", PageNo);
@@ -157,6 +195,12 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("BoxMode", BoxMode);
                     cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
                     cmd.Parameters.AddWithValue("Contents", Contents);
+                    decimal fromPageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
+                    cmd.Parameters.AddWithValue("FromPageFrameNo", fromPageFrameNo);
+                    decimal toPageFrameNo = ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
+                    cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
+                    int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
+                    cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
                         PageID = rv;
@@ -195,8 +239,15 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"UPDATE page
-                        SET PageNo=@PageNo,FrameNo=@FrameNo,Title=@Title,BoxMode=@BoxMode,
-                        URL=@URL,Contents=@Contents
+                        SET PageNo=@PageNo,
+                        FrameNo=@FrameNo,
+                        Title=@Title,
+                        BoxMode=@BoxMode,
+                        URL=@URL,
+                        Contents=@Contents,
+                        FromPageFrameNo=@FromPageFrameNo,
+                        ToPageFrameNo=@ToPageFrameNo,
+                        TeleSoftwareID=@TeleSoftwareID
                         WHERE PageID=@PageID;
                         SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -207,6 +258,12 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("BoxMode", BoxMode);
                     cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
                     cmd.Parameters.AddWithValue("Contents", Contents);
+                    decimal fromPageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
+                    cmd.Parameters.AddWithValue("FromPageFrameNo", fromPageFrameNo);
+                    decimal toPageFrameNo = ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
+                    cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
+                    int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
+                    cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The page could not be saved.";
@@ -256,6 +313,24 @@ namespace NXtelData
             }
         }
 
+        public bool IsPageRangeValid()
+        {
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                string sql = @"SELECT COUNT(*) AS cnt
+                    FROM `page`
+                    WHERE PageID<>@PageID
+                    AND FromPageFrameNo<@ToPageFrameNo
+                    AND @FromPageFrameNo<ToPageFrameNo;";
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("FromPageFrameNo", NormalisedFromPageFrameNo);
+                cmd.Parameters.AddWithValue("ToPageFrameNo", NormalisedToPageFrameNo);
+                cmd.Parameters.AddWithValue("PageID", PageID);
+                return cmd.ExecuteScalarInt32() == 0;
+            }
+        }
+
         public void Read(MySqlDataReader rdr, bool StubOnly = false)
         {
             this.PageID = rdr.GetInt32("PageID");
@@ -264,40 +339,15 @@ namespace NXtelData
             this.Title = rdr.GetString("Title").Trim();
             if (string.IsNullOrEmpty(this.Title))
                 this.Title = "None";
+            decimal toPageFrameNo = rdr.GetDecimal("ToPageFrameNo");
+            this.ToPageNo = Convert.ToInt32(toPageFrameNo);
+            this.ToFrameNo = Convert.ToInt32((toPageFrameNo - this.ToPageNo) * 100);
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.BoxMode = rdr.GetBoolean("BoxMode");
+            this.TeleSoftwareID = rdr.GetInt32Nullable("TeleSoftwareID");
             this.ConvertContentsFromURL();
-        }
-
-        private static byte[] GetPage(string Name)
-        {
-            var fn = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Pages", Name);
-            return File.ReadAllBytes(fn);
-        }
-
-        public static byte[] Update(string PageFile, int PageNo, int Seq, string Title)
-        {
-            var bytes = GetPage(PageFile);
-            using (var con = new MySqlConnection(DBOps.ConnectionString))
-            {
-                con.Open();
-                string sql = @"INSERT INTO page
-                    (PageNo,Seq,Title,Contents)
-                    VALUES (@PageNo,@Seq,@Title,@Contents)
-                    ON DUPLICATE KEY UPDATE
-                    PageNo=@PageNo,
-                    Seq=@Seq,
-                    Contents=@Contents;";
-                var cmd = new MySqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("PageNo", PageNo);
-                cmd.Parameters.AddWithValue("Seq", Seq);
-                cmd.Parameters.AddWithValue("Title", Title);
-                cmd.Parameters.AddWithValue("Contents", bytes);
-                cmd.ExecuteNonQuery();
-            }
-            return bytes;
         }
 
         public void SetVersion(string Version)
@@ -388,6 +438,13 @@ namespace NXtelData
                 if (matched == null)
                     Routing.Add(route);
             }
+
+            // Range
+            if (ToPageNo <= 0 && ToFrameNo <= 0)
+            {
+                ToPageNo = PageNo;
+                ToFrameNo = FrameNo;
+            }
         }
 
         public void SetSelectedTemplates()
@@ -440,6 +497,22 @@ namespace NXtelData
                     return 0;
                 else
                     return FrameNo + 1;
+            }
+        }
+
+        public decimal NormalisedFromPageFrameNo
+        {
+            get
+            {
+                return PageNo + (Convert.ToDecimal(FrameNo) / 100m);
+            }
+        }
+
+        public decimal NormalisedToPageFrameNo
+        {
+            get
+            {
+                return ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
             }
         }
     }

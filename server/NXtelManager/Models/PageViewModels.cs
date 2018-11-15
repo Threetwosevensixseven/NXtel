@@ -12,13 +12,15 @@ namespace NXtelManager.Models
         public Page Page { get; set; }
         public IEnumerable<SelectListItem> Templates { get; set; }
         public IEnumerable<SelectListItem> Routes { get; set; }
+        public IEnumerable<SelectListItem> Files { get; set; }
 
         public PageEditModel()
         {
             Templates = GetSelectList(NXtelData.Templates.LoadStubs());
             Routes = GetSelectList(NXtelData.Routes.MasterList);
+            Files = GetSelectList(NXtelData.TSFiles.LoadStubs());
         }
-
+       
         public IEnumerable<SelectListItem> GetSelectList(Templates Items)
         {
             var rv = new List<SelectListItem>();
@@ -44,6 +46,22 @@ namespace NXtelManager.Models
                 {
                     Value = item.KeyCode.ToString(),
                     Text = (item.Description ?? "").Trim()
+                });
+            }
+            return rv;
+        }
+
+        public IEnumerable<SelectListItem> GetSelectList(TSFiles Files)
+        {
+            var rv = new List<SelectListItem>();
+            rv.Add(new SelectListItem { Value = "-1", Text = "None" });
+            if (Files == null) return rv;
+            foreach (var item in Files)
+            {
+                rv.Add(new SelectListItem
+                {
+                    Value = item.TeleSoftwareID.ToString(),
+                    Text = (item.Key ?? "").Trim()
                 });
             }
             return rv;

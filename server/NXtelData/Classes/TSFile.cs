@@ -29,6 +29,14 @@ namespace NXtelData
             }
         }
 
+        public int FileSizeBytes
+        {
+            get
+            {
+                return (Contents ?? new byte[0]).Length;
+            }
+        }
+
         public static TSFile Load(int TelesoftwareID)
         {
             var item = new TSFile();

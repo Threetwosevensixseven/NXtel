@@ -27,13 +27,12 @@ namespace TelesoftEncoder
             CurrentEscape = TelesoftEscapes.E0;
             CurrentPage = new Page();
             Pages.Add(CurrentPage);
-            CurrentPage.PageNo = CurrentPageNo;
-            CurrentPage.FrameNo = CurrentFrameNo;
+            CreateNewPage(); // This is the header page
+            CreateNewPage();
             var file = File.ReadAllBytes(Options.TelesoftFile);
             string fn = Path.GetFileName(Options.TelesoftFile).Trim();
             fn = fn.Replace("|", "|E"); // Escape escape sequence if present in filename
             string contents = "";
-            CreateNewPage();
             contents = "|A"; // Start of telesoftware block
             CurrentChecksum = 0;
             contents += Checksum("|G" + CurrentPage.Frame + "|I"); // Frame letter of telesoftware block, terminated

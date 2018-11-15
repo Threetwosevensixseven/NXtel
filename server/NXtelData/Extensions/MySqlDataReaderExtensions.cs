@@ -41,6 +41,15 @@ namespace MySql.Data.MySqlClient
             return rdr.GetInt32(column);
         }
 
+        public static int GetInt32Safe(this MySqlDataReader rdr, string column)
+        {
+            if (rdr == null)
+                return -1;
+            if (rdr.IsDBNull(rdr.GetOrdinal(column)))
+                return -1;
+            return rdr.GetInt32(column);
+        }
+
         public static byte[] GetBytesNullable(this MySqlDataReader rdr, string column)
         {
             if (rdr == null)

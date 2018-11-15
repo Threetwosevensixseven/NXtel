@@ -44,6 +44,30 @@ namespace NXtelManager.Controllers
             Page.Fixup();
             if (ModelState.IsValid)
             {
+                new TSEncoder().Encode(ref Page);
+                if (Page.NormalisedFromPageFrameNo > Page.NormalisedToPageFrameNo)
+                {
+                    ModelState.AddModelError("", "To Page No/Frame cannot be before From Page No/Frame.");
+                    model = new PageEditModel();
+                    model.Page = Page;
+                    return View("Edit", model);
+                }
+                if (!Page.IsPageRangeValid())
+                {
+                    if (Page.PageAndFrame == Page.ToPageAndFrame)
+                    {
+                        ModelState.AddModelError("", "An existing page range overlaps with page "
+                            + Page.PageAndFrame + ".");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "An existing page range overlaps with the range "
+                            + Page.PageAndFrame + " to " + Page.ToPageAndFrame + ".");
+                    }
+                    model = new PageEditModel();
+                    model.Page = Page;
+                    return View("Edit", model);
+                }
                 string err;
                 if (!Page.Save(Page, out err))
                 {

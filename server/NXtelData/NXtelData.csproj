@@ -113,6 +113,7 @@
     <Compile Include="Classes\Templates.cs" />
     <Compile Include="Classes\Settings.cs" />
     <Compile Include="Classes\ConsoleLogger.cs" />
+    <Compile Include="Classes\TSEncoder.cs" />
     <Compile Include="Classes\TSFile.cs" />
     <Compile Include="Classes\TSFiles.cs" />
     <Compile Include="Classes\User.cs" />

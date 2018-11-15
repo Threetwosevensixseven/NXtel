@@ -5,6 +5,9 @@
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
     string frame = @page.PageID <= 0 ? "" : @page.Frame;
+    string toPageNo = @page.PageID <= 0 ? "" : @page.ToPageNo.ToString();
+    string toFrame = @page.PageID <= 0 ? "" : @page.ToFrame;
+
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
@@ -15,27 +18,38 @@
         <tbody>
             <tr>
                 <td class="lbl">Page ID:</td>
-                <td class="data" colspan="5">@pageID@Html.Hidden("PageID", @page.PageID)</td>
+                <td class="data" colspan="5">@pageID@Html.Hidden("Page.PageID", @page.PageID)</td>
             </tr>
             <tr>
                 <td class="lbl">Title:</td>
-                <td class="data" colspan="5">@Html.TextBox("Title", page.Title, new { maxlength = 30, style = "width:100%;max-width:initial" })</td>
+                <td class="data" colspan="5">@Html.TextBox("Page.Title", page.Title, new { maxlength = 30, style = "width:100%;max-width:initial" })</td>
             </tr>
             <tr>
                 <td class="lbl">Page No:</td>
-                <td class="data">@Html.TextBox("PageNo", pageNo, new { maxlength = 10 })</td>
+                <td class="data">@Html.TextBox("Page.PageNo", pageNo, new { maxlength = 10 })</td>
             </tr>
             <tr>
                 <td class="lbl">Frame:</td>
-                <td class="data">@Html.TextBox("Frame", frame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
+                <td class="data">@Html.TextBox("Page.Frame", frame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
+            </tr>
+            <tr>
+                <td class="lbl">To Page No:</td>
+                <td class="data">@Html.TextBox("Page.ToPageNo", toPageNo, new { maxlength = 10 })</td>
+            </tr>
+            <tr>
+                <td class="lbl">To Frame:</td>
+                <td class="data">@Html.TextBox("Page.ToFrame", toFrame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
             </tr>
             <tr>
                 <td class="lbl">Box Mode:</td>
-                <td class="data">@Html.CheckBox("BoxMode", page.BoxMode)</td>
+                <td class="data">@Html.CheckBox("Page.BoxMode", page.BoxMode)</td>
             </tr>
             <tr>
                 <td class="lbl">URL:</td>
-                <td class="data">@Html.TextArea("URL", page.URL)</td>
+                <td class="data">
+                    @*<textarea cols="20" id="URL" name="Page_URL" rows="2">@page.URL</textarea>*@
+                    @Html.TextArea("Page.URL", page.URL, new { id = "URL", name = "Page_URL" })
+                </td>
             </tr>
             <tr>
                 <td class="lbl" style="vertical-align:top">Content:</td>
@@ -54,7 +68,7 @@
             <tr>
                 <td class="lbl" style="vertical-align:top">Templates:</td>
                 <td id="PageTemplates" class="data">
-                    @Html.Hidden("SelectedTemplates", page.SelectedTemplates)
+                    @Html.Hidden("Page.SelectedTemplates", page.SelectedTemplates, new { id = "SelectedTemplates" })
                     <table style="display:inline">
                         <tbody id="tbodyPageTemplates">
                             @for (int i = 0; i < page.Templates.Count; i++)
@@ -88,7 +102,7 @@
             <tr>
                 <td class="lbl" style="vertical-align:top">Routing:</td>
                 <td id="PageRouting" class="data">
-                    @Html.Hidden("SelectedRoutes", page.SelectedRoutes)
+                    @Html.Hidden("Page.SelectedRoutes", page.SelectedRoutes, new { id = "SelectedRoutes" })
                     <table style="display:inline">
                         <tbody id="tbodyPageRouting">
                             @for (int i = 0; i < page.Routing.Count; i++)
@@ -124,6 +138,13 @@
                     <a href="#" class="ordered ordered-btn add" title="Add route" style="display:inline-block;position:relative;top:-3px">Add</a>
                 </td>
             </tr>
+            <tr>
+                <td class="lbl" style="vertical-align:top">File:</td>
+                <td id="PageFile" class="data">
+                    @Html.DropDownListFor(model => model.Page.TeleSoftwareID, Model.Files)
+                </td>
+            </tr>
+
         </tbody>
     </table>
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })

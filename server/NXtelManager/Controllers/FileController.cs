@@ -10,6 +10,7 @@ using NXtelManager.Models;
 
 namespace NXtelManager.Controllers
 {
+    [Authorize(Roles = "Page Editor")]
     public class FileController : Controller
     {
         public ActionResult Index()
