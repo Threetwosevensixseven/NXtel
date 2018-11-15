@@ -93,5 +93,15 @@ namespace NXtelData
                 return cfg == "true";
             }
         }
+
+        public static string TelesoftFile
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["TelesoftFile"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
     }
 }

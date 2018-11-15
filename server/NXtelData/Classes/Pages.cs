@@ -49,6 +49,5 @@ namespace NXtelData
             }
             return list;
         }
-
     }
 }

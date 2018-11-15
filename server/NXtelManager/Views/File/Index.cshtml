@@ -1,0 +1,33 @@
+﻿@model NXtelData.TSFiles
+@{
+    ViewBag.Title = "Files";
+}
+<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Message</h3>
+<table class="paged" style="width:auto">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>File Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (NXtelData.TSFile file in Model)
+        {
+            <tr>
+                <td>@Html.ActionLink(string.IsNullOrWhiteSpace(@file.Key) ? "[None]" : @file.Key, "Edit", "File", new { id = file.TeleSoftwareID }, null)</td>
+                <td>@Html.ActionLink(string.IsNullOrWhiteSpace(@file.FileName) ? "[None]" : @file.FileName, "Edit", "File", new { id = file.TeleSoftwareID }, null)</td>
+          </tr>
+        }
+    </tbody>
+</table>
+<br />
+@Html.ActionLink("New File", "Edit", "File", null, new { @class = "btn btn-primary" })
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("table.paged").DataTable();
+        });
+    </script>
+}

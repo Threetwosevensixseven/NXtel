@@ -188,7 +188,16 @@ Loop:                   add a, a
                         inc a
                         cp d
                         jp c, SaveCurrentKey
-                        xor a
+CheckForBreak:          ld bc, zeuskeyaddr("[shift]")
+                        in a, (c)
+                        and zeuskeymask("[shift]")
+                        jp nz, NoBreak
+                        ld b, high zeuskeyaddr("[space]")
+                        in a, (c)
+                        and zeuskeymask("[space]")
+                        jp nz, NoBreak
+                        jp MainMenu
+NoBreak:                xor a
 SaveCurrentKey:         ld (CurrentKey), a
                         jp Loop
 Match:
@@ -222,6 +231,8 @@ MainMenu                proc
                         ld (ReadMenuKeys.ItemCount), a
                         ld hl, Addresses
                         ld (ReadMenuKeys.Addresses), hl
+                        ld hl, MainMenu
+                        ld (MenuNotImplemented.Return), hl
                         MMU6(31, false)
                         MMU7(30, false)
                         jp MainMenu31
@@ -232,9 +243,31 @@ Return:                 call RenderBuffer
                         jp ReadMenuKeys
 Addresses:              dw MenuConnect                          ; Key 1
                         dw RunCarousel                          ; Key 2
-                        dw MenuNotImplemented                   ; Key 3
+                        dw MenuNetworkSettings                  ; Key 3
                         dw MenuNotImplemented                   ; Key 4
                         dw MenuNotImplemented                   ; Key 5
+ItemCount               equ ($-Addresses)/2
+pend
+
+
+
+MenuNetworkSettings     proc
+                        ld a, ItemCount
+                        ld (ReadMenuKeys.ItemCount), a
+                        ld hl, Addresses
+                        ld (ReadMenuKeys.Addresses), hl
+                        ld hl, MenuNetworkSettings
+                        ld (MenuNotImplemented.Return), hl
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp MenuNetworkSettings31
+Return:                 call RenderBuffer
+                        FlipScreen()
+                        ei
+                        call WaitNoKey
+                        jp ReadMenuKeys
+Addresses:              dw MenuNotImplemented                   ; Key 1
+                        dw MenuNotImplemented                   ; Key 2
 ItemCount               equ ($-Addresses)/2
 pend
 
@@ -251,6 +284,8 @@ Return:                 call RenderBuffer
                         jp ReadMenuConnectKeys
 None:
                         MMU6(0, false)
+                        ld hl, MainMenu
+                        ld (MenuNotImplemented.Return), hl
                         jp MenuNotImplemented
 ItemCount:              db 0
 pend
@@ -331,7 +366,7 @@ MenuNotImplemented      proc
                         Border(Red)
                         halt:halt:halt:halt:halt
                         Border(Black)
-                        jp MainMenu
+                        jp [Return]MainMenu
 pend
 
 

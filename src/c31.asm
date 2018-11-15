@@ -111,10 +111,119 @@ pend
 
 
 
+MenuNetworkSettings31   proc
+                        ld hl, Menus.NetworkSettings    ; Source address (compressed data)
+                        ld de, DisplayBuffer            ; Destination address (decompressing)
+                        call dzx7_mega
+                        ESPSend("ATE0")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIFSR")
+                        call ESPReceiveCIFSR
+                        jp MenuNetworkSettings.Return
+pend
+
+
+
+ESPReceiveCIFSR         proc
+                        di
+                        ld hl, FirstChar
+                        ld (StateJump), hl
+                        ld hl, IPBuffer
+                        ld (IPPointer), hl
+NotReady:               ld a, high UART_GetStatus       ; Are there any characters waiting?
+                        in a, (low UART_GetStatus)      ; This inputs from the 16-bit address UART_GetStatus
+                        rrca                            ; Check UART_mRX_DATA_READY flag in bit 0
+                        jp nc, ESPReceiveWaitPrompt
+                        ld a, high UART_RxD             ; Otherwise Read the byte
+                        in a, (low UART_RxD)            ; from the UART Rx port
+                        jp [StateJump]SMC
+FirstChar:              cp '+'
+                        jp z, MatchSTAIP
+SubsequentChar:         cp (hl)
+                        jp z, MatchSubsequent
+                        ld hl, FirstChar
+                        ld (StateJump), hl
+CheckEnd:               ld de, [Compare]SMC
+                        CpHL(de)
+                        jp nz, NotReady
+                        ld hl, CaptureIP
+                        ld (StateJump), hl
+                        jp NotReady
+SubsequentChar2:        cp (hl)
+                        jp z, MatchSubsequent
+                        ld hl, FirstChar
+                        ld (StateJump), hl
+CheckEnd2:              ld de, [Compare2]SMC
+                        CpHL(de)
+                        jp nz, NotReady
+                        ld hl, CaptureMAC
+                        ld (StateJump), hl
+                        jp NotReady
+
+
+Return:                 ei
+                        ret
+                        jp ESPReceiveCIFSR
+MatchSTAIP:             ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, STAIPEnd
+                        ld (Compare), hl
+                        ld hl, STAIP
+                        jp CheckEnd
+MatchSubsequent:        inc hl
+                        jp CheckEnd
+CaptureIP:              cp '"'
+                        jp z, MatchIPEnd
+                        ld hl, [IPPointer]SMC
+                        ld (hl), a
+                        inc hl
+                        ld (IPPointer), hl
+                        ld de, IPBufferEnd
+                        CpHL(de)
+                        jp z, Return
+                        jp NotReady
+MatchIPEnd:             ld (hl), 0
+                        ld hl, MatchSecondPlus
+                        ld (StateJump), hl
+                        ld hl, STAMACEnd
+                        ld (Compare2), hl
+                        jp NotReady
+MatchSecondPlus:        cp '+'
+                        jp z, MatchSTAMAC
+                        jp NotReady
+MatchSTAMAC:            ld hl, SubsequentChar2
+                        ld (StateJump), hl
+                        ld hl, STAMACEnd
+                        ld (Compare2), hl
+                        ld hl, STAMAC
+                        jp CheckEnd2
+CaptureMAC:             nop
+                        ret
+
+
+
+STAIP:                  db "CIFSR:STAIP,", '"'
+STAIPEnd:
+STAMAC:                 db "CIFSR:STAMAC,", '"'
+STAMACEnd:
+IPBuffer:               ds 8
+                        ds 8
+                        ds 4
+IPBufferEnd:
+MacBuffer:              ds 8
+                        ds 8
+                        ds 4
+MacBufferEnd:
+
+
+pend
+
 Menus                   proc
   Welcome:              import_bin "..\pages\zx7\ClientWelcome.bin.zx7"
   Main:                 import_bin "..\pages\zx7\MainMenu.bin.zx7"
   Connect:              import_bin "..\pages\zx7\ConnectMenu.bin.zx7"
+  NetworkSettings:      import_bin "..\pages\zx7\NetworkSettingsMenu.bin.zx7"
+  //StatusMessages:     import_bin "..\pages\zx7\StatusMessages.bin.zx7"
   Size                  equ 1000
 pend
 

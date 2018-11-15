@@ -147,9 +147,9 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"INSERT INTO page
-                    (PageNo,FrameNo,Title,Contents,BoxMode,URL)
-                    VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL);
-                    SELECT LAST_INSERT_ID();";
+                        (PageNo,FrameNo,Title,Contents,BoxMode,URL)
+                        VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL);
+                        SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("PageNo", PageNo);
                     cmd.Parameters.AddWithValue("FrameNo", FrameNo);
@@ -195,10 +195,10 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"UPDATE page
-                    SET PageNo=@PageNo,FrameNo=@FrameNo,Title=@Title,BoxMode=@BoxMode,
-                    URL=@URL,Contents=@Contents
-                    WHERE PageID=@PageID;
-                    SELECT ROW_COUNT();";
+                        SET PageNo=@PageNo,FrameNo=@FrameNo,Title=@Title,BoxMode=@BoxMode,
+                        URL=@URL,Contents=@Contents
+                        WHERE PageID=@PageID;
+                        SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("PageID", PageID);
                     cmd.Parameters.AddWithValue("PageNo", PageNo);
@@ -421,5 +421,26 @@ namespace NXtelData
             return rv;
         }
 
+        public int NextPageNo
+        {
+            get
+            {
+                if (FrameNo == 25)
+                    return PageNo + 1;
+                else
+                    return PageNo;
+            }
+        }
+
+        public int NextFrameNo
+        {
+            get
+            {
+                if (FrameNo == 25)
+                    return 0;
+                else
+                    return FrameNo + 1;
+            }
+        }
     }
 }

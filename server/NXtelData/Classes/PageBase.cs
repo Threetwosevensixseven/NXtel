@@ -94,6 +94,16 @@ namespace NXtelData
             Contents = cc;
         }
 
+        public void ConvertContentsFromString(string Value)
+        {
+            Contents = Pad(ASCIIEncoding.ASCII.GetBytes(Value ?? ""), 960, 32);
+        }
+
+        public string ConvertContentsToString()
+        {
+            return Encoding.ASCII.GetString(Contents ?? new byte[0]).Trim();
+        }
+
         public static byte[] Pad(byte[] Bytes, int Length, byte Value = 32)
         {
             var before = Bytes.Length;

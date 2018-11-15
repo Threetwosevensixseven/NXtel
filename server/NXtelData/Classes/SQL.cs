@@ -20,7 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateGetUniqueMailbox(ConX);
+            DeleteBadTelesoftwareFiles(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -146,6 +146,64 @@ END$$";
             catch (Exception ex)
             {
             }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateTelesoftwareTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `telesoftware` (
+                      `TeleSoftwareID` int(11) NOT NULL AUTO_INCREMENT,
+                      `Key` varchar(15) NOT NULL,
+                      `Contents` blob,
+                      `FileName` varchar(260) DEFAULT NULL,
+                      PRIMARY KEY (`TeleSoftwareID`),
+                      UNIQUE KEY `idx_telesoftware_Key` (`Key`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void DeleteBadTelesoftwareFiles(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"DELETE FROM telesoftware 
+                    WHERE TeleSoftwareID<=0;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
             finally
             {
                 if (openConX)

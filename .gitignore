@@ -15,6 +15,8 @@
 /server/NXtelData/obj
 /server/ESPATTest/bin
 /server/ESPATTest/obj
+/server/TelesoftEncoder/bin
+/server/TelesoftEncoder/obj
 /demos/NXtelDemo2
 /demos/NexTelDemo1
 /server/.vs/config
