@@ -18,7 +18,7 @@ namespace NXtelData
 
         public void Encode(ref Page Page)
         {
-            if (Page == null || Page.TeleSoftwareID <= 0)
+            if (Page == null || Page.TeleSoftwareID == null || Page.TeleSoftwareID <= 0)
                 return;
             var file = TSFile.Load((int)Page.TeleSoftwareID);
             if (file.FileSizeBytes <= 0)
@@ -36,10 +36,11 @@ namespace NXtelData
             fn = fn.Replace("|", "|E"); // Escape escape sequence if present in filename
             string contents = "";
             CreateNewPage();
-            contents = "|A"; // Start of telesoftware block
+            contents = new string(' ', 40); // Blank line for NXtel header
+            contents += "|A"; // Start of telesoftware block
             CurrentChecksum = 0;
             contents += Checksum("|G" + CurrentPage.Frame + "|I"); // Frame letter of telesoftware block, terminated
-            contents += Checksum("|L"); // EOL, completing header
+            //contents += Checksum("|L"); // EOL, completing header
             foreach (byte b in file.Contents)
             {
                 string newChar = EscapeChar(b);
@@ -48,10 +49,11 @@ namespace NXtelData
                     contents += "|Z" + CurrentChecksum.ToString("D3");
                     CurrentPage.ConvertContentsFromString(contents);
                     CreateNewPage();
-                    contents = "|A"; // Start of telesoftware block
+                    contents = new string(' ', 40); // Blank line for NXtel header
+                    contents += "|A"; // Start of telesoftware block
                     CurrentChecksum = 0;
                     contents += Checksum("|G" + CurrentPage.Frame + "|I"); // Frame letter of telesoftware block, terminated
-                    contents += Checksum("|L"); // EOL, completing header
+                    //contents += Checksum("|L"); // EOL, completing header
                     contents += Checksum(newChar);
                 }
                 else
@@ -60,14 +62,16 @@ namespace NXtelData
                 }
 
             }
-            contents += "|Z" + CurrentChecksum.ToString("D3");
+            contents += Checksum("|F");
+            contents += "|Z" + CurrentChecksum.ToString("D3"); // end of frame plus checksum
             CurrentPage.ConvertContentsFromString(contents);
             // Calculate header contents
-            contents = "|A"; // Start of telesoftware block
+            contents = new string(' ', 40); // Blank line for NXtel header
+            contents += "|A"; // Start of telesoftware block
             CurrentChecksum = 0;
             contents += Checksum("|G" + Pages[1].Frame); // Frame letter of telesoftware block
             contents += Checksum("|I" + fn + "|L"); // Telesoftware filename
-            contents += Checksum((Pages.Count - 1).ToString("D3")); // header frame count
+            contents += Checksum((Pages.Count - 2).ToString("D3")); // header frame count
             contents += "|Z"; // end of telesoftware block
             contents += CurrentChecksum.ToString("D3"); // header checksum
             Pages[1].ConvertContentsFromString(contents);
@@ -76,6 +80,7 @@ namespace NXtelData
             var lastPage = Pages[Pages.Count - 1];
             Pages[0].ToPageNo = lastPage.PageNo;
             Pages[0].ToFrameNo = lastPage.FrameNo;
+            Pages[0].Routing.AddOrUpdate((byte)RouteKeys.Enter, Pages[0].NextPageNo, Pages[0].NextFrameNo);
         }
 
         private void CreateNewPage()
@@ -91,7 +96,7 @@ namespace NXtelData
         private string EscapeChar(byte Byte, bool NoEscaping = false)
         {
             string rv = "";
-            if (NoEscaping)
+            if (!NoEscaping)
             {
                 if (Byte == Convert.ToByte('|')) // Escape | as |E in the body
                     return EscapeChar(Convert.ToByte('|'), true) + EscapeChar(Convert.ToByte('E'), true);

@@ -97,7 +97,6 @@ namespace NXtelData
             }
         }
 
-
         public bool SaveForPage(int PageID, out string Err, MySqlConnection ConX = null)
         {
             Err = "";
@@ -126,6 +125,38 @@ namespace NXtelData
                 if (openConX)
                     ConX.Close();
             }
+        }
+
+        public void AddOrUpdate(byte KeyCode, int NextPageNo, int NextFrameNo)
+        {
+            var route = this.FirstOrDefault(r => r.KeyCode == KeyCode);
+            if (route == null)
+            {
+                route = new Route();
+                route.KeyCode = KeyCode;
+                this.Add(route);
+            }
+            route.NextPageNo = NextPageNo;
+            route.NextFrameNo = NextFrameNo;
+            route.GoNextPage = false;
+            route.GoNextFrame = false;
+        }
+
+        public void AddOrUpdate(byte KeyCode, bool GoNextPage, bool GoNextFrame)
+        {
+            if (GoNextPage && GoNextFrame)
+                GoNextPage = false;
+            var route = this.FirstOrDefault(r => r.KeyCode == KeyCode);
+            if (route == null)
+            {
+                route = new Route();
+                route.KeyCode = KeyCode;
+                this.Add(route);
+            }
+            route.NextPageNo = null;
+            route.NextFrameNo = null;
+            route.GoNextPage = GoNextPage;
+            route.GoNextFrame = GoNextFrame;
         }
     }
 }

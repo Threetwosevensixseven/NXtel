@@ -67,6 +67,38 @@ namespace NXtelData
             }
         }
 
+        public static string MainIndexPage
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["MainIndexPage"] ?? "").Trim().ToLower();
+                return cfg;
+            }
+        }
+
+        public static int MainIndexPageNo
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["MainIndexPage"] ?? "").Trim();
+                cfg = Regex.Replace(cfg, @"^(\d+).*$", "$1");
+                int val;
+                int.TryParse(cfg, out val);
+                if (val < 0) val = 0;
+                return val;
+            }
+        }
+
+        public static int MainIndexFrameNo
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["MainIndexPage"] ?? "").Trim();
+                byte frame = Convert.ToByte((Regex.Replace(cfg, @"^\d+([a-z]).*$", "$1") + "0")[0]);
+                return frame - 97;
+            }
+        }
+
         public static string ServerLocation
         {
             get

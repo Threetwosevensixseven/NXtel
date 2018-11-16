@@ -110,8 +110,15 @@ namespace NXtelData
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM page WHERE PageNo=" + PageNo + " AND FrameNo=" + FrameNo;
+                string sql = @"SELECT * 
+                    FROM page 
+                    WHERE @PageFrameNo>=FromPageFrameNo
+                    AND @PageFrameNo<=ToPageFrameNo
+                    ORDER BY FromPageFrameNo,ToPageFrameNo
+                    LIMIT 1;";
                 var cmd = new MySqlCommand(sql, con);
+                decimal pageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
+                cmd.Parameters.AddWithValue("PageFrameNo", pageFrameNo);
                 using (var rdr = cmd.ExecuteReader())
                 {
                     while (rdr.Read())
@@ -125,6 +132,31 @@ namespace NXtelData
                     item.Templates = Templates.LoadForPage(item.PageID, con);
                     item.Routing = Routes.LoadForPage(item.PageID, con);
                     item.Compose();
+                    new TSEncoder().Encode(ref item);
+                    if (item.PageNo != PageNo || item.FrameNo != FrameNo)
+                    {
+                        var page = item.PageRange.FirstOrDefault(p => p.PageNo == PageNo && p.FrameNo == FrameNo);
+                        if (page != null)
+                        {
+                            page.PageRange.Clear();
+                            page.PageRange.AddRange(item.PageRange);
+                            page.Templates.Clear();
+                            page.Templates.AddRange(item.Templates);
+                            page.Compose();
+                            var nextPage = page.PageRange.FirstOrDefault(p => p.PageNo == page.NextPageNo && p.FrameNo == page.NextFrameNo);
+                            if (nextPage == null)
+                            {
+                                page.Routing.AddOrUpdate((byte)RouteKeys.Enter, Options.MainIndexPageNo, Options.MainIndexFrameNo);
+                                page.Routing.AddOrUpdate((byte)RouteKeys.K0, Options.MainIndexPageNo, Options.MainIndexFrameNo);
+                            }
+                            else
+                            {
+                                page.Routing.AddOrUpdate((byte)RouteKeys.Enter, page.NextPageNo, page.NextFrameNo);
+                                page.Routing.AddOrUpdate((byte)RouteKeys.K0, page.NextPageNo, page.NextFrameNo);
+                            }
+                            item = page;
+                        }
+                    }
                 }
             }
             return item;

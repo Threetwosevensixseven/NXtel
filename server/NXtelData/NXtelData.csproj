@@ -105,6 +105,7 @@
     <Compile Include="Classes\Role.cs" />
     <Compile Include="Classes\Roles.cs" />
     <Compile Include="Classes\Route.cs" />
+    <Compile Include="Classes\RouteKeys.cs" />
     <Compile Include="Classes\Routes.cs" />
     <Compile Include="Classes\ServerStatus.cs" />
     <Compile Include="Classes\SQL.cs" />
