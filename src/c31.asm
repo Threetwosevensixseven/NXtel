@@ -30,6 +30,7 @@ pend
 
 MenuConnect31           proc
                         Border(Black)
+                        FillLDIR(ESPBuffer, ESPBuffer.Size, $00)
                         ld a, (MenuConnect.ItemCount)
                         ld (ItemCount), a
                         or a
@@ -118,105 +119,119 @@ MenuNetworkSettings31   proc
                         ESPSend("ATE0")
                         call ESPReceiveWaitOK
                         ESPSend("AT+CIFSR")
-                        call ESPReceiveCIFSR
+                        call ESPCaptureOK
+
+                        ld hl, ESPBuffer                ; Find IP address
+                        ld bc, ESPBuffer.Size
+                        ld a, '"'
+                        cpir
+                        push hl
+                        push hl
+                        cpir
+                        ld (MacStart), hl
+                        pop de
+                        push bc
+                        or a
+                        sbc hl, de
+                        dec hl
+                        ld bc, hl                       ; Copy IP address to display buffer
+                        ex de, hl
+                        ld de, DisplayBuffer+291
+                        ldir
+                        pop bc
+                        pop hl
+
+                        ld hl, [MacStart]SMC
+                        ld a, '"'                       ; Find MAC address
+                        cpir
+                        push hl
+                        push hl
+                        cpir
+                        pop de
+                        push bc
+                        or a
+                        sbc hl, de
+                        dec hl
+                        ld bc, hl                       ; Copy MAC address to display buffer
+                        ex de, hl
+                        ld de, DisplayBuffer+331
+                        ldir
+                        pop bc
+                        pop hl
+
                         jp MenuNetworkSettings.Return
+
 pend
 
+zeusmem ESPBuffer, "AT+CIFSR Log",24,true,true,false
 
-
-ESPReceiveCIFSR         proc
+ESPCaptureOK            proc
                         di
+                        ld hl, ESPBuffer
+                        ld (BufferPointer), hl
                         ld hl, FirstChar
                         ld (StateJump), hl
-                        ld hl, IPBuffer
-                        ld (IPPointer), hl
-NotReady:               ld a, high UART_GetStatus       ; Are there any characters waiting?
+NotReady:               ld a, 255
+                        ld(23692), a                    ; Turn off ULA scroll
+                        ld a, high UART_GetStatus       ; Are there any characters waiting?
                         in a, (low UART_GetStatus)      ; This inputs from the 16-bit address UART_GetStatus
                         rrca                            ; Check UART_mRX_DATA_READY flag in bit 0
-                        jp nc, ESPReceiveWaitPrompt
+                        jp nc, NotReady                 ; If not, retry
                         ld a, high UART_RxD             ; Otherwise Read the byte
                         in a, (low UART_RxD)            ; from the UART Rx port
                         jp [StateJump]SMC
-FirstChar:              cp '+'
-                        jp z, MatchSTAIP
+FirstChar:              cp 'O'
+                        jp z, MatchOK
+                        cp 'E'
+                        jp z, MatchError
+                        cp 'S'
+                        jp z, MatchSendFail
+                        jp Capture
 SubsequentChar:         cp (hl)
                         jp z, MatchSubsequent
                         ld hl, FirstChar
                         ld (StateJump), hl
-CheckEnd:               ld de, [Compare]SMC
-                        CpHL(de)
-                        jp nz, NotReady
-                        ld hl, CaptureIP
-                        ld (StateJump), hl
-                        jp NotReady
-SubsequentChar2:        cp (hl)
-                        jp z, MatchSubsequent
-                        ld hl, FirstChar
-                        ld (StateJump), hl
-CheckEnd2:              ld de, [Compare2]SMC
-                        CpHL(de)
-                        jp nz, NotReady
-                        ld hl, CaptureMAC
-                        ld (StateJump), hl
-                        jp NotReady
-
-
-Return:                 ei
-                        ret
-                        jp ESPReceiveCIFSR
-MatchSTAIP:             ld hl, SubsequentChar
-                        ld (StateJump), hl
-                        ld hl, STAIPEnd
-                        ld (Compare), hl
-                        ld hl, STAIP
-                        jp CheckEnd
-MatchSubsequent:        inc hl
-                        jp CheckEnd
-CaptureIP:              cp '"'
-                        jp z, MatchIPEnd
-                        ld hl, [IPPointer]SMC
+Capture:                push hl
+                        ld hl, [BufferPointer]SMC
                         ld (hl), a
                         inc hl
-                        ld (IPPointer), hl
-                        ld de, IPBufferEnd
+                        ld (BufferPointer), hl
+CaptureReturn:          pop hl
+                        ld de, [Compare]SMC
                         CpHL(de)
-                        jp z, Return
-                        jp NotReady
-MatchIPEnd:             ld (hl), 0
-                        ld hl, MatchSecondPlus
-                        ld (StateJump), hl
-                        ld hl, STAMACEnd
-                        ld (Compare2), hl
-                        jp NotReady
-MatchSecondPlus:        cp '+'
-                        jp z, MatchSTAMAC
-                        jp NotReady
-MatchSTAMAC:            ld hl, SubsequentChar2
-                        ld (StateJump), hl
-                        ld hl, STAMACEnd
-                        ld (Compare2), hl
-                        ld hl, STAMAC
-                        jp CheckEnd2
-CaptureMAC:             nop
+                        jp nz, NotReady
+                        ei
+                        xor a                   ; Clear carry
                         ret
-
-
-
-STAIP:                  db "CIFSR:STAIP,", '"'
-STAIPEnd:
-STAMAC:                 db "CIFSR:STAMAC,", '"'
-STAMACEnd:
-IPBuffer:               ds 8
-                        ds 8
-                        ds 4
-IPBufferEnd:
-MacBuffer:              ds 8
-                        ds 8
-                        ds 4
-MacBufferEnd:
-
-
+MatchSubsequent:        inc hl
+                        jp Capture
+MatchOK:                ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, OKEnd
+                        ld (Compare), hl
+                        ld hl, OK
+                        jp Capture
+MatchError:             ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, ErrorEnd
+                        ld (Compare), hl
+                        ld hl, Error
+                        jp Capture
+MatchSendFail:          ld hl, SubsequentChar
+                        ld (StateJump), hl
+                        ld hl, SendFailEnd
+                        ld (Compare), hl
+                        ld hl, Error
+                        jp Capture
+OK:                     db "K", CR, LF
+OKEnd:
+Error:                  db "RROR", CR, LF
+ErrorEnd:
+SendFail:               db "END FAIL", CR, LF
+SendFailEnd:
 pend
+
+
 
 Menus                   proc
   Welcome:              import_bin "..\pages\zx7\ClientWelcome.bin.zx7"

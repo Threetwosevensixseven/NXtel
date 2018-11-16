@@ -8,7 +8,7 @@ namespace NXtelData
 {
     public class TSEncoder
     {
-        const int PAGE_LEN = (22 * 40) - 5; // Available length minus the terminator and checksum
+        const int PAGE_LEN = (23 * 40) - 5; // Available length minus the terminator and checksum
         private static List<Page> Pages;
         private static int CurrentPageNo;
         private static int CurrentFrameNo;
@@ -81,6 +81,7 @@ namespace NXtelData
             Pages[0].ToPageNo = lastPage.PageNo;
             Pages[0].ToFrameNo = lastPage.FrameNo;
             Pages[0].Routing.AddOrUpdate((byte)RouteKeys.Enter, Pages[0].NextPageNo, Pages[0].NextFrameNo);
+            PageCache.Add(Pages[0]);
         }
 
         private void CreateNewPage()

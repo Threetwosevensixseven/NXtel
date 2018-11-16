@@ -60,7 +60,7 @@ namespace NXtelData
                     feed.Items.Load(feed.XML, Expression);
                 }
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
 
             }

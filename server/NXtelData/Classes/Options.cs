@@ -135,5 +135,17 @@ namespace NXtelData
             }
         }
 
+        public static int PageCacheDurationMins
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["PageCacheDurationMins"] ?? "").Trim();
+                int val;
+                int.TryParse(cfg, out val);
+                if (val <= 0)
+                    val = 5;
+                return val;
+            }
+        }
     }
 }

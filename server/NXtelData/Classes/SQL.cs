@@ -145,7 +145,7 @@ END$$";
                 script.Delimiter = "$$";
                 script.Execute();
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
             }
             finally

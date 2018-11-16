@@ -61,14 +61,13 @@ namespace NXtelManager.Controllers
         [MultipleButton("DownloadLog")]
         public ActionResult DownloadLog(ServerStatus Status)
         {
-            string log = "";
             string fileName = Options.LogFile;
             try
             {
                 var fs = System.IO.File.Open(fileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
                 return File(fs, "text/plain", Path.GetFileName(fileName));
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
             }
             return RedirectToAction("Index");

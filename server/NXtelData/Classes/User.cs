@@ -127,7 +127,7 @@ namespace NXtelData
                     return cmd.ExecuteScalar() as string;
                 }
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
                 return "";
             }

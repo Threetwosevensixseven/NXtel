@@ -78,6 +78,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\mysql.data.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -97,11 +101,14 @@
   <ItemGroup>
     <Compile Include="Classes\Character.cs" />
     <Compile Include="Classes\DB.cs" />
+    <Compile Include="Classes\DebugLogger.cs" />
     <Compile Include="Classes\Feed.cs" />
     <Compile Include="Classes\FeedItem.cs" />
     <Compile Include="Classes\FeedItems.cs" />
     <Compile Include="Classes\Options.cs" />
     <Compile Include="Classes\PageBase.cs" />
+    <Compile Include="Classes\PageCache.cs" />
+    <Compile Include="Classes\PageCacheItem.cs" />
     <Compile Include="Classes\Role.cs" />
     <Compile Include="Classes\Roles.cs" />
     <Compile Include="Classes\Route.cs" />
