@@ -31,6 +31,9 @@ namespace NXtelData
         public int ToFrameNo { get; set; }
         public int? TeleSoftwareID { get; set; }
         public Pages PageRange { get; set; }
+        public PageTypes PageType { get; set; }
+        public int PageRangeSequence { get; set; }
+        public int PageRangeCount { get; set; }
 
         public Page()
         {
@@ -39,6 +42,9 @@ namespace NXtelData
             Templates = new Templates();
             Routing = new Routes();
             PageRange = new Pages();
+            PageType = PageTypes.Normal;
+            PageRangeSequence = 0;
+            PageRangeCount = 1;
             this.ConvertContentsFromURL();
         }
 
@@ -419,6 +425,45 @@ namespace NXtelData
 
         public void Compose()
         {
+            if (PageType == PageTypes.TeleSoftware)
+            {
+                foreach (var t in Templates)
+                    t.ActivateAll();
+                if (PageRangeSequence == -1)
+                {
+                    // Cover page, no action
+                }
+                else if (PageRangeSequence == 0)
+                {
+                    // Header page
+                    foreach (var t in Templates)
+                    {
+                        t.InactivateMatchedExpression("@TS=Last");
+                        t.InactivateMatchedExpression("@TS=Body");
+                        t.InactivateMatchedExpression("@TS=Cover");
+                    }
+                }
+                else if (PageRangeSequence == PageRangeCount - 2)
+                {
+                    // Last body page
+                    foreach (var t in Templates)
+                    {
+                        t.InactivateMatchedExpression("@TS=Header");
+                        t.InactivateMatchedExpression("@TS=Body");
+                        t.InactivateMatchedExpression("@TS=Cover");
+                    }
+                }
+                else
+                {
+                    // Body page
+                    foreach (var t in Templates)
+                    {
+                        t.InactivateMatchedExpression("@TS=Last");
+                        t.InactivateMatchedExpression("@TS=Header");
+                        t.InactivateMatchedExpression("@TS=Cover");
+                    }
+                }
+            }
             if (Contents == null)
                 Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
             if (Contents.Length != 960)

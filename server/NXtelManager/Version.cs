@@ -2,7 +2,7 @@ namespace NXtelManager
 {
     public static class Version
     {
-        public const string Number = "1.1.0.111";
+        public const string Number = "1.1.0.112";
     }
 }
 

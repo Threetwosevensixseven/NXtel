@@ -20,9 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            LinkPagesAndFiles(ConX);
-            PageFileFK(ConX);
-            PageFileFKConstraint(ConX);
+            CreateTSFileType(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -385,6 +383,33 @@ END$$";
                         REFERENCES `nxtel`.`telesoftware` (`TeleSoftwareID`)
                         ON DELETE CASCADE
                         ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateTSFileType(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `telesoftware` 
+                    ADD COLUMN `FileType` BIT NULL AFTER `FileName`,
+                    ADD COLUMN `EOL` TINYINT(1) NULL AFTER `FileType`;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

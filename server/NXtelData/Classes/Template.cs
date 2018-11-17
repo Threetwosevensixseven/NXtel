@@ -35,11 +35,13 @@ namespace NXtelData
         public byte MinOrphanWidowRows { get; set; }
         public int? CurrentFeedItem { get; set; }
         public int RepeatingItemLinesAdded { get; set; }
+        public bool Active { get; set; }
 
         public Template()
         {
             TemplateID = -1;
             Description = Expression = SelectedTemplates = "";
+            Active = true;
             ChildTemplates = new Templates();
         }
 
@@ -390,9 +392,15 @@ namespace NXtelData
 
         public void Compose(Page Page)
         {
+            if (!Active)
+            {
+                //Console.WriteLine("Page " + Page.PageAndFrame + ": " + this.Description + " (SKIPPED)");
+                return;
+            }
             int added;
             if (Page == null)
                 return;
+            //Console.WriteLine("Page " + Page.PageAndFrame + ": " + this.Description);
             if (Contents == null)
                 Contents = Encoding.ASCII.GetBytes(new string(' ', 960));
             if (Contents.Length != 960)
@@ -437,6 +445,31 @@ namespace NXtelData
                 val = now.ToString("yyyy");
             else if (expr == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
+            else if (expr == "@ts.percent")
+            {
+                double total = Page.PageRangeCount == 0 ? 1 : Page.PageRangeCount - 2;
+                double seq = Page.PageRangeCount == 0 ? 1 : Page.PageRangeSequence;
+                int pct = Convert.ToInt32(Math.Round(seq * 100d / total, 0));
+                val = pct.ToString().PadLeft(3);
+            }
+            else if (expr.Contains("@ts.progress"))
+            {
+                byte half, full;
+                string ge = GetExpression("@ts.progress.half", Expression);
+                byte.TryParse(ge, out half);
+                if (half < 32 || half > 127) half = 36;
+                ge = GetExpression("@ts.progress.full", Expression);
+                byte.TryParse(ge, out full);
+                if (full < 32 || full > 127) full = 44;
+                double total = Page.PageRangeCount == 0 ? 1 : Page.PageRangeCount - 2;
+                double seq = Page.PageRangeCount == 0 ? 1 : Page.PageRangeSequence;
+                double progressWidth = Math.Round(2 * seq * Width / total, 0) / 2;
+                int fullWidth = Convert.ToInt32(progressWidth);
+                val = new string(Convert.ToChar(full), fullWidth);
+                if (progressWidth > fullWidth)
+                    val += new string(Convert.ToChar(half), 1);
+                val += new string(' ', Width - val.Length);
+            }
             else if (expr.StartsWith("@feed.item.number"))
             {
                 int? cfi = GetCurrentFeedItem();
@@ -620,6 +653,28 @@ namespace NXtelData
                 if (matched != null)
                     ChildTemplates.Add(matched);
             }
+        }
+
+        public void InactivateMatchedExpression(string Expression)
+        {
+            if ((this.Expression ?? "").Contains(Expression))
+                this.InactivateRecursive();
+            foreach (var t in ChildTemplates)
+                t.InactivateMatchedExpression(Expression);
+        }
+
+        public void ActivateAll()
+        {
+            this.Active = true;
+            foreach (var t in ChildTemplates)
+                t.ActivateAll();
+        }
+
+        public void InactivateRecursive()
+        {
+            this.Active = false;
+            foreach (var t in ChildTemplates)
+                t.InactivateRecursive();
         }
     }
 }

@@ -109,6 +109,7 @@
     <Compile Include="Classes\PageBase.cs" />
     <Compile Include="Classes\PageCache.cs" />
     <Compile Include="Classes\PageCacheItem.cs" />
+    <Compile Include="Classes\PageTypes.cs" />
     <Compile Include="Classes\Role.cs" />
     <Compile Include="Classes\Roles.cs" />
     <Compile Include="Classes\Route.cs" />

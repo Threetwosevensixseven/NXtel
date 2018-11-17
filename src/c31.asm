@@ -163,7 +163,7 @@ MenuNetworkSettings31   proc
 
 pend
 
-zeusmem ESPBuffer, "AT+CIFSR Log",24,true,true,false
+//zeusmem ESPBuffer, "AT+CIFSR Log",24,true,true,false
 
 ESPCaptureOK            proc
                         di

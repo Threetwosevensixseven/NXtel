@@ -15,6 +15,7 @@ namespace NXtelData
         private static int CurrentChecksum;
         private static TelesoftEscapes CurrentEscape;
         private static Page CurrentPage;
+        private static int CurrentSeq;
 
         public void Encode(ref Page Page)
         {
@@ -26,7 +27,10 @@ namespace NXtelData
             //using (var debug = new DebugLogger("NXtel.TSEncode"))
             DebugLogger debug = null;
             {
+                CurrentSeq = -1;
                 Pages = new List<Page>();
+                Page.PageType = PageTypes.TeleSoftware;
+                Page.PageRangeSequence = CurrentSeq++;
                 CurrentPageNo = Page.PageNo;
                 CurrentFrameNo = Page.FrameNo;
                 CurrentEscape = TelesoftEscapes.E0;
@@ -89,6 +93,8 @@ namespace NXtelData
                 Pages[0].ToPageNo = lastPage.PageNo;
                 Pages[0].ToFrameNo = lastPage.FrameNo;
                 Pages[0].Routing.AddOrUpdate((byte)RouteKeys.Enter, Pages[0].NextPageNo, Pages[0].NextFrameNo);
+                foreach (var page in Pages)
+                    page.PageRangeCount = Pages.Count;
                 PageCache.Add(Pages[0]);
             }
         }
@@ -96,8 +102,10 @@ namespace NXtelData
         private void CreateNewPage(DebugLogger debug = null)
         {
             var page = new Page();
+            page.PageType = PageTypes.TeleSoftware; 
             page.PageNo = CurrentPage.NextPageNo;
             page.FrameNo = CurrentPage.NextFrameNo;
+            page.PageRangeSequence = CurrentSeq++;
             CurrentPage = page;
             Pages.Add(CurrentPage);
         }
