@@ -144,7 +144,7 @@ Matrix proc Table:
   db $FF,  $EF,  None,   $29,   $28,   $27,   $26  ;  11  67890    Symbol Shift
   db $FF,  $F7,   $21,   $40,  None,   $24,   $25  ;  12  54321    Symbol Shift
   db $FF,  $FB,  None,  None,  None,   $3C,   $3E  ;  13  TREWQ    Symbol Shift
-  db $FF,  $FD,  None,  None,  None,  None,  None  ;  14  GFDSA    Symbol Shift
+  db $FF,  $FD,  None,  None, DownL,  None,  None  ;  14  GFDSA    Symbol Shift
   db $FF,  $FE,  None,   $3A,   $23,   $3F,   $2F  ;  15  VCXZCs   Symbol Shift
   db $FF,  $7F,  None,  None,   $4D,   $4E,   $42  ;  16  BNMSsSp  Caps Shift
   db $FF,  $BF,  None,   $4C,   $4B,   $4A,   $48  ;  17  HJKLEn   Caps Shift
@@ -170,6 +170,85 @@ Matrix proc Table:
   CS            equ SS*2
   Count         equ SS
   Mask          equ %000 00001
+  Special       equ $80
+  DownL         equ $FE
+pend
+
+
+
+DetectTSHeader          proc
+                        if enabled LogESP
+                          zeusmem $4C000,"Display Buffer",20,true,true,false
+                        endif
+                        di
+                        ld (Stack), sp
+                        NextRegRead($57)
+                        ld (RestorePage), a
+                        nextreg $57, 30
+                        ld hl, DisplayBuffer+40
+                        ld bc, Teletext.TSFrameSize
+                        TSHeaderMatch(Teletext.Pipe)
+                        TSHeaderMatch('A')
+                        push hl                         ; Save start of checksummed region
+                        TSHeaderMatch(Teletext.Pipe)
+                        TSHeaderMatch('G')
+                        TSHeaderSkip(1)                 ; Skip frame letter. This will break if there are two
+                        TSHeaderMatch(Teletext.Pipe)    ; frames, which is a possibility in the specification.
+                        TSHeaderMatch('I')
+                        push hl                         ; Save start of filename
+                        TSHeaderFind(Teletext.Pipe)
+                        push hl                         ; Save end of filename
+                        TSHeaderMatch('L')
+                        TSHeaderSkip(3)                 ; Skip frame count (we don't need to use it)
+                        TSHeaderMatch(Teletext.Pipe)
+                        push hl                         ; Save end of checksummed region
+                        TSHeaderMatch('Z')
+                        ld de, ESPBuffer
+                        ldi:ldi:ldi                     ; Copy checksum to buffer
+                        DecodeDecimal(ESPBuffer, 3)
+                        ld a, l                         ; In this case we only want the LSB (0..255)
+                        ld (Checksum), a                ; so save it for later
+                        pop hl
+                        pop de
+                        pop de
+                        pop de
+                        scf
+                        sbc hl, de
+                        ld bc, hl                       ; bc = checksummed region length
+                        ex de, hl                       ; hl = checksummed region start
+                        call CalculateChecksum          ;  e = calculated checksum
+                        ld a, [Checksum]SMC             ;  a = stored checksum
+                        cp e
+                        jp nz, NotTSHeader              ; Abort if checksum mismatch
+                        dec sp
+                        dec sp
+                        dec sp
+                        dec sp
+                        dec sp
+                        dec sp
+
+                        pop hl                          ; hl = Filename end
+                        pop de                          ; de = filename start
+                        scf
+                        sbc hl, de
+                        ex de, hl                       ; hl = Source
+                        ld bc, de                       ; bc = Length
+                        ld de, FileName                 ; de = Destination
+                        ldir                            ; Copy filename
+                        xor a
+                        ld (de), a                      ; Add a terminating null
+
+                        xor a                           ; Clear carry (valid header)
+                        jp IsTsHeader
+NotTSHeader:
+                        scf                             ; Set carry (invalid header)
+IsTsHeader:
+                        nextreg $57, [RestorePage]SMC
+                        ld sp, [Stack]SMC
+                        ei
+                        ret
+FileName:               ds 260
+FileNameLen             equ $-FileName
 pend
 
 

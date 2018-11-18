@@ -445,6 +445,7 @@ ESPLog                  macro()
 mend
 
 
+
 ESPLogText              macro(Text)
                         if enabled LogESP
                           for n := 1 to length(Text)
@@ -452,5 +453,40 @@ ESPLogText              macro(Text)
                             call ESPLogProc
                           next;n
                         endif
+mend
+
+
+
+TSHeaderMatch   macro(Char)
+                ld a, Char
+                cpi
+                jp nz, DetectTSHeader.NotTSHeader
+mend
+
+
+
+TSHeaderFind    macro(Char)
+                ld a, Char
+                cpir
+                jp nz, DetectTSHeader.NotTSHeader
+mend
+
+
+
+TSHeaderSkip    macro(SkipCount)
+                loop SkipCount
+                  inc hl
+                  dec bc
+                lend
+mend
+
+
+
+DecodeDecimal           macro(Buffer, DigitCount)
+                        ld hl, Buffer
+                        dec hl
+                        ld (DecodeDecimalProc.DecimalBuffer), hl
+                        ld b, DigitCount
+                        call DecodeDecimalProc
 mend
 

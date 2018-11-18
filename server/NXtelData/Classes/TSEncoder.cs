@@ -8,7 +8,7 @@ namespace NXtelData
 {
     public class TSEncoder
     {
-        const int PAGE_LEN = (23 * 40) - 5; // Available length minus the terminator and checksum
+        const int PAGE_LEN = (23 * 40) - 5; // Available length minus the terminator and checksum (0x0393, 915)
         private static List<Page> Pages;
         private static int CurrentPageNo;
         private static int CurrentFrameNo;

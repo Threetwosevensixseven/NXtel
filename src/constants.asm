@@ -123,19 +123,21 @@ None                    equ 0
 
 ; Teletext
 Teletext                proc
-  CLS                   equ 12
-  Escape                equ 27
-  Space                 equ 32
-  ClearBit7             equ 0
-  SetBit7               equ 128
-  Black                 equ 0
-  Red                   equ 1
-  Green                 equ 2
-  Yellow                equ 3
-  Blue                  equ 4
-  Magenta               equ 5
-  Cyan                  equ 6
-  White                 equ 7
+  CLS                   equ 12                          ; $0C
+  Escape                equ 27                          ; $1B
+  Space                 equ 32                          ; $20
+  Pipe                  equ 124                         ; $7C
+  ClearBit7             equ 0                           ; $00
+  SetBit7               equ 128                         ; $80
+  TSFrameSize           equ (23*40)                     ; $0398, 920
+  Black                 equ 0                           ; $00
+  Red                   equ 1                           ; $01
+  Green                 equ 2                           ; $02
+  Yellow                equ 3                           ; $03
+  Blue                  equ 4                           ; $04
+  Magenta               equ 5                           ; $05
+  Cyan                  equ 6                           ; $06
+  White                 equ 7                           ; $07
 pend
 
 

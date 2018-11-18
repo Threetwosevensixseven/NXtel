@@ -24,6 +24,8 @@ MainLoop:               call ESPReceiveIPD
                         nextreg $56, 6
                         call ReadKey
                         jp nc, NoKey
+                        cp Matrix.Special
+                        jp nc, SpecialKey
 SendKey:
                         ld (CharToSend2), a
                         ESPSend("AT+CIPSEND=1")
@@ -47,6 +49,17 @@ Received:
                         call InitKey
                         ei
                         jp StartReceive
+SpecialKey:
+                        cp Matrix.DownL
+                        jp nz, UnknownSpecialKey
+                        call DetectTSHeader
+                        jp c, SendKey
+                        nop                             ; This is a real telesoftware header
+                        Border(Green)
+                        halt:halt:halt:halt:halt
+                        Border(Black)
+UnknownSpecialKey:
+                        jp SendKey
 Connect:
                         ld bc, UART_GetStatus           ; UART Tx port also gives the UART status when read
 ReadNextChar:           ld d, (hl)                      ; Read the next byte of the text to be sent
@@ -417,4 +430,54 @@ ESPLogProc              proc                            ; a = Character to log
                         ret
 pend
 endif
+
+
+
+DecodeDecimalProc       proc                            ; IN:   b = digit count
+                        ld hl, 0                        ; OUT: hl = return value (0..65535)
+                        ld (Total), hl
+DigitLoop:              ld a, b
+                        dec a
+                        add a, a
+                        ld hl, DecimalDigits.Table
+                        add hl, a
+                        ld e, (hl)
+                        inc hl
+                        ld d, (hl)                      ; de = digit multiplier (1, 10, 100, 1000, 10000)
+                        ld (DigitMultiplier), de
+                        ld hl, [DecimalBuffer]SMC
+                        inc hl
+                        ld (DecimalBuffer), hl
+                        ld a, (hl)
+                        sub '0'                         ; a = digit 0..9 (could also be out of range)
+                        exx
+                        ld hl, 0
+                        or a
+                        jp z, DontAdd
+MultiplyLoop:           add hl, [DigitMultiplier]SMC
+                        dec a
+                        jp nz, MultiplyLoop
+DontAdd:                add hl, [Total]SMC
+                        ld (Total), hl
+                        exx
+                        djnz DigitLoop                  ; Repeat until no more digits left (b = 0..5)
+                        ld hl, (Total)                  ; hl = return value (0..65535)
+                        ret
+pend
+
+
+
+CalculateChecksum       proc                            ; IN: bc = checksummed region length
+                                                        ; IN: hl = checksummed region start
+                        ld e, 0                         ;  e = running checksum
+ChecksumLoop:           ld a, (hl)                      ;  a = read character
+                        inc hl
+                        xor e
+                        ld e, a                         ; Update checksum
+                        dec bc
+                        ld a, b
+                        or c
+                        jp nz, ChecksumLoop             ; Repeat until no more characters left
+                        ret                             ; OUT: e = calculated checksum
+pend
 
