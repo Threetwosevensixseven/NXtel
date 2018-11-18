@@ -517,3 +517,11 @@ Wait:                   halt
                         ret
 pend
 
+
+
+KB                      proc
+  WritePointer:         dw 0
+  ReadPointer:          dw 0
+  CharsAvailable:       dw 0
+pend
+

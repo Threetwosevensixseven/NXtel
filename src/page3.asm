@@ -10,16 +10,16 @@ dispto zeuspage(3)
 
 InitKey                 proc
                         ld hl, KeyBuffer
-                        ld (KeyBuffer.WritePointer), hl
-                        ld (KeyBuffer.ReadPointer), hl
+                        ld (KB.WritePointer), hl
+                        ld (KB.ReadPointer), hl
                         ld hl, 0
-                        ld (KeyBuffer.CharsAvailable), hl
+                        ld (KB.CharsAvailable), hl
                         ret
 pend
 
 
 
-ProcessKey              proc
+ScanKeyboard            proc
                         ld hl, Matrix.Table
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
@@ -67,8 +67,8 @@ Pressed:
                         ret z
                         ld a, d
                         ld (LastKey), a
-                        ld hl, (KeyBuffer.WritePointer)
-                        ld de, (KeyBuffer.ReadPointer)
+                        ld hl, (KB.WritePointer)
+                        ld de, (KB.ReadPointer)
                         ld c, a
                         CpHL(de)
                         jp z, BufferFull
@@ -79,13 +79,13 @@ NotReallyFull:
                         CpHL(de)
                         jp nz, NoWrap
                         ld hl, KeyBuffer
-NoWrap:                 ld (KeyBuffer.WritePointer), hl
-                        ld hl, (KeyBuffer.CharsAvailable)
+NoWrap:                 ld (KB.WritePointer), hl
+                        ld hl, (KB.CharsAvailable)
                         inc hl
-                        ld (KeyBuffer.CharsAvailable), hl
+                        ld (KB.CharsAvailable), hl
                         ret
 BufferFull:
-                        ld de, (KeyBuffer.CharsAvailable)
+                        ld de, (KB.CharsAvailable)
                         ld a, e
                         or d
                         jp z, NotReallyFull
@@ -95,34 +95,34 @@ BufferFull:
                         ret
 pend
 
+
+
 ReadKey                 proc
-                        ld hl, (KeyBuffer.CharsAvailable)
+                        ld hl, (KB.CharsAvailable)
                         ld a, h
                         or l
                         ret z                           ; Clear carry (no key)
 ProcessChar:
                         ex de, hl
-                        ld hl, (KeyBuffer.ReadPointer)
+                        ld hl, (KB.ReadPointer)
                         ld a, (hl)
                         inc hl
                         ld bc, KeyBuffer.EndAddr
                         CpHL(bc)
                         jp nz, NoReadWrap
                         ld hl, KeyBuffer
-NoReadWrap:             ld (KeyBuffer.ReadPointer), hl
+NoReadWrap:             ld (KB.ReadPointer), hl
                         dec de
-                        ld (KeyBuffer.CharsAvailable), de
+                        ld (KB.CharsAvailable), de
                         scf                             ; Set carry (key pressed)
                         ret                             ; a = char
 pend
 
 
+
 KeyBuffer               proc
                         ds 1024
   EndAddr:
-  WritePointer:         dw 0
-  ReadPointer:          dw 0
-  CharsAvailable:       dw 0
 pend
 
 
@@ -177,9 +177,9 @@ pend
 
 
 DetectTSHeader          proc
-                        if enabled LogESP
-                          zeusmem $4C000,"Display Buffer",20,true,true,false
-                        endif
+                        //if enabled LogESP
+                        //  zeusmem $4C000,"Display Buffer",20,true,true,false
+                        //endif
                         di
                         ld (Stack), sp
                         NextRegRead($57)
@@ -220,13 +220,9 @@ DetectTSHeader          proc
                         ld a, [Checksum]SMC             ;  a = stored checksum
                         cp e
                         jp nz, NotTSHeader              ; Abort if checksum mismatch
-                        dec sp
-                        dec sp
-                        dec sp
-                        dec sp
-                        dec sp
-                        dec sp
-
+                        loop 6
+                          dec sp                        ; Move the stack pointer to the filename end
+                        lend
                         pop hl                          ; hl = Filename end
                         pop de                          ; de = filename start
                         scf
@@ -237,7 +233,6 @@ DetectTSHeader          proc
                         ldir                            ; Copy filename
                         xor a
                         ld (de), a                      ; Add a terminating null
-
                         xor a                           ; Clear carry (valid header)
                         jp IsTsHeader
 NotTSHeader:

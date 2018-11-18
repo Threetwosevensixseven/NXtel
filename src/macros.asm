@@ -490,3 +490,21 @@ DecodeDecimal           macro(Buffer, DigitCount)
                         call DecodeDecimalProc
 mend
 
+
+
+EnableKeyboardScan      macro(Enable)
+                        if Enable
+                          ld a, $CD                     ; $CD (call nnnn)
+                        else
+                          xor a
+                          ld (KB.CharsAvailable), a
+                          ld a, $21                     ; $21 (ld hl, nnnn)
+                        endif
+                        ld (EnableDisableKBScan), a
+                        if not Enable
+                          ld hl, (KB.WritePointer)
+                          ld (KB.ReadPointer), hl
+                        endif
+
+mend
+

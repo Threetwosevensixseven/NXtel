@@ -35,6 +35,7 @@ Start:
                         Contention(false)
                         Border(Black)
                         ClsAttrFull(DimBlackBlackP)
+                        EnableKeyboardScan(false)
                         ei
                         halt
 Start2:
@@ -161,7 +162,7 @@ org $8181
                         NextRegRead($56)
                         push af
                         nextreg $56, 6
-                        call ProcessKey
+EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or $21 (ld hl, nnnn: disabled)
                         call DoFlash
 //PrintTimeCallX:       //ld hl, PrintTime
                         pop af

@@ -1,6 +1,8 @@
 ; esp.asm
 
 ESPConnect              proc
+                        ld hl, ReadKeys
+                        ld (KeyJumpState), hl
                         nextreg $56, 6
                         call InitKey
                         ESPSend("ATE0")
@@ -16,12 +18,16 @@ ESPConnect              proc
                         call Connect
                         call ESPReceiveWaitOK
 StartReceive:           call ESPReceiveIPDInit
+                        EnableKeyboardScan(true)
 MainLoop:               call ESPReceiveIPD
                         jp z, Received
                         //jp c, Error
+
                         NextRegRead($56)
                         ld (RestoreKeyPage), a
                         nextreg $56, 6
+                        jp [KeyJumpState]ReadKeys
+ReadKeys:
                         call ReadKey
                         jp nc, NoKey
                         cp Matrix.Special
@@ -38,6 +44,7 @@ NoKey:
                         nextreg $56, [RestoreKeyPage]SMC
                         jp MainLoop
 Received:
+                        EnableKeyboardScan(false)
                         nextreg $57, 30
                         ld hl, ESPBuffer+1
                         ld de, DisplayBuffer
@@ -54,7 +61,9 @@ SpecialKey:
                         jp nz, UnknownSpecialKey
                         call DetectTSHeader
                         jp c, SendKey
-                        nop                             ; This is a real telesoftware header
+                        ld hl, NoKey                    ; This is a real telesoftware header
+                        ld (KeyJumpState), hl           ; So disable key input for now
+                        EnableKeyboardScan(false)
                         Border(Green)
                         halt:halt:halt:halt:halt
                         Border(Black)
