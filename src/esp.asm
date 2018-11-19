@@ -503,6 +503,7 @@ CaptureTSFrame          proc
                         nextreg $56, 6
                         call CaptureTSFrame6
 Return:                 nextreg $56, [RestoreKeyPage]SMC
+                        ret c
                         ESPSend("AT+CIPSEND=1")
                         call ESPReceiveWaitOK
                         call ESPReceiveWaitPrompt

@@ -331,12 +331,24 @@ NotTSBody:
                         ld hl, ESPConnect.ReadKeys
                         ld (ESPConnect.KeyJumpState), hl
                         EnableCaptureTSFrame(false)
+                        ld a, (RestorePage)
+                        nextreg $57, a
                         scf                             ; Set carry (invalid body)
+                        ld hl, (Stack)
+                        ld sp, hl
+                        jp CaptureTSFrame.Return
 IsTSBody:
+                        ld a, (IsEOF)
+                        cp 1
+                        jp z, NotTSBody
                         nextreg $57, [RestorePage]SMC
                         ld sp, [Stack]SMC
+                        or a                            ; Clear carry (valid body)
                         jp CaptureTSFrame.Return
 IsEOF:                  db 0
+Reenable:
+
+                        ret
 pend
 
 
