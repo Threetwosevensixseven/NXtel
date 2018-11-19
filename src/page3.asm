@@ -192,14 +192,14 @@ DetectTSHeader          proc
                         push hl                         ; Save start of checksummed region
                         TSHeaderMatch(Teletext.Pipe)
                         TSHeaderMatch('G')
-                        TSHeaderSkip(1)                 ; Skip frame letter. This will break if there are two
+                        TSHeaderBodySkip(1)             ; Skip frame letter. This will break if there are two
                         TSHeaderMatch(Teletext.Pipe)    ; frames, which is a possibility in the specification.
                         TSHeaderMatch('I')
                         push hl                         ; Save start of filename
                         TSHeaderFind(Teletext.Pipe)
                         push hl                         ; Save end of filename
                         TSHeaderMatch('L')
-                        TSHeaderSkip(3)                 ; Skip frame count (we don't need to use it)
+                        TSHeaderBodySkip(3)             ; Skip frame count (we don't need to use it)
                         TSHeaderMatch(Teletext.Pipe)
                         push hl                         ; Save end of checksummed region
                         TSHeaderMatch('Z')
@@ -234,16 +234,179 @@ DetectTSHeader          proc
                         xor a
                         ld (de), a                      ; Add a terminating null
                         xor a                           ; Clear carry (valid header)
-                        jp IsTsHeader
+                        jp IsTSHeader
 NotTSHeader:
                         scf                             ; Set carry (invalid header)
-IsTsHeader:
+IsTSHeader:
+                        ld a, $CD                       ; $CD (call nnnn: enabled)
+                        ld (CaptureTSFrame6.CreateFileOrNot), a
                         nextreg $57, [RestorePage]SMC
                         ld sp, [Stack]SMC
                         ei
                         ret
 FileName:               ds 260
 FileNameLen             equ $-FileName
+pend
+
+
+
+CaptureTSFrame6         proc                            ; Interrupts are already off
+                        if enabled LogESP
+                          zeusmem $4C000,"Display Buffer",20,true,true,false
+                        endif
+                        ld (Stack), sp
+                        NextRegRead($57)
+                        ld (RestorePage), a
+                        nextreg $57, 30
+                        ld hl, DisplayBuffer+40
+                        ld bc, Teletext.TSFrameSize
+                        TSBodyMatch(Teletext.Pipe)
+                        TSBodyMatch('A')
+                        push hl                         ; Save start of checksummed region
+                        TSBodyMatch(Teletext.Pipe)
+                        TSBodyMatch('G')
+                        TSHeaderBodySkip(1)             ; Skip frame letter. This will break if there are two
+                        TSBodyMatch(Teletext.Pipe)      ; frames, which is a possibility in the specification.
+                        TSBodyMatch('I')
+                        push hl                         ; Save start of file body
+                        TSBodyFind(Teletext.PipeZ)
+                        push hl                         ; Save end of checksumsummed region
+                        ld de, ESPBuffer
+                        ldi:ldi:ldi                     ; Copy checksum to buffer
+                        DecodeDecimal(ESPBuffer, 3)
+                        ld a, l                         ; In this case we only want the LSB (0..255)
+                        ld (Checksum), a                ; so save it for later
+                        pop hl                          ; hl = end of checksummed region
+                        pop de
+                        pop de                          ; de = start of checksummed region
+                        scf
+                        sbc hl, de
+                        dec hl
+                        ld bc, hl                       ; bc = checksummed region length
+                        ex de, hl                       ; hl = checksummed region start
+                        call CalculateChecksum          ;  e = calculated checksum
+                        ld a, [Checksum]SMC             ;  a = stored checksum
+                        cp e
+                        jp nz, NotTSBody                ; Abort if checksum mismatch
+                        nop
+                        loop 6
+                          dec sp                        ; Move the stack pointer to the file body start
+                        lend
+                        pop hl                          ; hl = end of checksummed region
+                        pop de                          ; de = start of file body
+                        scf
+                        sbc hl, de
+                        dec hl
+                        ld bc, hl                       ; bc = file body length (including possible |F EOF marker)
+                        ld hl, de
+                        add hl, bc
+                        dec hl
+                        dec hl
+                        ld a, (hl)
+                        cp '|'
+                        jp nz, NotEOF
+                        inc hl
+                        ld a, (hl)
+                        cp 'F'
+                        jp nz, NotEOF
+EOF:                    ld a, 1
+                        ld (IsEOF), a
+                        dec bc
+                        dec bc                          ; Remove the |F EOF marker from the file length
+                        jp SaveFileFrame
+NotEOF:                 nop
+                        xor a
+                        ld (IsEOF), a
+SaveFileFrame:
+                        ld ix, de                       ; ix = source, bc = length
+CreateFileOrNot:        ld hl, TSCreateFile             ; $CD (call nnnn: enabled) or $21 (ld hl, nnnn: disabled)
+                        call esxDOS.fWrite              ; ix = source, bc = length
+                        jp c, TSCreateFile.Error
+                        xor a                           ; Clear carry (valid body)
+                        jp IsTSBody
+NotTSBody:
+                        call esxDOS.fClose              ; In case we were writing a file. Ignore error.
+                        ld a, $CD                       ; $CD (call nnnn: enabled)
+                        ld (CreateFileOrNot), a
+                        ld hl, ESPConnect.ReadKeys
+                        ld (ESPConnect.KeyJumpState), hl
+                        EnableCaptureTSFrame(false)
+                        scf                             ; Set carry (invalid body)
+IsTSBody:
+                        nextreg $57, [RestorePage]SMC
+                        ld sp, [Stack]SMC
+                        jp CaptureTSFrame.Return
+IsEOF:                  db 0
+pend
+
+
+
+TSCreateFile            proc
+                        push hl
+                        push bc
+                        call esxDOS.fClose              ; Just in case there was a file already open. Ignore error.
+                        ld ix, DetectTSHeader.FileName
+                        call esxDOS.fCreate
+                        jp c, Error
+                        ld a, $21                       ; $21 (ld hl, nnnn: disabled)
+                        ld (CaptureTSFrame6.CreateFileOrNot), a
+                        pop bc
+                        pop hl
+                        ret
+Error:
+                        push af
+                        ld hl, DetectTSHeader.FileName
+                        ld de, esxDOS.FileNameBuffer
+                        ld iy, de
+                        ld bc, esxDOS.FileNameBufferLen
+                        ldir
+                        MMU5(8, false)
+                        pop af
+                        jp esxDOS.Error2
+pend
+
+TSBodyFind              macro(Text)
+                        push hl
+                        ld hl, Buffer
+                        ld (TSBodyFindProc.SearchText), hl
+                        pop hl
+                        call TSBodyFindProc
+                        jp Continue
+Buffer:                 dbl Text
+Continue:
+mend
+
+
+
+TSBodyFindProc          proc
+                        push hl
+                        ld hl, [SearchText]SMC
+                        ld a, (hl)
+                        ld iyl, a                       ; iyl = search text length
+                        inc hl
+                        ld (Buffer), hl
+                        pop hl
+                        ld de, [Buffer]SMC
+                        ld a, (de)
+                        cpir
+                        jp po, NotFound
+FindNextChar:           dec iyl
+                        ld a, iyl
+                        or a
+                        jp z, Found
+                        inc de
+                        ld a, (de)
+                        cpi
+                        jp po, NotFound
+                        jp nz, TSBodyFindProc
+                        jp FindNextChar
+Found:
+                        xor a                           ; Set zero (found)
+                        ret
+
+NotFound:
+                        pop de                          ; Lose return address
+                        jp CaptureTSFrame6.NotTSBody    ; and jp straight to failure point
 pend
 
 

@@ -127,6 +127,9 @@ Teletext                proc
   Escape                equ 27                          ; $1B
   Space                 equ 32                          ; $20
   Pipe                  equ 124                         ; $7C
+  PipeZ                 equ chr(Pipe)+"Z"
+  PipeQ                 equ chr(Pipe)+"Q"
+  Enter                 equ 95                          ; $5F
   ClearBit7             equ 0                           ; $00
   SetBit7               equ 128                         ; $80
   TSFrameSize           equ (23*40)                     ; $0398, 920

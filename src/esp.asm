@@ -1,6 +1,7 @@
 ; esp.asm
 
 ESPConnect              proc
+                        EnableCaptureTSFrame(false)
                         ld hl, ReadKeys
                         ld (KeyJumpState), hl
                         nextreg $56, 6
@@ -52,6 +53,7 @@ Received:
                         ldir
                         call RenderBuffer
                         FlipScreen()
+CaptureTSFrameOrNot:    ld hl, CaptureTSFrame           ; $CD (call nnnn: enabled) or $21 (ld hl, nnnn: disabled)
                         nextreg $56, 6
                         call InitKey
                         ei
@@ -64,11 +66,14 @@ SpecialKey:
                         ld hl, NoKey                    ; This is a real telesoftware header
                         ld (KeyJumpState), hl           ; So disable key input for now
                         EnableKeyboardScan(false)
+                        EnableCaptureTSFrame(true)
                         Border(Green)
                         halt:halt:halt:halt:halt
                         Border(Black)
-UnknownSpecialKey:
+                        ld a, Teletext.Enter
                         jp SendKey
+UnknownSpecialKey:
+                        jp NoKey
 Connect:
                         ld bc, UART_GetStatus           ; UART Tx port also gives the UART status when read
 ReadNextChar:           ld d, (hl)                      ; Read the next byte of the text to be sent
@@ -488,5 +493,22 @@ ChecksumLoop:           ld a, (hl)                      ;  a = read character
                         or c
                         jp nz, ChecksumLoop             ; Repeat until no more characters left
                         ret                             ; OUT: e = calculated checksum
+pend
+
+
+CaptureTSFrame          proc
+                        di
+                        NextRegRead($56)
+                        ld (RestoreKeyPage), a
+                        nextreg $56, 6
+                        call CaptureTSFrame6
+Return:                 nextreg $56, [RestoreKeyPage]SMC
+                        ESPSend("AT+CIPSEND=1")
+                        call ESPReceiveWaitOK
+                        call ESPReceiveWaitPrompt
+                        ld d, Teletext.Enter
+                        call ESPSendChar
+                        call ESPReceiveWaitOK
+                        ret
 pend
 

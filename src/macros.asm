@@ -457,27 +457,35 @@ mend
 
 
 
-TSHeaderMatch   macro(Char)
-                ld a, Char
-                cpi
-                jp nz, DetectTSHeader.NotTSHeader
+TSHeaderMatch           macro(Char)
+                        ld a, Char
+                        cpi
+                        jp nz, DetectTSHeader.NotTSHeader
 mend
 
 
 
-TSHeaderFind    macro(Char)
-                ld a, Char
-                cpir
-                jp nz, DetectTSHeader.NotTSHeader
+TSHeaderFind            macro(Char)
+                        ld a, Char
+                        cpir
+                        jp nz, DetectTSHeader.NotTSHeader
 mend
 
 
 
-TSHeaderSkip    macro(SkipCount)
-                loop SkipCount
-                  inc hl
-                  dec bc
-                lend
+TSHeaderBodySkip        macro(SkipCount)
+                        loop SkipCount
+                          inc hl
+                          dec bc
+                        lend
+mend
+
+
+
+TSBodyMatch             macro(Char)
+                        ld a, Char
+                        cpi
+                        jp nz, CaptureTSFrame6.NotTSBody
 mend
 
 
@@ -506,5 +514,16 @@ EnableKeyboardScan      macro(Enable)
                           ld (KB.ReadPointer), hl
                         endif
 
+mend
+
+
+
+EnableCaptureTSFrame    macro(Enable)
+                        if Enable
+                          ld a, $CD                     ; $CD (call nnnn)
+                        else
+                          ld a, $21                     ; $21 (ld hl, nnnn)
+                        endif
+                        ld (ESPConnect.CaptureTSFrameOrNot), a
 mend
 

@@ -42,7 +42,7 @@ DefaultDrive db   0
 
 
 ; Function:             Open file
-; In:                   IX = oointer to file name (ASCIIZ)
+; In:                   IX = pointer to file name (ASCIIZ)
 ;                       B  = open mode
 ;                       A  = Drive
 ; Out:                  A  = file handle
@@ -61,7 +61,7 @@ fOpen:
 
 
 ; Function:             Create file
-; In:                   IX = oointer to file name (ASCIIZ)
+; In:                   IX = pointer to file name (ASCIIZ)
 ;                       B  = open mode
 ;                       A  = Drive
 ; Out:                  A  = file handle
@@ -206,6 +206,7 @@ Error2:                 push af
                         MMU5(8, false)
                         pop af
                         jp esxDOSerror4
-FileNameBuffer:         ds 20
+FileNameBuffer:         ds 40
+FileNameBufferLen       equ $-FileNameBuffer
 pend
 
