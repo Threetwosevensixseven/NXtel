@@ -117,7 +117,9 @@ namespace NXtelData
             {
                 if (Byte == Convert.ToByte('|')) // Escape | as |E in the body
                     return EscapeChar(Convert.ToByte('|'), true) + EscapeChar(Convert.ToByte('E'), true);
-                if (Byte == Convert.ToByte(' ')) // Escape space as } in the body, allowing lines with trailing spaces to be truncated
+                if (Byte == Convert.ToByte('}')) // Escape ¾ as |¾ in the body
+                    return EscapeChar(Convert.ToByte('|'), true) + EscapeChar(Convert.ToByte('}'), true);
+                if (Byte == Convert.ToByte(' ')) // Escape space as ¾ in the body, allowing lines with trailing spaces to be truncated
                     return EscapeChar(Convert.ToByte('}'), true);
                 if (Byte == Convert.ToByte('}')) // Escape } as |} in the body
                     return EscapeChar(Convert.ToByte('|'), true) + EscapeChar(Convert.ToByte('}'), true);

@@ -501,7 +501,7 @@ CaptureTSFrame          proc
                         NextRegRead($56)
                         ld (RestoreKeyPage), a
                         nextreg $56, 6
-                        call CaptureTSFrame6
+                        jp CaptureTSFrame6
 Return:                 nextreg $56, [RestoreKeyPage]SMC
                         ret c
                         ESPSend("AT+CIPSEND=1")

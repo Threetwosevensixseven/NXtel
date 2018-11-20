@@ -490,6 +490,19 @@ mend
 
 
 
+TSBodyFind              macro(Text)
+                        push hl
+                        ld hl, Buffer
+                        ld (TSBodyFindProc.SearchText), hl
+                        pop hl
+                        call TSBodyFindProc
+                        jp Continue
+Buffer:                 dbl Text
+Continue:
+mend
+
+
+
 DecodeDecimal           macro(Buffer, DigitCount)
                         ld hl, Buffer
                         dec hl

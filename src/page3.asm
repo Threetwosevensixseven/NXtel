@@ -177,9 +177,9 @@ pend
 
 
 DetectTSHeader          proc
-                        //if enabled LogESP
-                        //  zeusmem $4C000,"Display Buffer",20,true,true,false
-                        //endif
+                        if enabled LogESP
+                          //zeusmem $4C000,"Display Buffer",20,true,true,false
+                        endif
                         di
                         ld (Stack), sp
                         NextRegRead($57)
@@ -240,6 +240,8 @@ NotTSHeader:
 IsTSHeader:
                         ld a, $CD                       ; $CD (call nnnn: enabled)
                         ld (CaptureTSFrame6.CreateFileOrNot), a
+                        ld a, Teletext.Offset0
+                        ld (CaptureTSFrame6.Offset), a
                         nextreg $57, [RestorePage]SMC
                         ld sp, [Stack]SMC
                         ei
@@ -253,6 +255,7 @@ pend
 CaptureTSFrame6         proc                            ; Interrupts are already off
                         if enabled LogESP
                           zeusmem $4C000,"Display Buffer",20,true,true,false
+                          zeusmem TSDecodeBuffer,"TS Decode Buffer",20,true,true,false
                         endif
                         ld (Stack), sp
                         NextRegRead($57)
@@ -318,8 +321,108 @@ NotEOF:                 nop
                         xor a
                         ld (IsEOF), a
 SaveFileFrame:
-                        ld ix, de                       ; ix = source, bc = length
+                        //ld ix, de                       ; ix = source, bc = length
+                        push de
+                        push bc
 CreateFileOrNot:        ld hl, TSCreateFile             ; $CD (call nnnn: enabled) or $21 (ld hl, nnnn: disabled)
+
+// Decode frame
+                        pop bc                          ; bc = source length
+                        pop hl                          ; hl = source start
+                        ld de, TSDecodeBuffer           ; de = destination start
+                        ld iyl, [Offset]SMC             ; Offset starts at 0 (0,-64,+64,+96,+128,+160)
+DecodeNextChar:
+                        ld a, (hl)
+                        cp Teletext.Pipe
+                        jp nz, NotPipe
+Pipe:
+                        inc hl
+                        dec bc                          ; Skip pipe
+                        ld a, (hl)                      ; and look at next character
+
+                                                        ; AZ            - Only in header, ignored in body, not terminated
+                                                        ; L102345FE¾    - In body, not terminated
+                                                        ; GTD           - Terminated with |I
+                                                        ; Anything else - Ignored and terminated with |I
+Pipe0:
+                        cp '0'                          ; |0 - Offset is +0
+                        jp nz, Pipe1
+                        ld iyl, Teletext.Offset0
+                        jp Advance2
+Pipe1:
+                        cp '1'                          ; |1 - Offset is -64
+                        jp nz, Pipe2
+                        ld iyl, Teletext.Offset1
+                        jp Advance2
+Pipe2:
+                        cp '2'                          ; |2 - Offset is +64
+                        jp nz, Pipe3
+                        ld iyl, Teletext.Offset2
+                        jp Advance2
+Pipe3:
+                        cp '3'                          ; |3 - Offset is +96
+                        jp nz, Pipe4
+                        ld iyl, Teletext.Offset3
+                        jp Advance2
+Pipe4:
+                        cp '4'                          ; |4 - Offset is +128
+                        jp nz, Pipe5
+                        ld iyl, Teletext.Offset4
+                        jp Advance2
+Pipe5:
+                        cp '5'                          ; |5 - Offset is +160
+                        jp nz, PipeL
+                        ld iyl, Teletext.Offset5
+                        jp Advance2
+PipeL:
+                        cp 'L'                          ; |L - EOL - Replace with CR (eventually specify in cfg)
+                        jp nz, PipeE
+                        ld a, CR
+                        ld (de), a
+                        jp Advance
+PipeE:
+                        cp 'E'                          ; |E - Escaped pipe - Replace with |
+                        jp nz, PipeThreeQuarters
+                        ld a, Teletext.Pipe
+                        ld (de), a
+                        jp Advance
+PipeThreeQuarters:
+                        cp Teletext.ThreeQuarters       ; |¾ - Escaped ¾ - Replace with ¾
+                        jp nz, PipeUnknown
+                        ld (de), a
+                        jp Advance
+PipeUnknown:
+
+
+
+
+
+
+NotPipe:
+                        cp Teletext.ThreeQuarters       ; ¾ - Replace with space
+                        jp nz, NormalChar
+                        ld a, ' '
+NormalChar:
+                        add a, iyl                      ; Add current offset
+                        ld (de), a                      ; Not pipe, copy directly
+Advance:
+                        inc de
+Advance2:
+                        inc hl
+                        dec bc
+                        ld a, c
+                        or b
+                        jp nz, DecodeNextChar
+SaveOffset:
+                        ld a, iyl
+                        ld (Offset), a
+WriteFile:
+                        ex de, hl
+                        ld de, TSDecodeBuffer
+                        or a
+                        sbc hl, de
+                        ld bc, hl                       ; bc = length
+                        ld ix, TSDecodeBuffer           ; ix = source
                         call esxDOS.fWrite              ; ix = source, bc = length
                         jp c, TSCreateFile.Error
                         xor a                           ; Clear carry (valid body)
@@ -338,17 +441,13 @@ NotTSBody:
                         ld sp, hl
                         jp CaptureTSFrame.Return
 IsTSBody:
-                        ld a, (IsEOF)
+                        ld a, [IsEOF]SMC
                         cp 1
                         jp z, NotTSBody
                         nextreg $57, [RestorePage]SMC
                         ld sp, [Stack]SMC
                         or a                            ; Clear carry (valid body)
                         jp CaptureTSFrame.Return
-IsEOF:                  db 0
-Reenable:
-
-                        ret
 pend
 
 
@@ -365,8 +464,7 @@ TSCreateFile            proc
                         pop bc
                         pop hl
                         ret
-Error:
-                        push af
+Error:                  push af
                         ld hl, DetectTSHeader.FileName
                         ld de, esxDOS.FileNameBuffer
                         ld iy, de
@@ -376,17 +474,6 @@ Error:
                         pop af
                         jp esxDOS.Error2
 pend
-
-TSBodyFind              macro(Text)
-                        push hl
-                        ld hl, Buffer
-                        ld (TSBodyFindProc.SearchText), hl
-                        pop hl
-                        call TSBodyFindProc
-                        jp Continue
-Buffer:                 dbl Text
-Continue:
-mend
 
 
 
@@ -412,13 +499,16 @@ FindNextChar:           dec iyl
                         jp po, NotFound
                         jp nz, TSBodyFindProc
                         jp FindNextChar
-Found:
-                        xor a                           ; Set zero (found)
+Found:                  xor a                           ; Set zero (found)
                         ret
-
-NotFound:
-                        pop de                          ; Lose return address
+NotFound:               pop de                          ; Lose return address
                         jp CaptureTSFrame6.NotTSBody    ; and jp straight to failure point
+pend
+
+
+
+TSDecodeBuffer          proc
+                        ds Teletext.TSFrameSize+10
 pend
 
 

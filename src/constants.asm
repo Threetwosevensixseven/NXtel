@@ -126,10 +126,11 @@ Teletext                proc
   CLS                   equ 12                          ; $0C
   Escape                equ 27                          ; $1B
   Space                 equ 32                          ; $20
+  Enter                 equ 95                          ; $5F
   Pipe                  equ 124                         ; $7C
+  ThreeQuarters         equ 125                         ; $7D '}'
   PipeZ                 equ chr(Pipe)+"Z"
   PipeQ                 equ chr(Pipe)+"Q"
-  Enter                 equ 95                          ; $5F
   ClearBit7             equ 0                           ; $00
   SetBit7               equ 128                         ; $80
   TSFrameSize           equ (23*40)                     ; $0398, 920
@@ -141,6 +142,12 @@ Teletext                proc
   Magenta               equ 5                           ; $05
   Cyan                  equ 6                           ; $06
   White                 equ 7                           ; $07
+  Offset0               equ +0
+  Offset1               equ -64
+  Offset2               equ +64
+  Offset3               equ +96
+  Offset4               equ +128
+  Offset5               equ +160
 pend
 
 
