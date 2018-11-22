@@ -241,11 +241,12 @@ Return:                 call RenderBuffer
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
-Addresses:              dw MenuConnect                          ; Key 1
-                        dw RunCarousel                          ; Key 2
-                        dw MenuNetworkSettings                  ; Key 3
-                        dw MenuNotImplemented                   ; Key 4
-                        dw MenuNotImplemented                   ; Key 5
+Addresses:              dw MenuConnect                          ; 1: Connect
+                        dw RunCarousel                          ; 2: Carousel Demo
+                        dw MenuNetworkSettings                  ; 3: Network Settings
+                        dw MenuNotImplemented                   ; 4: Help
+                        dw MenuKeyDescriptions                  ; 5: Keys
+                        dw MenuNotImplemented                   ; 6: About NXtel
 ItemCount               equ ($-Addresses)/2
 pend
 
@@ -268,6 +269,27 @@ Return:                 call RenderBuffer
                         jp ReadMenuKeys
 Addresses:              dw MenuNotImplemented                   ; Key 1
                         dw MenuNotImplemented                   ; Key 2
+ItemCount               equ ($-Addresses)/2
+pend
+
+
+
+MenuKeyDescriptions     proc
+                        ld a, ItemCount
+                        ld (ReadMenuKeys.ItemCount), a
+                        ld hl, Addresses
+                        ld (ReadMenuKeys.Addresses), hl
+                        ld hl, MenuKeyDescriptions
+                        ld (MenuNotImplemented.Return), hl
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp MenuKeyDescriptions31
+Return:                 call RenderBuffer
+                        FlipScreen()
+                        ei
+                        call WaitNoKey
+                        jp ReadMenuKeys
+Addresses:
 ItemCount               equ ($-Addresses)/2
 pend
 

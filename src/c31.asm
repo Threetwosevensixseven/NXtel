@@ -233,11 +233,22 @@ pend
 
 
 
+MenuKeyDescriptions31:  proc
+                        Border(Black)
+                        ld hl, Menus.Keys               ; Source address (compressed data)
+                        ld de, DisplayBuffer            ; Destination address (decompressing)
+                        call dzx7_mega
+                        jp MainMenu.Return
+pend
+
+
+
 Menus                   proc
   Welcome:              import_bin "..\pages\zx7\ClientWelcome.bin.zx7"
   Main:                 import_bin "..\pages\zx7\MainMenu.bin.zx7"
   Connect:              import_bin "..\pages\zx7\ConnectMenu.bin.zx7"
   NetworkSettings:      import_bin "..\pages\zx7\NetworkSettingsMenu.bin.zx7"
+  Keys:                 import_bin "..\pages\zx7\KeysMenu.bin.zx7"
   //StatusMessages:     import_bin "..\pages\zx7\StatusMessages.bin.zx7"
   Size                  equ 1000
 pend
