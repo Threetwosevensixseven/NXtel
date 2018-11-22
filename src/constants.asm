@@ -129,6 +129,8 @@ Teletext                proc
   Enter                 equ 95                          ; $5F
   Pipe                  equ 124                         ; $7C
   ThreeQuarters         equ 125                         ; $7D '}'
+  Conceal               equ 152                         ; $98
+  Reveal                equ 155                         ; $9B
   PipeZ                 equ chr(Pipe)+"Z"
   PipeQ                 equ chr(Pipe)+"Q"
   ClearBit7             equ 0                           ; $00

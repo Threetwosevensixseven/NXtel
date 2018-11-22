@@ -51,6 +51,8 @@ Received:
                         ld de, DisplayBuffer
                         ld bc, DisplayBuffer.Length
                         ldir
+                        ld a, 1
+                        ld (ToggleConcealReveal.ConcealEnabled), a
                         call RenderBuffer
                         FlipScreen()
 CaptureTSFrameOrNot:    ld hl, CaptureTSFrame           ; $CD (call nnnn: enabled) or $21 (ld hl, nnnn: disabled)
@@ -67,17 +69,22 @@ SpecialKey:
                         ld (KeyJumpState), hl           ; So disable key input for now
                         EnableKeyboardScan(false)
                         EnableCaptureTSFrame(true)
-                        Border(Green)
-                        halt:halt:halt:halt:halt
-                        Border(Black)
+                        //Border(Green)
+                        //halt:halt:halt:halt:halt
+                        //Border(Black)
                         ld a, Teletext.Enter
                         jp SendKey
 Conceal:
                         cp Matrix.ConcealReveal
                         jp nz, UnknownSpecialKey
-                        Border(Blue)
-                        halt:halt:halt:halt:halt
-                        Border(Black)
+                        //Border(Blue)
+                        //halt:halt:halt:halt:halt
+                        //Border(Black)
+                        di
+                        nextreg $57, 30
+                        call ToggleConcealReveal
+                        FlipScreen()
+                        ei
                         jp NoKey
 UnknownSpecialKey:
                         jp NoKey

@@ -897,3 +897,64 @@ EXIT:                   ld sp, $0000                    ; Restore the stack
                         ret
 pend
 
+
+
+ToggleConcealReveal     proc
+                        ld a, [ConcealEnabled]SMC
+                        bit 1, a
+                        jp nz, Finish
+                        and 1
+                        ld a, Teletext.Conceal          ; Search for Conceal
+                        ld e, Teletext.Reveal           ; Replace with Reveal
+                        jp nz, Replace                  ; zero means conceal enabled for the current frame
+                        ld a, Teletext.Reveal           ; Search for Reveal
+                        ld e, Teletext.Conceal          ; Replace with Conceal
+Replace:                ld hl, DisplayBuffer            ; Search start
+                        ld bc, DisplayBuffer.Length     ; Search size
+NextSearch:             cpir                            ; Search for next character
+                        jp z, Found
+NotFound:               ex af, af'
+                        ld a, b
+                        or c
+                        jp z, Render
+                        ex af, af'
+                        jp NextSearch
+Found:                  dec hl
+                        ld (hl), e
+                        inc hl
+                        jp NotFound
+Render:
+                        call RenderBuffer
+                        ld a, (ConcealEnabled)
+                        xor 1
+                        or 2
+                        ld (ConcealEnabled), a
+                        ret
+Finish:
+                        ld a, (ConcealEnabled)
+                        xor 1
+                        or 2
+                        ld (ConcealEnabled), a
+Flip:
+                        ld a, (RenderBuffer.WhichLayer2)
+                        xor 5
+                        ld (RenderBuffer.WhichLayer2), a
+ShowLayer2:
+                        if ULAMonochrome
+                          cp 9
+                          ld a, 0
+                          jp nz, ULASwitchCont
+                          ld a, 8
+ULASwitchCont:            MMU2(10, false)
+                          MMU3(11, false)
+                          ld (FlipULAScreen.WhichULAScreen), a
+                        else
+                          xor 5
+                          nextreg $12, a
+                          PortOut($123B, $02)           ; Show layer 2 and disable write paging
+                        endif
+                        ret
+pend
+
+
+

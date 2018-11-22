@@ -256,8 +256,8 @@ pend
 
 CaptureTSFrame6         proc                            ; Interrupts are already off
                         if enabled LogESP
-                          zeusmem $4C000,"Display Buffer",20,true,true,false
-                          zeusmem TSDecodeBuffer,"TS Decode Buffer",20,true,true,false
+                          //zeusmem $4C000,"Display Buffer",20,true,true,false
+                          //zeusmem TSDecodeBuffer,"TS Decode Buffer",20,true,true,false
                         endif
                         ld (Stack), sp
                         NextRegRead($57)
