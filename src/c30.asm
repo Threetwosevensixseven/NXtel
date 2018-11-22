@@ -428,9 +428,22 @@ NotGfx:
 SetColour:              and %111                        ; Extract color (0..7)
                         push bc
                         ld b, a
+                        ld a, (IsConcealed)
+                        or a
+                        jp z, NoColourClearConceal
+                        xor a
+                        ld (IsConcealed), a
+                        ld (IsGraphics), a
+                        ld a, (Background1)
+                        and %111000
+                        or b
+                        ld (NextForeground), a          ; Set foreground colour
+                        pop bc
+                        ld a, 32
+                        jp ProcessRead2
+NoColourClearConceal:
                         xor a
                         ld (IsGraphics), a
-                        ld (IsConcealed), a
                         ld a, (Background1)
                         and %111000
                         or b
@@ -495,9 +508,13 @@ GraphicsContinue:
                         or b
                         ld (NextForeground), a              ; Set foreground colour
                         pop bc
+                        ld a, (IsConcealed)
+                        or a
+                        jp z, PrintHeldChar
                         xor a
                         ld (IsConcealed), a
-                        jp PrintHeldChar
+                        ld a, 32
+                        jp ProcessRead2
 Conceal:
                         ld a, 1
                         ld (IsConcealed), a
