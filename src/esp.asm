@@ -88,8 +88,15 @@ Conceal:
                         jp NoKey
 Break:
                         cp Matrix.Break
-                        jp nz, UnknownSpecialKey
+                        jp nz, MainIndex
                         jp MainMenu
+MainIndex:
+                        cp Matrix.MainIndex
+                        jp nz, UnknownSpecialKey
+                        SendCharWaitOK('*')
+                        SendCharWaitOK('1')
+                        SendCharWaitOK(Teletext.Enter)
+                        jp NoKey
 UnknownSpecialKey:
                         jp NoKey
 Connect:
@@ -280,6 +287,18 @@ DecimalDigits proc Table:
   dw    100  ;   2       3
   dw   1000  ;   3       4
   dw  10000  ;   4       5
+pend
+
+
+
+SendCharWaitOKProc      proc
+                        ESPSend("AT+CIPSEND=1")
+                        call ESPReceiveWaitOK
+                        call ESPReceiveWaitPrompt
+                        ld d, [CharToSend]SMC
+                        call ESPSendChar
+                        call ESPReceiveWaitOK
+                        ret
 pend
 
 

@@ -540,3 +540,11 @@ EnableCaptureTSFrame    macro(Enable)
                         ld (ESPConnect.CaptureTSFrameOrNot), a
 mend
 
+
+
+SendCharWaitOK          macro(Char)
+                        ld a, Char
+                        ld (SendCharWaitOKProc.CharToSend), a
+                        call SendCharWaitOKProc
+mend
+

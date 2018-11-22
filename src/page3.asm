@@ -140,7 +140,7 @@ Matrix proc Table:
   db $FF,  $FE,  None,   $7A,   $78,   $63,   $76  ;   7  VCXZCs   None
   db $FF,  $7F,  None,  None,   $2E,   $2C,   $2A  ;   8  BNMSsSp  Symbol Shift
   db $FF,  $BF,  None,   $3D,  None,   $2B,  None  ;   9  HJKLEn   Symbol Shift
-  db $FF,  $DF,   $22,   $3B,  None,  None,  None  ;  10  YUIOP    Symbol Shift
+  db $FF,  $DF,   $22,   $3B, Index,  None,  None  ;  10  YUIOP    Symbol Shift
   db $FF,  $EF,  None,   $29,   $28,   $27,   $26  ;  11  67890    Symbol Shift
   db $FF,  $F7,   $21,   $40,  None,   $24,   $25  ;  12  54321    Symbol Shift
   db $FF,  $FB,  None,  None,  None,   $3C,   $3E  ;  13  TREWQ    Symbol Shift
@@ -175,6 +175,8 @@ Matrix proc Table:
   Concl         equ $FD
   ConcealReveal equ Concl
   Break         equ $FC
+  Index         equ $FB
+  MainIndex     equ Index
 pend
 
 
