@@ -76,7 +76,7 @@ SpecialKey:
                         jp SendKey
 Conceal:
                         cp Matrix.ConcealReveal
-                        jp nz, UnknownSpecialKey
+                        jp nz, Break
                         //Border(Blue)
                         //halt:halt:halt:halt:halt
                         //Border(Black)
@@ -86,6 +86,10 @@ Conceal:
                         FlipScreen()
                         ei
                         jp NoKey
+Break:
+                        cp Matrix.Break
+                        jp nz, UnknownSpecialKey
+                        jp MainMenu
 UnknownSpecialKey:
                         jp NoKey
 Connect:
@@ -508,6 +512,7 @@ ChecksumLoop:           ld a, (hl)                      ;  a = read character
                         jp nz, ChecksumLoop             ; Repeat until no more characters left
                         ret                             ; OUT: e = calculated checksum
 pend
+
 
 
 CaptureTSFrame          proc
