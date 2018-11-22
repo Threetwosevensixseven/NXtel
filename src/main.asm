@@ -122,7 +122,15 @@ SavePage:               ld (PagesCurrent), a
 MainLoop:
                         ei
                         halt
-NoKey:
+                        ld bc, zeuskeyaddr("[shift]")
+                        in a, (c)
+                        and zeuskeymask("[shift]")
+                        jp nz, NoCarouselBreak
+                        ld b, high zeuskeyaddr("[space]")
+                        in a, (c)
+                        and zeuskeymask("[space]")
+                        jp z, MainMenu
+NoCarouselBreak:
                         call DoFlash
                         MMU7(30, true)
 PrintTimeCall:          ld hl, PrintTime

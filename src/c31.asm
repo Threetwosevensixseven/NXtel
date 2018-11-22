@@ -85,28 +85,12 @@ NextLine:               ld a, [ItemCount]SMC
                         inc a
                         ld (CurrentDigit), a
                         jp FillItemsLoop
-LastKey:                ld hl, DisplayBuffer+282
-                        ld a, (CurrentItem)
-                        inc a
-                        ld e, a
-                        ld d, 80                        ; Two teletext display lines
-                        mul
-                        add hl, de
-                        ld a, (CurrentDigit)
-                        inc a
-                        ld (hl), a
-                        add hl, 3
-                        ex de, hl                       ; de = Position in display buffer
-                        ld hl, BackText                 ; hl = Source Back to Main Menu text
-                        ld bc, BackTextLen
-                        ldir
+LastKey:                ld a, (CurrentDigit)
                         ld (DisplayBuffer+932), a
                         ld a, (CurrentItem)
-                        add a, 2
+                        inc a
                         ld (ReadMenuConnectKeys.ItemCount), a
                         jp MenuConnect.Return
-BackText:               db "Back to Main Menu"
-BackTextLen             equ $-BackText
 TempBuffer:             ds 40
 pend
 

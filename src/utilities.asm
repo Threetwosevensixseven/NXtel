@@ -214,6 +214,84 @@ pend
 
 
 
+ReadMenuConnectKeys     proc
+                        xor a
+                        ld (CurrentKey), a
+                        ld c, low(K_54321)
+Loop:
+                        add a, a
+                        ld hl, MenuKey.Table
+                        add hl, a
+                        ld b, (hl)
+                        inc hl
+                        ld e, (hl)
+                        in a, (c)
+                        and e
+                        jp z, Match
+                        ld a, [ItemCount]SMC
+                        ld d, a
+                        ld a, [CurrentKey]SMC
+                        inc a
+                        cp d
+                        jp c, SaveCurrentKey
+CheckForBreak:          ld bc, zeuskeyaddr("[shift]")
+                        in a, (c)
+                        and zeuskeymask("[shift]")
+                        jp nz, NoBreak
+                        ld b, high zeuskeyaddr("[space]")
+                        in a, (c)
+                        and zeuskeymask("[space]")
+                        jp nz, NoBreak
+                        jp MainMenu
+NoBreak:                xor a
+SaveCurrentKey:         ld (CurrentKey), a
+                        jp Loop
+Match:
+                        ld a, (CurrentKey)
+                        inc a
+                        ld d, a
+                        ld a, (ItemCount)
+                        cp d
+                        jp z, MainMenu
+                        di
+                        MMU6(31, false)
+                        ld a, (CurrentKey)
+                        ld d, a
+                        ld e, ConnectMenuServer.Size
+                        mul
+                        add de, ConnectMenuServer.Table
+                        ex de, hl
+                        push hl
+                        ld de, ESPConnect.ConnString
+                        ld bc, ConnectMenuServer.Size
+                        nextreg $57, 3
+                        ldir
+                        pop hl
+                        push hl
+                        ld bc, ConnectMenuServer.Size
+                        xor a
+                        cpir
+                        pop de
+                        or a
+                        sbc hl, de
+                        inc hl
+                        ld a, l
+                        ld (ESPConnect.ConnStringLen), a
+                        dec hl
+                        dec hl
+                        ld de, ESPConnect.ConnString
+                        add hl, de
+                        ld a, CR
+                        ld (hl), a
+                        inc hl
+                        ld a, LF
+                        ld (hl), a
+                        MMU6(0, false)
+                        call ESPConnect
+pend
+
+
+
 FlipULAScreen           proc
                         if ULAMonochrome
                           ld a, $10
@@ -310,76 +388,6 @@ None:
                         ld (MenuNotImplemented.Return), hl
                         jp MenuNotImplemented
 ItemCount:              db 0
-pend
-
-
-
-ReadMenuConnectKeys     proc
-                        xor a
-                        ld (CurrentKey), a
-                        ld c, low(K_54321)
-Loop:
-                        add a, a
-                        ld hl, MenuKey.Table
-                        add hl, a
-                        ld b, (hl)
-                        inc hl
-                        ld e, (hl)
-                        in a, (c)
-                        and e
-                        jp z, Match
-                        ld a, [ItemCount]SMC
-                        ld d, a
-                        ld a, [CurrentKey]SMC
-                        inc a
-                        cp d
-                        jp c, SaveCurrentKey
-                        xor a
-SaveCurrentKey:         ld (CurrentKey), a
-                        jp Loop
-Match:
-                        ld a, (CurrentKey)
-                        inc a
-                        ld d, a
-                        ld a, (ItemCount)
-                        cp d
-                        jp z, MainMenu
-                        di
-                        MMU6(31, false)
-                        ld a, (CurrentKey)
-                        ld d, a
-                        ld e, ConnectMenuServer.Size
-                        mul
-                        add de, ConnectMenuServer.Table
-                        ex de, hl
-                        push hl
-                        //ld de, ESPSendTest.Channel
-                        ld de, ESPConnect.ConnString
-                        ld bc, ConnectMenuServer.Size
-                        nextreg $57, 3
-                        ldir
-                        pop hl
-                        push hl
-                        ld bc, ConnectMenuServer.Size
-                        xor a
-                        cpir
-                        pop de
-                        or a
-                        sbc hl, de
-                        inc hl
-                        ld a, l
-                        ld (ESPConnect.ConnStringLen), a
-                        dec hl
-                        dec hl
-                        ld de, ESPConnect.ConnString
-                        add hl, de
-                        ld a, CR
-                        ld (hl), a
-                        inc hl
-                        ld a, LF
-                        ld (hl), a
-                        MMU6(0, false)
-                        call ESPConnect
 pend
 
 
