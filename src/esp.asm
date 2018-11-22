@@ -60,8 +60,8 @@ CaptureTSFrameOrNot:    ld hl, CaptureTSFrame           ; $CD (call nnnn: enable
                         jp StartReceive
 SpecialKey:
                         cp Matrix.DownL
-                        jp nz, UnknownSpecialKey
-                        call DetectTSHeader
+                        jp nz, Conceal
+                        call [DownloadKeyTarget]DetectTSHeader
                         jp c, SendKey
                         ld hl, NoKey                    ; This is a real telesoftware header
                         ld (KeyJumpState), hl           ; So disable key input for now
@@ -72,6 +72,13 @@ SpecialKey:
                         Border(Black)
                         ld a, Teletext.Enter
                         jp SendKey
+Conceal:
+                        cp Matrix.ConcealReveal
+                        jp nz, UnknownSpecialKey
+                        Border(Blue)
+                        halt:halt:halt:halt:halt
+                        Border(Black)
+                        jp NoKey
 UnknownSpecialKey:
                         jp NoKey
 Connect:

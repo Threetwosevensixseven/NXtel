@@ -102,6 +102,7 @@ RenderBuffer            proc
                         ld (IsFlashing), a
                         ld (HoldActive), a
                         ld (HoldNext), a
+                        ld (IsConcealed), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
@@ -123,6 +124,16 @@ ProcessRead:
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
 ProcessRead2:
+                        push af
+                        ld a, [IsConcealed]SMC
+                        or a
+                        jp z, NotConcealed
+                        pop af
+                        ld a, 32
+                        jp Concealed2
+NotConcealed:
+                        pop af
+Concealed2:
                         push hl
                         cp 64
                         jp c, NotBlastThrough
@@ -151,6 +162,11 @@ BlastThrough:
                           ld (FZX_COL), hl
                           pop hl
                           pop af
+                          ld (DebugPrint.Char), a
+                          push de
+                          ld de, (Coordinates)
+                          call DebugPrint
+                          pop de
                           call FZX_START
                           jp ULAContinue1
 ULAOutOfRange:            pop hl
@@ -329,6 +345,7 @@ NoDoubleHeightThisLine: ld e, 8
                         ld (IsFlashing), a
                         ld (HoldActive), a
                         ld (HoldNext), a
+                        ld (IsConcealed), a
                         ld (OrOffset), a                ; Clear graphics offset back to plain text
                         dec a
                         ld (AndOffset), a               ; Clear graphics offset back to plain text
@@ -413,6 +430,7 @@ SetColour:              and %111                        ; Extract color (0..7)
                         ld b, a
                         xor a
                         ld (IsGraphics), a
+                        ld (IsConcealed), a
                         ld a, (Background1)
                         and %111000
                         or b
@@ -433,11 +451,13 @@ Graphics:
                         cp 145
                         jp c, NotYetImplemented         ; Skip 136-144 for now
                         cp 152
-                        jp z, NotYetImplemented         ; Skip 152 for now (Conceal)
+                        jp z, Conceal
                         cp 153
                         jp z, Contiguous
                         cp 154
                         jp z, Separated
+                        cp 155
+                        jp z, NotYetImplemented         ; Escape char, used for reveal
                         cp 156
                         jp z, BlackBG
                         cp 157
@@ -475,7 +495,14 @@ GraphicsContinue:
                         or b
                         ld (NextForeground), a              ; Set foreground colour
                         pop bc
+                        xor a
+                        ld (IsConcealed), a
                         jp PrintHeldChar
+Conceal:
+                        ld a, 1
+                        ld (IsConcealed), a
+                        ld a, ' '
+                        jp ProcessRead2
 Contiguous:
                         push af
                         xor a

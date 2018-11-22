@@ -1,0 +1,41 @@
+ROADMAP
+
+CLIENT
+Conceal/reveal
+RTC onscreen
+Out-of-band server communication
+Progressive enhancements (time, timezone)
+Logins
+Telesoftware autolaunching
+Status icons
+Connection timeouts
+Page retrieval timeouts
+Partial frame rendering for multiple +IPD packets
+Network settings menu
+ESP connection wizard
+ESP reset
+ESP baudrate autosensing
+ESP baudrate changing
+Writing and sending mailbox messages
+Recieving and viewing mailbox messages
+Help
+
+SERVER
+Out-of-band client communication
+RSS feed dynamic pages
+Logins
+User-specific content
+Plugin system for retrieving external content
+Gateways: Telstar, IRATA.ONLINE, MUFF, telnet, email
+
+PAGE MANAGER
+User-specific content
+Mailbox management
+Page range responsibility for page editors
+Writing and sending mailbox messages
+Recieving and viewing mailbox messages
+User directory ands permissions system
+
+TOOLS
+Encode pages for static content serving
+Telesoftware network installer 

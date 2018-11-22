@@ -144,7 +144,7 @@ Matrix proc Table:
   db $FF,  $EF,  None,   $29,   $28,   $27,   $26  ;  11  67890    Symbol Shift
   db $FF,  $F7,   $21,   $40,  None,   $24,   $25  ;  12  54321    Symbol Shift
   db $FF,  $FB,  None,  None,  None,   $3C,   $3E  ;  13  TREWQ    Symbol Shift
-  db $FF,  $FD,  None,  None, DownL,  None,  None  ;  14  GFDSA    Symbol Shift
+  db $FF,  $FD,  None, Concl, DownL,  None,  None  ;  14  GFDSA    Symbol Shift
   db $FF,  $FE,  None,   $3A,   $23,   $3F,   $2F  ;  15  VCXZCs   Symbol Shift
   db $FF,  $7F,  None,  None,   $4D,   $4E,   $42  ;  16  BNMSsSp  Caps Shift
   db $FF,  $BF,  None,   $4C,   $4B,   $4A,   $48  ;  17  HJKLEn   Caps Shift
@@ -172,6 +172,8 @@ Matrix proc Table:
   Mask          equ %000 00001
   Special       equ $80
   DownL         equ $FE
+  Concl         equ $FD
+  ConcealReveal equ Concl
 pend
 
 
