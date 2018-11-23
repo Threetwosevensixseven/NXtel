@@ -1,0 +1,74 @@
+Connecting ESP to wifi:
+The end of the ESP with the wiggly antenna traces points towards the left edge of the board (when reading the TB Blue logo the right way up).
+
+You need to reconnect the wifi every time you join a new access point.
+Once you've connected, it will automatically connect to that one access point after that.
+But it doesn't remember multiple access points and passwords like phones do. So you need to manually rejoin your home AP again if you join an event AP then come home again.
+
+Tim's terminal program is in the gitlab distro at /Demos/UART/Terminal.bas.
+Just load from browser and RUN.
+Terminal starts off at 115200 baud.
+Type: 
+AT[ENTER]
+If it responds OK then the ESP is also defaulting to 115200. This is good. If not, it's a bit of a mare setting a new default and getting it to stick. Hopefully you won't need to do this. If you need help with this, or generally getting your ESP connected, email me at robin.verhagen.guest@gmail.com, or message https://www.facebook.com/threetwosevensixseven or https://www.facebook.com/tim.gilberts on Facebook.
+
+Remember there is no backspace here, as the terminal sends each key as you press it. So if you screw up, just hit enter then retype the command from the beginning.
+
+Type:
+AT+CWMODE?[ENTER]
+Response is a number 1-3.
+ - 1: Station mode
+ - 2: SoftAP mode
+ - 3: SoftAP+Station mode
+1 and 3 are ok. If it replied 2, type:
+AT+CWMODE=1[ENTER]
+to switch to station mode.
+
+Type:
+AT+CWLAP[ENTER]
+to list the wifi access points. 
+If the screen fills up hit any key to scroll.
+I think it only shows 2.5GHz APs so 5GHz are a no-no.
+
+Type:
+AT+CWJAP="MyAccessPointName","MyPassword"[ENTER]
+to connect.
+Should say OK if joined.
+
+Optionally, type:
+AT+CWJAP?[ENTER]
+to confirm the AP you are connected to.
+
+Optionally, type:
+AT+CIFSR[ENTER]
+to confirm your new IP and mac address.
+
+Once connected to the AP, you are safe to power off the Next or unplug the ESP, and you should automatically rejoin the AP on power on.
+
+Latest NXtel client is always here:
+https://github.com/Threetwosevensixseven/NXtel/raw/master/bin/NXtel.sna
+
+Quick instructions:
+
+Launch NXtel.
+Wait for maain menu to appear.
+1 for Connect
+2 for NXtel (public). None of the other options are currently working well enough to demo.
+If all goes well you will see the server welcome screen with date and time.
+Generally, hit [ENTER] to go to the next page.
+If you see # referred to onscreen, that means [ENTER].
+Some pages have numbered optins (e.g. main index has 1-7). Hitting these keys takes you to that page.
+If you know the page number, you can go there directly. e.g. *91[ENTER] goes directly to that page.
+* key is SymbolShift+B
+To download telesoftware, go to the page after the text description of the software, i.e the one with the short header (|A|GbIHOTT.z80|L063|Z050) then hit the download key (Symbol+D).
+Telesoftware downloads to the directory you were in when you launched NXtel.
+It doesn't autolaunch yet, you will have to F4 and launch from Browser. HOTT.z80 and HelloWorld.bas should work.
+When online, type *00[ENTER] to go back to the previous page.
+When online, type Symbol+I to the main index page.
+When online, type Symbol+S to toggle reveal/conceal. Engineering test page is a good example.
+When online,in the carousel demo or in a sub-menu, BREAK takes you offline and back to the main menu.
+NXtel servers are stored in the NXtel.cfg file. This is created on launch if it doesn't exist. After that you can edit it in any text editor.  
+
+Have fun!
+
+SevenFFF / Robin Verhagen-Guest
