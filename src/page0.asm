@@ -20,7 +20,7 @@ Resources proc Table:
   ; Bank  FName  Index  Notes
   db  30,    30  ;   0  Layer 2 Teletext renderer
   db  31,    31  ;   1  Config file and menus
-//  db  32,    32  ;   2  Keyboard handler
+  db  32,    32  ;   2  Sprites
   db  33,    33  ;   2  Pages33.P0 to Pages33.P7
   db  34,    34  ;   3  Pages34.P0 to Pages34.P7
   db  35,    35  ;   4  Pages35.P0 to Pages35.P7

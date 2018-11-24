@@ -1,6 +1,7 @@
 ; esp.asm
 
 ESPConnect              proc
+                        StatusIcon(Sprites32.Connecting)
                         EnableCaptureTSFrame(false)
                         ld hl, ReadKeys
                         ld (KeyJumpState), hl
@@ -55,6 +56,7 @@ Received:
                         ld (ToggleConcealReveal.ConcealEnabled), a
                         call RenderBuffer
                         FlipScreen()
+                        StatusIcon(Sprites32.Online)
 CaptureTSFrameOrNot:    ld hl, CaptureTSFrame           ; $CD (call nnnn: enabled) or $21 (ld hl, nnnn: disabled)
                         nextreg $56, 6
                         call InitKey

@@ -316,6 +316,7 @@ MainMenu                proc
                         jp MainMenu31
 Return:                 call RenderBuffer
                         FlipScreen()
+                        StatusIcon(Sprites32.Offline)
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
@@ -553,5 +554,23 @@ KB                      proc
   WritePointer:         dw 0
   ReadPointer:          dw 0
   CharsAvailable:       dw 0
+pend
+
+
+
+StatusIconProc          proc
+                        NextRegRead($56)
+                        ld (Restore), a
+                        nextreg $56, 32
+                        jp StatusIcon32
+Return:                 nextreg $56, [Restore]SMC
+                        ret
+pend
+
+
+SetupSprites            proc
+                        nextreg $56, 32
+                        jp SetupSprites32
+Return:                 ret
 pend
 

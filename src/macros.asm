@@ -257,6 +257,22 @@ mend
 
 
 
+WriteSpritePattern      proc
+                        ld bc, Sprite_Index_Port        ; Set the sprite index
+                        out (c), a                      ; (0 to 63)
+                        ld a, 0                         ; Send 256 pixel bytes (16*16)
+                        ld d, 0                         ; Counter
+                        ld bc, Sprite_Pattern_Port
+PixelLoop:              ld e, (hl)
+                        inc hl
+                        out (c), e
+                        dec d
+                        jr nz PixelLoop
+                        ret
+pend
+
+
+
 NextSprite              macro(ID, u16X, u8Y, PaletteOffset, bMirrorX, bMirrorY, bRotate, bVisible, Pattern)
                         ; Port $303B, if written, defines the sprite slot to be configured by ports $57 and $5B,
                         ; and also initializes the address of the palette.
@@ -546,5 +562,12 @@ SendCharWaitOK          macro(Char)
                         ld a, Char
                         ld (SendCharWaitOKProc.CharToSend), a
                         call SendCharWaitOKProc
+mend
+
+
+
+StatusIcon              macro(StatusIconNumber)
+                        ld e, StatusIconNumber
+                        call StatusIconProc
 mend
 

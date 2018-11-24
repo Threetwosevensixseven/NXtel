@@ -82,7 +82,7 @@ RenderBuffer            proc
                         ld hl, [PrintLength]DisplayBuffer.Length
                         //ld hl, 880
                         push hl
-                        ld hl, Fonts.SAA5050
+DoCLS:                  ld hl, Fonts.SAA5050
                         ld (FontInUse), hl
                         ld hl, [PrintStart]DisplayBuffer
                         ld a, 32
@@ -119,8 +119,9 @@ Read:
                         inc hl
 ProcessRead:
                         cp 32
-                        jp c, Escape                    ; Skip ASCII ctrl codes for now
                         jp z, Release2
+                        jp c, Escape                    ; Skip ASCII ctrl codes for now
+
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
 ProcessRead2:
@@ -582,9 +583,17 @@ HeightModeChanged:
                         pop af
                         ret
 Escape:
+                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $+disp
+                        //nop
+                        //cp $0C                          ; Clear Screen
+                        //jp z, CLS
+
+
                         ld a, 32
                         push hl
                         jp BlastThrough
+CLS:
+                        jp DoCLS
 Flash:
                         ld a, %0100 0000
                         jp Steady2

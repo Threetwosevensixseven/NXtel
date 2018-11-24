@@ -18,13 +18,13 @@ P31Size = $-$C000
 output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
 zeusprinthex "P31Size = ", P31Size
 
-; PAGE 32 - BANK32.BIN - Pages B
-/*org $C000
+; PAGE 32 - BANK32.BIN - Sprites
+org $C000
 dispto zeusmmu(32)
-
+include "c32.asm"
 P32Size = $-$C000
 output_bin "..\banks\Bank32.bin", zeusmmu(32), P32Size
-zeusprinthex "P32Size = ", P32Size  */
+zeusprinthex "P32Size = ", P32Size
 
 ; PAGE 33 - BANK33.BIN - Pages C
 org $C000

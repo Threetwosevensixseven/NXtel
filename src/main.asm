@@ -1,4 +1,4 @@
-                                  ; main.asm
+; main.asm
 
 zeusemulate             "Next"
 zoLogicOperatorsHighPri = false
@@ -41,7 +41,7 @@ Start:
 Start2:
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
-                        nextreg $15, %0 00 001 1 0      ; Disable sprites, over border, set LSU
+                        nextreg $15, %0 00 000 1 0      ; Disable sprites, over border, set SLU
                         ESPLogInit()
                         PageBankZX(0, false)            ; Force MMU reset
                         call ClsAttr
@@ -51,6 +51,7 @@ Start2:
                         di
                         call SetupDataFileSystem
                         call LoadResources
+                        call SetupSprites
                         di
                         MMU7(30, false)
                         call DefinePalettes
