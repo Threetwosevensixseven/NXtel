@@ -26,10 +26,28 @@ P32Size = $-$C000
 output_bin "..\banks\Bank32.bin", zeusmmu(32), P32Size
 zeusprinthex "P32Size = ", P32Size
 
-; PAGE 33 - BANK33.BIN - Pages C
-org $C000
+; PAGE 33 - BANK33.BIN - BeepFX
+org $E000
 dispto zeusmmu(33)
-Pages33 proc
+BeepFX proc
+  include "..\sfx\BeepFX.asm"
+  TempAddr equ $
+  org sfxRoutineSample-2
+  nop
+  noflow
+  org play+3
+  nop
+  noflow
+  org TempAddr
+pend
+P33Size = $-$E000
+output_bin "..\banks\Bank33.bin", zeusmmu(33), P33Size
+zeusprinthex "P33Size = ", P33Size
+
+; PAGE 34 - BANK33.BIN - Pages C
+org $C000
+dispto zeusmmu(34)
+Pages34 proc
   align 1024
   P0: import_bin "..\pages\demo1\sh003.bin"
   align 1024
@@ -46,31 +64,6 @@ Pages33 proc
   P6: import_bin "..\pages\demo1\telstar-7d.bin"
   align 1024
   P7: import_bin "..\pages\demo1\jellica001.bin"
-pend
-P33Size = $-$C000
-output_bin "..\banks\Bank33.bin", zeusmmu(33), P33Size
-zeusprinthex "P33Size = ", P33Size
-
-; PAGE 34 - BANK34.BIN - Pages D
-org $C000
-dispto zeusmmu(34)
-Pages34 proc
-  align 1024
-  P0: import_bin "..\pages\demo1\telstar-2001a.bin"
-  align 1024
-  P1: import_bin "..\pages\demo1\telstar-2001b.bin"
-  align 1024
-  P2: import_bin "..\pages\demo1\telstar-2001c.bin"
-  align 1024
-  P3: import_bin "..\pages\demo1\telstar-2001d.bin"
-  align 1024
-  P4: import_bin "..\pages\demo1\telstar-2001e.bin"
-  align 1024
-  P5: import_bin "..\pages\demo1\telstar-2001f.bin"
-  align 1024
-  P6: import_bin "..\pages\demo1\telstar-2001g.bin"
-  align 1024
-  P7: import_bin "..\pages\demo1\telstar-2001h.bin"
 pend
 P34Size = $-$C000
 output_bin "..\banks\Bank34.bin", zeusmmu(34), P34Size
@@ -200,6 +193,31 @@ pend
 P39Size = $-$C000
 output_bin "..\banks\Bank39.bin", zeusmmu(39), P39Size
 zeusprinthex "P39Size = ", P39Size
+
+; PAGE 40 - BANK34.BIN - Pages D
+org $C000
+dispto zeusmmu(40)
+Pages40 proc
+  align 1024
+  P0: import_bin "..\pages\demo1\telstar-2001a.bin"
+  align 1024
+  P1: import_bin "..\pages\demo1\telstar-2001b.bin"
+  align 1024
+  P2: import_bin "..\pages\demo1\telstar-2001c.bin"
+  align 1024
+  P3: import_bin "..\pages\demo1\telstar-2001d.bin"
+  align 1024
+  P4: import_bin "..\pages\demo1\telstar-2001e.bin"
+  align 1024
+  P5: import_bin "..\pages\demo1\telstar-2001f.bin"
+  align 1024
+  P6: import_bin "..\pages\demo1\telstar-2001g.bin"
+  align 1024
+  P7: import_bin "..\pages\demo1\telstar-2001h.bin"
+pend
+P40Size = $-$C000
+output_bin "..\banks\Bank40.bin", zeusmmu(40), P40Size
+zeusprinthex "P40Size = ", P40Size
 
 org MMUTemp16
 disp 0

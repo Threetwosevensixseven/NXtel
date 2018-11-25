@@ -21,13 +21,14 @@ Resources proc Table:
   db  30,    30  ;   0  Layer 2 Teletext renderer
   db  31,    31  ;   1  Config file and menus
   db  32,    32  ;   2  Sprites
-  db  33,    33  ;   2  Pages33.P0 to Pages33.P7
+  db  33,    33  ;   2  Sound FX
   db  34,    34  ;   3  Pages34.P0 to Pages34.P7
   db  35,    35  ;   4  Pages35.P0 to Pages35.P7
   db  36,    36  ;   5  Pages36.P0 to Pages36.P7
   db  37,    37  ;   6  Pages37.P0 to Pages37.P7
   db  38,    38  ;   7  Pages38.P0 to Pages38.P7
   db  39,    39  ;   8  Pages38.P0 to Pages38.P7
+  db  40,    40  ;   8  Pages40.P0 to Pages40.P7
 
   struct
     Bank        ds 1
@@ -59,14 +60,14 @@ Pages proc Table:
   db  39,    6, dw 200+NOC  ;   6
   db  39,    7, dw 200+CLK  ;   7
 
-  db  33,    0, dw 200+NOC  ;   0
-  db  33,    1, dw 200+CLK  ;   1
-  db  33,    2, dw 200+NOC  ;   2
-  db  33,    3, dw 200+CLK  ;   3
-  db  33,    4, dw 100+CLK  ;   4
-  db  33,    5, dw 100+CLK  ;   5
-  db  33,    6, dw 100+CLK  ;   6
-  db  33,    7, dw 100+NOC  ;   7
+  db  40,    0, dw 200+NOC  ;   0
+  db  40,    1, dw 200+CLK  ;   1
+  db  40,    2, dw 200+NOC  ;   2
+  db  40,    3, dw 200+CLK  ;   3
+  db  40,    4, dw 100+CLK  ;   4
+  db  40,    5, dw 100+CLK  ;   5
+  db  40,    6, dw 100+CLK  ;   6
+  db  40,    7, dw 100+NOC  ;   7
 
   db  34,    0, dw 200+CLK  ;   0
   db  34,    1, dw 100+CLK  ;   1

@@ -91,6 +91,7 @@ Conceal:
 Break:
                         cp Matrix.Break
                         jp nz, MainIndex
+                        EnableKeyboardScan(false)
                         jp MainMenu
 MainIndex:
                         cp Matrix.MainIndex

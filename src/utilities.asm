@@ -196,11 +196,14 @@ CheckForBreak:          ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
                         and zeuskeymask("[space]")
                         jp nz, NoBreak
+                        EnableKeyboardScan(false)
+                        PlaySFX(SFX.Key_CS)
                         jp MainMenu
 NoBreak:                xor a
 SaveCurrentKey:         ld (CurrentKey), a
                         jp Loop
 Match:
+                        PlaySFX(SFX.Key_None)
                         ld a, (CurrentKey)
                         add a, a
                         ld hl, [Addresses]SMC
@@ -242,11 +245,14 @@ CheckForBreak:          ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
                         and zeuskeymask("[space]")
                         jp nz, NoBreak
+                        EnableKeyboardScan(false)
+                        PlaySFX(SFX.Key_CS)
                         jp MainMenu
 NoBreak:                xor a
 SaveCurrentKey:         ld (CurrentKey), a
                         jp Loop
 Match:
+                        PlaySFX(SFX.Key_None)
                         ld a, (CurrentKey)
                         inc a
                         ld d, a
@@ -573,4 +579,17 @@ SetupSprites            proc
                         jp SetupSprites32
 Return:                 ret
 pend
+
+
+
+PlaySFXProc             proc                    ; e = SFXNumber
+                        NextRegRead($57)
+                        ld (Restore), a
+                        nextreg $57, 33
+                        ld a, e
+                        call BeepFX.play
+Return:                 nextreg $57, [Restore]SMC
+                        ret
+pend
+
 

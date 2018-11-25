@@ -20,18 +20,24 @@ pend
 
 
 ScanKeyboard            proc
+                        ld a, SFX.Key_None
+                        ld (SFXNumber), a
                         ld hl, Matrix.Table
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
                         and zeuskeymask("[shift]")
                         jp nz, NoCaps
 Caps:                   ld hl, Matrix.Table+Matrix.CS
+                        ld a, SFX.Key_CS
+                        ld (SFXNumber), a
                         jp NoSymbol
 NoCaps                  ld b, high zeuskeyaddr("[sym]")
                         in a, (c)
                         and zeuskeymask("[sym]")
                         jp nz, NoSymbol
 Symbol:                 ld hl, Matrix.Table+Matrix.SS
+                        ld a, SFX.Key_SS
+                        ld (SFXNumber), a
 NoSymbol:               ld e, Matrix.Count
 NewRow:                 ld a, (hl)
                         inc hl
@@ -83,6 +89,8 @@ NoWrap:                 ld (KB.WritePointer), hl
                         ld hl, (KB.CharsAvailable)
                         inc hl
                         ld (KB.CharsAvailable), hl
+                        ld e, [SFXNumber]SMC
+                        call PlaySFXProc
                         ret
 BufferFull:
                         ld de, (KB.CharsAvailable)

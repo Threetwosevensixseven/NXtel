@@ -113,12 +113,14 @@ FLAGS                   equ $5C3B
 LAST_K                  equ $5C08
 
 
+
 ; Maths
 EVEN                    equ %11111110                   ; and EVEN   ->  a = a / 2
 MOD_8                   equ %00000111                   ; and MOD_8  ->  a = a % 8
 SMC                     equ 0                           ; Placeholder for SMC in code
 Dummy                   equ 0
 None                    equ 0
+
 
 
 ; Teletext
@@ -150,6 +152,15 @@ Teletext                proc
   Offset3               equ +96
   Offset4               equ +128
   Offset5               equ +160
+pend
+
+
+
+; BeepFX Sound Effects
+SFX proc
+  Key_None              equ 0
+  Key_CS                equ 1
+  Key_SS                equ 2
 pend
 
 
