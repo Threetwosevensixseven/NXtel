@@ -8,6 +8,7 @@ namespace NXtelServer.Classes
     public enum CommandStates
     {
         RegularRouting = 0,
-        InsideCommand = 1
+        InsideStarPageCommand = 1,
+        InsideFastTextCommand = 2
     }
 }

@@ -58,18 +58,25 @@ namespace NXtelServer.Classes
             {
                 var b = KeyBuffer.Peek();
 
-                if (CommandState == CommandStates.InsideCommand)
+                if (CommandState == CommandStates.InsideStarPageCommand)
                 {
+                    if (b == '*')
+                    {
+                        CommandState = CommandStates.InsideFastTextCommand;
+                        KeyBuffer.Dequeue();
+                        continue;
+                    }
+
                     if (b >= '0' && b <= '9')
                     {
                         KeyBuffer.Dequeue();
                         CurrentCommand += Convert.ToChar(b).ToString();
-                        //Console.WriteLine(string.Format("Inside Command, Adding {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        //Console.WriteLine(string.Format("Inside Star Page Command, Adding {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
                         continue;
                     }
                     if (b == ENTER)
                     {
-                        //Console.WriteLine(string.Format("Exiting Command; CurrentCommand: '{0}' (", CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        //Console.WriteLine(string.Format("Exiting Star Page Command; CurrentCommand: '{0}' (", CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
                         KeyBuffer.Dequeue();
                         if (CurrentCommand == "00") // Previous page
                         {
@@ -97,7 +104,7 @@ namespace NXtelServer.Classes
                     KeyBuffer.Dequeue();
                     CommandState = CommandStates.RegularRouting;
                     CurrentCommand = "";
-                    //Console.WriteLine(string.Format("Exiting Command, Invalid {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    //Console.WriteLine(string.Format("Exiting Star Page Command, Invalid {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
                     continue;
                 }
 
@@ -105,12 +112,12 @@ namespace NXtelServer.Classes
                 {
                     if (b == '*')
                     {
-                        //Console.WriteLine(string.Format("Entering Command; CurrentCommand: '{0}' (", CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
-                        CommandState = CommandStates.InsideCommand;
+                        //Console.WriteLine(string.Format("Entering Star Page Command; CurrentCommand: '{0}' (", CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        CommandState = CommandStates.InsideStarPageCommand;
                         KeyBuffer.Dequeue();
                         continue;
                     }
-                    //Console.WriteLine(string.Format("Outside Command, Processing {0} (", b.ToString("X2")) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    //Console.WriteLine(string.Format("Outside Commands, Processing {0} (", b.ToString("X2")) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
                     var route = CurrentPage.Routing.FirstOrDefault(r => r.KeyCode == b);
                     if (route != null)
                     {
@@ -126,7 +133,57 @@ namespace NXtelServer.Classes
                     }
                     KeyBuffer.Dequeue();
                 }
+                if (CommandState == CommandStates.InsideFastTextCommand)
+                {
+                    b = KeyBuffer.Peek();
+
+                    if (b >= '0' && b <= '9')
+                    {
+                        KeyBuffer.Dequeue();
+                        CurrentCommand += Convert.ToChar(b).ToString();
+                        continue;
+                    }
+
+                    if (b == ENTER)
+                    {
+                        KeyBuffer.Dequeue();
+                        int col;
+                        if (!int.TryParse(CurrentCommand, out col))
+                            col = -1;
+                        if (col < 0 || col > 7 || PageHistory.Count == 0 || PageHistory.Peek().Routing == null)
+                        {
+                            CommandState = CommandStates.RegularRouting;
+                            CurrentCommand = "";
+                            continue;
+                        }
+                        byte colour = Convert.ToByte(col | 0x80);
+                        foreach (var route in PageHistory.Peek().Routing)
+                        {
+                            if (route.KeyCode == colour)
+                            {
+                                if (route.NextPageNo != null && route.NextFrameNo != null)
+                                {
+                                    NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
+                                    PageHistory.Push(NextPage);
+                                    CommandState = CommandStates.RegularRouting;
+                                    CurrentCommand = "";
+                                    return true;
+                                }
+                            }
+                        }
+                        CommandState = CommandStates.RegularRouting;
+                        CurrentCommand = "";
+                        continue;
+                    }
+
+                    KeyBuffer.Dequeue();
+                    CommandState = CommandStates.RegularRouting;
+                    CurrentCommand = "";
+                    //Console.WriteLine(string.Format("Exiting Star Page Command, Invalid {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    continue;
+                }
             }
+
             return false;
         }
 

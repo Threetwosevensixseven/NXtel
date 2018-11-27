@@ -26,6 +26,13 @@ namespace NXtelData
             this.Description = Description;
         }
 
+        public Route(RouteKeys KeyCode, string Description)
+             : base()
+        {
+            this.KeyCode = (byte)KeyCode;
+            this.Description = Description;
+        }
+
         public Route(char KeyChar)
             : base()
         {
@@ -99,7 +106,7 @@ namespace NXtelData
         {
             get
             {
-                return (KeyCode == 95 ? "0" : "1")
+                return (KeyCode == 0x80 ? "2" : (KeyCode == 95 ? "0" : "1"))
                     + KeyCode.ToString("X2");
             }
         }

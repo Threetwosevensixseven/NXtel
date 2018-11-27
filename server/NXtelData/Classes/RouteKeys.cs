@@ -17,6 +17,14 @@ namespace NXtelData
         K6 = 54,
         K7 = 55,
         K8 = 56,
-        K9 = 57      
+        K9 = 57,
+        Black = 0x80,
+        Blue = 0x81,
+        Red = 0x82,
+        Magenta = 0x83,
+        Green = 0x84,
+        Cyan = 0x85,
+        Yellow = 0x86,
+        White = 0x87     
     }
 }

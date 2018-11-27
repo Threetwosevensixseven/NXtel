@@ -18,7 +18,7 @@ namespace NXtelData
                 if (_masterList == null)
                 {
                     _masterList = new Routes();
-                    _masterList.Add(new Route(95, "Enter"));
+                    _masterList.Add(new Route(RouteKeys.Enter, "Enter"));
                     _masterList.Add(new Route('0'));
                     _masterList.Add(new Route('1'));
                     _masterList.Add(new Route('2'));
@@ -29,6 +29,14 @@ namespace NXtelData
                     _masterList.Add(new Route('7'));
                     _masterList.Add(new Route('8'));
                     _masterList.Add(new Route('9'));
+                    _masterList.Add(new Route(RouteKeys.Blue, "Blue"));
+                    _masterList.Add(new Route(RouteKeys.Red, "Red"));
+                    _masterList.Add(new Route(RouteKeys.Magenta, "Magenta"));
+                    _masterList.Add(new Route(RouteKeys.Green, "Green"));
+                    _masterList.Add(new Route(RouteKeys.Cyan, "Cyan"));
+                    _masterList.Add(new Route(RouteKeys.Yellow, "Yellow"));
+                    _masterList.Add(new Route(RouteKeys.White, "White"));
+                    _masterList.Add(new Route(RouteKeys.Black, "Black"));
                 }
                 return _masterList;
             }

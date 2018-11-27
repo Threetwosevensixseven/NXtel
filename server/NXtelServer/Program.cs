@@ -107,10 +107,10 @@ namespace NXtelServer
                     return;
                 }
 
-                //for (int i = 0; i < received; i++)
-                //{
-                //    Console.WriteLine("Received: " + data[i] + " (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-                //}
+                for (int i = 0; i < received; i++)
+                {
+                    Console.WriteLine("Received: " + data[i] + " (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                }
 
                 //Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
 

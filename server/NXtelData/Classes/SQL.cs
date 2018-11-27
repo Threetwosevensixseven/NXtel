@@ -20,7 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateTSFileType(ConX);
+            MakeRouteKeycodeUnsigned(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -423,5 +423,30 @@ END$$";
             }
         }
 
+        public static void MakeRouteKeycodeUnsigned(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `route` 
+                    CHANGE COLUMN `KeyCode` `KeyCode` TINYINT(3) UNSIGNED NOT NULL;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }
