@@ -20,25 +20,26 @@ pend
 
 
 ScanKeyboard            proc
-                        ld a, SFX.Key_None
+                        ld de, 0
                         ld (SFXNumber), a
                         ld hl, Matrix.Table
                         ld bc, zeuskeyaddr("[shift]")
                         in a, (c)
                         and zeuskeymask("[shift]")
                         jp nz, NoCaps
-Caps:                   ld hl, Matrix.Table+Matrix.CS
-                        ld a, SFX.Key_CS
-                        ld (SFXNumber), a
-                        jp NoSymbol
-NoCaps                  ld b, high zeuskeyaddr("[sym]")
+Caps:                   ld d, Matrix.CS                 ; d = CapsShift offset
+NoCaps:                 ld b, high zeuskeyaddr("[sym]")
                         in a, (c)
                         and zeuskeymask("[sym]")
                         jp nz, NoSymbol
-Symbol:                 ld hl, Matrix.Table+Matrix.SS
-                        ld a, SFX.Key_SS
+Symbol:                 ld e, Matrix.SS                 ; 3 = SymbolShift offset
+NoSymbol:               ld a, d
+                        add e
+                        ld hl, Matrix.Table
+                        add hl, a
+                        xor a
                         ld (SFXNumber), a
-NoSymbol:               ld e, Matrix.Count
+                        ld e, Matrix.Count
 NewRow:                 ld a, (hl)
                         inc hl
                         dec e
@@ -57,10 +58,10 @@ NotNewRow:              or a
                         and [Mask]SMC
                         and %000 11111
                         jp z, Pressed
-                        ld a, e
+IgnoreKey:              ld a, e
                         or a
                         jp z, NonePressed
-IgnoreKey:              ld a, (Mask)
+                        ld a, (Mask)
                         rlca                    ; Position mask for next key in row
                         ld (Mask), a
                         jp NewRow
@@ -162,6 +163,14 @@ Matrix proc Table:
   db $FF,  $FB,   $51,   $57,   $45,   $52,   $54  ;  21  TREWQ    Caps Shift
   db $FF,  $FD,   $41,   $53,   $44,   $46,   $47  ;  22  GFDSA    Caps Shift
   db $FF,  $FE,  None,   $5A,   $58,   $43,   $56  ;  23  VCXZCs   Caps Shift
+  db $FF,  $7F,  None,  None,  None,  None,  None  ;  24  BNMSsSp  Symbol+Caps Shift
+  db $FF,  $BF,  None,  None,  None,  None,  None  ;  25  HJKLEn   Symbol+Caps Shift
+  db $FF,  $DF,  None,  None,  None,  None,  None  ;  26  YUIOP    Symbol+Caps Shift
+  db $FF,  $EF, FTBla,  None,  None, FTWhi, FTYel  ;  27  67890    Symbol+Caps Shift
+  db $FF,  $F7, FTBlu, FTRed, FTMag, FTGre, FTCya  ;  28  54321    Symbol+Caps Shift
+  db $FF,  $FB,  None,  None,  None,  None,  None  ;  29  TREWQ    Symbol+Caps Shift
+  db $FF,  $FD,  None,  None,  None,  None,  None  ;  30  GFDSA    Symbol+Caps Shift
+  db $FF,  $FE,  None,  None,  None,  None,  None  ;  31  VCXZCs   Symbol+Caps Shift
 
   struct
     Mark   ds 1
@@ -173,9 +182,12 @@ Matrix proc Table:
     Bit4   ds 1
   Size send
 
+zeusprint SS, CS, SSCS, 56, 112, 168
+
   Len           equ $-Table
-  SS            equ Len/3
+  SS            equ Len/4
   CS            equ SS*2
+  SSCS          equ SS*3
   Count         equ SS
   Mask          equ %000 00001
   Special       equ $80
@@ -185,6 +197,22 @@ Matrix proc Table:
   Break         equ $FC
   Index         equ $FB
   MainIndex     equ Index
+  // Insert special keys $FA..F8 here
+  FTWhi         equ $F7
+  FTWhite       equ FTWhi
+  FTYel         equ $F6
+  FTYellow      equ FTYel
+  FTCya         equ $F5
+  FTCyan        equ FTCya
+  FTGre         equ $F4
+  FTGreen       equ FTGre
+  FTMag         equ $F3
+  FTMagenta     equ FTMag
+  FTRed         equ $F2
+  FTBlu         equ $F1
+  FTBlue        equ FTBlu
+  FTBla         equ $F0
+  FTBlack       equ FTBla
 pend
 
 

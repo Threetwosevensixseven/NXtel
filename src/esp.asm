@@ -63,7 +63,11 @@ CaptureTSFrameOrNot:    ld hl, CaptureTSFrame           ; $CD (call nnnn: enable
                         ei
                         jp StartReceive
 SpecialKey:
-                        cp Matrix.DownL
+                        cp Matrix.FTBlack
+                        jp c, NotFT
+                        cp Matrix.FTWhite+1
+                        jp c, FTKey
+NotFT:                  cp Matrix.DownL
                         jp nz, Conceal
                         call [DownloadKeyTarget]DetectTSHeader
                         jp c, SendKey
@@ -98,6 +102,19 @@ MainIndex:
                         jp nz, UnknownSpecialKey
                         SendCharWaitOK('*')
                         SendCharWaitOK('1')
+                        SendCharWaitOK(Teletext.Enter)
+                        jp NoKey
+FTKey:
+                        and %111
+                        add a, 48
+                        ld (FTChar), a
+                        SendCharWaitOK('*')
+                        SendCharWaitOK('*')
+
+                        ld a, [FTChar]SMC
+                        ld (SendCharWaitOKProc.CharToSend), a
+                        call SendCharWaitOKProc
+
                         SendCharWaitOK(Teletext.Enter)
                         jp NoKey
 UnknownSpecialKey:
