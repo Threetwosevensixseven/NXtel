@@ -23,7 +23,12 @@ LogESP optionbool 710, -15, "Log", false
 //Carousel optionbool 755, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
 
+
+
                         org $6000
+
+import_bin "..\banks\bank31.bin"
+
 Start:
                         di
                         ld iy, $5C3A

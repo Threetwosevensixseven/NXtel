@@ -99,6 +99,17 @@ namespace NXtelData
             }
         }
 
+        private static int? _mainIndexPageID = null;
+        public static int MainIndexPageID
+        {
+            get
+            {
+                if (_mainIndexPageID == null)
+                    _mainIndexPageID = Page.GetPageID(MainIndexPageNo, MainIndexFrameNo);
+                return (int)_mainIndexPageID;
+            }
+        }
+
         public static string ServerLocation
         {
             get

@@ -20,7 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            MakeRouteKeycodeUnsigned(ConX);
+            CreateDummyTable(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -448,5 +448,59 @@ END$$";
                     ConX.Close();
             }
         }
+
+        public static void CreateDummyTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `dummy` (
+                    `DummyID` INT NOT NULL,
+                    PRIMARY KEY (`DummyID`));";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void PopulateDummyTable(MySqlConnection ConX = null)
+        {
+            // Don't delete this, it gets run on NXtelManager startup
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"INSERT INTO dummy (DummyID) VALUES (1);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
     }
 }

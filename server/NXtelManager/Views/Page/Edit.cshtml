@@ -7,7 +7,9 @@
     string frame = @page.PageID <= 0 ? "" : @page.Frame;
     string toPageNo = @page.PageID <= 0 ? "" : @page.ToPageNo.ToString();
     string toFrame = @page.PageID <= 0 ? "" : @page.ToFrame;
-
+    var rvd = new RouteValueDictionary();
+    rvd.Add("id", -1);
+    string pageEditURL = Url.Action("Edit", "Page", rvd);
 }
 <h2>@ViewBag.Title</h2>
 <h3>@ViewBag.Message</h3>
@@ -106,20 +108,22 @@
                     <table style="display:inline">
                         <tbody id="tbodyPageRouting">
                             @for (int i = 0; i < page.Routing.Count; i++)
-                            {
+                                {
                                 string id = "trPageRoute" + (i + 1).ToString();
                                 string kcode = page.Routing[i].KeyCode.ToString();
                                 string clsPage = (page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "page-no route-disable" : "page-no";
                                 string clsFrame = (page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "frame route-disable" : "frame";
-                                    <tr id="@id" + page.Routing[i].KeyCode class="route ordered" data-route-keycode="@kcode">
+                                string goTo = @page.Routing[i].GoesToPageID > 0 ? "Go to " + @page.Routing[i].GoesToPageFrameDesc : "No page";
+                                <tr id="@id" + page.Routing[i].KeyCode class="route ordered" data-route-keycode="@kcode">
                                     <td>
                                         @Html.Hidden("Routing[" + i + "].KeyCode", page.Routing[i].KeyCode)
                                         @page.Routing[i].Description
                                     </td>
                                     <td>@Html.TextBox("Routing[" + i + "].NextPageNo", page.Routing[i].NextPageNo, new { @class = clsPage, maxlength = 10, style = "width:75px" })</td>
                                     <td>@Html.TextBox("Routing[" + i + "].NextFrame", page.Routing[i].NextFrame, new { @class = clsFrame, maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
-                                    <td>@Html.CheckBox("Routing[" + i + "].GoNextPage", page.Routing[i].GoNextPage, new { @class = "next-page" })&nbsp;Next&nbsp;Page</td>
-                                    <td>@Html.CheckBox("Routing[" + i + "].GoNextFrame", page.Routing[i].GoNextFrame, new { @class = "next-frame" })&nbsp;Next&nbsp;Frame</td>
+                                    <td>@Html.CheckBox("Routing[" + i + "].GoNextPage", page.Routing[i].GoNextPage, new { @class = "next-page" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Page</span></td>
+                                    <td>@Html.CheckBox("Routing[" + i + "].GoNextFrame", page.Routing[i].GoNextFrame, new { @class = "next-frame" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Frame</span></td>
+                                    <td style="padding-left:15px"><a href="#" class="go-to-page" onclick="return goToPage(this);">@goTo</a></td>
                                     <td><a href="#" class="ordered ordered-btn delete" title="Delete route">Delete</a></td>
                                 </tr>
                             }
@@ -129,8 +133,9 @@
                                 <td>@Html.DropDownList("RouteMasterListXXX", Model.Routes)</td>
                                 <td>@Html.TextBox("Routing_XXX.NextPageNo", "", new { @class = "page-no", maxlength = 10, style = "width:75px" })</td>
                                 <td>@Html.TextBox("Routing_XXX.NextFrame", "", new { @class = "frame", maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
-                                <td>@Html.CheckBox("Routing_XXX.GoNextPage", false, new { @class = "next-page" })&nbsp;Next&nbsp;Page</td>
-                                <td>@Html.CheckBox("Routing_XXX.GoNextFrame", false, new { @class = "next-frame" })&nbsp;Next&nbsp;Frame</td>
+                                <td>@Html.CheckBox("Routing_XXX.GoNextPage", false, new { @class = "next-page" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Page</span></td>
+                                <td>@Html.CheckBox("Routing_XXX.GoNextFrame", false, new { @class = "next-frame" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Frame</span></td>
+                                <td style="padding-left:15px"><a href="#" class="go-to-page" onclick="return goToPage(this);">Go to page</a></td>
                                 <td><a href="#" class="ordered ordered-btn delete" title="Delete route">Delete</a></td>
                             </tr>
                         </tbody>
@@ -198,6 +203,7 @@
     $("#PageRouting .ordered-btn.add").click(function (event) {
         event.preventDefault();
         addRoute(this);
+        updateRouteLink(this);
     });
 
     $("#tbodyPageRouting .ordered-btn.delete").click(function (event) {
@@ -205,12 +211,18 @@
         deleteRoute(this);
     });
 
+    $("#tbodyPageRouting .page-no,#tbodyPageRouting .frame").keyup(function (event) {
+        updateRouteLink(this);
+    });
+
     $("#tbodyPageRouting .next-page").click(function (event) {
         nextPageChecked(this);
+        updateRouteLink(this);
     });
 
     $("#tbodyPageRouting .next-frame").click(function (event) {
         nextFrameChecked(this);
+        updateRouteLink(this);
     });
 
     $("#tbodyPageRouting .page-no,#tbodyPageRouting .frame").change(function (event) {
@@ -305,11 +317,16 @@
             event.preventDefault();
             setSelectedRoutes();
         });
+        $("#trPageRoute" + id + " .page-no,#trPageRoute" + id + " .frame").keyup(function (event) {
+            updateRouteLink(this);
+        });
         $("#trPageRoute" + id + " .next-page").change(function (event) {
             nextPageChecked(this);
+            updateRouteLink(this);
         });
         $("#trPageRoute" + id + " .next-frame").change(function (event) {
             nextFrameChecked(this);
+            updateRouteLink(this);
         });
         $("#trPageRoute" + id + " .page-no,#trPageRoute" + id + " .frame").change(function (event) {
             setSelectedRoutes(this);
@@ -330,8 +347,6 @@
         var row = $(ctrl).parents("tr.route.ordered");
         var nextPage = $(row).find(".next-page").is(":checked");
         var nextFrame = $(row).find(".next-frame").is(":checked");
-        if (nextPage)
-            $(row).find(".next-frame").prop("checked", false);
         if (nextPage || nextFrame)
             $(row).find("input[type=text]").prop("disabled", "disabled");
         else
@@ -347,8 +362,6 @@
         var row = $(ctrl).parents("tr.route.ordered");
         var nextPage = $(row).find(".next-page").is(":checked");
         var nextFrame = $(row).find(".next-frame").is(":checked");
-        if (nextFrame)
-            $(row).find(".next-page").prop("checked", false);     
         if (nextPage || nextFrame)
             $(row).find("input[type=text]").prop("disabled", "disabled");
         else
@@ -374,6 +387,45 @@
             join = ",";
         });
         $("#SelectedRoutes").val(val);
+    }
+
+    function goToPage(ctrl)
+    {
+        var row = $(ctrl).parents("tr.route.ordered");
+        var keycode = $(row).data("route-keycode") * 1;
+        var json = {};
+        json.PageNo = $(row).find("input.page-no").val();
+        json.Frame = $(row).find("input.frame").val();
+        json.NextPage = $(row).find("input.next-page").is(":checked");
+        json.NextFrame = $(row).find("input.next-frame").is(":checked");
+        $.getJSON('@Url.Action("GetPageID", "Json")', json, function (rv) {
+            if (rv.PageID <= 0) {
+                alert("This route does not point to a statically-defined page.");
+                return;
+            }
+            var url = "@pageEditURL".replace("-1", rv.PageID.toString());
+            window.location = url;
+        });
+        return false;
+    }
+
+    function updateRouteLink(ctrl)
+    {
+        var row = $(ctrl).parents("tr.route.ordered");
+        ctrl = $(row).find("a.go-to-page");
+        var keycode = $(row).data("route-keycode") * 1;
+        var json = {};
+        json.PageNo = $(row).find("input.page-no").val();
+        json.Frame = $(row).find("input.frame").val();
+        json.NextPage = $(row).find("input.next-page").is(":checked");
+        json.NextFrame = $(row).find("input.next-frame").is(":checked");
+        $.getJSON('@Url.Action("GetPageID", "Json")', json, function (rv) {
+            if (rv.PageID <= 0) {
+                $(ctrl).text("No page");
+                return;
+            }
+            $(ctrl).text("Go to " + rv.GoesToPageFrameDesc);
+        });
     }
     </script>
 }

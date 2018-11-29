@@ -52,10 +52,17 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            string sql = @"SELECT * 
-                FROM route
-                WHERE PageID=" + PageID + @"
-                ORDER BY KeyCode;";
+            string sql = @"SELECT r.*,
+                dp.PageID AS DirectPageID,dp.PageNo AS DirectPageNo,dp.FrameNo AS DirectFrameNo,
+                np.PageID AS NextPageID,np.PageNo AS NextPagePageNo,np.FrameNo AS NextPageFrameNo,
+                nf.PageID AS NextFrameID,nf.PageNo AS NextFramePageNo,nf.FrameNo AS NextFrameFrameNo
+                FROM route r
+                JOIN `page` p on p.PageID=r.PageID
+                LEFT JOIN `page` dp ON dp.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=r.NextPageNo AND pp.FrameNo=r.NextFrameNo LIMIT 1)
+                LEFT JOIN `page` np ON np.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=p.PageNo+1 AND pp.FrameNo=p.FrameNo LIMIT 1)
+                LEFT JOIN `page` nf ON nf.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=p.PageNo AND pp.FrameNo=p.FrameNo+1 LIMIT 1)
+                WHERE r.PageID=" + PageID + @"
+                ORDER BY r.KeyCode;";
             var cmd = new MySqlCommand(sql, ConX);
             using (var rdr = cmd.ExecuteReader())
             {

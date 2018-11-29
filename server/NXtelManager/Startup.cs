@@ -13,6 +13,7 @@ namespace NXtelManager
             //new Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Save();
             DBOps.ConnectionString = new Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Load().ConnectionString;
             SQL.UpdateStructure();
+            SQL.PopulateDummyTable();
             ServerStatus.StartIfStopped();
             ConfigureAuth(app);
         }

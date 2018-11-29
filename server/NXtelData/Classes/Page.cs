@@ -94,6 +94,22 @@ namespace NXtelData
             }
         }
 
+        public static int FrameToFrameNo(string Frame)
+        {
+            Frame = (Frame ?? "");
+            if (Frame == null || Frame.Trim().Length == 0)
+            {
+                return 0;
+            }
+            char chr = (Frame.Trim().ToLower())[0];
+            if (chr < 'a')
+                return 0;
+            else if (chr > 'z')
+                return 25;
+            else
+                return chr - 'a';
+        }
+
         public string PageAndFrame
         {
             get
@@ -594,6 +610,21 @@ namespace NXtelData
             get
             {
                 return ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
+            }
+        }
+
+        public static int GetPageID(int PageNo, int FrameNo)
+        {
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                string sql = @"SELECT IFNULL(MIN(PageID),-1) AS PageID
+                    FROM `page`
+                    WHERE PageNo=" + PageNo + @"
+                    AND FrameNo=" + FrameNo;
+                var cmd = new MySqlCommand(sql, con);
+                int rv = cmd.ExecuteScalarInt32();
+                return rv > 0 ? rv : -1;
             }
         }
     }

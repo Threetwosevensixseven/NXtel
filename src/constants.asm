@@ -156,6 +156,28 @@ pend
 
 
 
+; Telnet
+Telnet proc
+  IAC                   equ 255                         ; Marks the start of a negotiation sequence
+  WILL                  equ 251                         ; Confirm willingness to negotiate
+  WONT                  equ 252                         ; Confirm unwillingness to negotiate
+  DO                    equ 253                         ; Indicate willingness to negotiate
+  DONT                  equ 254                         ; Indicate unwillingness to negotiate
+  Nop                   equ 241                         ; No operation
+  SB                    equ 250                         ; The start of sub-negotiation options
+  SE                    equ 240                         ; The end of sub-negotiation options
+  IS                    equ   0                         ; Sub-negotiation IS command
+  Send                  equ   1                         ; Sub-negotiation SEND command
+  INFO                  equ   2                         ; Sub-negotiation INFO command
+  NEWENVIRON            equ  39                         ; Environment variables
+  VAR                   equ   0                         ; NEW-ENVIRON command
+  VALUE                 equ   1                         ; NEW-ENVIRON command
+  ESC                   equ   2                         ; NEW-ENVIRON command
+  USERVAR               equ   3                         ; NEW-ENVIRON command
+pend
+
+
+
 ; BeepFX Sound Effects
 SFX proc
   Key_None              equ 0

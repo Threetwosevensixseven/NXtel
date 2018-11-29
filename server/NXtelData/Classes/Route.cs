@@ -14,9 +14,13 @@ namespace NXtelData
         public bool GoNextPage { get; set; }
         public bool GoNextFrame { get; set; }
         public string Description { get; set; }
+        public int GoesToPageID { get; set; }
+        public string GoesToPageFrameDesc { get; set; }
 
         public Route()
         {
+            GoesToPageID = -1;
+            Description = GoesToPageFrameDesc = "";
         }
 
         public Route(byte KeyCode, string Description) 
@@ -91,15 +95,127 @@ namespace NXtelData
             return true;
         }
 
-        public void Read(MySqlDataReader rdr)
+        public static Route GetRoute(string PageNo, string Frame, bool NextPage, bool NextFrame)
         {
-            this.KeyCode = rdr.GetByte("KeyCode");
+            var rv = new Route();
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                int NextPageNo;
+                if (!int.TryParse(PageNo, out NextPageNo) || NextPageNo < 0)
+                    NextPageNo = -1;
+                int NextFrameNo = Page.FrameToFrameNo(Frame);
+                if (NextFrameNo < 0)
+                    NextFrameNo = -1;
+                byte KeyCode = 0;
+                string sql = @"SELECT @NextPageNo AS NextPageNo,@NextFrameNo AS NextFrameNo,
+                    @GoNextPage AS GoNextPage,@GoNextFrame AS GoNextFrame,dp.PageID AS DirectPageID,dp.PageNo AS DirectPageNo,dp.FrameNo AS DirectFrameNo,
+                    np.PageID AS NextPageID,np.PageNo AS NextPagePageNo,np.FrameNo AS NextPageFrameNo,
+                    nf.PageID AS NextFrameID,nf.PageNo AS NextFramePageNo,nf.FrameNo AS NextFrameFrameNo
+                    FROM dummy
+                    LEFT JOIN `page` dp ON dp.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@NextPageNo AND pp.FrameNo=@NextFrameNo LIMIT 1)
+                    LEFT JOIN `page` np ON np.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@NextPageNo+1 AND pp.FrameNo=@NextFrameNo LIMIT 1)
+                    LEFT JOIN `page` nf ON nf.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@NextPageNo AND pp.FrameNo=@NextFrameNo+1 LIMIT 1);";
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("NextPageNo", NextPageNo);
+                cmd.Parameters.AddWithValue("NextFrameNo", NextFrameNo);
+                cmd.Parameters.AddWithValue("GoNextPage", NextPage);
+                cmd.Parameters.AddWithValue("GoNextFrame", NextFrame);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        rv.Read(rdr, false);
+                        break;
+                    }
+                }
+            }
+            return rv;
+        }
+
+        public void Read(MySqlDataReader rdr, bool IncludeKeyCode = true)
+        {
+            if (IncludeKeyCode)
+                this.KeyCode = rdr.GetByte("KeyCode");
             this.NextPageNo = rdr.GetInt32Nullable("NextPageNo");
             this.NextFrameNo = rdr.GetInt32Nullable("NextFrameNo");
             this.GoNextPage = rdr.GetBoolean("GoNextPage");
             this.GoNextFrame = rdr.GetBoolean("GoNextFrame");
             var master = Routes.MasterList.FirstOrDefault(r => r.KeyCode == KeyCode);
             this.Description = (master == null) ? Convert.ToChar(KeyCode).ToString() : master.Description;
+
+            // 1) Next Page checked
+            if (GoNextPage && !GoNextFrame)
+            {
+                this.GoesToPageID = rdr.GetInt32Safe("NextPageID");
+                if (this.GoesToPageID > 0)
+                {
+                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextPagePageNo").ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextPageFrameNo"))).ToString();
+                }
+                else
+                {
+                    this.GoesToPageID = Options.MainIndexPageID;
+                    this.GoesToPageFrameDesc = Options.MainIndexPage;
+                }
+            }
+
+            // 2) Next Frame checked        
+            else if (GoNextFrame && !GoNextPage)
+            {
+                this.GoesToPageID = rdr.GetInt32Safe("NextFrameID");
+                if (this.GoesToPageID > 0)
+                {
+                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextFramePageNo").ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextFrameFrameNo"))).ToString();
+                }
+                else
+                {
+                    this.GoesToPageID = Options.MainIndexPageID;
+                    this.GoesToPageFrameDesc = Options.MainIndexPage;
+                }
+            }
+
+            // 3) Both checked
+            else if (GoNextFrame && GoNextPage) 
+            {
+                this.GoesToPageID = rdr.GetInt32Safe("NextFrameID");
+                if (this.GoesToPageID > 0)
+                {
+                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextFramePageNo").ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextFrameFrameNo"))).ToString();
+                }
+                if (this.GoesToPageID <= 0)
+                {
+                    this.GoesToPageID = rdr.GetInt32Safe("NextPageID");
+                    if (this.GoesToPageID > 0)
+                    {
+                        this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextPagePageNo").ToString()
+                            + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextPageFrameNo"))).ToString();
+                    }
+                }
+                if (this.GoesToPageID <= 0)
+                {
+                    this.GoesToPageID = Options.MainIndexPageID;
+                    this.GoesToPageFrameDesc = Options.MainIndexPage;
+                }
+            }
+
+            // 4) Neither checked
+            else
+            {
+                this.GoesToPageID = rdr.GetInt32Safe("DirectPageID");
+                if (this.GoesToPageID > 0)
+                {
+                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("DirectPageNo").ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("DirectFrameNo"))).ToString();
+                }
+                else
+                {
+                    this.GoesToPageID = -1;
+                    this.GoesToPageFrameDesc = "No Page";
+                }
+            }
         }
 
         public string Sort
