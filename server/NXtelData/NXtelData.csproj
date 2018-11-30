@@ -91,6 +91,7 @@
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Management" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -105,6 +106,8 @@
     <Compile Include="Classes\Feed.cs" />
     <Compile Include="Classes\FeedItem.cs" />
     <Compile Include="Classes\FeedItems.cs" />
+    <Compile Include="Classes\HelpItem.cs" />
+    <Compile Include="Classes\HelpItems.cs" />
     <Compile Include="Classes\Options.cs" />
     <Compile Include="Classes\PageBase.cs" />
     <Compile Include="Classes\PageCache.cs" />

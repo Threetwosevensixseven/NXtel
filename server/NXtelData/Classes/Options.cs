@@ -158,5 +158,13 @@ namespace NXtelData
                 return val;
             }
         }
+        public static string ContentHelpDirectory
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["ContentHelpDirectory"] ?? "").Trim();
+                return cfg;
+            }
+        }
     }
 }

@@ -1,0 +1,29 @@
+﻿@model NXtelData.HelpItems
+@{
+    ViewBag.Title = "Help Topics";
+}
+<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Message</h3>
+<table class="paged" style="width:auto">
+    <thead>
+        <tr>
+            <th>Topic</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (NXtelData.HelpItem help in Model)
+        {
+            <tr>
+                <td>@Html.ActionLink(@help.Title, "Topic", "Help", new { id = help.Slug }, null)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("table.paged").DataTable();
+        });
+    </script>
+}
