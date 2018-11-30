@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web.Hosting;
 
 namespace NXtelData
 {
@@ -42,6 +43,41 @@ namespace NXtelData
                 @"(\p{Ll})(\P{Ll})",
                 "$1 $2"
             );
+        }
+
+        public static byte[] LoadMedia(string FileName, string Extension)
+        {
+            byte[] file = null;
+            if (string.IsNullOrWhiteSpace(FileName))
+                return file;
+            try
+            {
+                string path = Options.ContentHelpDirectory;
+                if (path.StartsWith("~"))
+                    path = HostingEnvironment.MapPath(path);
+                path = Path.Combine(path, "media");
+                string ext = (Extension ?? "").Trim();
+                string fileName = Path.Combine(path, Path.GetFileNameWithoutExtension(FileName) + "." + ext);
+                if (File.Exists(fileName))
+                {
+                    file = File.ReadAllBytes(fileName);
+                    return file;
+                }
+            }
+            catch { }
+            try
+            {
+                string path = HostingEnvironment.MapPath(@"~/SiteHelp/media");
+                string ext = (Extension ?? "").Trim();
+                string fileName = Path.Combine(path, Path.GetFileNameWithoutExtension(FileName) + "." + ext);
+                if (File.Exists(fileName))
+                {
+                    file = File.ReadAllBytes(fileName);
+                    return file;
+                }
+            }
+            catch { }
+            return file;
         }
     }
 }

@@ -26,5 +26,13 @@ namespace NXtelManager.Controllers
             help.LoadMarkdown();
             return View(help);
         }
+
+        public ActionResult Media(string ID, string ID2)
+        {
+            var bytes = HelpItem.LoadMedia(ID2, ID);
+            if (bytes == null || bytes.Length == 0)
+                return new HttpNotFoundResult();
+            return base.File(bytes, "application/octet-stream");
+        }
     }
 }

@@ -255,6 +255,7 @@
     <Content Include="fonts\TeletextKit.eot" />
     <Content Include="fonts\TeletextKit.ttf" />
     <Content Include="fonts\TeletextKit.woff" />
+    <Content Include="SiteHelp\media\dont-panic.jpg" />
     <Content Include="SiteHelp\PageEditHelp.md" />
     <None Include="Properties\PublishProfiles\FolderDeploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
@@ -323,6 +324,7 @@
     <Content Include="Views\Help\Topics.cshtml" />
     <Content Include="Views\Help\Topic.cshtml" />
     <Content Include="Views\Shared\_Help.cshtml" />
+    <Content Include="SiteHelp\SecondSiteHelpTopic.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

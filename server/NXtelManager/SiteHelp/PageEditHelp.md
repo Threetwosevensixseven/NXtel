@@ -1,4 +1,4 @@
-﻿# Page Edit Help 
+﻿## Page Edit Help 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tincidunt cursus metus et condimentum. Orci varius natoque 
 penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris velit elit, feugiat a leo sed, suscipit ornare 
 sapien. Maecenas efficitur mollis magna, et finibus ipsum faucibus sed. Duis nec tellus sapien. In ut lacinia nisl. 
@@ -8,8 +8,7 @@ lectus at nunc. Mauris congue, justo eu tempus laoreet, leo quam vulputate est, 
 Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus tempus, tortor eget 
 porttitor porta, neque mi finibus urna, ut vulputate ligula risus et nisl.
 
-[Second Site Help Topic](SecondSiteHelpTopic)  
-[Second Content Topic](SecondContentTopic)  
+ ![Don't Panic!](../Media/jpg/dont-panic "Don't Panic!")
 
 Nulla facilisi. Cras mattis mauris ac ipsum luctus viverra. Vestibulum condimentum eros mi, eu egestas nisi cursus id. 
 Integer tristique vestibulum dolor eget semper. Integer ligula libero, volutpat a dolor non, feugiat sagittis nisl. 
@@ -17,6 +16,9 @@ Donec non auctor turpis, eu cursus ipsum. Fusce tempor nibh in porta lobortis. N
 Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla ullamcorper ligula quis enim 
 dictum sagittis in ut magna. Nam eget rhoncus tortor. Sed laoreet sapien sed eros luctus, eget congue odio dignissim. 
 Ut sed est ut purus interdum lobortis sit amet vitae arcu.
+
+[Second Site Help Topic](SecondSiteHelpTopic)  
+[Second Content Topic](SecondContentTopic) 
 
 Nunc interdum, massa quis iaculis consectetur, arcu sapien feugiat quam, sit amet pharetra leo dolor sed orci. Curabitur et 
 vehicula metus. Sed ut lorem placerat, dignissim urna ullamcorper, rutrum lectus. Curabitur et aliquam diam. Maecenas lacinia 
