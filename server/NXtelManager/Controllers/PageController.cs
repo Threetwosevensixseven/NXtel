@@ -100,5 +100,17 @@ namespace NXtelManager.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        public ActionResult Route(PageRouteViewModel Model)
+        {
+            if (Model == null)
+                Model = new PageRouteViewModel();
+            var route = NXtelData.Route.GetRoute(Model.CurrentPageNo, Model.CurrentFrame, 
+                Model.PageNo, Model.Frame, Model.NextPage, Model.NextFrame);
+            Model.PageID = route.GoesToPageID;
+            Model.GoesToPageFrameDesc = route.GoesToPageFrameDesc;
+            return Json(Model, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

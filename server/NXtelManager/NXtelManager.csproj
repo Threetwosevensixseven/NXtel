@@ -189,7 +189,6 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\JsonController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\ServerController.cs" />
@@ -206,7 +205,6 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\FileViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\JsonViewModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Attributes\MultipleButtonAttribute.cs" />
     <Compile Include="Models\PageViewModels.cs" />
@@ -318,7 +316,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Json\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

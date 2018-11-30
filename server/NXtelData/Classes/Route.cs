@@ -16,10 +16,12 @@ namespace NXtelData
         public string Description { get; set; }
         public int GoesToPageID { get; set; }
         public string GoesToPageFrameDesc { get; set; }
+        public int GoesToPageNo { get; set; }
+        public int GoesToFrameNo { get; set; }
 
         public Route()
         {
-            GoesToPageID = -1;
+            GoesToPageID = GoesToPageNo = GoesToFrameNo - 1;
             Description = GoesToPageFrameDesc = "";
         }
 
@@ -78,6 +80,18 @@ namespace NXtelData
                 ConX.Open();
             }
 
+            if (GoNextPage || GoNextFrame)
+            {
+                // Remove page numbers if they were greyed out in the UI
+                NextPageNo = null;
+                NextFrameNo = null;
+            }
+            else if (NextPageNo != null && NextFrameNo == null)
+            {
+                // Default frame number to 'a' if it was missing in the UI
+                NextFrameNo = 0;
+            }
+
             string sql = @"INSERT INTO route (PageID,KeyCode,NextPageNo,NextFrameNo,GoNextPage,GoNextFrame)
                     VALUES(@PageID,@KeyCode,@NextPageNo,@NextFrameNo,@GoNextPage,@GoNextFrame);";
             var cmd = new MySqlCommand(sql, ConX);
@@ -95,7 +109,7 @@ namespace NXtelData
             return true;
         }
 
-        public static Route GetRoute(string PageNo, string Frame, bool NextPage, bool NextFrame)
+        public static Route GetRoute(string CurrentPageNo, string CurrentFrame, string PageNo, string Frame, bool NextPage, bool NextFrame)
         {
             var rv = new Route();
             using (var con = new MySqlConnection(DBOps.ConnectionString))
@@ -107,16 +121,26 @@ namespace NXtelData
                 int NextFrameNo = Page.FrameToFrameNo(Frame);
                 if (NextFrameNo < 0)
                     NextFrameNo = -1;
+                int currentPageNo;
+                if (!int.TryParse(CurrentPageNo, out currentPageNo) || currentPageNo < 0)
+                    currentPageNo = -1;
+                int CurrentFrameNo = Page.FrameToFrameNo(CurrentFrame);
+                if (CurrentFrameNo < 0)
+                    CurrentFrameNo = -1;
+
                 byte KeyCode = 0;
-                string sql = @"SELECT @NextPageNo AS NextPageNo,@NextFrameNo AS NextFrameNo,
+                string sql = @"SELECT @CurrentPageNo AS CurrentPageNo,@CurrentFrameNo AS CurrentFrameNo,
+                    @NextPageNo AS NextPageNo,@NextFrameNo AS NextFrameNo,
                     @GoNextPage AS GoNextPage,@GoNextFrame AS GoNextFrame,dp.PageID AS DirectPageID,dp.PageNo AS DirectPageNo,dp.FrameNo AS DirectFrameNo,
                     np.PageID AS NextPageID,np.PageNo AS NextPagePageNo,np.FrameNo AS NextPageFrameNo,
                     nf.PageID AS NextFrameID,nf.PageNo AS NextFramePageNo,nf.FrameNo AS NextFrameFrameNo
                     FROM dummy
                     LEFT JOIN `page` dp ON dp.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@NextPageNo AND pp.FrameNo=@NextFrameNo LIMIT 1)
-                    LEFT JOIN `page` np ON np.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@NextPageNo+1 AND pp.FrameNo=@NextFrameNo LIMIT 1)
-                    LEFT JOIN `page` nf ON nf.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@NextPageNo AND pp.FrameNo=@NextFrameNo+1 LIMIT 1);";
+                    LEFT JOIN `page` np ON np.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@CurrentPageNo+1 AND pp.FrameNo=0 LIMIT 1)
+                    LEFT JOIN `page` nf ON nf.PageID=(SELECT PageID FROM `page` pp WHERE pp.PageNo=@CurrentPageNo AND pp.FrameNo=@CurrentFrameNo+1 LIMIT 1);";
                 var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("CurrentPageNo", currentPageNo);
+                cmd.Parameters.AddWithValue("CurrentFrameNo", CurrentFrameNo);
                 cmd.Parameters.AddWithValue("NextPageNo", NextPageNo);
                 cmd.Parameters.AddWithValue("NextFrameNo", NextFrameNo);
                 cmd.Parameters.AddWithValue("GoNextPage", NextPage);
@@ -137,6 +161,8 @@ namespace NXtelData
         {
             if (IncludeKeyCode)
                 this.KeyCode = rdr.GetByte("KeyCode");
+            int CurrentPageNo = rdr.GetInt32Safe("CurrentPageNo");
+            int CurrentFrameNo = rdr.GetInt32Safe("CurrentFrameNo");
             this.NextPageNo = rdr.GetInt32Nullable("NextPageNo");
             this.NextFrameNo = rdr.GetInt32Nullable("NextFrameNo");
             this.GoNextPage = rdr.GetBoolean("GoNextPage");
@@ -150,12 +176,16 @@ namespace NXtelData
                 this.GoesToPageID = rdr.GetInt32Safe("NextPageID");
                 if (this.GoesToPageID > 0)
                 {
-                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextPagePageNo").ToString()
-                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextPageFrameNo"))).ToString();
+                    this.GoesToPageNo = rdr.GetInt32Safe("NextPagePageNo");
+                    this.GoesToFrameNo = rdr.GetInt32Safe("NextPageFrameNo");
+                    this.GoesToPageFrameDesc = this.GoesToPageNo.ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + this.GoesToFrameNo)).ToString();
                 }
                 else
                 {
                     this.GoesToPageID = Options.MainIndexPageID;
+                    this.GoesToPageNo = Options.MainIndexPageNo;
+                    this.GoesToFrameNo = Options.MainIndexFrameNo;
                     this.GoesToPageFrameDesc = Options.MainIndexPage;
                 }
             }
@@ -166,13 +196,28 @@ namespace NXtelData
                 this.GoesToPageID = rdr.GetInt32Safe("NextFrameID");
                 if (this.GoesToPageID > 0)
                 {
-                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextFramePageNo").ToString()
-                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextFrameFrameNo"))).ToString();
+                    this.GoesToPageNo = rdr.GetInt32Safe("NextFramePageNo");
+                    this.GoesToFrameNo = rdr.GetInt32Safe("NextFrameFrameNo");
+                    this.GoesToPageFrameDesc = this.GoesToPageNo.ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + this.GoesToFrameNo)).ToString();
                 }
                 else
                 {
-                    this.GoesToPageID = Options.MainIndexPageID;
-                    this.GoesToPageFrameDesc = Options.MainIndexPage;
+                    this.GoesToPageID = rdr.GetInt32Safe("NextPageID");
+                    if (this.GoesToPageID > 0 && CurrentFrameNo == 25)
+                    {
+                        this.GoesToPageNo = rdr.GetInt32Safe("NextPagePageNo");
+                        this.GoesToFrameNo = rdr.GetInt32Safe("NextPageFrameNo");
+                        this.GoesToPageFrameDesc = this.GoesToPageNo.ToString()
+                            + ((char)Convert.ToByte(((byte)"a"[0]) + this.GoesToFrameNo)).ToString();
+                    }
+                    else
+                    {
+                        this.GoesToPageID = Options.MainIndexPageID;
+                        this.GoesToPageNo = Options.MainIndexPageNo;
+                        this.GoesToFrameNo = Options.MainIndexFrameNo;
+                        this.GoesToPageFrameDesc = Options.MainIndexPage;
+                    }
                 }
             }
 
@@ -182,21 +227,27 @@ namespace NXtelData
                 this.GoesToPageID = rdr.GetInt32Safe("NextFrameID");
                 if (this.GoesToPageID > 0)
                 {
-                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextFramePageNo").ToString()
-                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextFrameFrameNo"))).ToString();
+                    this.GoesToPageNo = rdr.GetInt32Safe("NextFramePageNo");
+                    this.GoesToFrameNo = rdr.GetInt32Safe("NextFrameFrameNo");
+                    this.GoesToPageFrameDesc = this.GoesToPageNo.ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + this.GoesToFrameNo)).ToString();
                 }
                 if (this.GoesToPageID <= 0)
                 {
                     this.GoesToPageID = rdr.GetInt32Safe("NextPageID");
                     if (this.GoesToPageID > 0)
                     {
-                        this.GoesToPageFrameDesc = rdr.GetInt32Safe("NextPagePageNo").ToString()
-                            + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("NextPageFrameNo"))).ToString();
+                        this.GoesToPageNo = rdr.GetInt32Safe("NextPagePageNo");
+                        this.GoesToFrameNo = rdr.GetInt32Safe("NextPageFrameNo");
+                        this.GoesToPageFrameDesc = this.GoesToPageNo.ToString()
+                            + ((char)Convert.ToByte(((byte)"a"[0]) + this.GoesToFrameNo)).ToString();
                     }
                 }
                 if (this.GoesToPageID <= 0)
                 {
                     this.GoesToPageID = Options.MainIndexPageID;
+                    this.GoesToPageNo = Options.MainIndexPageNo;
+                    this.GoesToFrameNo = Options.MainIndexFrameNo;
                     this.GoesToPageFrameDesc = Options.MainIndexPage;
                 }
             }
@@ -207,12 +258,16 @@ namespace NXtelData
                 this.GoesToPageID = rdr.GetInt32Safe("DirectPageID");
                 if (this.GoesToPageID > 0)
                 {
-                    this.GoesToPageFrameDesc = rdr.GetInt32Safe("DirectPageNo").ToString()
-                        + ((char)Convert.ToByte(((byte)"a"[0]) + rdr.GetInt32Safe("DirectFrameNo"))).ToString();
+                    this.GoesToPageNo = rdr.GetInt32Safe("DirectPageNo");
+                    this.GoesToFrameNo = rdr.GetInt32Safe("DirectFrameNo");
+                    this.GoesToPageFrameDesc = this.GoesToPageNo.ToString()
+                        + ((char)Convert.ToByte(((byte)"a"[0]) + this.GoesToFrameNo)).ToString();
                 }
                 else
                 {
                     this.GoesToPageID = -1;
+                    this.GoesToPageNo = -1;
+                    this.GoesToFrameNo = 0;
                     this.GoesToPageFrameDesc = "No Page";
                 }
             }

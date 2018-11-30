@@ -44,10 +44,10 @@ namespace NXtelServer.Classes
 
         public bool ProcessInput(byte[] Chars, int Received, out Page NextPage)
         {
-            Page first = null;
-            foreach (var item in PageHistory)
-                first = item;
-            Debug.Assert(first.Routing.Count == 1);
+            //Page first = null;
+            //foreach (var item in PageHistory)
+            //    first = item;
+            //Debug.Assert(first.Routing.Count == 1);
 
             for (int i = 0; i < Received; i++)
                 KeyBuffer.Enqueue(Chars[i]);
@@ -121,9 +121,9 @@ namespace NXtelServer.Classes
                     var route = CurrentPage.Routing.FirstOrDefault(r => r.KeyCode == b);
                     if (route != null)
                     {
-                        if (route.NextPageNo != null && route.NextFrameNo != null)
+                        if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                         {
-                            NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
+                            NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
                             return true;
@@ -161,9 +161,9 @@ namespace NXtelServer.Classes
                         {
                             if (route.KeyCode == colour)
                             {
-                                if (route.NextPageNo != null && route.NextFrameNo != null)
+                                if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                                 {
-                                    NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
+                                    NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo);
                                     PageHistory.Push(NextPage);
                                     CommandState = CommandStates.RegularRouting;
                                     CurrentCommand = "";

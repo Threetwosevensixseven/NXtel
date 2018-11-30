@@ -135,7 +135,7 @@
                                 <td>@Html.TextBox("Routing_XXX.NextFrame", "", new { @class = "frame", maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
                                 <td>@Html.CheckBox("Routing_XXX.GoNextPage", false, new { @class = "next-page" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Page</span></td>
                                 <td>@Html.CheckBox("Routing_XXX.GoNextFrame", false, new { @class = "next-frame" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Frame</span></td>
-                                <td style="padding-left:15px"><a href="#" class="go-to-page" onclick="return goToPage(this);">Go to page</a></td>
+                                <td style="padding-left:15px"><a href="#" class="go-to-page" onclick="return goToPage(this);">No page</a></td>
                                 <td><a href="#" class="ordered ordered-btn delete" title="Delete route">Delete</a></td>
                             </tr>
                         </tbody>
@@ -209,6 +209,13 @@
     $("#tbodyPageRouting .ordered-btn.delete").click(function (event) {
         event.preventDefault();
         deleteRoute(this);
+    });
+
+    $("#Page_PageNo,#Page_Frame").keyup(function (event) {
+        debugger;
+        $("#tbodyPageRouting .go-to-page").each(function () {
+            updateRouteLink(this);
+        });
     });
 
     $("#tbodyPageRouting .page-no,#tbodyPageRouting .frame").keyup(function (event) {
@@ -394,11 +401,13 @@
         var row = $(ctrl).parents("tr.route.ordered");
         var keycode = $(row).data("route-keycode") * 1;
         var json = {};
+        json.CurrentPageNo = $("#Page_PageNo").val();
+        json.CurrentFrame = $("#Page_Frame").val();
         json.PageNo = $(row).find("input.page-no").val();
         json.Frame = $(row).find("input.frame").val();
         json.NextPage = $(row).find("input.next-page").is(":checked");
         json.NextFrame = $(row).find("input.next-frame").is(":checked");
-        $.getJSON('@Url.Action("GetPageID", "Json")', json, function (rv) {
+        $.getJSON('@Url.Action("Route", "Page")', json, function (rv) {
             if (rv.PageID <= 0) {
                 alert("This route does not point to a statically-defined page.");
                 return;
@@ -415,11 +424,13 @@
         ctrl = $(row).find("a.go-to-page");
         var keycode = $(row).data("route-keycode") * 1;
         var json = {};
+        json.CurrentPageNo = $("#Page_PageNo").val();
+        json.CurrentFrame = $("#Page_Frame").val();
         json.PageNo = $(row).find("input.page-no").val();
         json.Frame = $(row).find("input.frame").val();
         json.NextPage = $(row).find("input.next-page").is(":checked");
         json.NextFrame = $(row).find("input.next-frame").is(":checked");
-        $.getJSON('@Url.Action("GetPageID", "Json")', json, function (rv) {
+        $.getJSON('@Url.Action("Route", "Page")', json, function (rv) {
             if (rv.PageID <= 0) {
                 $(ctrl).text("No page");
                 return;

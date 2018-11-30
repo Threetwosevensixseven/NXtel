@@ -67,4 +67,23 @@ namespace NXtelManager.Models
             return rv;
         }
     }
+
+    public class PageRouteViewModel
+    {
+        public int PageID { get; set; }
+        public string CurrentPageNo { get; set; }
+        public string CurrentFrame { get; set; }
+        public string PageNo { get; set; }
+        public string Frame { get; set; }
+        public bool NextPage { get; set; }
+        public bool NextFrame { get; set; }
+        public string GoesToPageFrameDesc { get; set; }
+
+        public PageRouteViewModel()
+        {
+            PageID = -1;
+            PageNo = Frame = GoesToPageFrameDesc = "";
+        }
+    }
+
 }

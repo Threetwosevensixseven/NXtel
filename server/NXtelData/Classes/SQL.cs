@@ -26,6 +26,22 @@ namespace NXtelData
                 ConX.Close();
         }
 
+        public static void SetupData(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            PopulateDummyTable(ConX);
+            FixRoutes1(ConX);
+            FixRoutes2(ConX);
+
+            if (openConX)
+                ConX.Close();
+        }
 
         public static void CreateUserMailbox(MySqlConnection ConX = null)
         {
@@ -502,5 +518,64 @@ END$$";
             }
         }
 
+        public static void FixRoutes1(MySqlConnection ConX = null)
+        {
+            // Don't delete this, it gets run on NXtelManager startup
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"UPDATE Route
+                    SET NextFrameNo=0
+                    WHERE NextFrameNo IS NULL
+                    AND (GoNextPage IS NULL OR GoNextPage=0)
+                    AND (GoNextFrame IS NULL OR GoNextFrame=0);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void FixRoutes2(MySqlConnection ConX = null)
+        {
+            // Don't delete this, it gets run on NXtelManager startup
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"UPDATE Route
+                    SET NextPageNo=NULL,NextFrameNo=NULL
+                    WHERE (NextPageNo IS NOT NULL
+                    OR NextFrameNo IS NOT NULL)
+                    AND (GoNextPage=1 OR GoNextFrame=1);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }
