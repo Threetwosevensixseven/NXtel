@@ -96,9 +96,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="NXtelServer_TemporaryKey.pfx" />
-    <None Include="Pages\telstar-0.bin" />
-    <None Include="Pages\telstar-0a.bin" />
-    <None Include="Pages\wenstar-0.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NXtelData\NXtelData.csproj">

@@ -49,21 +49,21 @@ org $C000
 dispto zeusmmu(34)
 Pages34 proc
   align 1024
-  P0: import_bin "..\pages\demo1\sh003.bin"
+  P0: import_bin "..\pages\demo1\sh003.tt8"
   align 1024
-  P1: import_bin "..\pages\demo1\telstar-91a.bin"
+  P1: import_bin "..\pages\demo1\telstar-91a.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\sh004.bin"
+  P2: import_bin "..\pages\demo1\sh004.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\telstar-7a.bin"
+  P3: import_bin "..\pages\demo1\telstar-7a.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\telstar-7b.bin"
+  P4: import_bin "..\pages\demo1\telstar-7b.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\telstar-7c.bin"
+  P5: import_bin "..\pages\demo1\telstar-7c.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\telstar-7d.bin"
+  P6: import_bin "..\pages\demo1\telstar-7d.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\jellica001.bin"
+  P7: import_bin "..\pages\demo1\jellica001.tt8"
 pend
 P34Size = $-$C000
 output_bin "..\banks\Bank34.bin", zeusmmu(34), P34Size
@@ -74,21 +74,21 @@ org $C000
 dispto zeusmmu(35)
 Pages35 proc
   align 1024
-  P0: import_bin "..\pages\demo1\telstar-2001i.bin"
+  P0: import_bin "..\pages\demo1\telstar-2001i.tt8"
   align 1024
-  P1: import_bin "..\pages\demo1\telstar-2001j.bin"
+  P1: import_bin "..\pages\demo1\telstar-2001j.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\telstar-2001k.bin"
+  P2: import_bin "..\pages\demo1\telstar-2001k.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\telstar-2001l.bin"
+  P3: import_bin "..\pages\demo1\telstar-2001l.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\telstar-2001m.bin"
+  P4: import_bin "..\pages\demo1\telstar-2001m.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\telstar-2001n.bin"
+  P5: import_bin "..\pages\demo1\telstar-2001n.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\jellica002.bin"
+  P6: import_bin "..\pages\demo1\jellica002.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\sh005.bin"
+  P7: import_bin "..\pages\demo1\sh005.tt8"
 pend
 P35Size = $-$C000
 output_bin "..\banks\Bank35.bin", zeusmmu(35), P35Size
@@ -99,21 +99,21 @@ org $C000
 dispto zeusmmu(36)
 Pages36 proc
   align 1024
-  P0: import_bin "..\pages\demo1\sh006.bin"
+  P0: import_bin "..\pages\demo1\sh006.tt8"
   align 1024
-  P1: import_bin "..\pages\demo1\sh016.bin"
+  P1: import_bin "..\pages\demo1\sh016.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\sh008.bin"
+  P2: import_bin "..\pages\demo1\sh008.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\sh009.bin"
+  P3: import_bin "..\pages\demo1\sh009.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\sh010.bin"
+  P4: import_bin "..\pages\demo1\sh010.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\sh011.bin"
+  P5: import_bin "..\pages\demo1\sh011.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\sh014.bin"
+  P6: import_bin "..\pages\demo1\sh014.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\sh013.bin"
+  P7: import_bin "..\pages\demo1\sh013.tt8"
 pend
 P36Size = $-$C000
 output_bin "..\banks\Bank36.bin", zeusmmu(36), P36Size
@@ -124,21 +124,21 @@ org $C000
 dispto zeusmmu(37)
 Pages37 proc
   align 1024
-  P0: import_bin "..\pages\demo1\sh017.bin"
+  P0: import_bin "..\pages\demo1\sh017.tt8"
   align 1024
-  P1: import_bin "..\pages\demo1\sh018.bin"
+  P1: import_bin "..\pages\demo1\sh018.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\sh019.bin"
+  P2: import_bin "..\pages\demo1\sh019.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\aj001.bin"
+  P3: import_bin "..\pages\demo1\aj001.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\jellica003.bin"
+  P4: import_bin "..\pages\demo1\jellica003.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\title.bin"
+  P5: import_bin "..\pages\demo1\title.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\credits.bin"
+  P6: import_bin "..\pages\demo1\credits.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\blank.bin"
+  P7: import_bin "..\pages\demo1\blank.tt8"
 pend
 P37Size = $-$C000
 output_bin "..\banks\Bank37.bin", zeusmmu(37), P37Size
@@ -149,21 +149,21 @@ org $C000
 dispto zeusmmu(38)
 Pages38 proc
   align 1024
-  P0: import_bin "..\pages\welcome-website.bin"
+  P0: import_bin "..\pages\welcome-website.tt8"
   align 1024
-  P1: import_bin "..\pages\double-height-copy-down.bin"
+  P1: import_bin "..\pages\double-height-copy-down.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\sh019.bin"
+  P2: import_bin "..\pages\demo1\sh019.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\aj001.bin"
+  P3: import_bin "..\pages\demo1\aj001.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\jellica003.bin"
+  P4: import_bin "..\pages\demo1\jellica003.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\title.bin"
+  P5: import_bin "..\pages\demo1\title.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\credits.bin"
+  P6: import_bin "..\pages\demo1\credits.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\blank.bin"
+  P7: import_bin "..\pages\demo1\blank.tt8"
 pend
 P38Size = $-$C000
 output_bin "..\banks\Bank38.bin", zeusmmu(38), P38Size
@@ -174,21 +174,21 @@ org $C000
 dispto zeusmmu(39)
 Pages39 proc
   align 1024
-  P0: import_bin "..\pages\demo1\telstar-0.bin"
+  P0: import_bin "..\pages\demo1\telstar-0.tt8"
   align 1024
-  P1: import_bin "..\pages\demo1\telstar-0a.bin"
+  P1: import_bin "..\pages\demo1\telstar-0a.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\telstar-8a.bin"
+  P2: import_bin "..\pages\demo1\telstar-8a.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\telstar-91b.bin"
+  P3: import_bin "..\pages\demo1\telstar-91b.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\sh001.bin"
+  P4: import_bin "..\pages\demo1\sh001.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\bizzley.bin"
+  P5: import_bin "..\pages\demo1\bizzley.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\sh002.bin"
+  P6: import_bin "..\pages\demo1\sh002.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\charts.bin"
+  P7: import_bin "..\pages\demo1\charts.tt8"
 pend
 P39Size = $-$C000
 output_bin "..\banks\Bank39.bin", zeusmmu(39), P39Size
@@ -199,21 +199,21 @@ org $C000
 dispto zeusmmu(40)
 Pages40 proc
   align 1024
-  P0: import_bin "..\pages\demo1\telstar-2001a.bin"
+  P0: import_bin "..\pages\demo1\telstar-2001a.tt8"
   align 1024
-  P1: import_bin "..\pages\demo1\telstar-2001b.bin"
+  P1: import_bin "..\pages\demo1\telstar-2001b.tt8"
   align 1024
-  P2: import_bin "..\pages\demo1\telstar-2001c.bin"
+  P2: import_bin "..\pages\demo1\telstar-2001c.tt8"
   align 1024
-  P3: import_bin "..\pages\demo1\telstar-2001d.bin"
+  P3: import_bin "..\pages\demo1\telstar-2001d.tt8"
   align 1024
-  P4: import_bin "..\pages\demo1\telstar-2001e.bin"
+  P4: import_bin "..\pages\demo1\telstar-2001e.tt8"
   align 1024
-  P5: import_bin "..\pages\demo1\telstar-2001f.bin"
+  P5: import_bin "..\pages\demo1\telstar-2001f.tt8"
   align 1024
-  P6: import_bin "..\pages\demo1\telstar-2001g.bin"
+  P6: import_bin "..\pages\demo1\telstar-2001g.tt8"
   align 1024
-  P7: import_bin "..\pages\demo1\telstar-2001h.bin"
+  P7: import_bin "..\pages\demo1\telstar-2001h.tt8"
 pend
 P40Size = $-$C000
 output_bin "..\banks\Bank40.bin", zeusmmu(40), P40Size

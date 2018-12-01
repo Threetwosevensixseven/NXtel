@@ -228,12 +228,12 @@ pend
 
 
 Menus                   proc
-  Welcome:              import_bin "..\pages\zx7\ClientWelcome.bin.zx7"
-  Main:                 import_bin "..\pages\zx7\MainMenu.bin.zx7"
-  Connect:              import_bin "..\pages\zx7\ConnectMenu.bin.zx7"
-  NetworkSettings:      import_bin "..\pages\zx7\NetworkSettingsMenu.bin.zx7"
-  Keys:                 import_bin "..\pages\zx7\KeysMenu.bin.zx7"
-  //StatusMessages:     import_bin "..\pages\zx7\StatusMessages.bin.zx7"
+  Welcome:              import_bin "..\pages\zx7\ClientWelcome.tt8.zx7"
+  Main:                 import_bin "..\pages\zx7\MainMenu.tt8.zx7"
+  Connect:              import_bin "..\pages\zx7\ConnectMenu.tt8.zx7"
+  NetworkSettings:      import_bin "..\pages\zx7\NetworkSettingsMenu.tt8.zx7"
+  Keys:                 import_bin "..\pages\zx7\KeysMenu.tt8.zx7"
+  //StatusMessages:     import_bin "..\pages\zx7\StatusMessages.tt8.zx7"
   Size                  equ 1000
 pend
 

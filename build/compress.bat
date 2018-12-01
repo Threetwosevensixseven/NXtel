@@ -4,12 +4,12 @@ CD %~dp0
 cd ..\pages\zx7
 
 del /F /Q *.zx7
-"..\..\tools\zx7.exe" -f ClientWelcome.bin
-"..\..\tools\zx7.exe" -f ConnectMenu.bin
-"..\..\tools\zx7.exe" -f MainMenu.bin
-"..\..\tools\zx7.exe" -f NetworkSettingsMenu.bin
-"..\..\tools\zx7.exe" -f KeysMenu.bin
+"..\..\tools\zx7.exe" -f ClientWelcome.tt8
+"..\..\tools\zx7.exe" -f ConnectMenu.tt8
+"..\..\tools\zx7.exe" -f MainMenu.tt8
+"..\..\tools\zx7.exe" -f NetworkSettingsMenu.tt8
+"..\..\tools\zx7.exe" -f KeysMenu.tt8
 
-"..\..\tools\zx7.exe" -f StatusMessages.bin
+"..\..\tools\zx7.exe" -f StatusMessages.tt8
 
 rem pause
