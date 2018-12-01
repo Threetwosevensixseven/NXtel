@@ -24,7 +24,7 @@ namespace NXtelManager.Controllers
             int id = ID ?? -1;
             var model = new PageEditModel();
             bool sendURL = id == -2;
-            id = -1;
+            if (sendURL) id = -1;
             model.Page = Page.Load(id);
             model.SendURL = sendURL;
             if (id != -1 && model.Page.PageID <= 0)

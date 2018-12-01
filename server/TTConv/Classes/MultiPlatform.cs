@@ -60,13 +60,13 @@ namespace TTConv.Classes
 
                 else if (OS == Platforms.Linux)
                 {
-                    Process.Start("xdg-open " + (URL ?? ""));
+                    Process.Start(URL ?? "");
                     return true;
                 }
 
                 else if (OS == Platforms.MacOS)
                 {
-                    Process.Start("open " + (URL ?? ""));
+                    Process.Start("open '" + (URL ?? "") + "'");
                     return true;
                 }
             }

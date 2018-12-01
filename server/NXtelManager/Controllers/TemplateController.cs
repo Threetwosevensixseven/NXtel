@@ -23,7 +23,7 @@ namespace NXtelManager.Controllers
             int id = ID ?? -1;
             var model = new TemplateEditModel();
             bool sendURL = id == -2;
-            id = -1;
+            if (sendURL) id = -1;
             model.Template = Template.Load(id);
             model.SendURL = sendURL;
             if (id != -1 && model.Template.TemplateID <= 0)

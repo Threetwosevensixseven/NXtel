@@ -118,7 +118,7 @@ namespace NXtelManager
             //if (!manager.IsInRole(user.Id, "Page Editor"))
             //    roleResult = manager.AddToRole(user.Id, "Page Editor");
 
-            //var user = manager.FindByName("mattsturtivant@hotmail.co.uk");
+            //var user = manager.FindByName("tgilberts@yahoo.com");
             //if (!manager.IsInRole(user.Id, "Admin"))
             //    manager.AddToRole(user.Id, "Admin");
             //if (!manager.IsInRole(user.Id, "Page Editor"))
