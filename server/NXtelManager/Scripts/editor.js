@@ -74,3 +74,9 @@ function showPreview() {
     document.onkeypress = null;
     document.onkeydown = null;
 }
+
+function sendURL() {
+    var url = window.location.href.split("#").pop();
+    $("#URL").val(url);
+    showPreview();
+}

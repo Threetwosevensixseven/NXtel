@@ -143,6 +143,13 @@
 <script type="text/javascript">
     var nextID = 0;
 
+    $(document).ready(function () {
+        @if(Model.SendURL)
+        {
+            <text>sendURL();</text>
+        }
+    });
+
     $("#PageTemplates .ordered-btn.add").click(function (event) {
         event.preventDefault();
         addTemplate(this);

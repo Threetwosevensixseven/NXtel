@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESPATTest", "ESPATTest\ESPA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelesoftEncoder", "TelesoftEncoder\TelesoftEncoder.csproj", "{0EB35519-DA7F-41A6-B8E5-55A25242C24C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTConv", "TTConv\TTConv.csproj", "{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{0EB35519-DA7F-41A6-B8E5-55A25242C24C}.Release|x64.Build.0 = Release|Any CPU
 		{0EB35519-DA7F-41A6-B8E5-55A25242C24C}.Release|x86.ActiveCfg = Release|Any CPU
 		{0EB35519-DA7F-41A6-B8E5-55A25242C24C}.Release|x86.Build.0 = Release|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Debug|x64.Build.0 = Debug|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Debug|x86.Build.0 = Debug|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x64.ActiveCfg = Release|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x64.Build.0 = Release|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x86.ActiveCfg = Release|Any CPU
+		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

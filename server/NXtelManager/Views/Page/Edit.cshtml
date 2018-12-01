@@ -178,6 +178,10 @@
         $(".route-disable").each(function (index, textBox) {
             $(textBox).prop("disabled", "disabled");
         });
+        @if(Model.SendURL)
+        {
+            <text>sendURL();</text>
+        }
     });
 
     $("#PageTemplates .ordered-btn.add").click(function (event) {
@@ -293,8 +297,7 @@
         setSelectedTemplates();
     }
 
-    function setSelectedTemplates()
-    {
+    function setSelectedTemplates() {
         var val = "";
         var join = "";
         $("#tbodyPageTemplates tr").each(function (index, row) {
@@ -396,8 +399,7 @@
         $("#SelectedRoutes").val(val);
     }
 
-    function goToPage(ctrl)
-    {
+    function goToPage(ctrl) {
         var row = $(ctrl).parents("tr.route.ordered");
         var keycode = $(row).data("route-keycode") * 1;
         var json = {};
@@ -418,8 +420,7 @@
         return false;
     }
 
-    function updateRouteLink(ctrl)
-    {
+    function updateRouteLink(ctrl) {
         var row = $(ctrl).parents("tr.route.ordered");
         ctrl = $(row).find("a.go-to-page");
         var keycode = $(row).data("route-keycode") * 1;

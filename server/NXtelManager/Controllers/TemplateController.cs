@@ -22,13 +22,10 @@ namespace NXtelManager.Controllers
         {
             int id = ID ?? -1;
             var model = new TemplateEditModel();
+            bool sendURL = id == -2;
+            id = -1;
             model.Template = Template.Load(id);
-
-            var flat = model.Template.FlattenTemplates();
-            string x = "";
-            foreach (var t in flat)
-                x += t.TemplateID + ": " + t.Description + "\r\n";
-
+            model.SendURL = sendURL;
             if (id != -1 && model.Template.TemplateID <= 0)
                 return RedirectToAction("Index");
             return View(model);

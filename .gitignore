@@ -18,6 +18,8 @@
 /server/ESPATTest/obj
 /server/TelesoftEncoder/bin
 /server/TelesoftEncoder/obj
+/server/TTConv/bin
+/server/TTConv/obj
 /demos/NXtelDemo2
 /demos/NexTelDemo1
 /server/.vs/config

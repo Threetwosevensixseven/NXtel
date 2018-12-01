@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using NXtelData;
@@ -18,19 +19,14 @@ namespace NXtelManager.Controllers
             return View(pages);
         }
 
-        public ActionResult Edit(int? ID)
+        public ActionResult Edit(int? ID, string ID2)
         {
             int id = ID ?? -1;
             var model = new PageEditModel();
+            bool sendURL = id == -2;
+            id = -1;
             model.Page = Page.Load(id);
-
-            var flat = model.Page.FlattenTemplates();
-            string x = "";
-            foreach (var t in flat)
-                x += t.TemplateID + ": " + t.Description + "\r\n";
-
-
-
+            model.SendURL = sendURL;
             if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index");
             return View(model);

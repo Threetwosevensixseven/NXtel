@@ -11,6 +11,7 @@ namespace NXtelManager.Models
     {
         public Template Template { get; set; }
         public IEnumerable<SelectListItem> Templates { get; set; }
+        public bool SendURL { get; set; }
 
         public TemplateEditModel()
         {

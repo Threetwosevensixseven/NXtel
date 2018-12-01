@@ -13,6 +13,7 @@ namespace NXtelManager.Models
         public IEnumerable<SelectListItem> Templates { get; set; }
         public IEnumerable<SelectListItem> Routes { get; set; }
         public IEnumerable<SelectListItem> Files { get; set; }
+        public bool SendURL { get; set; }
 
         public PageEditModel()
         {
