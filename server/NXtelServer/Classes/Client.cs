@@ -198,5 +198,11 @@ namespace NXtelServer.Classes
         {
             return string.Join("<", PageHistory.Select(p => p.PageAndFrame));
         }
+
+        internal void DebugLog(byte[] Buffer, int Received)
+        {
+            for (int i = 0; i < Received; i++)
+                Console.WriteLine("Received: " + Buffer[i] + " (From: " + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+        }
     }
 }

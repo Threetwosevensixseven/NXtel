@@ -106,94 +106,23 @@ namespace NXtelServer
                     Console.WriteLine("Client disconnected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
                     return;
                 }
-
-                //for (int i = 0; i < received; i++)
-                //{
-                //    Console.WriteLine("Received: " + data[i] + " (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-                //}
-
-                //Console.WriteLine("Received '{0}' (From: {1}:{2})", BitConverter.ToString(data, 0, received), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port);
-
+                //client.DebugLog(data, received);
                 if (client.ProcessInput(data, received, out nextPage))
                 {
-
-                    //if (nextPage)
                     Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-                    //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
                     clientSocket.BeginSend(nextPage.Contents7BitEncoded, 0, nextPage.Contents7BitEncoded.Length,
                         SocketFlags.None, new AsyncCallback(SendData), clientSocket);
-
-                    /*foreach (byte b in nextPage.Contents7BitEncoded)
-                    {
-                        var send = new byte[] { b };
-                        clientSocket.BeginSend(send, 0, send.Length,
-                            SocketFlags.None, new AsyncCallback(SendData), clientSocket);
-                        //Thread.Sleep(5);
-                    }*/
                 }
-
-                // 0x2E & 0X0D => return/intro
-                if (data[0] == 0x2E && data[1] == 0x0D && client.commandIssued.Length == 0)
-                {
-                    string currentCommand = client.commandIssued;
-                    Console.WriteLine(string.Format("Received '{0}' while EClientStatus '{1}' (From: {2}:{3})", currentCommand, client.clientState.ToString(), client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port));
-                    client.commandIssued = "";
-                    byte[] message = Encoding.ASCII.GetBytes("\u001B[1J\u001B[H" + HandleCommand(clientSocket, currentCommand));
-                    clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(SendData), clientSocket);
-                }
-
-                else if (data[0] == 0x0D && data[1] == 0x0A)
-                {
-                    string currentCommand = client.commandIssued;
-                    Console.WriteLine(string.Format("Received '{0}' (From: {1}:{2}", currentCommand, client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port));
-                    client.commandIssued = "";
-                    byte[] message = Encoding.ASCII.GetBytes("\u001B[1J\u001B[H" + HandleCommand(clientSocket, currentCommand));
-                    clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(SendData), clientSocket);
-                }
-
-                else
-                {
-                    // 0x08 => remove character
-                    if (data[0] == 0x08)
-                    {
-                        if (client.commandIssued.Length > 0)
-                        {
-                            client.commandIssued = client.commandIssued.Substring(0, client.commandIssued.Length - 1);
-                            byte[] message = Encoding.ASCII.GetBytes("\u0020\u0008");
-                            clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(SendData), clientSocket);
-                        }
-                        else
-                        {
-                            clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
-                        }
-                    }
-                    // 0x7F => delete character
-                    else if (data[0] == 0x7F)
-                    {
-                        clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
-                    }
-                    else
-                    {
-                        string currentCommand = client.commandIssued;
-                        client.commandIssued += Encoding.ASCII.GetString(data, 0, received);
-                        clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
-                    }
-                }
+                clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
             }
             catch (Exception ex) when (ex is SocketException || ex is ObjectDisposedException)
             {
-                //if (ex is ObjectDisposedException)
-                //    Console.WriteLine("Caught ObjectDisposedException, retrying...");
                 try
                 {
                     Socket clientSocket = (Socket)result.AsyncState;
                     clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);
                 }
-                catch
-                {
-                    //if (ex is ObjectDisposedException)
-                    //    Console.WriteLine("Nope, retry didn't work!");
-                }
+                catch { }
             }
             catch (Exception ex)
             {
@@ -277,56 +206,6 @@ namespace NXtelServer
                 if (Input == "lock") { newClients = false; Console.WriteLine("Refusing new connections."); }
                 if (Input == "unlock") { newClients = true; Console.WriteLine("Accepting new connections."); }
             }
-        }
-
-        private static string HandleCommand(Socket clientSocket, string Input)
-        {
-            string Output = "-- TELNET TEST SERVER --\n\r\n\r";
-            byte[] dataInput = Encoding.ASCII.GetBytes(Input);
-            Client client;
-            clientList.TryGetValue(clientSocket, out client);
-            /*if (client.clientState == EClientState.NotLogged)
-            {
-            Console.WriteLine("Client not logged in, marking login operation in progress...");
-            client.clientState = EClientState.Logging;
-            Output += "Please input your password:\n\r";
-            }*/
-            if (client.clientState == ClientStates.Logging)
-            {
-                if (Input == "1337")
-                {
-                    Console.WriteLine("Client has logged in (correct password), marking as logged...");
-                    client.clientState = ClientStates.LoggedIn;
-                    Output += "Logged successfully.\n\r";
-                }
-                else
-                {
-                    Console.WriteLine("Client login failed (incorrect password).");
-                    Output += "Incorrect password. Please input your password: ";
-                }
-            }
-            if (client.clientState == ClientStates.LoggedIn)
-            {
-                if (Input == "test")
-                {
-                    Output += "Hello there.\n\r";
-                }
-                if (Input == "getrekt")
-                {
-                    return Output;
-                }
-                else
-                {
-                    Output += "Please enter a valid command:\n\r";
-                }
-            }
-            return Output;
-        }
-
-        private static byte[] GetPage(string Name)
-        {
-            var fn = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Pages", Name);
-            return File.ReadAllBytes(fn);
         }
     }
 }
