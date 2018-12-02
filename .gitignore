@@ -20,6 +20,8 @@
 /server/TelesoftEncoder/obj
 /server/TTConv/bin
 /server/TTConv/obj
+/server/Markdown/obj
+/server/Markdown/bin
 /demos/NXtelDemo2
 /demos/NexTelDemo1
 /server/.vs/config

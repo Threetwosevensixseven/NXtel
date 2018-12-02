@@ -45,10 +45,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Markdown, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1b320cc08ad5aa89, processorArchitecture=MSIL">
-      <HintPath>..\packages\Markdown.2.2.1\lib\net451\Markdown.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
       <Private>True</Private>
@@ -344,6 +340,10 @@
     <EmbeddedResource Include="Migrations\201710062310334_InitialCreate.resx" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Markdown\Markdown.csproj">
+      <Project>{6a478169-f8b2-4589-8c02-e8384893ed2b}</Project>
+      <Name>Markdown</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NXtelData\NXtelData.csproj">
       <Project>{cc5ed840-4aab-4951-ae14-7625f2f55b1f}</Project>
       <Name>NXtelData</Name>

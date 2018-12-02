@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelesoftEncoder", "Telesoft
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTConv", "TTConv\TTConv.csproj", "{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{6A478169-F8B2-4589-8C02-E8384893ED2B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,18 @@ Global
 		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x64.Build.0 = Release|Any CPU
 		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x86.ActiveCfg = Release|Any CPU
 		{6AF8C3F9-FBCA-43A5-BB4E-BD53092B27FF}.Release|x86.Build.0 = Release|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Debug|x64.Build.0 = Debug|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Debug|x86.Build.0 = Debug|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x64.ActiveCfg = Release|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x64.Build.0 = Release|Any CPU
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x86.ActiveCfg = Release|x86
+		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

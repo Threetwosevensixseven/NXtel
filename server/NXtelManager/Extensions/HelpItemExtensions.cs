@@ -13,8 +13,10 @@ namespace NXtelData
             if (HelpItem == null)
                 return null;
             HelpItem.LoadContent();
-            Markdown mark = new Markdown();
-            HelpItem.HTML = mark.Transform(HelpItem.Content ?? "");
+            var opts = new MarkdownOptions();
+            opts.Strikethrough = true;
+            var md = new Markdown(opts);
+            HelpItem.HTML = md.Transform(HelpItem.Content ?? "");
             return HelpItem.HTML;
         }
     }
