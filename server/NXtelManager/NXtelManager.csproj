@@ -199,6 +199,7 @@
     <Compile Include="Controllers\ServerController.cs" />
     <Compile Include="Controllers\TemplateController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Extensions\HelpItemExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
     <Compile Include="Global.asax.cs">

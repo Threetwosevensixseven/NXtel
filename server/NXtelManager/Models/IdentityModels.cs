@@ -12,10 +12,11 @@ namespace NXtelManager.Models
     {
         public string Mailbox { get; set; }
 
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, bool isPersistent)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+            userIdentity.SetIsPersistent(isPersistent);
             //userIdentity.AddClaim(new Claim("Mailbox", (Mailbox ?? "").ToString()));
             return userIdentity;
         }

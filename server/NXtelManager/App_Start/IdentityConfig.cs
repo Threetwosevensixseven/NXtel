@@ -138,8 +138,9 @@ namespace NXtelManager
 
         public override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
         {
-            var userIdentity = user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+            var userIdentity = user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager, true);
             userIdentity.Result.AddClaim(new Claim("Mailbox", (user.Mailbox ?? "").ToString()));
+            userIdentity.Result.SetIsPersistent(true);
             return userIdentity;
         }
 
