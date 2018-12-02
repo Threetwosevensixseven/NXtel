@@ -7,7 +7,6 @@ using NXtelData;
 
 namespace NXtelManager.Controllers
 {
-    [Authorize]
     public class HelpController : Controller
     {
         public ActionResult Topics()

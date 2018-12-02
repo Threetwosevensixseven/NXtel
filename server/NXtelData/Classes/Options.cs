@@ -166,5 +166,15 @@ namespace NXtelData
                 return cfg;
             }
         }
+
+        public static string ExternalWikiDirectory
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["ExternalWikiDirectory"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
     }
 }

@@ -6,7 +6,7 @@
     string myID = (User.Identity as System.Security.Claims.ClaimsIdentity).GetUserID();
     int i = 0;
 }
-<h2>@ViewBag.Title</h2>
+<h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
 
 @using (Html.BeginForm("Edit", "User", FormMethod.Post, new { @class = "form-horizontal" }))

@@ -12,11 +12,15 @@ namespace NXtelData
         public static HelpItems Load(bool LoadContent = false)
         { 
             var list = new List<HelpItem>();
+
+            // Site Help
             foreach (var fileName in Directory.EnumerateFiles(HostingEnvironment.MapPath(@"~/SiteHelp/"), "*.md"))
             {
                 var item = new HelpItem(fileName, LoadContent);
                 list.Add(item);
             }
+
+            // Content Help
             var path = Options.ContentHelpDirectory;
             if (path.StartsWith("~"))
                 path = HostingEnvironment.MapPath(path);
@@ -25,6 +29,20 @@ namespace NXtelData
                 var item = new HelpItem(fileName, LoadContent);
                 list.Add(item);
             }
+
+            // External Wiki
+            path = Options.ExternalWikiDirectory;
+            if (path.StartsWith("~"))
+                path = HostingEnvironment.MapPath(path);
+            foreach (var fileName in Directory.EnumerateFiles(path, "*.md"))
+            {
+                if (Path.GetFileName(fileName).ToLower() == "home.md")
+                    continue;
+                var item = new HelpItem(fileName, LoadContent);
+                list.Add(item);
+            }
+
+            // Sort and return merged items
             var rv = new HelpItems();
             rv.AddRange(list.OrderBy(h => h.Title));
             return rv;

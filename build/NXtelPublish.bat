@@ -2,9 +2,16 @@
 @echo off
 C:
 CD %~dp0
-PATH=%PATH%;C:\Program Files (x86)\MSBuild\14.0\bin
+
+:: Update wiki from github
+CD "C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel.wiki"
+git pull
+CD %~dp0
+DEL  /F /Q /S "..\server\NXtelManager\App_Data\GitHubWiki\*.md"
+XCOPY /Y "C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel.wiki\*.md" "..\server\NXtelManager\App_Data\GitHubWiki\*.*"
 
 :: Prepare NXtelServer for publishing
+PATH=%PATH%;C:\Program Files (x86)\MSBuild\14.0\bin
 CD ..\server\NXtelServer
 DEL  /F /Q /S Publish\*.*
 RMDIR /S /Q "Publish\app.publish"
@@ -36,7 +43,9 @@ msbuild NXtelManager.csproj /p:DeployOnBuild=true /p:PublishProfile=FolderDeploy
 :: Deploy NXtelManager
 DEL  /F /Q Publish\web.config
 RMDIR /S /Q "Publish\bin\roslyn"
-
 XCOPY /Y /E "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\"
+CD %~dp0
+DEL  /F /Q /S "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\App_Data\GitHubWiki\*.md"
+XCOPY /Y "..\server\NXtelManager\App_Data\GitHubWiki\*.md" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\App_Data\GitHubWiki\*.*"
 
 PAUSE

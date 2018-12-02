@@ -121,7 +121,14 @@ namespace NXtelServer.Classes
                     var route = CurrentPage.Routing.FirstOrDefault(r => r.KeyCode == b);
                     if (route != null)
                     {
-                        if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
+                        if (CurrentPage.PageType == PageTypes.TeleSoftware && route.NextPageNo != null && route.NextFrameNo != null)
+                        {
+                            NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
+                            PageHistory.Push(NextPage);
+                            KeyBuffer.Dequeue();
+                            return true;
+                        }
+                        else if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                         {
                             NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo);
                             PageHistory.Push(NextPage);

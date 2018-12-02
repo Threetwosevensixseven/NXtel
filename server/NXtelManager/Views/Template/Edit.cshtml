@@ -8,7 +8,7 @@
     string width = @template.TemplateID <= 0 ? "" : @template.Width.ToString();
     string height = @template.TemplateID <= 0 ? "" : @template.Height.ToString();
 }
-<h2>@ViewBag.Title</h2>
+<h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
 @using (Html.BeginForm("Edit", "Template", new { id = template.TemplateID }))
 {

@@ -19,7 +19,7 @@ namespace NXtelData
         public HelpItem(string FileName, bool LoadContent = true)
         {
             this.FileName = (FileName ?? "").Trim();
-            this.Slug = Path.GetFileNameWithoutExtension(this.FileName).Trim();
+            this.Slug = Path.GetFileNameWithoutExtension(this.FileName).Trim().Replace("-", "");
             this.Title = HelpItem.SplitCamelCase(this.Slug);
             if (LoadContent)
                 Content = File.ReadAllText(FileName);
@@ -42,7 +42,7 @@ namespace NXtelData
                 ),
                 @"(\p{Ll})(\P{Ll})",
                 "$1 $2"
-            );
+            ).Replace("N Xtel", "NXtel");
         }
 
         public static byte[] LoadMedia(string FileName, string Extension)
