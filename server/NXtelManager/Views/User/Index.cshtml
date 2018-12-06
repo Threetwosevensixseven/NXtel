@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Manage Users";
     string myID = (User.Identity as System.Security.Claims.ClaimsIdentity).GetUserID();
+    string tablePageSize = NXtelData.UserPreferences.Get(myID, "TablePageSize", "10");
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -58,8 +59,8 @@
                     return $('input', td).prop('checked') ? '1' : '0';
                 } );
             }
-
             $("table.paged").DataTable({
+                pageLength: @tablePageSize,
                 columnDefs: [
                   {
                       targets: [2, 3, 4],
@@ -71,6 +72,9 @@
                       orderable: false
                     }
                 ]
+            });
+            $(".dataTables_length select").change(function () {
+                setUserPreference("TablePageSize", $(".dataTables_length select").val());
             });
         });
 

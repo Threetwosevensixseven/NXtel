@@ -195,9 +195,13 @@
     <Compile Include="Controllers\ServerController.cs" />
     <Compile Include="Controllers\TemplateController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\UserPreferenceController.cs" />
+    <Compile Include="Controllers\ZoneController.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Extensions\HelpItemExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
+    <Compile Include="Extensions\IPrincipalExtensions.cs" />
+    <Compile Include="Extensions\ZoneExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -213,6 +217,7 @@
     <Compile Include="Models\PageViewModels.cs" />
     <Compile Include="Models\TemplateViewModels.cs" />
     <Compile Include="Models\UserViewModels.cs" />
+    <Compile Include="Models\ZoneViewModels.cs" />
     <Compile Include="MySqlInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -252,6 +257,7 @@
     <Content Include="fonts\TeletextKit.eot" />
     <Content Include="fonts\TeletextKit.ttf" />
     <Content Include="fonts\TeletextKit.woff" />
+    <Content Include="Scripts\userPreferences.js" />
     <Content Include="SiteHelp\media\dont-panic.jpg" />
     <Content Include="SiteHelp\PageEditHelp.md" />
     <None Include="Properties\PublishProfiles\FolderDeploy.pubxml" />
@@ -322,6 +328,9 @@
     <Content Include="Views\Help\Topic.cshtml" />
     <Content Include="Views\Shared\_Help.cshtml" />
     <Content Include="SiteHelp\SecondSiteHelpTopic.md" />
+    <Content Include="Views\Zone\Index.cshtml" />
+    <Content Include="Views\Zone\Edit.cshtml" />
+    <Content Include="Views\Zone\View.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

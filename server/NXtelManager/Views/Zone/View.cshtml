@@ -1,0 +1,24 @@
+﻿@model ZoneEditModel
+@using NXtelManager.Models
+@{
+    ViewBag.Title = "View Zone";
+    string zoneID = Model.Zone.ID <= 0 ? "NEW" : Model.Zone.ID.ToString();
+}
+<h1>@ViewBag.Title</h1>
+<h3>@ViewBag.Message</h3>
+
+<div class="form-group" style="clear:both">
+    @Html.HiddenFor(m => @Model.Zone.ID)
+    @Html.LabelFor(m => @Model.Zone.ID, new { @class = "control-label col-sm-1" })
+    <div class="col-sm-11" style="padding-top:0;padding-left:35px;vertical-align:middle">
+        @Html.DisplayFor(m => @zoneID, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-group" style="clear:both">
+    @Html.LabelFor(m => @Model.Zone.Description, new { @class = "control-label col-sm-1" })
+    <div class="col-sm-11" style="padding-top:0;padding-left:35px;vertical-align:middle">
+        @Html.DisplayFor(m => @Model.Zone.Description, new { @class = "form-control" })
+    </div>
+</div>
+<br />
+@Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })

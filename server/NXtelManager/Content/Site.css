@@ -185,3 +185,23 @@ table.dataTable thead tr .sorting_asc_disabled::after,
 table.dataTable thead tr .sorting_desc_disabled::after {
     top: 0px;
 }
+
+#PageList_wrapper>div.row:first-child div {
+    padding-left: 10px;
+    padding-right: 0;
+}
+
+#PageList_filter input[type=search] {
+    width: 100px;
+}
+
+#PageList_length select {
+    width: 65px;
+}
+
+@media screen and (max-width: 767px) {
+    div.dataTables_wrapper div.dataTables_zone,
+    div.dataTables_wrapper div.dataTables_primary {
+        text-align: center;
+    }
+}

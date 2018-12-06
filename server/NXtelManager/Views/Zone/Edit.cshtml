@@ -1,0 +1,48 @@
+﻿@model ZoneEditModel
+@using NXtelManager.Models
+@{
+    ViewBag.Title = "Edit Zone";
+    string zoneID = Model.Zone.ID <= 0 ? "NEW" : Model.Zone.ID.ToString();
+}
+<h1>@ViewBag.Title</h1>
+<h3>@ViewBag.Message</h3>
+
+@using (Html.BeginForm("Edit", "Zone", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        @Html.HiddenFor(m => @Model.Zone.ID)
+        @Html.LabelFor(m => @Model.Zone.ID, new { @class = "control-label col-sm-1" })
+        <div class="col-sm-11" style="padding-top:7px;padding-left:35px;vertical-align:middle">
+            @Html.DisplayFor(m => @zoneID, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => @Model.Zone.Description, new { @class = "control-label col-sm-1" })
+        <div class="col-sm-11">
+            <div class="checkbox">
+                <label>
+                    @Html.TextBoxFor(m => @Model.Zone.Description, null, new { maxlength = 40, style = "width:100%;max-width:initial" })
+                </label>
+            </div>
+        </div>
+    </div>
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();" />
+    <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return validateDelete();" />
+    @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
+}
+
+@section scripts {
+    <script type="text/javascript">
+        function validateDelete() {
+            if (!confirm('Are you sure you want to delete this zone?'))
+                return false;
+            return true;
+        }
+
+        function validateSave() {
+            return true;
+        }
+    </script>
+}

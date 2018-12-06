@@ -1,0 +1,51 @@
+﻿@model NXtelData.Zones
+@{
+    ViewBag.Title = "Zones";
+    bool admin = User.IsInRole("Admin");
+    bool editor = User.IsInRole("Page Editor");
+    string action = admin ? "Edit" : "View";
+    string tablePageSize = NXtelData.UserPreferences.Get(System.Security
+        .Principal.IPrincipalExtensions.GetUserID(User), "TablePageSize", "10");
+}
+<h1>@ViewBag.Title</h1>
+<h3>@ViewBag.Message</h3>
+<table class="paged" style="width:auto">
+    <thead>
+        <tr>
+            <th>Zone</th>
+            @if (editor)
+            {
+                <th>Pages in Zone</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (NXtelData.Zone zone in Model)
+        {
+            string desc = (string.IsNullOrWhiteSpace(@zone.Description) ? "[None]" : @zone.Description).Trim();
+            <tr>
+                <td>@Html.ActionLink(@desc, action, "Zone", new { id = zone.ID }, null)</td>
+                @if (editor)
+                {
+                    <td style="text-align:right">@Html.ActionLink("View", "Zone", "Page", new { id = zone.ID }, null)</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+@if (admin)
+{
+    @Html.ActionLink("New Zone", "Edit", "Zone", null, new { @class = "btn btn-primary" })
+}
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("table.paged").DataTable({ pageLength: @tablePageSize });
+            $(".dataTables_length select").change(function () {
+                setUserPreference("TablePageSize", $(".dataTables_length select").val());
+            });
+        });
+    </script>
+}

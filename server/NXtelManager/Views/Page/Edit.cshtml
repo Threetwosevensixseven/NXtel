@@ -10,6 +10,9 @@
     var rvd = new RouteValueDictionary();
     rvd.Add("id", -1);
     string pageEditURL = Url.Action("Edit", "Page", rvd);
+    int z = 0;
+    bool admin = User.IsInRole("Admin");
+    string zonesLink = admin ? "Manage Zones" : "View Zones";
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -42,9 +45,24 @@
                 <td class="lbl">To Frame:</td>
                 <td class="data">@Html.TextBox("Page.ToFrame", toFrame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
             </tr>
-            <tr>
+            @*<tr>
                 <td class="lbl">Box Mode:</td>
                 <td class="data">@Html.CheckBox("Page.BoxMode", page.BoxMode)</td>
+            </tr>*@
+            <tr id="trZones" style="display:none">
+                <td class="lbl">Zones:</td>
+                <td class="data">
+                    @Html.Hidden("Page.SelectedZones", page.SelectedZones, new { id = "SelectedZones" })
+                    <select id="Zones" multiple="multiple">
+                        @foreach (var zone in Model.Zones)
+                        {
+                            string sel = Model.Page.Zones.Any(r => r.ID.ToString() == zone.Value) ? "selected=selected" : "";
+                            <option value="@zone.Value" @sel>@zone.Text</option>
+                            z++;
+                        }
+                    </select>
+                    @Html.ActionLink(@zonesLink, "Index", "Zone")
+                </td>
             </tr>
             <tr>
                 <td class="lbl">URL:</td>
@@ -153,7 +171,7 @@
         </tbody>
     </table>
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
+    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this page?');" />
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
@@ -164,7 +182,7 @@
 }
 
 @section editor {
-@Html.Partial("_Editor")
+    @Html.Partial("_Editor")
 }
 
 @section Scripts {
@@ -175,6 +193,12 @@
     var checkingRoutes = false;
 
     $(document).ready(function () {
+        $('#Zones').multiselect({
+            nonSelectedText: 'None',
+            allSelectedText: false,
+            numberDisplayed: 0
+        });
+        $("#trZones").show();
         $(".route-disable").each(function (index, textBox) {
             $(textBox).prop("disabled", "disabled");
         });
@@ -216,7 +240,6 @@
     });
 
     $("#Page_PageNo,#Page_Frame").keyup(function (event) {
-        debugger;
         $("#tbodyPageRouting .go-to-page").each(function () {
             updateRouteLink(this);
         });
@@ -438,6 +461,16 @@
             }
             $(ctrl).text("Go to " + rv.GoesToPageFrameDesc);
         });
+    }
+    
+    function validateSave() {
+        var zones = [];
+        $('#Zones option:selected').each(function () {
+            zones.push($(this).val() * 1);
+        });
+        var list = zones.join();
+        $("#SelectedZones").val(list);
+        return true;
     }
     </script>
 }

@@ -20,7 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateDummyTable(ConX);
+            CreateUserPrefTable(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -571,6 +571,107 @@ END$$";
                 }
             }
             catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateZoneTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `zone` (
+                      `ZoneID` int(11) NOT NULL AUTO_INCREMENT,
+                      `Description` varchar(40) NOT NULL,
+                      PRIMARY KEY (`ZoneID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreatePageZoneTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `pagezone` (
+                      `PageZoneID` int(11) NOT NULL AUTO_INCREMENT,
+                      `PageID` int(11) NOT NULL,
+                      `ZoneID` int(11) NOT NULL,
+                      PRIMARY KEY (`PageZoneID`),
+                      UNIQUE KEY `uq_pagezone_page_zone` (`PageID`,`ZoneID`),
+                      KEY `fk_pagezone_page_idx` (`PageID`),
+                      KEY `fk_pagezone_zone_idx` (`ZoneID`),
+                      CONSTRAINT `fk_pagezone_page` FOREIGN KEY (`PageID`) REFERENCES `page` (`PageID`) ON DELETE CASCADE ON UPDATE CASCADE,
+                      CONSTRAINT `fk_pagezone_zone` FOREIGN KEY (`ZoneID`) REFERENCES `zone` (`ZoneID`) ON DELETE CASCADE ON UPDATE CASCADE
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateUserPrefTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `userpref` (
+                      `UserPrefID` int(11) NOT NULL AUTO_INCREMENT,
+                      `UserID` varchar(128) NOT NULL,
+                      `Key` varchar(40) NOT NULL,
+                      `Value` varchar(20) DEFAULT NULL,
+                      PRIMARY KEY (`UserPrefID`),
+                      UNIQUE KEY `UQ_userpref_UserID_Key` (`UserID`,`Key`),
+                      KEY `IX_userpref_Key` (`Key`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
             finally
             {
                 if (openConX)

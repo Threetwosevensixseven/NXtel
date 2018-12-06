@@ -36,5 +36,73 @@ namespace NXtelData
 
             return list;
         }
+
+        public static bool DeleteForUser(string UserID, out string Err, MySqlConnection ConX = null)
+        {
+            Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                string sql = @"DELETE FROM AspNetUserRoles WHERE UserId=@UserId;";
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("UserId", (UserID ?? "").Trim());
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static bool SaveForUser(string UserID, List<string> Roles, out string Err, MySqlConnection ConX = null)
+        {
+            Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            try
+            {
+                var roles = NXtelData.Roles.Load(ConX);
+                var rv = DeleteForUser(UserID, out Err, ConX);
+                if (!string.IsNullOrWhiteSpace(Err))
+                    return false;
+
+                if (Roles == null || Roles.Count == 0)
+                    return true;
+
+                foreach (var roleName in Roles)
+                {
+                    var role = roles.FirstOrDefault(r => r.Name == roleName);
+                    if (role != null)
+                        role.SaveForUser(UserID, ConX);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }

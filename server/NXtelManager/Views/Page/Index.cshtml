@@ -1,35 +1,150 @@
-﻿@model NXtelData.Pages
+﻿@using NXtelData
+@model Pages
 @{
     ViewBag.Title = "Pages";
+    bool viewAllZones = @ViewBag.ViewZone != null;
+    bool unzoned = @ViewBag.ViewUnzoned != null;
+    bool filtered = !viewAllZones && !unzoned;
+    if (viewAllZones)
+        ViewBag.Title += " in " + @ViewBag.ViewZone + " Zone";
+    if (unzoned)
+        ViewBag.Title = "Unzoned Pages";
+    string tablePageSize = NXtelData.UserPreferences.Get(System.Security
+        .Principal.IPrincipalExtensions.GetUserID(User), "TablePageSize", "10");
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
-<table class="paged" style="width:auto">
-    <thead>
-        <tr>
-            <th style="text-align:right">From Page</th>
-            <th style="text-align:right">To Page</th>
-            <th>Title</th>
-      </tr>
-    </thead>
-    <tbody>
-        @foreach (NXtelData.Page page in Model)
-        {
-            <tr>
-                <td style="text-align:right;padding-right:32px">@Html.ActionLink(@page.PageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
-                <td style="text-align:right;padding-right:32px">@Html.ActionLink(@page.ToPageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
-                <td>@Html.ActionLink(@page.Title, "Edit", "Page", new { id = page.PageID }, null)</td>
-       </tr>
-        }
-    </tbody>
-</table>
-<br/>
-@Html.ActionLink("New Page", "Edit", "Page", null, new { @class = "btn btn-primary" })
-
-@section scripts {
-    <script type="text/javascript">
-        $(function () {
-            $("table.paged").DataTable();
-        });
-    </script>
+@if (unzoned)
+{
+    @Html.ActionLink("All Pages", "Index", "Page")<text> &nbsp; </text>
+    @Html.ActionLink("Zones", "Index", "Zone")
 }
+else if (viewAllZones)
+{
+    @Html.ActionLink("All Zones", "Index", "Zone")
+}
+else
+{
+    @Html.ActionLink("Zones", "Index", "Zone") <text>&nbsp; </text>
+    @Html.ActionLink("Unzoned Pages", "Unzoned", "Page")
+}
+    <br />
+    <br />
+    <table id="PageList" class="paged" style="width:auto">
+        <thead>
+            <tr>
+                <th style="text-align:right">From Page</th>
+                <th style="text-align:right">To Page</th>
+                <th>Title</th>
+                <th style="display:none"></th>
+                <th style="display:none"></th>
+          </tr>
+        </thead>
+        <tbody>
+            @foreach (NXtelData.Page page in Model)
+            {
+                string primary = page.FrameNo == 0 ? "\uE012" : "";
+                <tr>
+                    <td style="text-align:right;padding-right:32px">@Html.ActionLink(@page.PageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
+                    <td style="text-align:right;padding-right:32px">@Html.ActionLink(@page.ToPageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
+                    <td>@Html.ActionLink(@page.Title, "Edit", "Page", new { id = page.PageID }, null)</td>
+                    <td style="display:none">@page.ZoneIDsEncoded</td>
+                    <td style="display:none">@primary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    @Html.ActionLink("New Page", "Edit", "Page", null, new { @class = "btn btn-primary" })
+
+    <div id="PageList_XXX_filter" style="display:none">
+        <div class="dataTables_zone">
+            <div class="col-sm-6">
+                <label style="font-weight:normal">
+                    Zones:
+                    @Html.DropDownListFor(model => model.ZoneFilter, Zones.Load().GetSelectList(), new { @class = "form-control input-sm", style = "width:auto;display:inline", id = "ZoneFilter_XXX" })
+                </label>
+            </div>
+        </div>
+        <div class="dataTables_primary">
+            <div class="col-sm-6">
+                <label style="font-weight:normal">
+                    @Html.CheckBoxFor(model => model.PrimaryFilter, new { @class = "form-control input-sm", style = "width:auto;display:inline;height:auto", id = "ZonePrimary_XXX" })
+                    <span style="top:3px;position:relative">Primary?</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    @section scripts {
+        <script type="text/javascript">
+            $(function () {
+                $("#PageList").DataTable({
+                    pageLength: @tablePageSize,
+                    columnDefs: [
+                      {
+                          targets: [3, 4],
+                          orderable: false
+                      }
+                    ]
+                });
+                @if (filtered)
+                {
+                    <text>setupZoneFilter();</text>
+                }
+                $("#PageList_length select").change(function () {
+                    setUserPreference("TablePageSize", $("#PageList_length select").val());
+                });
+                $("#ZoneFilter_0").change(function () {
+                    filter();
+                    setUserPreference("PageIndexZone", $("#ZoneFilter_0").val());
+
+                });
+                $("#ZonePrimary_0").change(function () {
+                    debugger;
+                    var x = $("#ZonePrimary_0").is(":checked");
+                    filter();
+                    setUserPreference("PageIndexPrimary", $("#ZonePrimary_0").is(":checked"));
+                });
+            });
+
+            function setupZoneFilter() {
+                var html = $("#PageList_XXX_filter").html().replace(/XXX/g, "0");
+                $("#PageList_wrapper .row:first-child").append(html);
+            }
+
+            function filter() {
+                var zone = $("#ZoneFilter_0").val();
+                var primary = $("#ZonePrimary_0").is(":checked");
+                $("#PageList").DataTable()
+                    .columns(3).search(getZoneRegex(zone), true, false)
+                    .columns(4).search(getPrimaryRegex(primary), true, false)
+                    .draw();
+            }
+
+            function getZoneRegex(zone) {
+                if (zone == "-1") {
+                    return "";
+                }
+                else if (zone == "-2") {
+                    return "^\\uEE11$";
+                } else {
+                    var rv = "^.*?\\uEE10";
+                    for (var i = 0; i < zone.length; i++) {
+                        var chr = 60928 + zone.charCodeAt(i) - 48;
+                        rv += "\\u" + chr.toString(16).toUpperCase();
+                    }
+                    rv += "\\uEE10.*?$";
+                    return rv;
+                }
+            }
+
+            function getPrimaryRegex(checked) {
+                if (checked) {
+                    return "^.+$";
+                } else {
+                    return "";
+                }
+            }
+        </script>
+    }

@@ -1,6 +1,8 @@
 ﻿@model NXtelData.TSFiles
 @{
     ViewBag.Title = "Files";
+    string tablePageSize = NXtelData.UserPreferences.Get(System.Security
+        .Principal.IPrincipalExtensions.GetUserID(User), "TablePageSize", "10");
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -27,7 +29,10 @@
 @section scripts {
     <script type="text/javascript">
         $(function () {
-            $("table.paged").DataTable();
+            $("table.paged").DataTable({ pageLength: @tablePageSize });
+            $(".dataTables_length select").change(function () {
+                setUserPreference("TablePageSize", $(".dataTables_length select").val());
+            });
         });
     </script>
 }

@@ -132,5 +132,62 @@ namespace NXtelData
                 return "";
             }
         }
+
+        public static bool Save(User User, out string Err)
+        {
+            Err = "";
+            try
+            {
+                if (string.IsNullOrWhiteSpace(User.ID))
+                    throw new InvalidOperationException("You cannot create a user from here.");
+                else
+                    return User.Update(out Err);
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+        }
+
+        public bool Update(out string Err)
+        {
+            Err = "";
+            try
+            {
+                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"UPDATE AspNetUsers
+                        SET email=@email,
+                        emailconfirmed=@emailconfirmed,
+                        mailbox=@mailbox
+                        WHERE id=@id;
+                        SELECT ROW_COUNT();";
+                    var cmd = new MySqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("email", (Email ?? "").Trim());
+                    cmd.Parameters.AddWithValue("emailconfirmed", EmailConfirmed);
+                    cmd.Parameters.AddWithValue("mailbox", (Mailbox ?? "").Trim());
+                    cmd.Parameters.AddWithValue("id", (ID ?? "").Trim());
+                    int rv = cmd.ExecuteScalarInt32();
+                    if (rv <= 0)
+                        Err = "The user could not be saved.";
+
+                    if (!string.IsNullOrWhiteSpace(ID))
+                    {
+                        NXtelData.Roles.SaveForUser(ID, Roles, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+                    }
+
+                    return rv > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
+        }
     }
 }

@@ -9,8 +9,8 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-
-    @Html.ActionLink("Manage Users", "Index", "User")
+    @Html.ActionLink("Users", "Index", "User")<text>&nbsp;</text>
+    @Html.ActionLink("Zones", "Index", "Zone")
     <br /><br />
     <p>Server Location:</p>
     <pre>@Model.Location</pre>

@@ -66,8 +66,16 @@ namespace NXtelManager.Controllers
         public ActionResult Save(UserEditModel Model)
         {
             Model.SetRoles();
-            // TODO: save and add/remove roles
-            return RedirectToAction("Index");
+            if (ModelState.IsValid)
+            {
+                string err;
+                if (!NXtelData.User.Save(Model.User, out err))
+                {
+                    return View("Edit", Model);
+                }
+                return RedirectToAction("Index");
+            }
+            return View("Edit", Model);
         }
 
         [HttpPost]

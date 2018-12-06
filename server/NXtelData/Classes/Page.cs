@@ -25,6 +25,7 @@ namespace NXtelData
         public Routes Routing { get; set; }
         public string SelectedTemplates { get; set; }
         public string SelectedRoutes { get; set; }
+        public string SelectedZones { get; set; }
         public int ContentHeight { get; set; }
         public int ContentCurrentLine { get; set; }
         public int ToPageNo { get; set; }
@@ -34,6 +35,8 @@ namespace NXtelData
         public PageTypes PageType { get; set; }
         public int PageRangeSequence { get; set; }
         public int PageRangeCount { get; set; }
+        public Zones Zones { get; set; }
+        public string ZoneIDs { get; set; }
 
         public Page()
         {
@@ -45,6 +48,8 @@ namespace NXtelData
             PageType = PageTypes.Normal;
             PageRangeSequence = 0;
             PageRangeCount = 1;
+            Zones = new Zones();
+            ZoneIDs = "";
             this.ConvertContentsFromURL();
         }
 
@@ -156,6 +161,7 @@ namespace NXtelData
                     {
                         item.Templates = Templates.LoadForPage(item.PageID, con);
                         item.Routing = Routes.LoadForPage(item.PageID, con);
+                        item.Zones = Zones.LoadForPage(item.PageID, con);
                         item.Compose();
                         new TSEncoder().Encode(ref item);
                     }
@@ -209,6 +215,7 @@ namespace NXtelData
                     item.Templates = Templates.LoadForPage(item.PageID, con);
                     item.SetSelectedTemplates();
                     item.Routing = Routes.LoadForPage(item.PageID, con);
+                    item.Zones = Zones.LoadForPage(item.PageID, con);
                     item.SetSelectedRoutes();
                 }
             }
@@ -273,6 +280,9 @@ namespace NXtelData
                         Routing.SaveForPage(PageID, out Err, con);
                         if (!string.IsNullOrWhiteSpace(Err))
                             return false;
+                        Zones.SaveForPage(PageID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
                     }
 
                     return PageID > 0;
@@ -332,6 +342,9 @@ namespace NXtelData
                         if (!string.IsNullOrWhiteSpace(Err))
                             return false;
                         Routing.SaveForPage(PageID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+                        Zones.SaveForPage(PageID, out Err, con);
                         if (!string.IsNullOrWhiteSpace(Err))
                             return false;
                     }
@@ -536,6 +549,24 @@ namespace NXtelData
                     Routing.Add(route);
             }
 
+            // Zones
+            Zones = new Zones();
+            Zones zones = null;
+            foreach (string zid in (SelectedZones ?? "").Split(','))
+            {
+                int id;
+                int.TryParse(zid, out id);
+                if (id <= 0)
+                    continue;
+                if (Zones.Any(z => z.ID == id))
+                    continue;
+                if (zones == null)
+                    zones = Zones.Load();
+                var matched = zones.FirstOrDefault(z => z.ID == id);
+                if (matched != null)
+                    Zones.Add(matched);
+            }
+
             // Range
             if (ToPageNo <= 0 && ToFrameNo <= 0)
             {
@@ -626,6 +657,31 @@ namespace NXtelData
                 int rv = cmd.ExecuteScalarInt32();
                 return rv > 0 ? rv : -1;
             }
+        }
+
+        public string ZoneIDsEncoded
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                if (string.IsNullOrEmpty(ZoneIDs))
+                    sb.Append('\uEE11');
+                else
+                    sb.Append('\uEE10');
+                foreach (char c in ZoneIDs)
+                {
+                    if (c == ',')
+                        sb.Append('\uEE10');
+                    else if (c >= '0' && c <= '9')
+                        sb.Append(Convert.ToChar(0xEE00 + c - '0'));
+                    else
+                        sb.Append(c);
+                }
+                if (!string.IsNullOrEmpty(ZoneIDs))
+                    sb.Append('\uEE10');
+                return sb.ToString();
+            }
+            set { }
         }
     }
 }

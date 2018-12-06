@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -15,7 +16,11 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
+            string id = User.GetUserID();
             var pages = Pages.LoadStubs();
+            string userID = User.GetUserID();
+            pages.ZoneFilter = UserPreferences.Get<int>(userID, "PageIndexZone");
+            pages.PrimaryFilter = UserPreferences.Get<bool>(userID, "PageIndexPrimary");
             return View(pages);
         }
 
@@ -106,6 +111,26 @@ namespace NXtelManager.Controllers
             Model.PageID = route.GoesToPageID;
             Model.GoesToPageFrameDesc = route.GoesToPageFrameDesc;
             return Json(Model, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Zone(int ID)
+        {
+            if (ID <= 0)
+                return RedirectToAction("Index", "Zone");
+            var zone = NXtelData.Zone.Load(ID);
+            if (zone == null || zone.ID <= 0)
+                return RedirectToAction("Index", "Zone");
+            var pages = Pages.LoadStubs(ID);
+            ViewBag.ViewZone = zone.Description;
+            return View("Index", pages);
+        }
+
+        public ActionResult Unzoned()
+        {
+            var pages = Pages.LoadStubs(-2);
+            ViewBag.ViewZone = "None";
+            ViewBag.ViewUnzoned = true;
+            return View("Index", pages);
         }
 
     }

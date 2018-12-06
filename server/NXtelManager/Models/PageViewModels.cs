@@ -13,6 +13,7 @@ namespace NXtelManager.Models
         public IEnumerable<SelectListItem> Templates { get; set; }
         public IEnumerable<SelectListItem> Routes { get; set; }
         public IEnumerable<SelectListItem> Files { get; set; }
+        public IEnumerable<SelectListItem> Zones { get; set; }
         public bool SendURL { get; set; }
 
         public PageEditModel()
@@ -20,8 +21,9 @@ namespace NXtelManager.Models
             Templates = GetSelectList(NXtelData.Templates.LoadStubs());
             Routes = GetSelectList(NXtelData.Routes.MasterList);
             Files = GetSelectList(NXtelData.TSFiles.LoadStubs());
+            Zones = GetSelectList(NXtelData.Zones.Load());
         }
-       
+
         public IEnumerable<SelectListItem> GetSelectList(Templates Items)
         {
             var rv = new List<SelectListItem>();
@@ -67,6 +69,23 @@ namespace NXtelManager.Models
             }
             return rv;
         }
+
+        public IEnumerable<SelectListItem> GetSelectList(Zones Zones)
+        {
+            var rv = new List<SelectListItem>();
+            //rv.Add(new SelectListItem { Value = "-1", Text = "None" });
+            if (Files == null) return rv;
+            foreach (var item in Zones)
+            {
+                rv.Add(new SelectListItem
+                {
+                    Value = item.ID.ToString(),
+                    Text = (item.Description ?? "").Trim()
+                });
+            }
+            return rv;
+        }
+
     }
 
     public class PageRouteViewModel

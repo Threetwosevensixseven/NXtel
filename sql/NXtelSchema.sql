@@ -123,6 +123,19 @@ CREATE TABLE `charsub` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `dummy`
+--
+
+DROP TABLE IF EXISTS `dummy`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dummy` (
+  `DummyID` int(11) NOT NULL,
+  PRIMARY KEY (`DummyID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `feed`
 --
 
@@ -158,7 +171,7 @@ CREATE TABLE `page` (
   PRIMARY KEY (`PageID`),
   UNIQUE KEY `idx_page_PageNo_Seq` (`PageNo`,`FrameNo`),
   KEY `FK_page_TeleSoftwareID_idx` (`TeleSoftwareID`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -182,6 +195,26 @@ CREATE TABLE `pagetemplate` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `pagezone`
+--
+
+DROP TABLE IF EXISTS `pagezone`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pagezone` (
+  `PageZoneID` int(11) NOT NULL AUTO_INCREMENT,
+  `PageID` int(11) NOT NULL,
+  `ZoneID` int(11) NOT NULL,
+  PRIMARY KEY (`PageZoneID`),
+  UNIQUE KEY `uq_pagezone_page_zone` (`PageID`,`ZoneID`),
+  KEY `fk_pagezone_page_idx` (`PageID`),
+  KEY `fk_pagezone_zone_idx` (`ZoneID`),
+  CONSTRAINT `fk_pagezone_page` FOREIGN KEY (`PageID`) REFERENCES `page` (`PageID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pagezone_zone` FOREIGN KEY (`ZoneID`) REFERENCES `zone` (`ZoneID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `route`
 --
 
@@ -190,7 +223,7 @@ DROP TABLE IF EXISTS `route`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `route` (
   `PageID` int(11) NOT NULL,
-  `KeyCode` tinyint(3) NOT NULL,
+  `KeyCode` tinyint(3) unsigned NOT NULL,
   `NextPageNo` int(11) DEFAULT NULL,
   `NextFrameNo` int(11) DEFAULT NULL,
   `GoNextPage` tinyint(1) NOT NULL DEFAULT '0',
@@ -218,7 +251,7 @@ CREATE TABLE `telesoftware` (
   `EOL` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`TeleSoftwareID`),
   UNIQUE KEY `idx_telesoftware_Key` (`Key`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,7 +283,7 @@ CREATE TABLE `template` (
   `KeepTogether` tinyint(1) NOT NULL DEFAULT '0',
   `MinOrphanWidowRows` tinyint(2) DEFAULT NULL,
   PRIMARY KEY (`TemplateID`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -269,6 +302,39 @@ CREATE TABLE `templatetree` (
   CONSTRAINT `FK_templatetree_childtemplate` FOREIGN KEY (`ChildTemplateID`) REFERENCES `template` (`TemplateID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_templatetree_parenttemplate` FOREIGN KEY (`ParentTemplateID`) REFERENCES `template` (`TemplateID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `userpref`
+--
+
+DROP TABLE IF EXISTS `userpref`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `userpref` (
+  `UserPrefID` int(11) NOT NULL AUTO_INCREMENT,
+  `UserID` varchar(128) NOT NULL,
+  `Key` varchar(40) NOT NULL,
+  `Value` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`UserPrefID`),
+  UNIQUE KEY `UQ_userpref_UserID_Key` (`UserID`,`Key`),
+  KEY `IX_userpref_Key` (`Key`),
+  CONSTRAINT `FK_userpref_userID` FOREIGN KEY (`UserID`) REFERENCES `aspnetusers` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `zone`
+--
+
+DROP TABLE IF EXISTS `zone`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `zone` (
+  `ZoneID` int(11) NOT NULL AUTO_INCREMENT,
+  `Description` varchar(40) NOT NULL,
+  PRIMARY KEY (`ZoneID`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -313,4 +379,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-25 13:24:24
+-- Dump completed on 2018-12-06 16:16:23
