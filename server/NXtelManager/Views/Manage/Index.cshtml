@@ -1,19 +1,49 @@
 ﻿@model NXtelManager.Models.IndexViewModel
 @{
-    ViewBag.Title = "Manage";
+    ViewBag.Title = "My Account";
+    bool admin = User.IsInRole("Admin");
+    bool pageEditor = User.IsInRole("Page Editor");
 }
 
 <h1>@ViewBag.Title</h1>
-
 <p class="text-success">@ViewBag.StatusMessage</p>
-<div>
-        <p>Mailbox: <b>@Model.Mailbox</b></p>
-        <h4>Change your account settings</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>Password:</dt>
-            <dd>
-                [
+
+<table id="ManageUser">
+    <tbody>
+        <tr>
+            <td class="lbl">Email:</td>
+            <td class="data">@Model.Email</td>
+        </tr>
+        <tr>
+            <td class="lbl">Mailbox:</td>
+            <td class="data">@Model.Mailbox</td>
+        </tr>
+        @if (pageEditor && !admin)
+        {
+            string desc = Model.PageRanges.Count <= 1 ? "Page Range:" : "Page Ranges:";
+            <tr>
+                <td class="lbl" style="vertical-align:text-top">@desc</td>
+                <td class="data">
+                    <table class="inner">
+                        @foreach (var pr in Model.PageRanges)
+                        {
+                            <tr>
+                                <td style="text-align:right">@pr.FromPageNo</td>
+                                <td>-</td>
+                                <td style="text-align:right">@pr.ToPageNo</td>
+                            </tr>
+                        }
+                        @if (Model.PageRanges.Count == 0)
+                        {
+                            <tr><td>All</td></tr>
+                        }
+                    </table>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td class="lbl">Password:</td>
+            <td>
                 @if (Model.HasPassword)
             {
                     @Html.ActionLink("Change your password", "ChangePassword")
@@ -22,67 +52,7 @@
                 {
                     @Html.ActionLink("Create", "SetPassword")
                 }
-                ]
-            </dd>
-            @*<dt>External Logins:</dt>
-                <dd>
-                    @Model.Logins.Count [
-                    @Html.ActionLink("Manage", "ManageLogins") ]
-                </dd>*@
-            @*
-                Phone Numbers can used as a second factor of verification in a two-factor authentication system.
-
-                 See <a href="http://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-                    for details on setting up this ASP.NET application to support two-factor authentication using SMS.
-
-                 Uncomment the following block after you have set up two-factor authentication
-            *@
-            @*
-                <dt>Phone Number:</dt>
-                <dd>
-                    @(Model.PhoneNumber ?? "None")
-                    @if (Model.PhoneNumber != null)
-                    {
-                        <br />
-                        <text>[&nbsp;&nbsp;@Html.ActionLink("Change", "AddPhoneNumber")&nbsp;&nbsp;]</text>
-                        using (Html.BeginForm("RemovePhoneNumber", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            <text>[<input type="submit" value="Remove" class="btn-link" />]</text>
-                        }
-                    }
-                    else
-                    {
-                        <text>[&nbsp;&nbsp;@Html.ActionLink("Add", "AddPhoneNumber")
-                    }
-                </dd>
-            *@
-            @*<dt>Two-Factor Authentication:</dt>
-                <dd>
-                    <p>
-                        There are no two-factor authentication providers configured. See <a href="http://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-                        for details on setting up this ASP.NET application to support two-factor authentication.
-                    </p>*@
-            @*@if (Model.TwoFactor)
-                {
-                    using (Html.BeginForm("DisableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <text>Enabled
-                        <input type="submit" value="Disable" class="btn btn-link" />
-                        </text>
-                    }
-                }
-                else
-                {
-                    using (Html.BeginForm("EnableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <text>Disabled
-                        <input type="submit" value="Enable" class="btn btn-link" />
-                        </text>
-                    }
-                }*@
-            @*</dd>*@
-        </dl>
-</div>
+            </td>
+        </tr>
+    </tbody>
+</table>

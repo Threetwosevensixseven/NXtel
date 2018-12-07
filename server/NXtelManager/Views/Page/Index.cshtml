@@ -111,6 +111,7 @@ else
             function setupZoneFilter() {
                 var html = $("#PageList_XXX_filter").html().replace(/XXX/g, "0");
                 $("#PageList_wrapper .row:first-child").append(html);
+                filter();
             }
 
             function filter() {

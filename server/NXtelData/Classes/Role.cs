@@ -36,6 +36,5 @@ namespace NXtelData
 
             return true;
         }
-
     }
 }

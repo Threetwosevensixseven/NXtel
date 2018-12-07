@@ -65,12 +65,13 @@ namespace NXtelManager.Controllers
         [MultipleButton("Save")]
         public ActionResult Save(UserEditModel Model)
         {
-            Model.SetRoles();
+            Model.Fixup();
             if (ModelState.IsValid)
             {
                 string err;
                 if (!NXtelData.User.Save(Model.User, out err))
                 {
+                    ModelState.AddModelError("", err);
                     return View("Edit", Model);
                 }
                 return RedirectToAction("Index");

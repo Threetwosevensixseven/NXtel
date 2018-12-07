@@ -176,12 +176,6 @@
         return rv.toString();
     }
 
-    jQuery.fn.outerHTML = function (s) {
-        return s
-            ? this.before(s).remove()
-            : jQuery("<div>").append(this.eq(0).clone()).html();
-    };
-
     function addTemplate(btn) {
         var id = getNextID();
         var html = $("#trPageTemplateXXX").outerHTML().replace(/XXX/g, id);

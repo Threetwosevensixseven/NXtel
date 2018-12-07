@@ -20,7 +20,8 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateUserPrefTable(ConX);
+            CreateUserNoField(ConX);
+            CreateUserPageRangeTable(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -662,6 +663,71 @@ END$$";
                       UNIQUE KEY `UQ_userpref_UserID_Key` (`UserID`,`Key`),
                       KEY `IX_userpref_Key` (`Key`)
                     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateUserNoField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `aspnetusers` 
+                    ADD COLUMN `UserNo` INT NOT NULL AUTO_INCREMENT AFTER `Mailbox`,
+                    ADD UNIQUE INDEX `UserNo_UNIQUE` (`UserNo` ASC);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateUserPageRangeTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `userpagerange` (
+                      `UserPageRangeID` INT NOT NULL AUTO_INCREMENT,
+                      `UserID` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
+                      `FromPageNo` INT NOT NULL,
+                      `ToPageNo` INT NOT NULL,
+                      PRIMARY KEY (`UserPageRangeID`),
+                      INDEX `IX_userpagerange_user` (`UserID` ASC),
+                      UNIQUE INDEX `UQ_userpagerange` (`FromPageNo` ASC, `ToPageNo` ASC, `UserID` ASC))
+                    ENGINE = InnoDB
+                    DEFAULT CHARACTER SET = utf8;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

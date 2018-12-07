@@ -199,6 +199,31 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     width: 65px;
 }
 
+.user-page-range {
+    max-width: 80px;
+    text-align: right;
+    padding: 3px 6px;
+    height: auto;
+}
+
+#ManageUser td {
+    padding-bottom: 4px;
+}
+
+#ManageUser table.inner td {
+    line-height: normal;
+    padding-bottom: 0;
+}
+
+#ManageUser td.lbl {
+    padding-right: 20px;
+}
+
+#ManageUser td.data {
+    font-weight: bold;
+    padding-right: 20px;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
     div.dataTables_wrapper div.dataTables_primary {

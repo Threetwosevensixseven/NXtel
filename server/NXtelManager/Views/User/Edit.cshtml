@@ -49,8 +49,41 @@
             </select>
         </div>
     </div>
+
+    <div class="form-group">
+        @Html.Label("Page Ranges", "Page Ranges", new { @class = "control-label col-sm-2" })
+        <div id="PageRanges" class="col-sm-10">
+            @Html.Hidden("SelectedPageRanges", @Model.SelectedPageRanges, new { id = "SelectedPageRanges" })
+            <table style="display:inline">
+                <tbody id="tbodyPageRanges">
+                    @for (int j = 0; j < @Model.User.PageRanges.Count; j++)
+                    {
+                        string id = "trPageRange" + (j + 1).ToString();
+                        string prid = @Model.User.PageRanges[j].ID.ToString();
+                        <tr id="@id" class="page-range ordered" data-range-id="@prid">
+                            <td>@Html.TextBox("User.PageRanges[" + j + "].FromPageNo", Model.User.PageRanges[j].FromPageNo, new { @class = "form-control user-page-range from allow-numbers", maxlength = 8 })</td>
+                            <td>-</td>
+                            <td>@Html.TextBox("User.PageRanges[" + j + "].ToPageNo", Model.User.PageRanges[j].ToPageNo, new { @class = "form-control user-page-range to allow-numbers", maxlength = 8 })</td>
+                            <td><a href="#" class="ordered ordered-btn delete" title="Delete page range">Delete</a></td>
+                        </tr>
+                    }
+                </tbody>
+                <tbody style="display:none">
+                    <tr id="trPageRangeXXX" class="page-range ordered">
+                        <td><input class="form-control user-page-range from" maxlength="8" type="text" onkeypress="javascript:return allownumbers(event);"></td>
+                        <td>-</td>
+                        <td><input class="form-control user-page-range to" maxlength="8" type="text" onkeypress="javascript:return allownumbers(event);"></td>
+                        <td><a href="#" class="ordered ordered-btn delete" title="Delete page range">Delete</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <a href="#" class="ordered ordered-btn add" title="Add template" style="display:inline-block;position:relative;top:-3px">Add</a>
+        </div>
+    </div>
+
+
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="saveUser();" />
+    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return saveUser();" />
     if (!Model.User.IsAdmin && Model.User.ID != myID)
     {
         <input type="submit" value="Delete" name="action:DeleteItem" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');" />
@@ -60,6 +93,8 @@
 
 @section scripts {
     <script type="text/javascript">
+        var nextID = 0;
+
         $(document).ready(function () {
             $('#SelectedRoles').multiselect({
                 nonSelectedText: 'None',
@@ -68,8 +103,88 @@
             });
         });
 
+        function getNextID() {
+            var rv = nextID - 1;
+            nextID = rv;
+            return rv.toString();
+        }
+
+        $("#PageRanges .ordered-btn.add").click(function (event) {
+            event.preventDefault();
+            addPageRange(this);
+        });
+
+        $("#PageRanges .ordered-btn.delete").click(function (event) {
+            event.preventDefault();
+            deletePageRange(this);
+        });
+
+        $(".allow-numbers").keypress(function(event) {
+            return allownumbers(event);
+        });
+
+        function addPageRange(btn) {
+            var id = getNextID();
+            var id2 = id.replace("-", "_");
+            var html = $("#trPageRangeXXX").outerHTML().replace(/XXX/g, id2);
+            $("#tbodyPageRanges").append(html);
+            $("#trPageRange" + id2 + " .ordered-btn.delete").click(function (ev) {
+                ev.preventDefault();
+                deletePageRange(this);
+            });
+        }
+
+        function deletePageRange(btn) {
+            var row = $(btn).parents("tr.page-range.ordered");
+            $(row.remove());
+        }
+
+        function validatePageRanges() {
+            var valid = true;
+            var val = "";
+            var join = "";
+            var error = "";
+            var ctrl = undefined;
+            $("#tbodyPageRanges tr").each(function (index, row) {
+                var id = $(row).data("range-id") * 1;
+                if (id <= 0) id = -1;
+                var from = $(row).find("input.from").val() * 1;
+                var to = $(row).find("input.to").val() * 1;
+                if (from <= 0) {
+                    error = "From Page No must be larger than zero.";
+                    ctrl = $(row).find("input.from");
+                    valid = false;
+                    return false;
+                }
+
+                if (to <= 0) {
+                    error = "To Page No must be larger than zero.";
+                    ctrl = $(row).find("input.to");
+                    valid = false;
+                    return false;
+                }
+                if (to < from) {
+                    var tmp = from;
+                    var from = to;
+                    var to = tmp;
+                }
+                val += join + id.toString() + "," + from.toString() + "," + to.toString();
+                join = ";";
+            });
+            if (ctrl) {
+                $(ctrl).focus();
+                setTimeout(function () { alert(error); }, 100);
+                return false;
+            }
+            $("#SelectedPageRanges").val(val);
+            return true;
+        }
+
         function saveUser() {
+            if (!validatePageRanges())
+                return false;
             $("#SelectedRolesJSON").val($("#SelectedRoles").val());
+            return true;
         }
     </script>
 }

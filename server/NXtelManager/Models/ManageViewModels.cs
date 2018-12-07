@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
+using NXtelData;
 
 namespace NXtelManager.Models
 {
@@ -13,7 +14,14 @@ namespace NXtelManager.Models
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
         public string Mailbox { get; set; }
-    }
+        public UserPageRanges PageRanges { get; set; }
+        public string Email { get; set; }
+
+        public IndexViewModel()
+        {
+            PageRanges = new UserPageRanges();
+        }
+}
 
     public class ManageLoginsViewModel
     {

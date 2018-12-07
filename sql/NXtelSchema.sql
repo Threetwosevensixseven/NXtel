@@ -104,9 +104,11 @@ CREATE TABLE `aspnetusers` (
   `AccessFailedCount` int(11) NOT NULL,
   `UserName` varchar(200) CHARACTER SET utf8 NOT NULL,
   `Mailbox` varchar(9) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `UserNo` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UserNameIndex` (`UserName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  UNIQUE KEY `UserNameIndex` (`UserName`),
+  UNIQUE KEY `UserNo_UNIQUE` (`UserNo`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -305,6 +307,24 @@ CREATE TABLE `templatetree` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `userpagerange`
+--
+
+DROP TABLE IF EXISTS `userpagerange`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `userpagerange` (
+  `UserPageRangeID` int(11) NOT NULL AUTO_INCREMENT,
+  `UserID` varchar(128) NOT NULL,
+  `FromPageNo` int(11) NOT NULL,
+  `ToPageNo` int(11) NOT NULL,
+  PRIMARY KEY (`UserPageRangeID`),
+  UNIQUE KEY `UQ_userpagerange` (`FromPageNo`,`ToPageNo`,`UserID`),
+  KEY `IX_userpagerange_user` (`UserID`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `userpref`
 --
 
@@ -319,7 +339,7 @@ CREATE TABLE `userpref` (
   PRIMARY KEY (`UserPrefID`),
   UNIQUE KEY `UQ_userpref_UserID_Key` (`UserID`,`Key`),
   KEY `IX_userpref_Key` (`Key`),
-  CONSTRAINT `FK_userpref_userID` FOREIGN KEY (`UserID`) REFERENCES `aspnetusers` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `IX_userpref_UserID` (`UserID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -379,4 +399,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-06 16:16:23
+-- Dump completed on 2018-12-06 22:28:12

@@ -130,6 +130,8 @@
     <Compile Include="Classes\TSFile.cs" />
     <Compile Include="Classes\TSFiles.cs" />
     <Compile Include="Classes\User.cs" />
+    <Compile Include="Classes\UserPageRange.cs" />
+    <Compile Include="Classes\UserPageRanges.cs" />
     <Compile Include="Classes\Users.cs" />
     <Compile Include="Classes\Zone.cs" />
     <Compile Include="Classes\Zones.cs" />

@@ -12,11 +12,12 @@ namespace NXtelManager.Models
         public User User { get; set; }
         public IEnumerable<SelectListItem> Roles { get; set; }
         public string SelectedRolesJSON { get; set; }
+        public string SelectedPageRanges { get; set; }
 
         public UserEditModel()
         {
             Roles = GetSelectList(NXtelData.Roles.Load());
-            SelectedRolesJSON = "";
+            SelectedRolesJSON = SelectedPageRanges = "";
         }
 
         public IEnumerable<SelectListItem> GetSelectList(Roles Items)
@@ -34,8 +35,9 @@ namespace NXtelManager.Models
             return rv;
         }
 
-        public void SetRoles()
+        public void Fixup()
         {
+            // Set Roles
             if (User == null)
                 return;
             User.Roles = new List<string>();
@@ -45,6 +47,23 @@ namespace NXtelManager.Models
                 if (role != null)
                     User.Roles.Add(role.Text);
             }
+
+            // Set Page Ranges
+            var prs = new List<UserPageRange>();
+            foreach (var pr in (this.SelectedPageRanges ?? "").Split(';'))
+            {
+                var fields = (pr ?? "").Split(',');
+                int id = 0, from = 0, to = 0;
+                int.TryParse(fields[0], out id);
+                if (fields.Length > 1)
+                    int.TryParse(fields[1], out from);
+                if (fields.Length > 2)
+                    int.TryParse(fields[2], out to);
+                if (from > 0 && to > 0)
+                    prs.Add(new UserPageRange(id, from, to));
+            }
+            User.PageRanges = new UserPageRanges();
+            User.PageRanges.AddRange(prs.OrderBy(r => r.Sort));
         }
     }
 }

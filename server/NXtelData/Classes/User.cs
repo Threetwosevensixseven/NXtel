@@ -13,11 +13,13 @@ namespace NXtelData
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
         public string Mailbox { get; set; }
+        public UserPageRanges PageRanges { get; set; }
 
         public User()
         {
             ID = Email = Mailbox = "";
             Roles = new List<string>();
+            PageRanges = new UserPageRanges();
         }
 
         public bool IsAdmin
@@ -62,6 +64,9 @@ namespace NXtelData
                             user.Roles.Add(role);
                     }
                 }
+                if (!string.IsNullOrWhiteSpace(user.ID))
+                    user.PageRanges = UserPageRanges.Load(user.ID, con);
+
             }
             return user;
         }
@@ -178,6 +183,10 @@ namespace NXtelData
                         NXtelData.Roles.SaveForUser(ID, Roles, out Err, con);
                         if (!string.IsNullOrWhiteSpace(Err))
                             return false;
+                        PageRanges.Save(ID, out Err, con);
+                        if (!string.IsNullOrWhiteSpace(Err))
+                            return false;
+
                     }
 
                     return rv > 0;
