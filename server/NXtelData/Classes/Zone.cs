@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
@@ -9,6 +10,7 @@ namespace NXtelData
     public class Zone
     {
         public int ID { get; set; }
+        [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; }
 
         public Zone()

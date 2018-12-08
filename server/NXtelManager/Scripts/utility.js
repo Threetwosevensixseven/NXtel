@@ -26,3 +26,10 @@ function allowalphanumeric(e) {
     return carok;
 }
 
+function allowalpha(e) {
+    var key = window.event ? e.keyCode : e.which;
+    var keychar = String.fromCharCode(key);
+    var reg = new RegExp("[a-zA-Z]");
+    var carok = reg.test(keychar);
+    return carok;
+}

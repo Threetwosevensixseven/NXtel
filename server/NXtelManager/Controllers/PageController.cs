@@ -30,8 +30,13 @@ namespace NXtelManager.Controllers
             var model = new PageEditModel();
             bool sendURL = id == -2;
             if (sendURL) id = -1;
-            model.Page = Page.Load(id);
+            var copy = Session["PageCopy"] as PageEditModel;
+            if (copy == null)
+                model.Page = Page.Load(id);
+            else
+                model = copy;
             model.SendURL = sendURL;
+            Session["PageCopy"] = null;
             if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index");
             return View(model);
@@ -133,5 +138,26 @@ namespace NXtelManager.Controllers
             return View("Index", pages);
         }
 
+        public ActionResult Copy(int ID)
+        {
+            if (ID <= 0)
+                return RedirectToAction("Index");
+               var model = new PageEditModel();
+            model.Copying = true;
+            model.Page = Page.Load(ID);
+            model.Page.PageID = -1;
+            model.OldTitle = model.Page.Title;
+            model.Page.Title = "";
+            model.OldPageNo = model.Page.PageNo.ToString();
+            model.Page.PageNo = 0;
+            model.OldFrame = model.Page.Frame;
+            model.Page.Frame = "";
+            model.OldToPageNo = model.Page.ToPageNo.ToString();
+            model.Page.ToPageNo = 0;
+            model.OldToFrame = model.Page.ToFrame;
+            model.Page.ToFrame = "";
+            Session["PageCopy"] = model;
+            return RedirectToAction("Edit");
+        }
     }
 }

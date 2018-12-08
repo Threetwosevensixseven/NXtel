@@ -100,7 +100,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\OptionalRangeAttribute.cs" />
     <Compile Include="Classes\Character.cs" />
     <Compile Include="Classes\DB.cs" />
     <Compile Include="Classes\DebugLogger.cs" />
@@ -149,6 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="NXtel.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Attributes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

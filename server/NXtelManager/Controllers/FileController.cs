@@ -72,6 +72,10 @@ namespace NXtelManager.Controllers
                 return RedirectToAction("Index");
             }
             model = new FileEditModel();
+            if (File == null)
+                model.File = new TSFile();
+            if (File.TeleSoftwareID > 0)
+                File = TSFile.Load(File.TeleSoftwareID);
             model.File = File;
             return View("Edit", model);
         }

@@ -10,7 +10,6 @@ namespace NXtelData
     {
         private static Dictionary<char, byte> _substitutions = null;
 
-
         public static byte Substitute(char Unicode)
         {
             if (_substitutions == null)

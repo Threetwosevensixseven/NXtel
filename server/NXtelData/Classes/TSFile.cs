@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
@@ -9,7 +10,9 @@ namespace NXtelData
     public class TSFile
     {
         public int TeleSoftwareID { get; set; }
+        [Required(ErrorMessage = "Key is required.")]
         public string Key { get; set; }
+        [Display(Name = "File Name")]
         public string FileName { get; set; }
         public byte[] Contents { get; set; }
 
@@ -20,6 +23,7 @@ namespace NXtelData
             Contents = new byte[0];
         }
 
+        [Display(Name = "File Size")]
         public string FileSize
         {
             get

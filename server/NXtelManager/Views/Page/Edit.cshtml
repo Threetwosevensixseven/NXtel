@@ -1,7 +1,7 @@
 ﻿@model NXtelManager.Models.PageEditModel
 @{
     var page = Model.Page;
-    ViewBag.Title = "Edit Page";
+    ViewBag.Title = (Model.Copying ? "Copy" : (@page.PageID <= 0 ? "New" : "Edit")) + " Page";
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
     string frame = @page.PageID <= 0 ? "" : @page.Frame;
@@ -19,38 +19,39 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+    @Html.Hidden("CopyPageID", Model.CopyPageID)
     <table id="tblEdit" class="edit">
         <tbody>
             <tr>
-                <td class="lbl">Page ID:</td>
+                <td class="lbl">Page ID</td>
                 <td class="data" colspan="5">@pageID@Html.Hidden("Page.PageID", @page.PageID)</td>
             </tr>
             <tr>
-                <td class="lbl">Title:</td>
-                <td class="data" colspan="5">@Html.TextBox("Page.Title", page.Title, new { maxlength = 30, style = "width:100%;max-width:initial" })</td>
+                <td class="lbl">Title</td>
+                <td class="data" colspan="5">@Html.TextBox("Page.Title", page.Title, new { maxlength = 30, style = "width:100%;max-width:initial", @class = "form-control input-sm", placeholder = Model.OldTitle })</td>
             </tr>
             <tr>
-                <td class="lbl">Page No:</td>
-                <td class="data">@Html.TextBox("Page.PageNo", pageNo, new { maxlength = 10 })</td>
+                <td class="lbl">Page No</td>
+                <td class="data">@Html.TextBox("Page.PageNo", pageNo, new { maxlength = 10, style="width:88px;text-align:right", @class = "form-control input-sm", onkeypress = "javascript:return allownumbers(event);", placeholder = Model.OldPageNo })</td>
             </tr>
             <tr>
-                <td class="lbl">Frame:</td>
-                <td class="data">@Html.TextBox("Page.Frame", frame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
+                <td class="lbl">Frame</td>
+                <td class="data">@Html.TextBox("Page.Frame", frame, new { maxlength = 1, style = "text-transform:lowercase;width:88px;text-align:right", @class = "form-control input-sm", onkeypress = "javascript:return allowalpha(event);", placeholder = Model.OldFrame })</td>
             </tr>
             <tr>
-                <td class="lbl">To Page No:</td>
-                <td class="data">@Html.TextBox("Page.ToPageNo", toPageNo, new { maxlength = 10 })</td>
+                <td class="lbl">To Page No</td>
+                <td class="data">@Html.TextBox("Page.ToPageNo", toPageNo, new { maxlength = 10, style = "width:88px;text-align:right", @class = "form-control input-sm", onkeypress = "javascript:return allownumbers(event);", placeholder = Model.OldToPageNo })</td>
             </tr>
             <tr>
-                <td class="lbl">To Frame:</td>
-                <td class="data">@Html.TextBox("Page.ToFrame", toFrame, new { maxlength = 1, style = "text-transform:lowercase" })</td>
+                <td class="lbl">To Frame</td>
+                <td class="data">@Html.TextBox("Page.ToFrame", toFrame, new { maxlength = 1, style = "text-transform:lowercase;width:88px;text-align:right", @class = "form-control input-sm", onkeypress = "javascript:return allowalpha(event);", placeholder = Model.OldToFrame })</td>
             </tr>
             @*<tr>
-                <td class="lbl">Box Mode:</td>
+                <td class="lbl">Box Mode</td>
                 <td class="data">@Html.CheckBox("Page.BoxMode", page.BoxMode)</td>
             </tr>*@
             <tr id="trZones" style="display:none">
-                <td class="lbl">Zones:</td>
+                <td class="lbl">Zones</td>
                 <td class="data">
                     @Html.Hidden("Page.SelectedZones", page.SelectedZones, new { id = "SelectedZones" })
                     <select id="Zones" multiple="multiple">
@@ -65,14 +66,14 @@
                 </td>
             </tr>
             <tr>
-                <td class="lbl">URL:</td>
+                <td class="lbl">URL</td>
                 <td class="data">
                     @*<textarea cols="20" id="URL" name="Page_URL" rows="2">@page.URL</textarea>*@
-                    @Html.TextArea("Page.URL", page.URL, new { id = "URL", name = "Page_URL" })
+                    @Html.TextArea("Page.URL", page.URL, new { id = "URL", name = "Page_URL", @class = "form-control input-sm", style = "resize:vertical;height:45px;min-height:45px" })
                 </td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">Content:</td>
+                <td class="lbl" style="vertical-align:top">Content</td>
                 <td class="data">
                     <div id="canvasframePreview" style="float:left">
                         <canvas id="framePreview" width="960" height="1000" style="width: 576px; height: 500px;"></canvas>
@@ -86,7 +87,7 @@
               </td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">Templates:</td>
+                <td class="lbl" style="vertical-align:top">Templates</td>
                 <td id="PageTemplates" class="data">
                     @Html.Hidden("Page.SelectedTemplates", page.SelectedTemplates, new { id = "SelectedTemplates" })
                     <table style="display:inline">
@@ -109,7 +110,7 @@
                         </tbody>
                         <tbody style="display:none">
                             <tr id="trPageTemplateXXX" class="template ordered">
-                                <td>@Html.DropDownList("TemplateMasterListXXX", Model.Templates)</td>
+                                <td>@Html.DropDownList("TemplateMasterListXXX", Model.Templates, new { @class = "form-control input-sm" })</td>
                                 <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
                                 <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
                                 <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
@@ -120,7 +121,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">Routing:</td>
+                <td class="lbl" style="vertical-align:top">Routing</td>
                 <td id="PageRouting" class="data">
                     @Html.Hidden("Page.SelectedRoutes", page.SelectedRoutes, new { id = "SelectedRoutes" })
                     <table style="display:inline">
@@ -129,16 +130,16 @@
                                 {
                                 string id = "trPageRoute" + (i + 1).ToString();
                                 string kcode = page.Routing[i].KeyCode.ToString();
-                                string clsPage = (page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "page-no route-disable" : "page-no";
-                                string clsFrame = (page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "frame route-disable" : "frame";
+                                string clsPage = ((page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "page-no route-disable" : "page-no") + " form-control input-sm";
+                                string clsFrame = ((page.Routing[i].GoNextPage || page.Routing[i].GoNextFrame) ? "frame route-disable" : "frame") + " form-control input-sm";
                                 string goTo = @page.Routing[i].GoesToPageID > 0 ? "Go to " + @page.Routing[i].GoesToPageFrameDesc : "No page";
                                 <tr id="@id" + page.Routing[i].KeyCode class="route ordered" data-route-keycode="@kcode">
                                     <td>
                                         @Html.Hidden("Routing[" + i + "].KeyCode", page.Routing[i].KeyCode)
                                         @page.Routing[i].Description
                                     </td>
-                                    <td>@Html.TextBox("Routing[" + i + "].NextPageNo", page.Routing[i].NextPageNo, new { @class = clsPage, maxlength = 10, style = "width:75px" })</td>
-                                    <td>@Html.TextBox("Routing[" + i + "].NextFrame", page.Routing[i].NextFrame, new { @class = clsFrame, maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
+                                    <td>@Html.TextBox("Routing[" + i + "].NextPageNo", page.Routing[i].NextPageNo, new { @class = clsPage, maxlength = 9, style = "width:88px;text-align:right", onkeypress = "javascript:return allownumbers(event);" })</td>
+                                    <td>@Html.TextBox("Routing[" + i + "].NextFrame", page.Routing[i].NextFrame, new { @class = clsFrame, maxlength = 1, style = "width:30px;text-align:right;text-transform:lowercase", onkeypress = "javascript:return allowalpha(event);" })</td>
                                     <td>@Html.CheckBox("Routing[" + i + "].GoNextPage", page.Routing[i].GoNextPage, new { @class = "next-page" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Page</span></td>
                                     <td>@Html.CheckBox("Routing[" + i + "].GoNextFrame", page.Routing[i].GoNextFrame, new { @class = "next-frame" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Frame</span></td>
                                     <td style="padding-left:15px"><a href="#" class="go-to-page" onclick="return goToPage(this);">@goTo</a></td>
@@ -148,9 +149,9 @@
                         </tbody>
                         <tbody style="display:none">
                             <tr id="trPageRouteXXX" class="route ordered">
-                                <td>@Html.DropDownList("RouteMasterListXXX", Model.Routes)</td>
-                                <td>@Html.TextBox("Routing_XXX.NextPageNo", "", new { @class = "page-no", maxlength = 10, style = "width:75px" })</td>
-                                <td>@Html.TextBox("Routing_XXX.NextFrame", "", new { @class = "frame", maxlength = 1, style = "width:15px;text-transform:lowercase" })</td>
+                                <td>@Html.DropDownList("RouteMasterListXXX", Model.Routes, new { @class = "form-control input-sm" })</td>
+                                <td>@Html.TextBox("Routing_XXX.NextPageNo", "", new { @class = "page-no form-control input-sm", maxlength = 9, style = "width:88px;text-align:right", onkeypress = "javascript:return allownumbers(event);" })</td>
+                                <td>@Html.TextBox("Routing_XXX.NextFrame", "", new { @class = "frame form-control input-sm", maxlength = 1, style = "width:30px;text-align:right;text-transform:lowercase", onkeypress = "javascript:return allowalpha(event);" })</td>
                                 <td>@Html.CheckBox("Routing_XXX.GoNextPage", false, new { @class = "next-page" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Page</span></td>
                                 <td>@Html.CheckBox("Routing_XXX.GoNextFrame", false, new { @class = "next-frame" })<span style="display:inline-block;position:relative;top:-1px">&nbsp;Next&nbsp;Frame</span></td>
                                 <td style="padding-left:15px"><a href="#" class="go-to-page" onclick="return goToPage(this);">No page</a></td>
@@ -162,9 +163,9 @@
                 </td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">File:</td>
+                <td class="lbl" style="vertical-align:top">File</td>
                 <td id="PageFile" class="data">
-                    @Html.DropDownListFor(model => model.Page.TeleSoftwareID, Model.Files)
+                    @Html.DropDownListFor(model => model.Page.TeleSoftwareID, Model.Files, new { @class = "form-control input-sm", style = "width:auto" })
                 </td>
             </tr>
 
@@ -175,6 +176,10 @@
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this page?');" />
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
+    if (page.PageID > 0)
+    {
+        @Html.ActionLink("Copy", "Copy", new { id = @page.PageID }, new { @class = "btn btn-default", style = "margin-left:4px" })
+    }
 }
 
 @section head {
@@ -481,7 +486,48 @@
 
     }
 
+    function validateRoutes() {
+        var valid = true;
+        var val = "";
+        var join = "";
+        var error = "";
+        var ctrl = undefined;
+        $("#tbodyPageRouting tr").each(function (index, row) {
+            if ($(".page-no").is(":enabled") && $(".page-no").val().length == 0) {
+                error = "Page No is required.";
+                ctrl = $(row).find(".page-no");
+                valid = false;
+                return false;
+            }
+            if ($(".frame").is(":enabled") && $(".frame").val().length == 0) {
+                error = "Frame is required.";
+                ctrl = $(row).find(".frame");
+                valid = false;
+                return false;
+            }
+        });
+        if (ctrl) {
+            $(ctrl).focus();
+            setTimeout(function () { alert(error); }, 100);
+            return false;
+        }
+        return true;
+    }
+
+    function validateCopy() {
+        $("#CopyPageID").val($("#Page_PageID").val());
+        return true;
+    }
+
     function validateSave() {
+        if (!validateRoutes())
+            return false;
+        if ($("#Page_Frame").val().length == 0 && $("#Page_PageNo").val().length > 0)
+            $("#Page_Frame").val("a");
+        if ($("#Page_ToPageNo").val().length == 0 && $("#Page_ToFrame").val().length == 0) {
+            $("#Page_ToPageNo").val($("#Page_PageNo").val());
+            $("#Page_ToFrame").val($("#Page_Frame").val());
+        }
         var zones = [];
         $('#Zones option:selected').each(function () {
             zones.push($(this).val() * 1);

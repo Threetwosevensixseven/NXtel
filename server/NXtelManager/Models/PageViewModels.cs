@@ -15,6 +15,13 @@ namespace NXtelManager.Models
         public IEnumerable<SelectListItem> Files { get; set; }
         public IEnumerable<SelectListItem> Zones { get; set; }
         public bool SendURL { get; set; }
+        public int CopyPageID { get; set; }
+        public bool Copying { get; set; }
+        public string OldTitle { get; set; }
+        public string OldPageNo { get; set; }
+        public string OldFrame { get; set; }
+        public string OldToPageNo { get; set; }
+        public string OldToFrame { get; set; }
 
         public PageEditModel()
         {

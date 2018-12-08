@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,8 +14,10 @@ namespace NXtelData
     public class Page : PageBase
     {
         public int PageID { get; set; }
+        [Required(ErrorMessage = "Page No is required.")]
         public int PageNo { get; set; }
         public int FrameNo { get; set; }
+        [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; }
         public byte? DateX { get; set; }
         public byte? DateY { get; set; }
@@ -28,6 +31,7 @@ namespace NXtelData
         public string SelectedZones { get; set; }
         public int ContentHeight { get; set; }
         public int ContentCurrentLine { get; set; }
+        [Required(ErrorMessage = "To Page No is required.")]
         public int ToPageNo { get; set; }
         public int ToFrameNo { get; set; }
         public int? TeleSoftwareID { get; set; }
@@ -53,6 +57,7 @@ namespace NXtelData
             this.ConvertContentsFromURL();
         }
 
+        [Required(ErrorMessage = "Frame is required.")]
         public string Frame
         {
             get
@@ -76,6 +81,7 @@ namespace NXtelData
             }
         }
 
+        [Required(ErrorMessage = "To Frame is required.")]
         public string ToFrame
         {
             get

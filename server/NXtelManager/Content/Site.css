@@ -35,6 +35,7 @@ table.edit textarea {
 table.edit td.lbl {
     font-weight: bold;
     white-space: nowrap;
+    padding-right:10px;
 }
 
 span.lbl {

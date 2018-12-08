@@ -17,7 +17,7 @@
         @Html.HiddenFor(m => @Model.SelectedRolesJSON)
         @Html.LabelFor(m => @Model.User.Email, new { @class = "control-label col-sm-2" })
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => @Model.User.Email, new { @class = "form-control" })
+            @Html.TextBoxFor(m => @Model.User.Email, new { maxlength = 200, @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
@@ -31,9 +31,9 @@
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(m => @Model.User.Mailbox, new { @class = "control-label col-sm-2" })
+        @Html.LabelFor(m => @Model.User.Mailbox, new {@class = "control-label col-sm-2" })
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => @Model.User.Mailbox, new { @class = "form-control" })
+            @Html.TextBoxFor(m => @Model.User.Mailbox, new { @class = "form-control", maxlength = 9, onkeypress = "javascript:return allownumbers(event);" })
         </div>
     </div>
     <div class="form-group">

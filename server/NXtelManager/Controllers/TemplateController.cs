@@ -24,8 +24,13 @@ namespace NXtelManager.Controllers
             var model = new TemplateEditModel();
             bool sendURL = id == -2;
             if (sendURL) id = -1;
-            model.Template = Template.Load(id);
+            var copy = Session["TemplateCopy"] as TemplateEditModel;
+            if (copy == null)
+                model.Template = Template.Load(id);
+            else
+                model = copy;
             model.SendURL = sendURL;
+            Session["TemplateCopy"] = null;
             if (id != -1 && model.Template.TemplateID <= 0)
                 return RedirectToAction("Index");
             return View(model);
@@ -72,19 +77,33 @@ namespace NXtelManager.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        [MultipleButton("copy")]
-        public ActionResult Copy(TemplateEditModel Model)
+        //[HttpPost]
+        //[MultipleButton("copy")]
+        //public ActionResult Copy(TemplateEditModel Model)
+        //{
+        //    if (Model.CopyTemplateID <= 0)
+        //        return RedirectToAction("Index");
+        //    var model = new TemplateEditModel();
+        //    model.Copying = true;
+        //    model.Template = Template.Load(Model.CopyTemplateID);
+        //    model.Template.TemplateID = -1;
+        //    model.OldDescription = model.Template.Description;
+        //    model.Template.Description = "";
+        //    return View("Edit", model);
+        //}
+
+        public ActionResult Copy(int ID)
         {
-            if (Model.CopyTemplateID <= 0)
+            if (ID <= 0)
                 return RedirectToAction("Index");
             var model = new TemplateEditModel();
             model.Copying = true;
-            model.Template = Template.Load(Model.CopyTemplateID);
+            model.Template = Template.Load(ID);
             model.Template.TemplateID = -1;
             model.OldDescription = model.Template.Description;
             model.Template.Description = "";
-            return View("Edit", model);
+            Session["TemplateCopy"] = model;
+            return RedirectToAction("Edit");
         }
     }
 }

@@ -12,7 +12,6 @@ namespace NXtelManager.Models
         public Template Template { get; set; }
         public IEnumerable<SelectListItem> Templates { get; set; }
         public bool SendURL { get; set; }
-        public bool CopyNestedTemplates { get; set; }
         public int CopyTemplateID { get; set; }
         public bool Copying { get; set; }
         public string OldDescription { get; set; }

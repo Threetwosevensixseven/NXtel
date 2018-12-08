@@ -14,24 +14,23 @@
 @using (Html.BeginForm("Edit", "Template", new { id = template.TemplateID }))
 {
     @Html.AntiForgeryToken()
-    @Html.Hidden("CopyNestedTemplates", Model.CopyNestedTemplates)
     @Html.Hidden("CopyTemplateID", Model.CopyTemplateID)
     <table id="tblEdit" class="edit">
         <tbody>
             <tr>
-                <td class="lbl">Template ID:</td>
+                <td class="lbl">Template ID</td>
                 <td class="data" colspan="5">@templateID@Html.Hidden("TemplateID", @template.TemplateID)</td>
             </tr>
             <tr>
-                <td class="lbl">Description:</td>
-                <td class="data" colspan="5">@Html.TextBox("Description", template.Description, new { maxlength = 30, style = "width:100%;max-width:initial", placeholder = placeholder })</td>
+                <td class="lbl">Description</td>
+                <td class="data" colspan="5">@Html.TextBox("Description", template.Description, new { maxlength = 30, style = "width:100%;max-width:initial", placeholder = placeholder, @class = "form-control input-sm" })</td>
             </tr>
             <tr>
-                <td class="lbl">URL:</td>
-                <td class="data">@Html.TextArea("URL", template.URL)</td>
+                <td class="lbl">URL</td>
+                <td class="data">@Html.TextArea("URL", template.URL, new { @class = "form-control input-sm", style = "resize:vertical;height:45px;min-height:45px" })</td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">Content:</td>
+                <td class="lbl" style="vertical-align:top">Content</td>
                 <td class="data">
                     <div id="canvasframePreview" style="float:left">
                         <canvas id="framePreview" width="960" height="1000" style="width: 576px; height: 500px;"></canvas>
@@ -45,7 +44,7 @@
         </td>
             </tr>
             <tr>
-                <td class="lbl" style="vertical-align:top">Templates:</td>
+                <td class="lbl" style="vertical-align:top">Templates</td>
                 <td id="PageTemplates" class="data">
                     @Html.Hidden("SelectedTemplates", template.SelectedTemplates)
                     <table style="display:inline">
@@ -81,20 +80,20 @@
                 </td>
             </tr>
             <tr>
-                <td class="lbl">X:</td>
-                <td class="data">@Html.TextBox("X", x, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);" })</td>
+                <td class="lbl">X</td>
+                <td class="data">@Html.TextBox("X", x, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
-                <td class="lbl">Y:</td>
-                <td class="data">@Html.TextBox("Y", y, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);" })</td>
+                <td class="lbl">Y</td>
+                <td class="data">@Html.TextBox("Y", y, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
-                <td class="lbl">Width:</td>
-                <td class="data">@Html.TextBox("Width", width, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);" })</td>
+                <td class="lbl">Width</td>
+                <td class="data">@Html.TextBox("Width", width, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
-                <td class="lbl">Height:</td>
-                <td class="data">@Html.TextBox("Height", height, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);" })</td>
+                <td class="lbl">Height</td>
+                <td class="data">@Html.TextBox("Height", height, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
                 <td class="lbl"></td>
@@ -116,12 +115,12 @@
                 </td>
             </tr>
             <tr>
-                <td class="lbl">Orphan/Widow:</td>
-                <td class="data">@Html.TextBox("MinOrphanWidowRows", template.MinOrphanWidowRows, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);" })</td>
+                <td class="lbl">Orphan/Widow</td>
+                <td class="data">@Html.TextBox("MinOrphanWidowRows", template.MinOrphanWidowRows, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
-                <td class="lbl">Expression:</td>
-                <td class="data">@Html.TextBox("Expression", template.Expression, new { maxlength = 300, style = "width:100%;max-width:initial" })</td>
+                <td class="lbl">Expression</td>
+                <td class="data">@Html.TextBox("Expression", template.Expression, new { maxlength = 300, style = "width:100%;max-width:initial", @class = "form-control input-sm" })</td>
             </tr>
        </tbody>
     </table>
@@ -132,7 +131,7 @@
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
     if (template.TemplateID > 0)
     {
-    <input type="submit" value="Copy" name="action:Copy" class="btn btn-default" onclick="validateCopy()" />
+        @Html.ActionLink("Copy", "Copy", new { id = @template.TemplateID }, new { @class = "btn btn-default", style = "margin-left:4px" })
     }
 }
 
@@ -262,10 +261,6 @@
     }
 
     function validateCopy() {
-        //var nested = confirm("Do you want to make copies of all the nested templates too?\n\n"
-        //    + "(Usually you want to say No to this question.)");
-        var nested = false;
-        $("#CopyNestedTemplates").val(nested ? "True" : "False");
         $("#CopyTemplateID").val($("#TemplateID").val());
         return true;
     }
