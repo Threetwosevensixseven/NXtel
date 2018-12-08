@@ -77,7 +77,7 @@
                     </tr>
                 </tbody>
             </table>
-            <a href="#" class="ordered ordered-btn add" title="Add template" style="display:inline-block;position:relative;top:-3px">Add</a>
+            <a href="#" class="ordered ordered-btn add" title="Add page range" style="display:inline-block;position:relative;top:-3px">Add</a>
         </div>
     </div>
 
@@ -101,6 +101,7 @@
                 allSelectedText: false,
                 numberDisplayed: 0
             });
+            fixAddPageRangeButton();
         });
 
         function getNextID() {
@@ -132,11 +133,13 @@
                 ev.preventDefault();
                 deletePageRange(this);
             });
+            fixAddPageRangeButton();
         }
 
         function deletePageRange(btn) {
             var row = $(btn).parents("tr.page-range.ordered");
             $(row.remove());
+            fixAddPageRangeButton();
         }
 
         function validatePageRanges() {
@@ -185,6 +188,14 @@
                 return false;
             $("#SelectedRolesJSON").val($("#SelectedRoles").val());
             return true;
+        }
+
+        function fixAddPageRangeButton() {
+            if ($("tr.page-range").length <= 1) {
+                $("a.ordered-btn.add").removeClass("some-rows").addClass("no-rows");
+            } else {
+                $("a.ordered-btn.add").removeClass("no-rows").addClass("some-rows");
+            }
         }
     </script>
 }

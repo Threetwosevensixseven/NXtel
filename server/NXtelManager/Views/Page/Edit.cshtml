@@ -179,6 +179,11 @@
 
 @section head {
 <link type="text/css" rel="stylesheet" href="~/Content/teletext.css" />
+<style type="text/css">
+    .ordered-btn.no-rows { top: 2.5px !important; }
+    .ordered-btn.some-rows { top: -3.5px !important; }
+    #PageRouting .ordered-btn.some-rows { top: -6.5px !important; }
+</style>
 }
 
 @section editor {
@@ -206,6 +211,7 @@
         {
             <text>sendURL();</text>
         }
+        fixAddButtons();
     });
 
     $("#PageTemplates .ordered-btn.add").click(function (event) {
@@ -290,12 +296,14 @@
             setSelectedTemplates();
         });
         setSelectedTemplates();
+        fixAddButtons();
     }
 
     function deleteTemplate(btn) {
         var row = $(btn).parents("tr.template.ordered");
         $(row.remove());
         setSelectedTemplates();
+        fixAddButtons();
     }
 
     function moveTemplateUp(btn) {
@@ -359,12 +367,14 @@
             setSelectedRoutes(this);
         });
         setSelectedRoutes();
+        fixAddButtons();
     }
 
     function deleteRoute(btn) {
         var row = $(btn).parents("tr.route.ordered");
         $(row.remove());
         setSelectedRoutes();
+        fixAddButtons();
     }
 
     function nextPageChecked(ctrl) {
@@ -456,7 +466,21 @@
             $(ctrl).text("Go to " + rv.GoesToPageFrameDesc);
         });
     }
-    
+
+    function fixAddButtons() {
+        if ($("#tbodyPageTemplates tr").length == 0) {
+            $("#PageTemplates a.ordered-btn.add").removeClass("some-rows").addClass("no-rows");
+        } else {
+            $("#PageTemplates a.ordered-btn.add").removeClass("no-rows").addClass("some-rows");
+        }
+        if ($("#tbodyPageRouting tr").length == 0) {
+            $("#PageRouting a.ordered-btn.add").removeClass("some-rows").addClass("no-rows");
+        } else {
+            $("#PageRouting a.ordered-btn.add").removeClass("no-rows").addClass("some-rows");
+        }
+
+    }
+
     function validateSave() {
         var zones = [];
         $('#Zones option:selected').each(function () {

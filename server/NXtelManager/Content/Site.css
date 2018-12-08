@@ -224,6 +224,20 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     padding-right: 20px;
 }
 
+.ordered-btn.no-rows {
+    top: 9px !important;
+}
+
+.ordered-btn.some-rows {
+    top: -7.5px !important;
+}
+
+.validation-summary-errors ul {
+    list-style-type: none;
+    padding-left: 0;
+    font-weight: bold;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
     div.dataTables_wrapper div.dataTables_primary {

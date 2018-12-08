@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -11,10 +13,20 @@ namespace NXtelData
     public class Template : PageBase
     {
         public int TemplateID { get; set; }
+        [Required]
+        [StringLength(30)]
         public string Description { get; set; }
+        [Required(ErrorMessage = "X must be between 0 and 39.")]
+        [Range(0, 39, ErrorMessage = "X must be between 0 and 39.")]
         public byte X { get; set; }
+        [Required(ErrorMessage = "Y must be between 0 and 23.")]
+        [Range(0, 23, ErrorMessage = "Y must be between 0 and 23.")]
         public byte Y { get; set; }
+        [Required(ErrorMessage = "Width must be between 0 and 40.")]
+        [Range(0, 40, ErrorMessage = "Width must be between 0 and 40.")]
         public byte Width { get; set; }
+        [Required(ErrorMessage = "Height must be between 0 and 24.")]
+        [Range(0, 24, ErrorMessage = "Height must be between 0 and 24.")]
         public byte Height { get; set; }
         public string Expression { get; set; }
         public int Sequence { get; set; }
@@ -32,6 +44,9 @@ namespace NXtelData
         public bool NotContinuedOver { get; set; }
         public bool NotContinuedFrom { get; set; }
         public bool KeepTogether { get; set; }
+        [Required(ErrorMessage = "Orphan/Widow must be between 0 and 24.")]
+        [Range(0, 24, ErrorMessage = "Orphan/Widow must be between 0 and 24.")]
+        [DisplayName("Orphan/Widow")]
         public byte MinOrphanWidowRows { get; set; }
         public int? CurrentFeedItem { get; set; }
         public int RepeatingItemLinesAdded { get; set; }
@@ -344,6 +359,9 @@ namespace NXtelData
             this.ContinuedOver = rdr.GetBoolean("ContinuedOver");
             this.ContinuedFrom = rdr.GetBoolean("ContinuedFrom");
             this.MinOrphanWidowRows = rdr.GetByte("MinOrphanWidowRows");
+            this.NotContinuedOver = rdr.GetBoolean("NotContinuedOver");
+            this.NotContinuedFrom = rdr.GetBoolean("NotContinuedFrom");
+            this.KeepTogether = rdr.GetBoolean("KeepTogether");
             this.ConvertContentsFromURL();
         }
 
