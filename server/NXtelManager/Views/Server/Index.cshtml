@@ -30,4 +30,9 @@
         <input type="submit" value="Download Log" name="action:DownloadLog" class="btn btn-default" />
         <input type="submit" value="Empty Log" name="action:EmptyLog" class="btn btn-danger" />
     </div>
+    <br />
+    <div>
+
+        @Html.ActionLink("Backup Database", "Backup", null, new { @class = "btn btn-default" })
+    </div>
 }

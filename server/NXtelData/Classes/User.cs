@@ -22,10 +22,14 @@ namespace NXtelData
         [Range(100000000, 999999999, ErrorMessage = "Mailbox must be a number between 100,000,000 and 999,999,999.")]
         public string Mailbox { get; set; }
         public UserPageRanges PageRanges { get; set; }
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
 
         public User()
         {
-            ID = Email = Mailbox = "";
+            ID = Email = Mailbox = FirstName = LastName = "";
             Roles = new List<string>();
             PageRanges = new UserPageRanges();
         }
@@ -52,10 +56,11 @@ namespace NXtelData
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = @"SELECT u.Id,Email,EmailConfirmed,Mailbox,r.`Name` AS Role
-                    FROM AspNetUsers u
-                    LEFT JOIN AspNetUserRoles ur ON u.Id = ur.UserId
-                    LEFT JOIN AspNetRoles r ON ur.RoleId = r.Id
+                string sql = @"SELECT u.Id,Email,EmailConfirmed,Mailbox,r.`Name` AS Role,
+                    u.FirstName,u.LastName
+                    FROM aspnetusers u
+                    LEFT JOIN aspnetuserroles ur ON u.Id = ur.UserId
+                    LEFT JOIN aspnetroles r ON ur.RoleId = r.Id
                     WHERE u.Id=@UserID;";
                 var cmd = new MySqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("UserID", UserID);
@@ -67,6 +72,8 @@ namespace NXtelData
                         user.Email = rdr.GetString("Email").Trim();
                         user.EmailConfirmed = rdr.GetBoolean("EmailConfirmed");
                         user.Mailbox = rdr.GetString("Mailbox").Trim();
+                        user.FirstName = rdr.GetStringNullable("FirstName").Trim();
+                        user.LastName = rdr.GetStringNullable("LastName").Trim();
                         string role = rdr.GetStringNullable("Role").Trim();
                         if (!string.IsNullOrEmpty(role))
                             user.Roles.Add(role);
@@ -87,10 +94,10 @@ namespace NXtelData
                 using (var con = new MySqlConnection(DBOps.ConnectionString))
                 {
                     con.Open();
-                    string sql = @"DELETE FROM AspNetUserClaims WHERE UserId=@ID;
-                        DELETE FROM AspNetUserLogins WHERE UserId=@ID;
-                        DELETE FROM AspNetUserRoles WHERE UserId=@ID;
-                        DELETE FROM AspNetUsers WHERE Id=@ID;";
+                    string sql = @"DELETE FROM aspnetuserclaims WHERE UserId=@ID;
+                        DELETE FROM aspnetuserlogins WHERE UserId=@ID;
+                        DELETE FROM aspnetuserroles WHERE UserId=@ID;
+                        DELETE FROM aspnetusers WHERE Id=@ID;";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("ID", UserID);
                     cmd.ExecuteNonQuery();
@@ -112,7 +119,7 @@ namespace NXtelData
                 using (var con = new MySqlConnection(DBOps.ConnectionString))
                 {
                     con.Open();
-                    string sql = @"UPDATE AspNetUsers 
+                    string sql = @"UPDATE aspnetusers 
                         SET EmailConfirmed=1 
                         WHERE Id=@ID;";
                     var cmd = new MySqlCommand(sql, con);
@@ -171,16 +178,20 @@ namespace NXtelData
                 using (var con = new MySqlConnection(DBOps.ConnectionString))
                 {
                     con.Open();
-                    string sql = @"UPDATE AspNetUsers
+                    string sql = @"UPDATE aspnetusers
                         SET email=@email,
                         emailconfirmed=@emailconfirmed,
-                        mailbox=@mailbox
+                        mailbox=@mailbox,
+                        FirstName=@FirstName,
+                        LastName=@LastName
                         WHERE id=@id;
                         SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("email", (Email ?? "").Trim());
                     cmd.Parameters.AddWithValue("emailconfirmed", EmailConfirmed);
                     cmd.Parameters.AddWithValue("mailbox", (Mailbox ?? "").Trim());
+                    cmd.Parameters.AddWithValue("FirstName", (FirstName ?? "").Trim());
+                    cmd.Parameters.AddWithValue("LastName", (LastName ?? "").Trim());
                     cmd.Parameters.AddWithValue("id", (ID ?? "").Trim());
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
@@ -204,6 +215,15 @@ namespace NXtelData
             {
                 Err = ex.Message;
                 return false;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                string join = string.IsNullOrEmpty(LastName) || string.IsNullOrEmpty(FirstName) ? "" : ", ";
+                return (LastName ?? "").Trim() + join + (FirstName ?? "").Trim();
             }
         }
     }

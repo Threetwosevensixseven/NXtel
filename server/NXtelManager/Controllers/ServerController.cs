@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using MySql.Data.MySqlClient;
 using NXtelData;
 using NXtelManager.Attributes;
 
@@ -17,7 +18,7 @@ namespace NXtelManager.Controllers
         public ActionResult Index()
         {
             var model = new ServerStatus();
-            return View(model); 
+            return View(model);
         }
 
         [HttpPost]
@@ -88,6 +89,46 @@ namespace NXtelManager.Controllers
             var model = new ServerStatus();
             model.StartVisible = Status.StartVisible;
             return View("Index", model);
+        }
+
+        public ActionResult Backup()
+        {
+            string file = Path.Combine(Options.DbBackupDirectory, DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".sql");
+            using (MySqlConnection conn = new MySqlConnection(DBOps.ConnectionStringBackup))
+            {
+                using (MySqlCommand cmd = new MySqlCommand())
+                {
+                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                    {
+                        cmd.Connection = conn;
+                        conn.Open();
+                        mb.ExportToFile(file);
+                        conn.Close();
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult Restore(string id)
+        {
+            string file = Path.Combine(Options.DbBackupDirectory, (id ?? "").Trim() + ".sql");
+            if (!System.IO.File.Exists(file))
+                throw new Exception("File does not exist.");
+            using (MySqlConnection conn = new MySqlConnection(DBOps.ConnectionStringBackup))
+            {
+                using (MySqlCommand cmd = new MySqlCommand())
+                {
+                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                    {
+                        cmd.Connection = conn;
+                        conn.Open();
+                        mb.ImportFromFile(file);
+                        conn.Close();
+                    }
+                }
+            }
+            return RedirectToAction("Index");
         }
     }
 }

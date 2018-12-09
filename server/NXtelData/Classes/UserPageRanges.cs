@@ -20,7 +20,7 @@ namespace NXtelData
 
             string sql = @"SELECT UserPageRangeID,FromPageNo,ToPageNo
                 FROM userpagerange r
-                JOIN AspNetUsers u ON r.UserID=u.Id
+                JOIN aspnetusers u ON r.UserID=u.Id
                 WHERE u.Id=@UserID
                 ORDER BY FromPageNo,ToPageNo;";
             var cmd = new MySqlCommand(sql, ConX);

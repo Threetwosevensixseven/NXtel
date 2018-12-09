@@ -18,7 +18,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            string sql = @"SELECT * FROM AspNetRoles ORDER BY Name;";
+            string sql = @"SELECT * FROM aspnetroles ORDER BY Name;";
             var cmd = new MySqlCommand(sql, ConX);
             using (var rdr = cmd.ExecuteReader())
             {
@@ -48,7 +48,7 @@ namespace NXtelData
             }
             try
             {
-                string sql = @"DELETE FROM AspNetUserRoles WHERE UserId=@UserId;";
+                string sql = @"DELETE FROM aspnetuserroles WHERE UserId=@UserId;";
                 var cmd = new MySqlCommand(sql, ConX);
                 cmd.Parameters.AddWithValue("UserId", (UserID ?? "").Trim());
                 cmd.ExecuteNonQuery();

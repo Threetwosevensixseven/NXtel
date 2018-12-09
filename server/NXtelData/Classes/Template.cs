@@ -51,6 +51,7 @@ namespace NXtelData
         public int? CurrentFeedItem { get; set; }
         public int RepeatingItemLinesAdded { get; set; }
         public bool Active { get; set; }
+        public int OwnerID { get; set; }
 
         public Template()
         {
@@ -362,6 +363,7 @@ namespace NXtelData
             this.NotContinuedOver = rdr.GetBoolean("NotContinuedOver");
             this.NotContinuedFrom = rdr.GetBoolean("NotContinuedFrom");
             this.KeepTogether = rdr.GetBoolean("KeepTogether");
+            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             this.ConvertContentsFromURL();
         }
 

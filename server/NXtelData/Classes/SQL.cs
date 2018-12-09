@@ -20,8 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateUserNoField(ConX);
-            CreateUserPageRangeTable(ConX);
+            //CreateFileOwnerField(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -118,7 +117,7 @@ namespace NXtelData
                     ConX.Open();
                 }
 
-                string sql = @"UPDATE AspNetRoles 
+                string sql = @"UPDATE aspnetroles 
                     SET Name='Page Editor' 
                     WHERE Name='PageEditor';";
                 using (var cmd = new MySqlCommand(sql, ConX))
@@ -152,7 +151,7 @@ BEGIN
     SET @Count=1;
     WHILE(@Count<>0) DO
         SELECT @Mailbox:=CAST(CAST(RAND()*900000000+100000000 AS unsigned) AS char(9));
-        SELECT @Count:=COUNT(*) FROM AspNetUsers WHERE Mailbox=@Mailbox;
+        SELECT @Count:=COUNT(*) FROM aspnetusers WHERE Mailbox=@Mailbox;
     END WHILE;
     SELECT @Mailbox AS Mailbox;
 END$$";
@@ -744,5 +743,152 @@ END$$";
                     ConX.Close();
             }
         }
+
+        public static void CreatePageOwnerField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                    ADD COLUMN `OwnerID` INT NULL AFTER `TeleSoftwareID`,
+                    DROP INDEX `FK_page_TeleSoftwareID_idx` ,
+                    ADD INDEX `FK_page_TeleSoftwareID_idx` (`TeleSoftwareID` ASC),
+                    ADD INDEX `idx_page_OwnerID` (`OwnerID` ASC);
+                    ALTER TABLE `nxtel`.`page` 
+                    ADD CONSTRAINT `FK_page_OwnerID`
+                      FOREIGN KEY (`OwnerID`)
+                      REFERENCES `nxtel`.`aspnetusers` (`UserNo`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateTemplateOwnerField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `template` 
+                    ADD COLUMN `OwnerID` INT NULL AFTER `MinOrphanWidowRows`,
+                    ADD INDEX `idx_template_OwnerID` (`OwnerID` ASC);
+                    ALTER TABLE `nxtel`.`template` 
+                    ADD CONSTRAINT `FK_template_OwnerID`
+                      FOREIGN KEY (`OwnerID`)
+                      REFERENCES `nxtel`.`aspnetusers` (`UserNo`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateFileOwnerField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `telesoftware` 
+                    ADD COLUMN `OwnerID` INT NULL AFTER `EOL`,
+                    ADD INDEX `idx_telesoftware_OwnerID` (`OwnerID` ASC);
+                    ALTER TABLE `nxtel`.`telesoftware` 
+                    ADD CONSTRAINT `FK_telesoftware_OwnerID`
+                      FOREIGN KEY (`OwnerID`)
+                      REFERENCES `nxtel`.`aspnetusers` (`UserNo`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateUserNameFields(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE`aspnetusers` 
+                    ADD COLUMN `UserNo` INT NOT NULL AUTO_INCREMENT AFTER `Mailbox`,
+                    ADD COLUMN `FirstName` VARCHAR(30) NULL AFTER `UserNo`,
+                    ADD COLUMN `LastName` VARCHAR(40) NULL AFTER `FirstName`,
+                    ADD UNIQUE INDEX `UserNo_UNIQUE` (`UserNo` ASC);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
     }
 }

@@ -25,7 +25,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            string sql = @"INSERT INTO AspNetUserRoles (UserId,RoleId) VALUES(@UserId,@RoleId);";
+            string sql = @"INSERT INTO aspnetuserroles (UserId,RoleId) VALUES(@UserId,@RoleId);";
             var cmd = new MySqlCommand(sql, ConX);
             cmd.Parameters.AddWithValue("UserId", (UserID ?? "").Trim());
             cmd.Parameters.AddWithValue("RoleId", (ID ?? "").Trim());

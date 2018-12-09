@@ -15,10 +15,11 @@ namespace NXtelData
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = @"SELECT u.Id,Email,EmailConfirmed,Mailbox,r.`Name` AS Role
-                    FROM AspNetUsers u
-                    LEFT JOIN AspNetUserRoles ur ON u.Id = ur.UserId
-                    LEFT JOIN AspNetRoles r ON ur.RoleId = r.Id
+                string sql = @"SELECT u.Id,Email,EmailConfirmed,Mailbox,r.`Name` AS Role,
+                    u.FirstName,u.LastName
+                    FROM aspnetusers u
+                    LEFT JOIN aspnetuserroles ur ON u.Id = ur.UserId
+                    LEFT JOIN aspnetroles r ON ur.RoleId = r.Id
                     ORDER BY EmailConfirmed DESC,Email;";
                 var cmd = new MySqlCommand(sql, con);
                 using (var rdr = cmd.ExecuteReader())
@@ -40,6 +41,8 @@ namespace NXtelData
                         user.Email = rdr.GetString("Email").Trim();
                         user.EmailConfirmed = rdr.GetBoolean("EmailConfirmed");
                         user.Mailbox = rdr.GetString("Mailbox").Trim();
+                        user.FirstName = rdr.GetStringNullable("FirstName").Trim();
+                        user.LastName = rdr.GetStringNullable("LastName").Trim();
                         string role = rdr.GetStringNullable("Role").Trim();
                         if (!string.IsNullOrEmpty(role))
                             user.Roles.Add(role);

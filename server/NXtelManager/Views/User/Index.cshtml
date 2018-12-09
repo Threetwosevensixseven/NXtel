@@ -15,6 +15,7 @@
                 <tr>
                     <th>Mailbox</th>
                     <th>Email</th>
+                    <th>Name</th>
                     <th class="text-center">Confirmed</th>
                     <th class="text-center">Editor</th>
                     <th class="text-center">Admin</th>
@@ -27,7 +28,15 @@
                 {
                     <tr>
                         <td>@Html.ActionLink(@user.Mailbox, "Edit", "User", new { id = user.ID }, null)</td>
-                        <td>@Html.ActionLink(@user.Email, "Edit", "User", new { id = user.ID }, null)</td>
+                        <td style="padding-right:10px">@Html.ActionLink(@user.Email, "Edit", "User", new { id = user.ID }, null)</td>
+                        @if (string.IsNullOrWhiteSpace(@user.Name))
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td>@Html.ActionLink(@user.Name, "Edit", "User", new { id = user.ID }, null)</td>
+                        }
                         <td class="text-center">@Html.CheckBoxFor(u => @user.EmailConfirmed, new { onclick = "return false" })</td>
                         <td class="text-center">@Html.CheckBoxFor(u => @user.IsPageEditor, new { onclick = "return false" })</td>
                         <td class="text-center">@Html.CheckBoxFor(u => @user.IsAdmin, new { onclick = "return false" })</td>
@@ -63,11 +72,11 @@
                 pageLength: @tablePageSize,
                 columnDefs: [
                   {
-                      targets: [2, 3, 4],
+                      targets: [3, 4, 5],
                       orderDataType: 'dom-checkbox'
                   },
                   {
-                      targets: [5, 6],
+                      targets: [6, 7],
                       searchable: false,
                       orderable: false
                     }

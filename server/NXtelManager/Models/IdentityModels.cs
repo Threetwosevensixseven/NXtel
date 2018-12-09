@@ -33,5 +33,15 @@ namespace NXtelManager.Models
         {
             return new ApplicationDbContext();
         }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ApplicationUser>().ToTable("aspnetusers");
+            modelBuilder.Entity<IdentityRole>().ToTable("aspnetroles");
+            modelBuilder.Entity<IdentityUserRole>().ToTable("aspnetuserroles");
+            modelBuilder.Entity<IdentityUserClaim>().ToTable("aspnetuserclaims");
+            modelBuilder.Entity<IdentityUserLogin>().ToTable("aspnetuserlogins");
+        }
     }
 }

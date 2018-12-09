@@ -62,6 +62,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MySql.Web.6.9.9\lib\net45\MySql.Web.dll</HintPath>
     </Reference>
+    <Reference Include="MySqlBackup, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySqlBackup.1.0.1\lib\MySqlBackup.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Configuration.Install" />
@@ -205,10 +209,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201710062310334_InitialCreate.cs" />
-    <Compile Include="Migrations\201710062310334_InitialCreate.Designer.cs" />
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Migrations\MySqlHistoryContext.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\FileViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -344,9 +344,6 @@
     </Content>
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201710062310334_InitialCreate.resx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Markdown\Markdown.csproj">

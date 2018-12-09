@@ -105,6 +105,8 @@ CREATE TABLE `aspnetusers` (
   `UserName` varchar(200) CHARACTER SET utf8 NOT NULL,
   `Mailbox` varchar(9) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `UserNo` int(11) NOT NULL AUTO_INCREMENT,
+  `FirstName` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UserNameIndex` (`UserName`),
   UNIQUE KEY `UserNo_UNIQUE` (`UserNo`)
@@ -170,9 +172,12 @@ CREATE TABLE `page` (
   `ToPageFrameNo` decimal(11,2) DEFAULT NULL,
   `FromPageFrameNo` decimal(11,2) DEFAULT NULL,
   `TeleSoftwareID` int(11) DEFAULT NULL,
+  `OwnerID` int(11) DEFAULT NULL,
   PRIMARY KEY (`PageID`),
   UNIQUE KEY `idx_page_PageNo_Seq` (`PageNo`,`FrameNo`),
-  KEY `FK_page_TeleSoftwareID_idx` (`TeleSoftwareID`) USING BTREE
+  KEY `FK_page_TeleSoftwareID_idx` (`TeleSoftwareID`),
+  KEY `idx_page_OwnerID` (`OwnerID`),
+  CONSTRAINT `FK_page_OwnerID` FOREIGN KEY (`OwnerID`) REFERENCES `aspnetusers` (`UserNo`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -251,8 +256,11 @@ CREATE TABLE `telesoftware` (
   `FileName` varchar(260) DEFAULT NULL,
   `FileType` bit(1) DEFAULT NULL,
   `EOL` tinyint(1) DEFAULT NULL,
+  `OwnerID` int(11) DEFAULT NULL,
   PRIMARY KEY (`TeleSoftwareID`),
-  UNIQUE KEY `idx_telesoftware_Key` (`Key`)
+  UNIQUE KEY `idx_telesoftware_Key` (`Key`),
+  KEY `idx_telesoftware_OwnerID` (`OwnerID`),
+  CONSTRAINT `FK_telesoftware_OwnerID` FOREIGN KEY (`OwnerID`) REFERENCES `aspnetusers` (`UserNo`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -284,7 +292,10 @@ CREATE TABLE `template` (
   `NotContinuedFrom` tinyint(1) NOT NULL DEFAULT '0',
   `KeepTogether` tinyint(1) NOT NULL DEFAULT '0',
   `MinOrphanWidowRows` tinyint(2) DEFAULT NULL,
-  PRIMARY KEY (`TemplateID`)
+  `OwnerID` int(11) DEFAULT NULL,
+  PRIMARY KEY (`TemplateID`),
+  KEY `idx_template_OwnerID` (`OwnerID`),
+  CONSTRAINT `FK_template_OwnerID` FOREIGN KEY (`OwnerID`) REFERENCES `aspnetusers` (`UserNo`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -399,4 +410,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-06 22:28:12
+-- Dump completed on 2018-12-09 12:00:45
