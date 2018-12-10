@@ -22,6 +22,7 @@ namespace NXtelManager.Models
         public string OldFrame { get; set; }
         public string OldToPageNo { get; set; }
         public string OldToFrame { get; set; }
+        public IEnumerable<SelectListItem> Owners { get; set; }
 
         public PageEditModel()
         {
@@ -29,6 +30,7 @@ namespace NXtelManager.Models
             Routes = GetSelectList(NXtelData.Routes.MasterList);
             Files = GetSelectList(NXtelData.TSFiles.LoadStubs());
             Zones = GetSelectList(NXtelData.Zones.Load());
+            Owners = GetSelectList(NXtelData.Users.LoadOwners());
         }
 
         public IEnumerable<SelectListItem> GetSelectList(Templates Items)
@@ -92,7 +94,27 @@ namespace NXtelManager.Models
             }
             return rv;
         }
+        public IEnumerable<SelectListItem> GetSelectList(Users Items)
+        {
+            var rv = new List<SelectListItem>();
+            rv.Add(new SelectListItem { Value = "-1", Text = "Unowned" });
+            if (Items == null) return rv;
+            foreach (var item in Items)
+            {
+                rv.Add(new SelectListItem
+                {
+                    Value = item.UserNo.ToString(),
+                    Text = (item.Name ?? "").Trim()
+                });
+            }
+            return rv;
+        }
 
+        public string GetOwner(int OwnerID)
+        {
+            var owner = Owners.FirstOrDefault(o => o.Value == OwnerID.ToString());
+            return owner == null ? "Unowned" : owner.Text;
+        }
     }
 
     public class PageRouteViewModel

@@ -42,7 +42,7 @@
             @Html.HiddenFor(m => Model.File.OwnerID)
             @if (admin)
             {
-                <select id="Owner">
+                <select id="Owner" class="form-control input-sm" style="width:auto">
                     @foreach (var owner in Model.Owners)
                     {
                         string sel = Model.File.OwnerID.ToString() == owner.Value ? "selected=\"selected\"" : "";
@@ -72,11 +72,7 @@
         function validateSave() {
             @if(@admin)
             {
-                <text>
-            $("#File_OwnerID").val($("#Owner").val());
-            var x = $("#File_OwnerID").val();
-            alert(x);
-            </text>
+                <text>$("#File_OwnerID").val($("#Owner").val());</text>
             }
             return true;
         }

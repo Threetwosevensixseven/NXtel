@@ -168,7 +168,26 @@
                     @Html.DropDownListFor(model => model.Page.TeleSoftwareID, Model.Files, new { @class = "form-control input-sm", style = "width:auto" })
                 </td>
             </tr>
-
+            <tr>
+                <td class="lbl">Owner</td>
+                <td class="data">
+                    @Html.HiddenFor(m => Model.Page.OwnerID)
+                    @if (admin)
+                    {
+                        <select id="Owner" class="form-control input-sm" style="width:auto">
+                            @foreach (var owner in Model.Owners)
+                            {
+                                string sel = page.OwnerID.ToString() == owner.Value ? "selected=\"selected\"" : "";
+                                <option @sel value="@owner.Value">@owner.Text</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        @Model.GetOwner(page.OwnerID)
+                    }
+                </td>
+            </tr>
         </tbody>
     </table>
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
@@ -522,6 +541,10 @@
     function validateSave() {
         if (!validateRoutes())
             return false;
+        @if(@admin)
+        {
+            <text>$("#Page_OwnerID").val($("#Owner").val());</text>
+        }
         if ($("#Page_Frame").val().length == 0 && $("#Page_PageNo").val().length > 0)
             $("#Page_Frame").val("a");
         if ($("#Page_ToPageNo").val().length == 0 && $("#Page_ToFrame").val().length == 0) {

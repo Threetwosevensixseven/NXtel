@@ -129,7 +129,7 @@
                     @Html.Hidden("OwnerID", template.OwnerID)
                     @if (admin)
                     {
-                        <select id="Owner">
+                        <select id="Owner" class="form-control input-sm" style="width:auto">
                             @foreach (var owner in Model.Owners)
                             {
                                 string sel = template.OwnerID.ToString() == owner.Value ? "selected=\"selected\"" : "";

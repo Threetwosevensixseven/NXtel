@@ -41,10 +41,11 @@ namespace NXtelData
         public int PageRangeCount { get; set; }
         public Zones Zones { get; set; }
         public string ZoneIDs { get; set; }
+        public int OwnerID { get; set; }
 
         public Page()
         {
-            PageID = -1;
+            PageID = OwnerID = -1;
             Title = URL = SelectedTemplates = SelectedRoutes = "";
             Templates = new Templates();
             Routing = new Routes();
@@ -255,9 +256,9 @@ namespace NXtelData
                     con.Open();
                     string sql = @"INSERT INTO page
                         (PageNo,FrameNo,Title,Contents,BoxMode,URL,
-                        FromPageFrameNo,ToPageFrameNo,TeleSoftwareID)
+                        FromPageFrameNo,ToPageFrameNo,TeleSoftwareID,OwnerID)
                         VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,
-                        @FromPageFrameNo,@ToPageFrameNo,@TeleSoftwareID);
+                        @FromPageFrameNo,@ToPageFrameNo,@TeleSoftwareID,@OwnerID);
                         SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("PageNo", PageNo);
@@ -272,6 +273,8 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
                     int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
                     cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
+                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
                         PageID = rv;
@@ -321,7 +324,8 @@ namespace NXtelData
                         Contents=@Contents,
                         FromPageFrameNo=@FromPageFrameNo,
                         ToPageFrameNo=@ToPageFrameNo,
-                        TeleSoftwareID=@TeleSoftwareID
+                        TeleSoftwareID=@TeleSoftwareID,
+                        OwnerID=@OwnerID
                         WHERE PageID=@PageID;
                         SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -338,6 +342,8 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
                     int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
                     cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
+                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The page could not be saved.";
@@ -424,6 +430,7 @@ namespace NXtelData
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.BoxMode = rdr.GetBoolean("BoxMode");
             this.TeleSoftwareID = rdr.GetInt32Nullable("TeleSoftwareID");
+            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             this.ConvertContentsFromURL();
         }
 
