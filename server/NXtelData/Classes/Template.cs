@@ -115,10 +115,10 @@ namespace NXtelData
                     string sql = @"INSERT INTO template
                     (Description,X,Y,Width,Height,Expression,URL,Contents,IsContainer,IsRepeatingItem,CanExpand,
                     StickToTop,StickToBottom,ContinuedOver,ContinuedFrom,NotContinuedOver,NotContinuedFrom,KeepTogether,
-                    MinOrphanWidowRows)
+                    MinOrphanWidowRows,OwnerID)
                     VALUES(@Description,@X,@Y,@Width,@Height,@Expression,@URL,@Contents,@IsContainer,@IsRepeatingItem,@CanExpand,
                     @StickToTop,@StickToBottom,@ContinuedOver,@ContinuedFrom,@NotContinuedOver,@NotContinuedFrom,@KeepTogether,
-                    @MinOrphanWidowRows);
+                    @MinOrphanWidowRows,@OwnerID);
                     SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
@@ -140,6 +140,8 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
                     cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
                     cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
+                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
                         TemplateID = rv;
@@ -176,7 +178,7 @@ namespace NXtelData
                     Contents=@Contents,IsContainer=@IsContainer,IsRepeatingItem=@IsRepeatingItem,CanExpand=@CanExpand,
                     StickToTop=@StickToTop,StickToBottom=@StickToBottom,ContinuedOver=@ContinuedOver,
                     ContinuedFrom=@ContinuedFrom,NotContinuedOver=@NotContinuedOver,NotContinuedFrom=@NotContinuedFrom,
-                    KeepTogether=@KeepTogether,MinOrphanWidowRows=@MinOrphanWidowRows
+                    KeepTogether=@KeepTogether,MinOrphanWidowRows=@MinOrphanWidowRows,OwnerID=@OwnerID
                     WHERE TemplateID=@TemplateID;
                     SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -200,6 +202,8 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
                     cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
                     cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
+                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The template could not be saved.";

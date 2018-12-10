@@ -77,21 +77,6 @@ namespace NXtelManager.Controllers
             return RedirectToAction("Index");
         }
 
-        //[HttpPost]
-        //[MultipleButton("copy")]
-        //public ActionResult Copy(TemplateEditModel Model)
-        //{
-        //    if (Model.CopyTemplateID <= 0)
-        //        return RedirectToAction("Index");
-        //    var model = new TemplateEditModel();
-        //    model.Copying = true;
-        //    model.Template = Template.Load(Model.CopyTemplateID);
-        //    model.Template.TemplateID = -1;
-        //    model.OldDescription = model.Template.Description;
-        //    model.Template.Description = "";
-        //    return View("Edit", model);
-        //}
-
         public ActionResult Copy(int ID)
         {
             if (ID <= 0)

@@ -8,6 +8,7 @@
     string width = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Width.ToString();
     string height = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Height.ToString();
     string placeholder = Model.Copying ? Model.OldDescription : "";
+    bool admin = User.IsInRole("Admin");
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -41,7 +42,7 @@
                        style="display:inline-block;margin:4px;float:left;display:none" title="Open in ZXNet">Open in ZXNet</a>
                     <a id="EditEditTF" href="#" class="ordered ordered-btn open" onclick="launchEditTF(); return false;"
                        style="display:inline-block;margin:4px;float:left;display:none" title="Open in edit-tf">Open in edit-tf</a>
-        </td>
+                </td>
             </tr>
             <tr>
                 <td class="lbl" style="vertical-align:top">Templates</td>
@@ -122,10 +123,30 @@
                 <td class="lbl">Expression</td>
                 <td class="data">@Html.TextBox("Expression", template.Expression, new { maxlength = 300, style = "width:100%;max-width:initial", @class = "form-control input-sm" })</td>
             </tr>
-       </tbody>
+            <tr>
+                <td class="lbl">Owner</td>
+                <td class="data">
+                    @Html.Hidden("OwnerID", template.OwnerID)
+                    @if (admin)
+                    {
+                        <select id="Owner">
+                            @foreach (var owner in Model.Owners)
+                            {
+                                string sel = template.OwnerID.ToString() == owner.Value ? "selected=\"selected\"" : "";
+                                <option @sel value="@owner.Value">@owner.Text</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        @Model.GetOwner(template.OwnerID)
+                    }
+                </td>
+            </tr>
+        </tbody>
     </table>
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" />
+    <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();"/>
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this template?');" />
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
@@ -262,6 +283,14 @@
 
     function validateCopy() {
         $("#CopyTemplateID").val($("#TemplateID").val());
+        return true;
+    }
+
+    function validateSave() {
+        @if(@admin)
+        {
+            <text>$("#OwnerID").val($("#Owner").val());</text>
+        }
         return true;
     }
 </script>

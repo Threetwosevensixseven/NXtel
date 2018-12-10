@@ -33,6 +33,13 @@
     <br />
     <div>
 
-        @Html.ActionLink("Backup Database", "Backup", null, new { @class = "btn btn-default" })
+        @Html.ActionLink("Backup Database", "Backup", null, new { @class = "btn btn-default", onclick="return confirmBackup();" })
     </div>
+}
+@section Scripts {
+    <script type="text/javascript">
+        function confirmBackup() {
+            return confirm("Are you sure?");
+        }
+    </script>
 }

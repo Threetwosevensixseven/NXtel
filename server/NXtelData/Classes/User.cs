@@ -26,10 +26,12 @@ namespace NXtelData
         public string FirstName { get; set; }
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
+        public int UserNo { get; set; }
 
         public User()
         {
             ID = Email = Mailbox = FirstName = LastName = "";
+            UserNo = -1;
             Roles = new List<string>();
             PageRanges = new UserPageRanges();
         }
