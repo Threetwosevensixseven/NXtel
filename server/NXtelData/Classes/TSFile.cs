@@ -15,10 +15,12 @@ namespace NXtelData
         [Display(Name = "File Name")]
         public string FileName { get; set; }
         public byte[] Contents { get; set; }
+        [Display(Name = "Owner")]
+        public int OwnerID { get; set; }
 
         public TSFile()
         {
-            TeleSoftwareID = -1;
+            TeleSoftwareID = OwnerID = - 1;
             Key = FileName = "";
             Contents = new byte[0];
         }
@@ -87,13 +89,15 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"INSERT INTO telesoftware
-                        (`Key`,Contents,FileName)
-                        VALUES(@Key,@Contents,@FileName);
+                        (`Key`,Contents,FileName,OwnerID)
+                        VALUES(@Key,@Contents,@FileName,@OwnerID);
                         SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("Key", Key);
                     cmd.Parameters.AddWithValue("Contents", Contents);
                     cmd.Parameters.AddWithValue("FileName", FileName);
+                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
                         TeleSoftwareID = rv;
@@ -123,7 +127,8 @@ namespace NXtelData
                     string sql = @"UPDATE telesoftware
                         SET `Key`=@Key,
                         Contents=@Contents,
-                        FileName=@FileName
+                        FileName=@FileName,
+                        OwnerID=@OwnerID
                         WHERE TeleSoftwareID=@TeleSoftwareID;
                         SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -131,6 +136,8 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("Key", Key);
                     cmd.Parameters.AddWithValue("Contents", Contents);
                     cmd.Parameters.AddWithValue("FileName", FileName);
+                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The file could not be saved.";
@@ -176,6 +183,7 @@ namespace NXtelData
             this.FileName = rdr.GetStringNullable("FileName");
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
+            this.OwnerID = rdr.GetInt32Safe("OwnerID");
         }
     }
 }
