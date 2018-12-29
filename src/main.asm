@@ -26,16 +26,13 @@ NoDivMMC                = ZeusDebug
 
 
                         org $6000
-
-import_bin "..\banks\bank31.bin"
-
 Start:
                         di
                         ld iy, $5C3A
                         ld sp, Stack
                         ld a, $80
                         ld i, a
-                        im 2
+                        im 1
                         Turbo(MHz14)
                         Contention(false)
                         Border(Black)
