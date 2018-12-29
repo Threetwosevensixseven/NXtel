@@ -82,10 +82,8 @@ else
                 $("#PageList").DataTable({
                     pageLength: @tablePageSize,
                     columnDefs: [
-                      {
-                          targets: [3, 4],
-                          orderable: false
-                      }
+                        { targets: [0, 1], "type": "natural-nohtml" },
+                        { targets: [3, 4], orderable: false }
                     ]
                 });
                 @if (filtered)

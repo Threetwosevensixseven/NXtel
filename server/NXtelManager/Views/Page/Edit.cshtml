@@ -505,20 +505,21 @@
 
     }
 
-    function validateRoutes() {
+    function validateRoutes() 
+    {
         var valid = true;
         var val = "";
         var join = "";
         var error = "";
         var ctrl = undefined;
         $("#tbodyPageRouting tr").each(function (index, row) {
-            if ($(".page-no").is(":enabled") && $(".page-no").val().length == 0) {
+            if ($(row).find(".page-no").is(":enabled") && $(".page-no").val().length == 0) {
                 error = "Page No is required.";
                 ctrl = $(row).find(".page-no");
                 valid = false;
                 return false;
             }
-            if ($(".frame").is(":enabled") && $(".frame").val().length == 0) {
+            if ($(row).find(".frame").is(":enabled") && $(".frame").val().length == 0) {
                 error = "Frame is required.";
                 ctrl = $(row).find(".frame");
                 valid = false;

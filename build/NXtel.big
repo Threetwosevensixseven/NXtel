@@ -1,0 +1,15 @@
+; Include 128K pages 5,2,0,1,3 and 4.
+..\bin\NXtel.sna,5,4000,1,1,1,1,1,1,0,0
+
+; These are all 8KB banks
+!MMU..\banks\bank30.bin,30,$0000
+!MMU..\banks\bank31.bin,31,$0000
+!MMU..\banks\bank32.bin,32,$0000
+!MMU..\banks\bank33.bin,33,$0000
+!MMU..\banks\bank34.bin,34,$0000
+!MMU..\banks\bank35.bin,35,$0000
+!MMU..\banks\bank36.bin,36,$0000
+!MMU..\banks\bank37.bin,37,$0000
+!MMU..\banks\bank38.bin,38,$0000
+!MMU..\banks\bank39.bin,39,$0000
+!MMU..\banks\bank40.bin,40,$0000

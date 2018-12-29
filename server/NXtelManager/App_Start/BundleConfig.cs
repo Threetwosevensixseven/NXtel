@@ -12,6 +12,7 @@ namespace NXtelManager
                         "~/Scripts/jquery-{version}.js",
                         "~/Scripts/datatables.min.js",
                         "~/Scripts/bootstrap-multiselect.js",
+                        "~/Scripts/natural.js",
                         "~/Scripts/utility.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(

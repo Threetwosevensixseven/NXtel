@@ -1,0 +1,42 @@
+"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\nex\NXtel.big" "C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\sd\NXtel.nex"
+
+; Comment lines are ignored
+; all integers can be decimal 123 or case-insensitive hex $7B
+
+[!CORa[,b[,c]]]
+; a = major version required
+; b = minor version required
+; c = sub version required
+
+[!BMP[a,]Filename.bmp[,b[,c[,d[,e[,f]]]]]]
+; a = 8: use 8 bit palette
+; a = !: don't save palette
+; b = Loading bar off=0/on=1
+; c = Loading bar Layer2 index colour 
+; d = Delay after each bank
+; e = Delay (frames) after loading before running
+; f = Hi Res colour
+
+[!SCRULAscreen.scr]
+
+[!SLRloresscreen.slr]
+
+[!SHAhiresscreen.shr]
+
+[!SHChicolourscreen.shc]
+
+[filename.sna,a,b]
+; Where extension IS sna
+; All 16k banks taken from 48K or 128K sna file and loaded appropriately
+; PC and SP loaded from SNA header
+; No registers or other metadata taken from SNA header
+; Banks 5/2/0 will be loaded at $4000, $8000 and $C000
+; The loading scheme appears to allow all 112 18K banks to be loaded or not loaded separately, but there is no mechanism in NexCreator to omit 16k banks when basing on an SNA. When not basing on an SNA, there appears to be no mechanism to set the PC and SP. Creating a .nex file directly in Zeus may well allow a fully customised load that doesn't overwrite BASIC.
+
+[filename.bin,a,b]
+; Where extension is NOT sna
+; a = 8k MMU bank to load into
+; b = address in bank to load at - ANDed with $1FFF?
+; NexCreator says a and b are optional - defaults?
+
+

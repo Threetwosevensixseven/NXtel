@@ -257,6 +257,7 @@
     <Content Include="fonts\TeletextKit.eot" />
     <Content Include="fonts\TeletextKit.ttf" />
     <Content Include="fonts\TeletextKit.woff" />
+    <Content Include="Scripts\natural.js" />
     <Content Include="Scripts\utility.js" />
     <Content Include="SiteHelp\media\dont-panic.jpg" />
     <Content Include="SiteHelp\PageEditHelp.md" />

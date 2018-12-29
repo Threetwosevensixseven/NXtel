@@ -1,0 +1,60 @@
+https://github.com/DataTables/Plugins/blob/master/sorting/natural.js
+
+/**
+ * Data can often be a complicated mix of numbers and letters (file names
+ * are a common example) and sorting them in a natural manner is quite a
+ * difficult problem.
+ * 
+ * Fortunately a deal of work has already been done in this area by other
+ * authors - the following plug-in uses the [naturalSort() function by Jim
+ * Palmer](http://www.overset.com/2008/09/01/javascript-natural-sort-algorithm-with-unicode-support) to provide natural sorting in DataTables.
+ *
+ *  @name Natural sorting
+ *  @summary Sort data with a mix of numbers and letters _naturally_.
+ *  @author [Jim Palmer](http://www.overset.com/2008/09/01/javascript-natural-sort-algorithm-with-unicode-support)
+ *  @author [Michael Buehler] (https://github.com/AnimusMachina)
+ *
+ *  @example
+ *    $('#example').dataTable( {
+ *       columnDefs: [
+ *         { type: 'natural', targets: 0 }
+ *       ]
+ *    } );
+ *
+ *    Html can be stripped from sorting by using 'natural-nohtml' such as
+ *
+ *    $('#example').dataTable( {
+ *       columnDefs: [
+ *    	   { type: 'natural-nohtml', targets: 0 }
+ *       ]
+ *    } );
+ *
+ */
+ 
+ /*
+ * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
+ * Author: Jim Palmer (based on chunking idea from Dave Koelle)
+ * Contributors: Mike Grier (mgrier.com), Clint Priest, Kyle Adams, guillermo
+ * See: http://js-naturalsort.googlecode.com/svn/trunk/naturalSort.js
+ */
+
+Copyright (c) 2010-2015 SpryMedia Limited
+http://datatables.net
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

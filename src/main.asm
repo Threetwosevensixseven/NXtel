@@ -55,7 +55,7 @@ Start2:
                         halt
                         di
                         call SetupDataFileSystem
-                        call LoadResources
+                        //call LoadResources
                         call SetupSprites
                         di
                         MMU7(30, false)
@@ -194,10 +194,10 @@ EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or
 
                         output_sna "..\bin\NXtel.sna", $FF40, Start
 
-                        zeusinvoke "..\build\deploy.bat"
+                        zeusinvoke "..\build\deploynex.bat"
 
                         if enabled Cspect
-                          zeusinvoke "..\build\cspect.bat", "", false
+                          zeusinvoke "..\build\cspectNex.bat", "", false
                         endif
                         if enabled ZEsarUX
                           zeusinvoke "..\build\ZEsarUX.bat", "", false

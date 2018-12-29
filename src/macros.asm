@@ -26,7 +26,6 @@ Rst8                    macro(Command)
 mend
 
 
-
 VersionTimeValue        equ VersionOnlyValue + " " + BuildTimeValue
 
 
@@ -572,9 +571,9 @@ StatusIcon              macro(StatusIconNumber)
 mend
 
 
+
 PlaySFX                 macro(SFXNumber)
                         ld e, SFXNumber
                         call PlaySFXProc
 mend
-
 
