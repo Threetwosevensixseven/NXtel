@@ -15,7 +15,7 @@ Zeus_IM                 = 1
 Zeus_IE                 = false
 optionsize 5
 Cspect optionbool 15, -15, "Cspect", false
-ZEsarUX optionbool 80, -15, "ZEsarUX", false
+//ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
 ULAMonochrome optionbool 665, -15, "ULA", true
@@ -52,7 +52,6 @@ Start2:
                         halt
                         di
                         call SetupDataFileSystem
-                        //call LoadResources
                         call SetupSprites
                         di
                         MMU7(30, false)
@@ -189,16 +188,16 @@ EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif
 
-                        output_sna "..\bin\NXtel.sna", $FF40, Start
+                        output_sna "..\build\NXtel.sna", $FF40, Start
 
-                        zeusinvoke "..\build\deploynex.bat"
+                        zeusinvoke "..\build\deploy.bat"
 
                         if enabled Cspect
-                          zeusinvoke "..\build\cspectNex.bat", "", false
+                          zeusinvoke "..\build\cspect.bat", "", false
                         endif
-                        if enabled ZEsarUX
-                          zeusinvoke "..\build\ZEsarUX.bat", "", false
-                        endif
+                        //if enabled ZEsarUX
+                        //  zeusinvoke "..\build\ZEsarUX.bat", "", false
+                        //endif
                         if enabled UploadNext
                           zeusinvoke "..\build\UploadNext.bat"
                         endif

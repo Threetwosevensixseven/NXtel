@@ -1,54 +1,5 @@
 ; utilities.asm
 
-LoadResources           proc
-
-                        //xor a                           ; SNX extended snapshot leaves file handle 0 open
-                        //ld (esxDOS.Handle), a
-
-                        ld ix, FileName
-                        call esxDOS.fOpen
-                        jp c, esxDOS.Error
-
-                        ld bc, $0002
-                        ld de, $2000                    ; bcde = $22000 = 139264 = first bank
-                        ld ixl, esxDOS.esx_seek_set
-                        ld l, esxDOS.esx_seek_set
-                        call esxDOS.fSeek
-                        jp c, esxDOS.Error
-                        xor a
-                        push af
-                        ld iy, Resources.Table
-NextBank:
-                        ld a, (ResourcesCount)
-                        ld e, a
-                        ld a, (iy+Resources.Bank)
-                        nextreg $57, a
-                        ld ix, $E000
-                        ld bc, $2000
-                        call esxDOS.fRead
-                        jp c, esxDOS.Error
-                        pop af
-                        inc a
-                        cp e
-                        jp z, Finish
-                        push af
-                        inc iy
-                        inc iy
-                        jp NextBank
-Finish:
-                        call esxDOS.fClose
-                        jp c, esxDOS.Error
-                        ret
-/*Error:
-                        di
-                        MMU5(8, false)
-                        ld iy, FileName
-                        Border(Blue)
-                        jp esxDOSerror*/
-pend
-
-
-
 SetupDataFileSystem     proc
                         call esxDOS.GetSetDrive
                         jp c, esxDOS.Error

@@ -4,7 +4,7 @@ C:
 CD %~dp0
 
 ZXVersion.exe
-SpectronPackager.exe
-copy ..\bin\NXtel.sna ..\sd\*.*
+NexCreator.exe NXtel.big ..\bin\NXtel.nex
+copy ..\bin\NXtel.nex ..\sd\*.*
 
 ::pause

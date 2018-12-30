@@ -1,5 +1,5 @@
 ; Include 128K pages 5,2,0,1,3 and 4.
-..\bin\NXtel.sna,5,4000,1,1,1,1,1,1,0,0
+..\build\NXtel.sna,5,4000,1,1,1,1,1,1,0,0
 
 ; Loading screen
 ;[!BMP[a,]Filename.bmp[,b[,c[,d[,e[,f[,g]]]]]]]]
