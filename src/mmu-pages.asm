@@ -17,6 +17,7 @@ include "c31.asm"
 P31Size = $-$C000
 output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
 zeusprinthex "P31Size = ", P31Size
+//output_bin "..\banks\Page15.bin", zeusmmu(30), $4000
 
 ; PAGE 32 - BANK32.BIN - Sprites
 org $C000
@@ -43,6 +44,7 @@ pend
 P33Size = $-$E000
 output_bin "..\banks\Bank33.bin", zeusmmu(33), P33Size
 zeusprinthex "P33Size = ", P33Size
+//output_bin "..\banks\Page16.bin", zeusmmu(32), $4000
 
 ; PAGE 34 - BANK33.BIN - Pages C
 org $C000
@@ -93,6 +95,7 @@ pend
 P35Size = $-$C000
 output_bin "..\banks\Bank35.bin", zeusmmu(35), P35Size
 zeusprinthex "P35Size = ", P35Size
+//output_bin "..\banks\Page17.bin", zeusmmu(34), $4000
 
 ; PAGE 36 - BANK36.BIN - Pages F
 org $C000
@@ -143,6 +146,7 @@ pend
 P37Size = $-$C000
 output_bin "..\banks\Bank37.bin", zeusmmu(37), P37Size
 zeusprinthex "P37Size = ", P37Size
+//output_bin "..\banks\Page18.bin", zeusmmu(36), $4000
 
 ; PAGE 38 - BANK38.BIN - Pages H
 org $C000
@@ -193,6 +197,7 @@ pend
 P39Size = $-$C000
 output_bin "..\banks\Bank39.bin", zeusmmu(39), P39Size
 zeusprinthex "P39Size = ", P39Size
+//output_bin "..\banks\Page19.bin", zeusmmu(38), $4000
 
 ; PAGE 40 - BANK34.BIN - Pages D
 org $C000
@@ -218,6 +223,7 @@ pend
 P40Size = $-$C000
 output_bin "..\banks\Bank40.bin", zeusmmu(40), P40Size
 zeusprinthex "P40Size = ", P40Size
+//output_bin "..\banks\Page20.bin", zeusmmu(40), $4000
 
 org MMUTemp16
 disp 0

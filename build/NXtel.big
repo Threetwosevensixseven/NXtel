@@ -1,8 +1,22 @@
-; Include 128K pages 5,2,0,1,3 and 4.
-..\build\NXtel.sna,5,4000,1,1,1,1,1,1,0,0
+; Include 128K pages 5,2,0,1,3 and 4 from a base SNA:
+; [SNAFileName.sna[,a[,b[,c[,d[,e[,f[,g[,h[,i[,j]]]]]]]]]]]
+; SNAFileName.sna = SNA file to include banks, PC and SP from
+; a = Real bank number - not used for SNA but must be present
+; b = Address offset within bank - not used for SNA but must be present
+; c = Include real bank 5 from SNA (0 or 1)?
+; d = Include real bank 2 from SNA (0 or 1)?
+; e = Include real bank 0 from SNA (0 or 1)?
+; f = Include real bank 1 from SNA (0 or 1)?
+; g = Include real bank 3 from SNA (0 or 1)?
+; h = Include real bank 4 from SNA (0 or 1)?
+; i = Include real bank 6 from SNA (0 or 1)?
+; j = Include real bank 7 from SNA (0 or 1)?
+..\build\NXtel.sna,5,4000
+;,1,1,1,1,1,1,1,1
 
-; Loading screen
-;[!BMP[a,]Filename.bmp[,b[,c[,d[,e[,f[,g]]]]]]]]
+
+; Layer 2 loading screen:
+; [!BMP[a,]Filename.bmp[,b[,c[,d[,e[,f[,g]]]]]]]]
 ; a = 8: use 8 bit palette
 ; a = !: don't save palette
 ; b = Border colour
@@ -11,11 +25,31 @@
 ; e = Delay after each bank
 ; f = Delay (frames) after loading before running
 ; g = Hi Res colour
-!BMP..\build\loading-screen3.bmp,0,0
-;!BMP..\build\loading-screen.bmp,0,1,255,255,255
+!BMP..\build\loading-screen3.bmp,0,0,0,0,0
+;!BMP..\build\loading-screen.bmp,0,1,3,2,0
+
+; ULA loading screen:
+; [SCRSCRFileName.scr]
+; SCRFileName.scr = standard 6912 byte ULA Spectrum screen
 ;!SCR..\build\loading-screen.scr
 
-; These are all 8KB banks
+; Include 16KB banks containing application code and data
+; [16kBankName.bin[,a[,b]]]
+; 116kBankName.bin = binary file (0..16KB) to include
+; a = 16k MMU bank number (0..111) to include file at
+; b = Address offset within 8k bank (0..$3FFF, wraps around)
+;..\banks\Page15.bin,15,$0000
+..\banks\Page16.bin,16,$0000
+;..\banks\Page17.bin,17,$0000
+;..\banks\Page18.bin,18,$0000
+;..\banks\Page19.bin,19,$0000
+;..\banks\Page20.bin,20,$0000
+
+; Include 8KB banks containing application code and data
+; [!MMU8kBankName.bin[,a[,b]]]
+; 8kBankName.bin = binary file (0..8KB) to include
+; a = 8k MMU bank number (0..223) to include file at
+; b = Address offset within 8k bank (0..$1FFF, wraps around)
 !MMU..\banks\bank30.bin,30,$0000
 !MMU..\banks\bank31.bin,31,$0000
 !MMU..\banks\bank32.bin,32,$0000

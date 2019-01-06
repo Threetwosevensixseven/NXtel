@@ -22,6 +22,7 @@ ULAMonochrome optionbool 665, -15, "ULA", true
 LogESP optionbool 710, -15, "Log", false
 //Carousel optionbool 755, -15, "Carousel", false
 NoDivMMC                = ZeusDebug
+BuildNex                = Cspect or UploadNext
 
 
 
@@ -32,7 +33,7 @@ Start:
                         ld sp, Stack
                         ld a, $80
                         ld i, a
-                        im 1
+                        im 2
                         Turbo(MHz14)
                         Contention(false)
                         Border(Black)
@@ -190,7 +191,10 @@ EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or
 
                         output_sna "..\build\NXtel.sna", $FF40, Start
 
-                        zeusinvoke "..\build\deploy.bat"
+                        if enabled BuildNex
+                          zeusprint "Creating NEX file"
+                          zeusinvoke "..\build\deploy.bat"
+                        endif
 
                         if enabled Cspect
                           zeusinvoke "..\build\cspect.bat", "", false

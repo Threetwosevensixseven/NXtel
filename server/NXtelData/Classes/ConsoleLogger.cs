@@ -13,6 +13,7 @@ namespace NXtelData
         StreamWriter fileWriter;
         TextWriter doubleWriter;
         TextWriter oldOut;
+        static DateTime lastDate = DateTime.Today;
 
         class DoubleWriter : TextWriter
         {
@@ -40,6 +41,12 @@ namespace NXtelData
 
             public override void Write(char value)
             {
+                var today = DateTime.Today;
+                if (today > lastDate)
+                {
+                    one.Write("\r\n" + today.ToShortDateString() + ":\r\n");
+                    lastDate = today;
+                }
                 one.Write(value);
                 two.Write(value);
             }
