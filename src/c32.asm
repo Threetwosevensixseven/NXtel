@@ -33,10 +33,27 @@ Loop:                   ld bc, Sprite_Index_Port        ; Set the sprite index (
                         out (c), h
                         out (c), h
                         jp nz, Loop
+                        nop
                         for n = 0 to Sprites32.Count-1
                           SetSpritePattern(Sprites32, n, n)
                         next;n
                         nextreg $15, %0 00 000 1 1      ; Enable sprites, over border, set SLU
+                        jp SetupSprites.Return
+pend
+
+
+
+WriteSpritePattern      proc
+                        ld bc, Sprite_Index_Port        ; Set the sprite index
+                        out (c), a                      ; (0 to 63)
+                        ld a, 0                         ; Send 256 pixel bytes (16*16)
+                        ld d, 0                         ; Counter
+                        ld bc, Sprite_Pattern_Port
+PixelLoop:              ld e, (hl)
+                        inc hl
+                        out (c), e
+                        dec d
+                        jr nz PixelLoop
                         ret
 pend
 

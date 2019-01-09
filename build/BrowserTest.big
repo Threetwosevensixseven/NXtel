@@ -1,0 +1,14 @@
+; Include 128K pages 5,2,0,1,3 and 4 from a base SNA:
+; [SNAFileName.sna[,a[,b[,c[,d[,e[,f[,g[,h[,i[,j]]]]]]]]]]]
+; SNAFileName.sna = SNA file to include banks, PC and SP from
+; a = Real bank number - not used for SNA but must be present
+; b = Address offset within bank - not used for SNA but must be present
+; c = Include real bank 5 from SNA (0 or 1)?
+; d = Include real bank 2 from SNA (0 or 1)?
+; e = Include real bank 0 from SNA (0 or 1)?
+; f = Include real bank 1 from SNA (0 or 1)?
+; g = Include real bank 3 from SNA (0 or 1)?
+; h = Include real bank 4 from SNA (0 or 1)?
+; i = Include real bank 6 from SNA (0 or 1)?
+; j = Include real bank 7 from SNA (0 or 1)?
+..\build\BrowserTest.sna,5,4000,0,1,0,0,0,0,0,0

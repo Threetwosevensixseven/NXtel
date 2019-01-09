@@ -256,22 +256,6 @@ mend
 
 
 
-WriteSpritePattern      proc
-                        ld bc, Sprite_Index_Port        ; Set the sprite index
-                        out (c), a                      ; (0 to 63)
-                        ld a, 0                         ; Send 256 pixel bytes (16*16)
-                        ld d, 0                         ; Counter
-                        ld bc, Sprite_Pattern_Port
-PixelLoop:              ld e, (hl)
-                        inc hl
-                        out (c), e
-                        dec d
-                        jr nz PixelLoop
-                        ret
-pend
-
-
-
 NextSprite              macro(ID, u16X, u8Y, PaletteOffset, bMirrorX, bMirrorY, bRotate, bVisible, Pattern)
                         ; Port $303B, if written, defines the sprite slot to be configured by ports $57 and $5B,
                         ; and also initializes the address of the palette.
@@ -331,7 +315,7 @@ PageResetBottom48K      macro()
                         nextreg $50,255                 ; MMU page bottom 48K back
                         nextreg $51,255
                         nextreg $52, 10
-                        nextreg $53, 11
+                        nextreg $53, 12                 ; This is non-standard - the bottom half of 16K page 6
                         nextreg $54,  4
                         nextreg $55,  5
 mend
@@ -575,5 +559,26 @@ mend
 PlaySFX                 macro(SFXNumber)
                         ld e, SFXNumber
                         call PlaySFXProc
+mend
+
+
+
+MFBreak                 macro()
+                        push af                         ; This sequence triggers the Debug menu
+                        ld a, r                         ; on the Next Multiface replacement
+                        di                              ; when booted into NextZXOS.
+                        in a, ($3F)                     ; The MF must have been activated and returned from
+                        rst $8                          ; once, in order for this code to trigger a breakpoint.
+mend
+
+
+
+CallP3DOS               macro(CallAddress, bank)
+                        exx
+                        ld de, CallAddress
+                        ld c, bank
+                        rst 8
+                        noflow
+                        db M_P3DOS
 mend
 

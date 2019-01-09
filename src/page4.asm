@@ -25,7 +25,7 @@ esxDOSerror4            proc
                         nextreg $50,255                 ; MMU page bottom 48K back
                         nextreg $51,255                 ; (apart from this bank)
                         nextreg $52, 10
-                        nextreg $53, 11
+                        nextreg $53, 12
                         nextreg $54,  4
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
 

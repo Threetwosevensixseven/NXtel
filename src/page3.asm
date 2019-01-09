@@ -182,8 +182,6 @@ Matrix proc Table:
     Bit4   ds 1
   Size send
 
-zeusprint SS, CS, SSCS, 56, 112, 168
-
   Len           equ $-Table
   SS            equ Len/4
   CS            equ SS*2

@@ -2,5 +2,4 @@
 C:
 CD %~dp0
 
-del ..\bin\NXtel.snx
-robocopy ..\bin\ Q:\ /DCOPY:T
+copy ..\bin\NXtel.nex Q:\

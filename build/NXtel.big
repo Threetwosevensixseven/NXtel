@@ -1,4 +1,4 @@
-; Include 128K pages 5,2,0,1,3 and 4 from a base SNA:
+; Include 128K pages 2,0,1,3, 4 and 6 from a base SNA:
 ; [SNAFileName.sna[,a[,b[,c[,d[,e[,f[,g[,h[,i[,j]]]]]]]]]]]
 ; SNAFileName.sna = SNA file to include banks, PC and SP from
 ; a = Real bank number - not used for SNA but must be present
@@ -11,9 +11,9 @@
 ; h = Include real bank 4 from SNA (0 or 1)?
 ; i = Include real bank 6 from SNA (0 or 1)?
 ; j = Include real bank 7 from SNA (0 or 1)?
-..\build\NXtel.sna,5,4000
-;,1,1,1,1,1,1,1,1
+..\build\NXtel.sna,5,4000,0,1,1,1,1,1,1,0
 
+!PCSP$C000,$FF40,6
 
 ; Layer 2 loading screen:
 ; [!BMP[a,]Filename.bmp[,b[,c[,d[,e[,f[,g]]]]]]]]

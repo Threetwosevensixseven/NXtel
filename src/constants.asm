@@ -82,11 +82,18 @@ PIXELS_COUNT            equ ATTRS_8x8-SCREEN
 FRAMES                  equ 23672                       ; Frame counter
 BORDCR                  equ 23624                       ; Border colour system variable
 ULA_PORT                equ $FE                         ; out (254), a
+STIMEOUT                equ $5C81                       ; Screensaver control sysvar
+
+
+
+; P3DOS
+M_P3DOS                 equ $94
+DOS_SET_1346            equ $013F
+IDE_BROWSER             equ $01BA
 
 
 
 ; Paging and ROM
-
 LD_BYTES                equ $0556
 BlockSize               equ $4000
 BlockROM                equ $0000+(BlockSize*0)

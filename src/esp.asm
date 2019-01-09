@@ -69,6 +69,7 @@ SpecialKey:
                         jp c, FTKey
 NotFT:                  cp Matrix.DownL
                         jp nz, Conceal
+                        //call Browser
                         call [DownloadKeyTarget]DetectTSHeader
                         jp c, SendKey
                         ld hl, NoKey                    ; This is a real telesoftware header

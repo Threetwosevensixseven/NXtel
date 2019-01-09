@@ -544,3 +544,14 @@ Return:                 nextreg $57, [Restore]SMC
 pend
 
 
+Browser                 proc
+                        Freeze()
+                        ld hl, FileTypes
+                        ld de, BrowserText
+                        ld a, $FF
+                        CallP3DOS(IDE_BROWSER, 7)
+                        ret
+FileTypes:              db $FF
+BrowserText:            db "NXtel", $FF
+pend
+

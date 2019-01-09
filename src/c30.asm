@@ -398,7 +398,7 @@ ShowLayer2:
                           jp nz, ULASwitchCont
                           ld a, 8
 ULASwitchCont:            MMU2(10, false)
-                          MMU3(11, false)
+                          MMU3(12, false)
                           ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
@@ -748,7 +748,7 @@ PagePrimaryScreen       proc
                         if ULAMonochrome
                           //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, 10)", $+disp
                           MMU2(10, false)
-                          MMU3(11, false)
+                          MMU3(12, false)
                         else
                           zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(9, false)
@@ -955,7 +955,7 @@ ShowLayer2:
                           jp nz, ULASwitchCont
                           ld a, 8
 ULASwitchCont:            MMU2(10, false)
-                          MMU3(11, false)
+                          MMU3(12, false)
                           ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
