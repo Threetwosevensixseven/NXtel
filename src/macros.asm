@@ -314,7 +314,7 @@ mend
 PageResetBottom48K      macro()
                         nextreg $50,255                 ; MMU page bottom 48K back
                         nextreg $51,255
-                        nextreg $52, 10
+                        nextreg $52, 13
                         nextreg $53, 12                 ; This is non-standard - the bottom half of 16K page 6
                         nextreg $54,  4
                         nextreg $55,  5

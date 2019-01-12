@@ -8,6 +8,7 @@ dispto zeuspage(6)
 
 Start6:
                         di
+                        nextreg $52, 13
                         nextreg $53, 12
                         jp Entry6
 Entry6:
@@ -19,7 +20,9 @@ Entry6:
                         Turbo(MHz14)
                         Contention(false)
                         Border(Black)
+                        nextreg $52, 10
                         ClsAttrFull(DimBlackBlackP)
+                        nextreg $52, 13
                         EnableKeyboardScan(false)
                         ei
                         halt

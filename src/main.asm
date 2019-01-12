@@ -29,6 +29,7 @@ BuildNex                = Cspect or UploadNext
                         org $6000
 Start:
                         di
+                        nextreg $52, 13
                         nextreg $53, 12
                         jp Entry6
 Entry6:

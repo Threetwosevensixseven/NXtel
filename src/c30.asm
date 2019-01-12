@@ -397,7 +397,7 @@ ShowLayer2:
                           ld a, 0
                           jp nz, ULASwitchCont
                           ld a, 8
-ULASwitchCont:            MMU2(10, false)
+ULASwitchCont:            MMU2(13, false)
                           MMU3(12, false)
                           ld (FlipULAScreen.WhichULAScreen), a
                         else
