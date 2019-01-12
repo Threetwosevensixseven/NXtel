@@ -51,7 +51,7 @@ readData:
         jr z,sfxRoutineSample
         pop iy
         pop ix
-        Border(Black)
+        Border(White)
         ei
         ret
 

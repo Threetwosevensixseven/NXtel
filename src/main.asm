@@ -66,6 +66,81 @@ EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or
                         ei
                         reti
 
+org $8200
+P3DOSCaller             proc
+                        di
+                        im 1
+                        ex af, af'
+                        ld l, c
+
+                        NextRegRead($50)
+                        ld (Slot0), a
+                        nextreg $50, 255
+
+                        NextRegRead($51)
+                        ld (Slot1), a
+                        nextreg $51, 255
+
+                        NextRegRead($52)
+                        ld (Slot2), a
+                        nextreg $52, 10
+
+                        NextRegRead($53)
+                        ld (Slot3), a
+                        nextreg $53, 11
+
+                        NextRegRead($55)
+                        ld (Slot5), a
+                        nextreg $55, 5
+
+                        NextRegRead($56)
+                        ld (Slot6), a
+                        nextreg $56, 0
+
+                        NextRegRead($57)
+                        ld (Slot7), a
+                        nextreg $57, 1
+
+                        ld (StackP), sp
+                        ld sp, $A000
+
+                        ld c, l
+                        ex af, af'
+
+                        if enabled ZeusDebug
+                          nop
+                          or a                          ; Clear carry to simulate success
+                        else
+//DOSFrz:                   jp DOSFrz
+                          rst 8
+                          noflow
+                          db M_P3DOS
+                        endif
+                        di
+                        nextreg $50, [Slot0]SMC
+                        nextreg $51, [Slot1]SMC
+                        nextreg $52, [Slot2]SMC
+                        nextreg $53, [Slot3]SMC
+                        nextreg $55, [Slot5]SMC
+                        nextreg $56, [Slot6]SMC
+                        nextreg $57, [Slot7]SMC
+                        ld sp, [StackP]SMC
+                        im 2
+                        ret
+pend
+
+BrowserData             proc
+FileTypes:              db $FF
+Text:                   db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, On, " M ", Inv, Off, "ount"
+                        db Inv, On, " D ", Inv, Off, "rive m", Inv, On, " K ", Inv, Off, "dir "
+                        db Inv, On, " R ", Inv, Off, "ename ", Inv, On, " C ", Inv, Off, "opy "
+                        db Inv, On, " E ", Inv, Off, "rase   ", Inv, On, " U ", Inv, Off, "nmount"
+                        db TextWidth, 8, At, 21, 0, Inv, On, Bright, On
+                        db "Open Download"
+                        db Inv, Off, Bright, Off, TextWidth, 5
+                        db $FF
+pend
+
                         if zeusver < 73
                           zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
                         endif

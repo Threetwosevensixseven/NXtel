@@ -153,3 +153,27 @@ IconDisconnected        proc
                         jp StatusIconProc.Return
 pend
 
+
+
+SetupBrowserPalette6    proc
+                        NextPaletteRGB8($00, %101 101 10, PaletteULAa) ; Swap blacks and whites
+                        NextPaletteRGB8($07, %000 000 00, PaletteULAa) ; Swap blacks and whites
+                        NextPaletteRGB8($08, %111 111 11, PaletteULAa) ; Swap blacks and whites
+                        NextPaletteRGB8($0F, %000 000 10, PaletteULAa) ; Path text in blue
+                        NextPaletteRGB8($10, %101 101 10, PaletteULAa) ; Swap blacks and whites
+                        NextPaletteRGB8($17, %000 000 00, PaletteULAa) ; Swap blacks and whites
+                        NextPaletteRGB8($18, %111 111 11, PaletteULAa) ; Swap blacks and whites
+                        NextPaletteRGB8($1F, %000 000 10, PaletteULAa) ; "Browser" text in blue
+                        NextPaletteRGB8($15, %100 000 10, PaletteULAa) ; Dir highlight in purple
+                        NextPaletteRGB8($16, %000 000 10, PaletteULAa) ; File highlight in blue
+                        NextPaletteRGB8($0D, %010 010 11, PaletteULAa) ; Darken rainbow flash blue
+                        NextPaletteRGB8($0E, %111 110 00, PaletteULAa) ; Darken rainbow flash yellow
+                        NextPaletteRGB8($1C, %000 101 00, PaletteULAa) ; Darken rainbow flash green
+                        nextreg $52, 10
+                        Border(White)
+                        xor a
+                        ld (STIMEOUT), a                               ; Turn off screensaver
+                        nextreg $52, 13
+                        jp SetupBrowserPalette.Return
+pend
+

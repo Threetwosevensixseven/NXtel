@@ -51,7 +51,7 @@ SpriteControlVisible    equ %xxxxxxx1
 DMAPort                 equ $6B
 L2BasePage              equ 9
 PaletteULAa             equ %1 000 xxxx ; ULA first palette
-PaletteULAb             equ %1 100 xxxx ; ULA secondary palette
+PaletteULAb             equ %1 100 xx1x ; ULA secondary palette
 PaletteL2A              equ %1 001 xxxx ; Layer 2 first palette
 PaletteL2B              equ %1 101 xxxx ; Layer 2 secondary palette
 PaletteSpriteA          equ %1 010 xxxx ; Sprites first palette

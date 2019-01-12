@@ -100,7 +100,7 @@ BufferFull:
                         jp z, NotReallyFull
                         Border(Red)
                         Pause(8000)
-                        Border(Black)
+                        Border(White)
                         ret
 pend
 

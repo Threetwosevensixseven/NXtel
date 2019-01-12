@@ -353,7 +353,7 @@ pend
 MenuNotImplemented      proc
                         Border(Red)
                         halt:halt:halt:halt:halt
-                        Border(Black)
+                        Border(White)
                         jp [Return]MainMenu
 pend
 
@@ -544,14 +544,11 @@ Return:                 nextreg $57, [Restore]SMC
 pend
 
 
-Browser                 proc
-                        Freeze()
-                        ld hl, FileTypes
-                        ld de, BrowserText
-                        ld a, $FF
-                        CallP3DOS(IDE_BROWSER, 7)
-                        ret
-FileTypes:              db $FF
-BrowserText:            db "NXtel", $FF
+
+SetupBrowserPalette     proc
+                        MMU6(32, false)
+                        jp SetupBrowserPalette6
+                        ei
+Return:                 ret
 pend
 

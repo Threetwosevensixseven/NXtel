@@ -573,12 +573,26 @@ mend
 
 
 
-CallP3DOS               macro(CallAddress, bank)
+CallP3DOS               macro(CallAddress, Bank, EnableInterrupts)
+                        NextRegRead($54)
+                        ld (Slot4), a
+                        nextreg $54, 4
                         exx
                         ld de, CallAddress
-                        ld c, bank
-                        rst 8
-                        noflow
-                        db M_P3DOS
+                        ld c, Bank
+                        call P3DOSCaller
+                        nextreg $54, [Slot4]SMC
+                        if (EnableInterrupts)
+                          ei
+                        endif
+mend
+
+
+
+DisplayBrowser          macro()
+                        ld hl, BrowserData.FileTypes
+                        ld de, BrowserData.Text
+                        ld a, $3F
+                        CallP3DOS(IDE_BROWSER, 7, true)
 mend
 
