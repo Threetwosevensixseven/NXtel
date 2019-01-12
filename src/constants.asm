@@ -223,9 +223,13 @@ Dim                     equ %00000000
 Bright                  equ %01000000
 PrBright                equ 19
 Inverse                 equ 20
+Inv                     equ Inverse
 Over                    equ 21
 At                      equ 22
 Tab                     equ 23
+TextWidth               equ 30
+Off                     equ 0
+On                      equ 1
 Black                   equ 0
 Blue                    equ 1
 Red                     equ 2

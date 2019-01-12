@@ -27,6 +27,25 @@ Start2:
                         Border(Black)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 000 1 0      ; Disable sprites, over border, set SLU
+/*
+                        ld hl, FileTypes2
+                        ld de, BrowserText
+                        ld a, $3F
+                        CallP3DOS(IDE_BROWSER, 7)
+
+                        Freeze()
+
+FileTypes2:             db $FF
+BrowserText:            db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, On, " M ", Inv, Off, "ount"
+                        db Inv, On, " D ", Inv, Off, "rive m", Inv, On, " K ", Inv, Off, "dir "
+                        db Inv, On, " R ", Inv, Off, "ename ", Inv, On, " C ", Inv, Off, "opy "
+                        db Inv, On, " E ", Inv, Off, "rase   ", Inv, On, " U ", Inv, Off, "nmount"
+                        db TextWidth, 8, At, 20, 0, Inv, On, Bright, On
+                        db "Open Download"
+                        db Inv, Off, Bright, Off, TextWidth, 5
+                        db $FF
+                        */
+
                         ESPLogInit()
                         PageBankZX(0, false)            ; Force MMU reset
                         call ClsAttr

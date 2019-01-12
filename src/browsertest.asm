@@ -60,7 +60,7 @@ Start                   proc
 
                         ld hl, FileTypes2
                         ld de, BrowserText
-                        ld a, $FF
+                        ld a, $3F
                         CallP3DOS(IDE_BROWSER, 7)
 
                         //MFBreak()
@@ -70,7 +70,14 @@ Frz:                    jp Frz
 
 FileTypes:              db 14, "NEX:.nexload |"
 FileTypes2:             db $FF
-BrowserText:            db "NXtel, baby", $FF
+BrowserText:            db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, On, " M ", Inv, Off, "ount"
+                        db Inv, On, " D ", Inv, Off, "rive m", Inv, On, " K ", Inv, Off, "dir "
+                        db Inv, On, " R ", Inv, Off, "ename ", Inv, On, " C ", Inv, Off, "opy "
+                        db Inv, On, " E ", Inv, Off, "rase   ", Inv, On, " U ", Inv, Off, "nmount"
+                        db TextWidth, 8, At, 21, 0, Inv, On, Bright, On
+                        db "Open Download"
+                        db Inv, Off, Bright, Off, TextWidth, 5
+                        db $FF
 DriveBuffer:            ds 18
 pend
 
@@ -139,6 +146,12 @@ M_P3DOS                 equ $94
 DOS_SET_1346            equ $013F
 IDE_BROWSER             equ $01BA
 STIMEOUT                equ $5C81                       ; Screensaver control sysvar
+Bright                  equ 19
+Inv                     equ 20
+At                      equ 22
+TextWidth               equ 30
+Off                     equ 0
+On                      equ 1
 
 CallP3DOS               macro(CallAddress, bank)
                         exx

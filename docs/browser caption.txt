@@ -1,0 +1,16 @@
+Garry Lancaster:
+
+@Robin There's no specific support for that, but you could do it by hacking the help text to write on the banner line as well. The browser is drawn in LAYER 1,1 mode, so you can use the windowing control codes to set the position to 20,0 and set INVERSE 1/BRIGHT 1 before the banner text. The one proviso is that you must leave character size 5 in force (using control codes 30,5) and restore INVERSE 0/BRIGHT 0.
+Here's a test using the .BROWSE command. This is more awkward than it would be when using IDE_BROWSER directly, because a 0 value would terminate a dot command line. So for this example, instead of inverse/bright I've had to use the ATTR control code (24) (which isn't ideal, as the user may have changed the default attributes):
+
+10 LET h$="Help text"+CHR$ 22+CHR$ 20+CHR$ 1+CHR$ 8+CHR$ 30+CHR$ 8+CHR$ 24+CHR$ 71+"New banner"+CHR$ 24+CHR$ 56+CHR$ 30+CHR$ 5
+20 LET x$="-t BAS -p """+h$+""" f$"
+30 .$ browse x$
+
+: return to the main menu
+
+< return to the Browser
+
+; enter the NextBASIC editor
+
+I'm not sure if they'll all work from IDE_BROWSER rather than just the Browser itself though
