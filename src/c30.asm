@@ -118,6 +118,12 @@ Read:
                         ld a, (hl)
                         inc hl
 ProcessRead:
+                        cp $C0                          ; Start of control code range
+                        jp c, NotControl
+                        cp $E0
+                        jp nc, NotControl
+                        sub 64
+NotControl:
                         cp 32
                         jp z, Release2
                         jp c, Escape                    ; Skip ASCII ctrl codes for now
