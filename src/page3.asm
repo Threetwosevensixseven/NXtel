@@ -100,7 +100,7 @@ BufferFull:
                         jp z, NotReallyFull
                         Border(Red)
                         Pause(8000)
-                        Border(White)
+                        Border(Teletext.Border)
                         ret
 pend
 

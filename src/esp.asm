@@ -78,7 +78,7 @@ NotFT:                  cp Matrix.DownL
                         EnableCaptureTSFrame(true)
                         //Border(Green)
                         //halt:halt:halt:halt:halt
-                        //Border(White)
+                        //Border(Teletext.Border)
                         ld a, Teletext.Enter
                         jp SendKey
 Conceal:
@@ -86,7 +86,7 @@ Conceal:
                         jp nz, Break
                         //Border(Blue)
                         //halt:halt:halt:halt:halt
-                        //Border(White)
+                        //Border(Teletext.Border)
                         di
                         nextreg $57, 30
                         call ToggleConcealReveal

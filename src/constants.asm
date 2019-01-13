@@ -159,6 +159,14 @@ Teletext                proc
   Offset3               equ +96
   Offset4               equ +128
   Offset5               equ +160
+  PrestelMod            equ 64
+  if enabled ULAMonochrome
+    Border              equ Black
+    Background          equ DimBlackBlackP
+  else
+    Border              equ White
+    Background          equ DimWhiteWhiteP
+  endif
 pend
 
 

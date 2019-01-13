@@ -51,7 +51,7 @@ readData:
         jr z,sfxRoutineSample
         pop iy
         pop ix
-        Border(White)
+        Border(Teletext.Border)
         ei
         ret
 

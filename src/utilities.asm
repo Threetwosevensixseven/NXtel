@@ -353,7 +353,7 @@ pend
 MenuNotImplemented      proc
                         Border(Red)
                         halt:halt:halt:halt:halt
-                        Border(White)
+                        Border(Teletext.Border)
                         jp [Return]MainMenu
 pend
 

@@ -170,7 +170,7 @@ SetupBrowserPalette6    proc
                         NextPaletteRGB8($0E, %111 110 00, PaletteULAa) ; Darken rainbow flash yellow
                         NextPaletteRGB8($1C, %000 101 00, PaletteULAa) ; Darken rainbow flash green
                         nextreg $52, 10
-                        Border(White)
+                        Border(Teletext.Border)
                         xor a
                         ld (STIMEOUT), a                               ; Turn off screensaver
                         nextreg $52, 13

@@ -19,7 +19,7 @@ pend
 
 
 MainMenu31              proc
-                        Border(White)
+                        Border(Teletext.Border)
                         ld hl, Menus.Main               ; Source address (compressed data)
                         ld de, DisplayBuffer            ; Destination address (decompressing)
                         call dzx7_mega
@@ -29,7 +29,7 @@ pend
 
 
 MenuConnect31           proc
-                        Border(White)
+                        Border(Teletext.Border)
                         FillLDIR(ESPBuffer, ESPBuffer.Size, $00)
                         ld a, (MenuConnect.ItemCount)
                         ld (ItemCount), a
@@ -218,7 +218,7 @@ pend
 
 
 MenuKeyDescriptions31:  proc
-                        Border(White)
+                        Border(Teletext.Border)
                         ld hl, Menus.Keys               ; Source address (compressed data)
                         ld de, DisplayBuffer            ; Destination address (decompressing)
                         call dzx7_mega
