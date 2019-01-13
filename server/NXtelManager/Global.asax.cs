@@ -32,9 +32,9 @@ namespace NXtelManager
                 {
                     var assy = GetWebEntryAssembly();
                     if (assy == null)
-                        _applicationVersion = "1.0.0.0";
+                        _applicationVersion = "1.0.2.0";
                     else
-                        _applicationVersion = assy.GetName().Version.ToString().Replace("1.1.0.", "1.2.0.");
+                        _applicationVersion = assy.GetName().Version.ToString().Replace("1.0.1.", "1.0.2.");
                 }
                 return _applicationVersion;
             }

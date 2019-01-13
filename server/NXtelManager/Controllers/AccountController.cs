@@ -88,7 +88,16 @@ namespace NXtelManager.Controllers
                             // Send email
                             var code = await UserManager.GenerateEmailConfirmationTokenAsync(currentUser.Result.Id);
                             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Url.Scheme);
-                            await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                            try
+                            {
+                                await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                            }
+                            catch
+                            {
+                                AuthenticationManager.SignOut();
+                                ViewBag.NotLoggedIn = true;
+                                return View("Error");
+                            }
                             // Show message
                             ViewBag.NotLoggedIn = true;
                             return RedirectToAction("DisplayEmail");
@@ -176,8 +185,7 @@ namespace NXtelManager.Controllers
 
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    string code = HttpUtility.UrlEncode(await UserManager.GenerateEmailConfirmationTokenAsync(user.Id));
-                    //string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     try
                     {
@@ -185,6 +193,7 @@ namespace NXtelManager.Controllers
                     }
                     catch
                     {
+                        AuthenticationManager.SignOut();
                         ViewBag.NotLoggedIn = true;
                         return View("Error");
                     }
@@ -212,9 +221,7 @@ namespace NXtelManager.Controllers
                 var result = await UserManager.ConfirmEmailAsync(userId, code);
                 if (result.Succeeded)
                 {
-                    //var url = Url.Action("ConfirmedEmail", "Account", null, Request.Url.Scheme).Replace("nxtel.seven-fff.com", "www.nxtel.org");
                     return View("ConfirmEmail");
-                    //return new RedirectResult(url);
                 }
                 else
                 {
@@ -261,7 +268,16 @@ namespace NXtelManager.Controllers
                 // Send an email with this link
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                await UserManager.SendEmailAsync(user.Id, "Reset your NXtel password", string.Format("Please reset your NXtel password by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                try
+                {
+                    await UserManager.SendEmailAsync(user.Id, "Reset your NXtel password", string.Format("Please reset your NXtel password by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                }
+                catch
+                {
+                    AuthenticationManager.SignOut();
+                    ViewBag.NotLoggedIn = true;
+                    return View("Error");
+                }
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 

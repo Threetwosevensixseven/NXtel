@@ -50,7 +50,7 @@ namespace Version
                 sb.AppendLine("{");
                 sb.AppendLine("    public static class Version");
                 sb.AppendLine("    {");
-                sb.Append("        public const string Number = \"1.1.0.");
+                sb.Append("        public const string Number = \"1.0.1.");
                 sb.Append(version);
                 sb.AppendLine("\";");
                 sb.AppendLine("    }");
