@@ -46,7 +46,7 @@ namespace NXtelData
             }
         }
 
-        public static int  StartPageNo
+        public static int StartPageNo
         {
             get
             {
@@ -192,6 +192,33 @@ namespace NXtelData
                 }
                 catch { }
                 return cfg;
+            }
+        }
+
+        private static bool? _usePrestelCharSet;
+        public static bool UsePrestelCharSet
+        {
+            get
+            {
+                if (_usePrestelCharSet == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["UsePrestelCharSet"] ?? "").Trim().ToLower();
+                    _usePrestelCharSet = (cfg == "true");
+                }
+                return (bool)_usePrestelCharSet;
+            }
+        }
+
+        public static byte? _prestelCharSetModifier;
+        public static byte PrestelCharSetModifier
+        {
+            get
+            {
+                if (_prestelCharSetModifier == null)
+                {
+                    _prestelCharSetModifier = Convert.ToByte(UsePrestelCharSet ? 0xC0 : 0x80);
+                }
+                return (byte)_prestelCharSetModifier;
             }
         }
     }

@@ -90,7 +90,7 @@ namespace NXtelData
                     cc[i] = 32;
             for (int i = 0; i < cc.Length; i++)
                 if (cc[i] < 32)
-                    cc[i] |= 128;
+                    cc[i] |= Options.PrestelCharSetModifier;
             Contents = cc;
         }
 
