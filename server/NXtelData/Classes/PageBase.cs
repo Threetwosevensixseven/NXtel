@@ -49,6 +49,7 @@ namespace NXtelData
                         else
                             enc.Add(b);
                     }
+                    enc.Add(0); // Add a null byte to mark the end of the page, like TELSTAR does
                     _contents7BitEncoded = enc.ToArray();
                 }
                 return _contents7BitEncoded;
