@@ -221,5 +221,19 @@ namespace NXtelData
                 return (byte)_prestelCharSetModifier;
             }
         }
+
+        private static bool? _trimSpaces;
+        public static bool TrimSpaces
+        {
+            get
+            {
+                if (_trimSpaces == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["TrimSpaces"] ?? "").Trim().ToLower();
+                    _trimSpaces = (cfg == "true");
+                }
+                return (bool)_trimSpaces;
+            }
+        }
     }
 }

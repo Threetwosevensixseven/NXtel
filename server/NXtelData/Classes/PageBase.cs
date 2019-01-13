@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NXtelData.Extensions;
 
 namespace NXtelData
 {
@@ -39,16 +40,55 @@ namespace NXtelData
                     var enc = new List<byte>();
                     //enc.Add(30); // Cursor Home
                     enc.Add(12); // CLS
-                    foreach (var b in Contents)
+                    enc.Add(20); // Cursor Off
+                    if (Options.TrimSpaces)
                     {
-                        if ((b & 0x80) == 0x80)
+                        foreach (var line in Contents.AsChunks(40))
                         {
-                            enc.Add(27);
-                            enc.Add(Convert.ToByte(b & 0x7F));
+                            bool trimmed = false;
+                            int lastPos = -1;
+                            for (int i = line.Count + line.Offset - 1; i >= line.Offset; i--)
+                            {
+                                if (line.Array[i] != 32)
+                                {
+                                    lastPos = i;
+                                    break;
+                                }
+                                else
+                                    trimmed = true;
+                            }
+                            System.Diagnostics.Debug.WriteLine(line.Offset + " - " + line.Offset + " (" + lastPos + ")");
+                            for (int i = line.Offset; i <= lastPos; i++)
+                            {
+                                if ((line.Array[i] & 0x80) == 0x80)
+                                {
+                                    enc.Add(27);
+                                    enc.Add(Convert.ToByte(line.Array[i] & 0x7F));
+                                }
+                                else
+                                    enc.Add(line.Array[i]);
+                            }
+                            if (trimmed)
+                            {
+                                enc.Add(13); // CR
+                                enc.Add(10); // LF
+                            }
                         }
-                        else
-                            enc.Add(b);
                     }
+                    else
+                    {
+                        foreach (var b in Contents)
+                        {
+                            if ((b & 0x80) == 0x80)
+                            {
+                                enc.Add(27);
+                                enc.Add(Convert.ToByte(b & 0x7F));
+                            }
+                            else
+                                enc.Add(b);
+                        }
+                    }
+                    //enc.Add(17); // Cursor On
                     enc.Add(0); // Add a null byte to mark the end of the page, like TELSTAR does
                     _contents7BitEncoded = enc.ToArray();
                 }

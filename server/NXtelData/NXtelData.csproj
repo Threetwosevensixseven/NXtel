@@ -135,6 +135,7 @@
     <Compile Include="Classes\Users.cs" />
     <Compile Include="Classes\Zone.cs" />
     <Compile Include="Classes\Zones.cs" />
+    <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\MySqlCommandExtensions.cs" />
     <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />
