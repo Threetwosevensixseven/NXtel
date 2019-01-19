@@ -48,6 +48,7 @@ namespace NXtelServer
                 }
                 while (true)
                 {
+                    Thread.Sleep(10);
                 }
             }
         }

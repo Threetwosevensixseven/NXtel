@@ -59,6 +59,27 @@ namespace NXtelManager.Controllers
         }
 
         [HttpPost]
+        [MultipleButton("Enable")]
+        public ActionResult Enable(ServerStatus Status)
+        {
+            Status.IsDisabled = false;
+            var model = ServerStatus.Start(Status.StartVisible);
+            model.StartVisible = Status.StartVisible;
+            return View("Index", model);
+        }
+
+        [HttpPost]
+        [MultipleButton("Disable")]
+        public ActionResult Disable(ServerStatus Status)
+        {
+            Status.IsDisabled = true;
+            var model = ServerStatus.KillAll();
+            model.StartVisible = Status.StartVisible;
+            return View("Index", model);
+        }
+
+
+        [HttpPost]
         [MultipleButton("DownloadLog")]
         public ActionResult DownloadLog(ServerStatus Status)
         {
@@ -129,6 +150,16 @@ namespace NXtelManager.Controllers
                 }
             }
             return RedirectToAction("Index");
+        }
+
+        [AllowAnonymous]
+        public ActionResult KeepAlive(string id)
+        {
+            id = (id ?? "").ToLower().Replace("-", "").Trim();
+            if (id != Options.KeepAliveGUID)
+                return new HttpNotFoundResult();
+            ServerStatus.StartIfStopped();
+            return Content("1");
         }
     }
 }

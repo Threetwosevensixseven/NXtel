@@ -40,23 +40,27 @@ namespace NXtelData
                     var enc = new List<byte>();
                     //enc.Add(30); // Cursor Home
                     enc.Add(12); // CLS
-                    enc.Add(20); // Cursor Off
                     if (Options.TrimSpaces)
                     {
+                        enc.Add(20); // Cursor Off
                         foreach (var line in Contents.AsChunks(40))
                         {
                             bool trimmed = false;
                             int lastPos = -1;
-                            for (int i = line.Count + line.Offset - 1; i >= line.Offset; i--)
+                            var lastInLine = line.Count + line.Offset - 1;
+                            for (int i = lastInLine; i >= line.Offset; i--)
                             {
                                 if (line.Array[i] != 32)
                                 {
                                     lastPos = i;
                                     break;
                                 }
-                                else
-                                    trimmed = true;
                             }
+                            var diff = lastInLine - lastPos;
+                            if (lastPos == -1 || diff > 2)
+                                trimmed = true;
+                            else
+                                lastPos = lastInLine;
                             System.Diagnostics.Debug.WriteLine(line.Offset + " - " + line.Offset + " (" + lastPos + ")");
                             for (int i = line.Offset; i <= lastPos; i++)
                             {

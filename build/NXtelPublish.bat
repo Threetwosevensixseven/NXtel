@@ -10,9 +10,21 @@ CD %~dp0
 DEL  /F /Q /S "..\server\NXtelManager\App_Data\GitHubWiki\*.md"
 XCOPY /Y "C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel.wiki\*.md" "..\server\NXtelManager\App_Data\GitHubWiki\*.*"
 
-:: Prepare NXtelServer for publishing
+:: Prepare NXtelMonitor for publishing
 PATH=%PATH%;C:\Program Files (x86)\MSBuild\14.0\bin
-CD ..\server\NXtelServer
+CD ..\server\NXtelMonitor
+
+:: Publish NXtelMonitor
+msbuild NXtelMonitor.csproj /p:Configuration="Release" /p:Platform="AnyCPU"
+
+:: Deploy NXtelMonitor
+DEL  /F /Q /S Publish\*.pdb
+DEL  /F /Q /S Publish\*.config
+XCOPY /Y "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelMonitor\"
+XCOPY /Y "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelMonitor\"
+
+:: Prepare NXtelServer for publishing
+CD ..\NXtelServer
 DEL  /F /Q /S Publish\*.*
 RMDIR /S /Q "Publish\app.publish"
 
@@ -26,6 +38,7 @@ DEL  /F /Q /S Publish\*.pdb
 DEL  /F /Q /S Publish\*.config
 DEL  /F /Q /S Publish\*.application
 XCOPY /Y "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelServer\"
+XCOPY /Y "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelServer\"
 
 :: Prepare NXtelManager for publishing
 CD ..\NXtelManager
@@ -44,8 +57,20 @@ msbuild NXtelManager.csproj /p:DeployOnBuild=true /p:PublishProfile=FolderDeploy
 DEL  /F /Q Publish\web.config
 RMDIR /S /Q "Publish\bin\roslyn"
 XCOPY /Y /E "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\"
+XCOPY /Y /E "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelManager\"
+
+:: Deploy NXtelServer
+RMDIR /S /Q "Publish\app.publish"
+DEL  /F /Q /S Publish\*.xml
+DEL  /F /Q /S Publish\*.pdb
+DEL  /F /Q /S Publish\*.config
+DEL  /F /Q /S Publish\*.application
+XCOPY /Y "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelServer\"
+XCOPY /Y "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelServer\"
+
 CD %~dp0
 DEL  /F /Q /S "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\App_Data\GitHubWiki\*.md"
 XCOPY /Y "..\server\NXtelManager\App_Data\GitHubWiki\*.md" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\App_Data\GitHubWiki\*.*"
+XCOPY /Y "..\server\NXtelManager\App_Data\GitHubWiki\*.md" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelManager\App_Data\GitHubWiki\*.*"
 
 PAUSE

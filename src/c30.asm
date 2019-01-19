@@ -118,6 +118,34 @@ Read:
                         ld a, (hl)
                         inc hl
 ProcessRead:
+                        or a
+                        jp c, NotTerminal
+                        cp 32
+                        jp nc, NotTerminal
+                        cp $0A                          ; Down (APD)
+                        jp nz, NotDown
+                        ld de, (Coordinates)
+                        add de, 256*8
+                        zeusdatabreakpoint 1, "zeusprinthex(1, de)", $+disp
+                        jp NextCharNoAdd
+NotDown:
+                        cp $0D                          ; CR (APR)
+                        jp nz, NotCR
+                        ld de, (Coordinates)
+                        ld e, $08
+                        jp NextCharNoAdd
+NotCR:
+                        cp 14                           ; ??
+                        jp z, NextCharNoAdd
+                        cp 17                           ; Cursor On
+                        jp z, NextCharNoAdd
+                        cp 20                           ; Cursor Off
+                        jp z, NextCharNoAdd
+
+                        ld a, 32
+                        jp Release2
+
+NotTerminal:
                         cp $C0                          ; Start of control code range
                         jp c, NotControl
                         cp $E0
@@ -126,7 +154,7 @@ ProcessRead:
 NotControl:
                         cp 32
                         jp z, Release2
-                        jp c, Escape                    ; Skip ASCII ctrl codes for now
+                        //jp c, Escape                    ; Skip ASCII ctrl codes for now
 
                         cp 128
                         jp nc, Colours                  ; Skip teletext ctrl codes for now
@@ -318,7 +346,7 @@ EndChar:
 NextChar:
                         ld de, (Coordinates)
                         add de, 6
-                        ld a, e
+NextCharNoAdd:          ld a, e
                         cp 248
                         jp nz, NoNextRow
                         ld a, [DoubleHeightThisLine]SMC

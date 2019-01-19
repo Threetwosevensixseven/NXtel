@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTConv", "TTConv\TTConv.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{6A478169-F8B2-4589-8C02-E8384893ED2B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelMonitor", "NXtelMonitor\NXtelMonitor.csproj", "{50E0087B-7989-459F-BB2C-8C216419D011}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,18 @@ Global
 		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x64.Build.0 = Release|Any CPU
 		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x86.ActiveCfg = Release|x86
 		{6A478169-F8B2-4589-8C02-E8384893ED2B}.Release|x86.Build.0 = Release|x86
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Debug|x64.Build.0 = Debug|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Debug|x86.Build.0 = Debug|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x64.ActiveCfg = Release|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x64.Build.0 = Release|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x86.ActiveCfg = Release|Any CPU
+		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

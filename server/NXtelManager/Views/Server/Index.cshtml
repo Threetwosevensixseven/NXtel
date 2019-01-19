@@ -23,6 +23,8 @@
         <input type="submit" value="Start" name="action:Start" class="btn btn-success @Model.StartClass" />
         <input type="submit" value="Stop" name="action:Stop" class="btn btn-danger @Model.StopClass" />
         <input type="submit" value="Restart" name="action:Restart" class="btn btn-warning @Model.StopClass" />
+        <input type="submit" value="Disable" name="action:Disable" class="btn btn-danger @Model.EnabledClass" />
+        <input type="submit" value="Enable" name="action:Enable" class="btn btn-success @Model.DisabledClass" />
         <span>@Html.CheckBox("StartVisible", @Model.StartVisible)&nbsp;Start&nbsp;Visible?</span>
     </div>
     <br />

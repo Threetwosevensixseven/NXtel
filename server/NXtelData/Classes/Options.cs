@@ -235,5 +235,14 @@ namespace NXtelData
                 return (bool)_trimSpaces;
             }
         }
+
+        public static string KeepAliveGUID
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["KeepAliveGUID"] ?? "").ToLower().Replace("-", "").Trim();
+                return cfg;
+            }
+        }
     }
 }
