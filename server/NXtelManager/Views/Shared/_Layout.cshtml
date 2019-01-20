@@ -4,19 +4,21 @@
     bool admin = User.IsInRole("Admin");
     bool pageEditor = User.IsInRole("Page Editor");
     string version = "v" + MvcApplication.ApplicationVersion;
+    string appName = NXtelData.Options.TestTheme ? "NXtel Test" : "NXtel";
+    string cssBundle = NXtelData.Options.TestTheme ? "~/Content/csstest" : "~/Content/css";
 }
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - NXtel</title>
-    @Styles.Render("~/Content/css")
+    <title>@ViewBag.Title - @appName</title>
+    @Styles.Render(cssBundle)
     @Scripts.Render("~/bundles/modernizr")
     @RenderSection("head", required: false)
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top navbar-default">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -25,7 +27,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 @if (ShowHeader) {
-                    @Html.ActionLink("NXtel", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                    @Html.ActionLink(appName, "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
                 }
             </div>
             <div class="navbar-collapse collapse">

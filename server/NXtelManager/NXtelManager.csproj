@@ -225,6 +225,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-multiselect.css" />
+    <Content Include="Content\bootstrap-test.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\datatables.min.css" />

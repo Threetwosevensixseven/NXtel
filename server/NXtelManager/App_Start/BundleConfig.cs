@@ -32,6 +32,13 @@ namespace NXtelManager
                       "~/Content/datatables.min.css",
                       "~/Content/bootstrap-multiselect.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/csstest").Include(
+                      "~/Content/bootstrap.css",
+                      "~/Content/bootstrap-test.css",
+                      "~/Content/datatables.min.css",
+                      "~/Content/bootstrap-multiselect.css",
+                      "~/Content/site.css"));
         }
     }
 }

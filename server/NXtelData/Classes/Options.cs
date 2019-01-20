@@ -244,5 +244,19 @@ namespace NXtelData
                 return cfg;
             }
         }
+
+        private static bool? _testTheme;
+        public static bool TestTheme
+        {
+            get
+            {
+                if (_testTheme == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["TestTheme"] ?? "").Trim().ToLower();
+                    _testTheme = (cfg == "true");
+                }
+                return (bool)_testTheme;
+            }
+        }
     }
 }
