@@ -229,6 +229,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\datatables.min.css" />
+    <Content Include="Content\favicon.ico" />
     <Content Include="Content\Images\btn-add-highlight.png" />
     <Content Include="Content\Images\btn-add.png" />
     <Content Include="Content\Images\btn-check-highlight.png" />

@@ -208,6 +208,7 @@ Match:
                         inc a
                         ld d, a
                         ld a, (ItemCount)
+                        inc a
                         cp d
                         jp z, MainMenu
                         di

@@ -484,7 +484,7 @@ CopyServerLoop:
 EndServerLine:
                         ld a, (URLNumber)
                         inc a
-                        cp "8"
+                        cp "9"+1
                         jp nc, NoMoreLines
                         ld (URLNumber), a
                         ld a, (CurrentRow)
@@ -520,7 +520,7 @@ pend
 
 ConnectMenuDisplay proc Table:
   Size   equ 36
-  Count  equ 7
+  Count  equ 8
   Length equ Size*Count
   ds Length, 0
 pend
@@ -529,7 +529,7 @@ pend
 
 ConnectMenuServer proc Table:
   Size   equ 100
-  Count  equ 7
+  Count  equ 8
   Length equ Size*Count
   ds Length, 0
 pend
