@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using NXtelData.Extensions;
@@ -43,8 +44,10 @@ namespace NXtelData
                     if (Options.TrimSpaces)
                     {
                         enc.Add(20); // Cursor Off
+                        int lineCount = -1;
                         foreach (var line in Contents.AsChunks(40))
                         {
+                            lineCount++;
                             bool trimmed = false;
                             int lastPos = -1;
                             var lastInLine = line.Count + line.Offset - 1;
@@ -61,9 +64,11 @@ namespace NXtelData
                                 trimmed = true;
                             else
                                 lastPos = lastInLine;
-                            System.Diagnostics.Debug.WriteLine(line.Offset + " - " + line.Offset + " (" + lastPos + ")");
+                            int x = -1;
                             for (int i = line.Offset; i <= lastPos; i++)
                             {
+                                x++;
+                                Debug.WriteLine(x + " " + lineCount + " " + line.Array[i]);
                                 if ((line.Array[i] & 0x80) == 0x80)
                                 {
                                     enc.Add(27);
@@ -74,15 +79,22 @@ namespace NXtelData
                             }
                             if (trimmed)
                             {
+                                Debug.WriteLine(++x + " " + lineCount + " " + 13);
                                 enc.Add(13); // CR
+                                Debug.WriteLine(++x + " " + lineCount + " " + 10);
                                 enc.Add(10); // LF
                             }
                         }
                     }
                     else
                     {
+                        int count = -1;
                         foreach (var b in Contents)
                         {
+                            count++;
+                            int x = count % 40;
+                            int y = count / 40;
+                            Debug.WriteLine(x + " " + y + " " + b);
                             if ((b & 0x80) == 0x80)
                             {
                                 enc.Add(27);

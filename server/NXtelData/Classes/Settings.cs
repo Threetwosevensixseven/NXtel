@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace NXtelData
@@ -61,6 +62,18 @@ namespace NXtelData
             get
             {
                 return Path.Combine(appDir, "Settings.xml");
+            }
+        }
+
+        public string DatabaseName
+        {
+            get
+            {
+                var r = new Regex(@"database\s*=\s*(?<DB>.*?)\s*(?:;|$)", RegexOptions.IgnoreCase);
+                var m = r.Match(ConnectionString);
+                if (!m.Success)
+                    return "";
+                return (m.Groups["DB"].Value ?? "").Trim();
             }
         }
     }

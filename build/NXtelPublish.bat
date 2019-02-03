@@ -68,9 +68,16 @@ DEL  /F /Q /S Publish\*.application
 ::XCOPY /Y "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelServer\"
 XCOPY /Y "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelServer\"
 
+:: Deploy wiki
 CD %~dp0
 DEL  /F /Q /S "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\App_Data\GitHubWiki\*.md"
 ::XCOPY /Y "..\server\NXtelManager\App_Data\GitHubWiki\*.md" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelManager\App_Data\GitHubWiki\*.*"
 XCOPY /Y "..\server\NXtelManager\App_Data\GitHubWiki\*.md" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelManager\App_Data\GitHubWiki\*.*"
+
+:: Stage and commit deployment changes for the server
+for /F "tokens=2" %%i in ('date /t') do set mydate=%%i
+cd "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy"
+git commit -a -m "Autocommit %mydate% %time% from build script."
+git push
 
 PAUSE

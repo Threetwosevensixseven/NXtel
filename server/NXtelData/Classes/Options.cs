@@ -258,5 +258,13 @@ namespace NXtelData
                 return (bool)_testTheme;
             }
         }
+
+        public static string CharSetName
+        {
+            get
+            {
+                return UsePrestelCharSet ? "Prestel" : "Teletext";
+            }
+        }
     }
 }

@@ -99,6 +99,7 @@ namespace NXtelManager.Controllers
                                 return View("Error");
                             }
                             // Show message
+                            AuthenticationManager.SignOut();
                             ViewBag.NotLoggedIn = true;
                             return RedirectToAction("DisplayEmail");
                         }
@@ -176,11 +177,14 @@ namespace NXtelManager.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var rng = new Random();
                 user.Mailbox = NXtelData.User.GetUniqueMailbox();
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    var u = NXtelData.User.LoadByUserName(model.Email);
+                    u.Mailbox = user.Mailbox;
+                    string err;
+                    NXtelData.User.Save(u, out err);
                     AuthenticationManager.SignOut();
 
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771

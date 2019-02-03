@@ -88,6 +88,42 @@ namespace NXtelData
             return user;
         }
 
+        public static User LoadByUserName(string UserName)
+        {
+            var user = new User();
+            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            {
+                con.Open();
+                string sql = @"SELECT u.Id,Email,EmailConfirmed,Mailbox,r.`Name` AS Role,
+                    u.FirstName,u.LastName
+                    FROM aspnetusers u
+                    LEFT JOIN aspnetuserroles ur ON u.Id = ur.UserId
+                    LEFT JOIN aspnetroles r ON ur.RoleId = r.Id
+                    WHERE u.UserName=@UserName;";
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("UserName", UserName);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        user.ID = rdr.GetString("Id").Trim();
+                        user.Email = rdr.GetString("Email").Trim();
+                        user.EmailConfirmed = rdr.GetBoolean("EmailConfirmed");
+                        user.Mailbox = rdr.GetString("Mailbox").Trim();
+                        user.FirstName = rdr.GetStringNullable("FirstName").Trim();
+                        user.LastName = rdr.GetStringNullable("LastName").Trim();
+                        string role = rdr.GetStringNullable("Role").Trim();
+                        if (!string.IsNullOrEmpty(role))
+                            user.Roles.Add(role);
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(user.ID))
+                    user.PageRanges = UserPageRanges.Load(user.ID, con);
+
+            }
+            return user;
+        }
+
         public static bool Delete(string UserID, out string Err)
         {
             Err = "";
@@ -149,8 +185,9 @@ namespace NXtelData
                     return cmd.ExecuteScalar() as string;
                 }
             }
-            catch (Exception /*ex*/)
+            catch (Exception ex)
             {
+                throw ex;
                 return "";
             }
         }

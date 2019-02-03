@@ -20,7 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            //CreateFileOwnerField(ConX);
+            CreateGetUniqueMailbox(ConX);
 
             if (openConX)
                 ConX.Close();

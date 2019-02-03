@@ -28,11 +28,16 @@ namespace NXtelServer
             {
                 try
                 {
-                    DBOps.ConnectionString = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load().ConnectionString;
+                    var settings = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load();
+                    DBOps.ConnectionString = settings.ConnectionString;
                     Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
                     Console.WriteLine("Starting NXtel Server v" + Version);
+                    var x = DBOps.ConnectionString;
                     var now = DateTime.Now;
                     Console.WriteLine(now.ToShortDateString() + " " + now.ToLongTimeString());
+                    Console.WriteLine("Database: " + settings.DatabaseName);
+                    Console.WriteLine("Using " + Options.CharSetName + " character set");
+                    Console.WriteLine((Options.TrimSpaces ? "T" : "Not t") + "rimming spaces");
                     new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
                     serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380

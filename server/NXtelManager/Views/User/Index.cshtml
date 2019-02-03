@@ -27,7 +27,14 @@
                 @foreach (NXtelData.User user in Model)
                 {
                     <tr>
-                        <td>@Html.ActionLink(@user.Mailbox, "Edit", "User", new { id = user.ID }, null)</td>
+                        @if (string.IsNullOrWhiteSpace(@user.Mailbox))
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td>@Html.ActionLink(@user.Mailbox, "Edit", "User", new { id = user.ID }, null)</td>
+                        }
                         <td style="padding-right:10px">@Html.ActionLink(@user.Email, "Edit", "User", new { id = user.ID }, null)</td>
                         @if (string.IsNullOrWhiteSpace(@user.Name))
                         {
