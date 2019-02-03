@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
 
 namespace NXtelData
@@ -13,8 +14,6 @@ namespace NXtelData
         public List<string> Roles { get; set; }
         [Display(Name = "Email Address")]
         [Required(ErrorMessage = "Email Address is required.")]
-        [RegularExpression(@"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$", 
-            ErrorMessage = "Email Address is not valid.")]
         public string Email { get; set; }
         [Display(Name = "Email Confirmed?")]
         public bool EmailConfirmed { get; set; }

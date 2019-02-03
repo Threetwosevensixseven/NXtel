@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using NXtelData;
@@ -66,6 +67,11 @@ namespace NXtelManager.Controllers
         public ActionResult Save(UserEditModel Model)
         {
             Model.Fixup();
+            var r = new Regex(@"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$", RegexOptions.IgnoreCase);
+            if (!r.IsMatch(Model.User.Email))
+            {
+                ModelState.AddModelError("", "Email Address is not valid.");
+            }
             if (ModelState.IsValid)
             {
                 string err;
