@@ -79,14 +79,14 @@ namespace NXtelData
                             }
                             if (trimmed)
                             {
-                                Debug.WriteLine(++x + " " + lineCount + " " + 13);
+                                if (lastPos == -1)
+                                    enc.Add(32); 
                                 enc.Add(13); // CR
-                                Debug.WriteLine(++x + " " + lineCount + " " + 10);
                                 enc.Add(10); // LF
                             }
                         }
-                        while (enc[enc.Count - 2] == 13 && enc[enc.Count - 1] == 10)
-                            enc.RemoveRange(enc.Count - 2, 2);
+                        while (enc[enc.Count - 1] == 32 || enc[enc.Count - 1] == 13 || enc[enc.Count - 1] == 10)
+                            enc.RemoveAt(enc.Count - 1);
                     }
                     else
                     {
