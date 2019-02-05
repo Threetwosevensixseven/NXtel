@@ -85,6 +85,8 @@ namespace NXtelData
                                 enc.Add(10); // LF
                             }
                         }
+                        while (enc[enc.Count - 2] == 13 && enc[enc.Count - 1] == 10)
+                            enc.RemoveRange(enc.Count - 2, 2);
                     }
                     else
                     {

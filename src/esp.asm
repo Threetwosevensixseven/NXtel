@@ -48,10 +48,10 @@ NoKey:
 Received:
                         EnableKeyboardScan(false)
                         nextreg $57, 30
-                        ld hl, ESPBuffer+1
-                        ld de, DisplayBuffer
-                        ld bc, DisplayBuffer.Length
-                        ldir
+                        //ld hl, ESPBuffer+1
+                        //ld de, DisplayBuffer
+                        //ld bc, DisplayBuffer.Length
+                        //ldir
                         ld a, 1
                         ld (ToggleConcealReveal.ConcealEnabled), a
                         call RenderBuffer
@@ -237,6 +237,9 @@ FillBuffer:             ld b, a
                         jp Print
 EscapeNextChar:         ld a, Teletext.SetBit7
                         ld (Bit7), a
+                        ld hl, (ProcessESPBufferToPage.SourceCount)
+                        dec hl
+                        ld (ProcessESPBufferToPage.SourceCount), hl
                         ld hl, (PacketSize)
                         dec hl
                         ld (PacketSize), hl
@@ -280,12 +283,15 @@ FinishedCounting:
                         ld hl, (PacketSize)
                         inc hl
                         ld (PacketSize), hl
+                        dec hl
+                        ld (ProcessESPBufferToPage.SourceCount), hl
                         ld hl, ESPBuffer
                         ld (FillBufferPointer), hl
                         jp Print
 PacketCompleted:        //ld b, a
                         ld a, $C9                       ; $C9 = ret
                         ld (ESPReceiveIPD), a
+                        call ProcessESPBufferToPage
                         //ld a, b
                         //jp Print
                         xor a                           ; Clear Z flag
@@ -572,4 +578,109 @@ Return:                 nextreg $56, [RestoreKeyPage]SMC
                         call ESPReceiveWaitOK
                         ret
 pend
+
+
+
+ProcessESPBufferToPage  proc
+                        NextRegRead($57)
+                        ld (RestorePage), a
+                        nextreg $57, 30
+                        ld hl, ESPBuffer
+                        ld de, DisplayBuffer
+                        ld bc, [SourceCount]SMC
+ProcessLoop:
+                        ld a, (hl)
+                        cp $20                          ; Space
+                        jp nc, CopyChar
+CLS:
+                        cp $0C                          ; CLS/CS
+                        jp nz, CR
+                        push hl
+                        push bc
+                        call ClearESPBuffer
+                        pop bc
+                        pop hl
+                        ld de, DisplayBuffer
+                        jp ProcessNext
+CR:
+                        cp $0D                          ; CR/APR
+                        jp nz, Down
+                        ex de, hl
+                        push de
+                        push hl
+                        ld a, h
+                        sub high DisplayBuffer
+                        ld h, a
+                        add hl, Mod40.Table
+                        ld e, (hl)
+                        ld d, 0
+                        pop hl
+                        or a
+                        sbc hl, de
+                        pop de
+                        ex de, hl
+                        jp ProcessNext
+Down:
+                        cp $0A                          ; Down/LF/APD
+                        jp nz, Up
+                        add de, 40
+                        jp ProcessNext
+Up:
+                        cp $0B                          ; Up/APU
+                        jp nz, Left
+                        add de, -40
+                        jp ProcessNext
+Left:
+                        cp $08                          ; Left/APB
+                        jp nz, Right
+                        dec de
+                        jp ProcessNext
+Right:
+                        cp $08                          ; Right/Tab/APF
+                        jp nz, Home
+                        inc de
+                        jp ProcessNext
+Home:
+                        cp $1E                          ; Home/APH
+                        jp nz, End
+                        ld de, DisplayBuffer
+                        jp ProcessNext
+End:
+                        cp $1E                          ; End/END
+                        jp nz, ProcessNext
+                        ld de, DisplayBuffer+(40*24)-1  ; Fall into CheckNext
+//Null:
+                        //or a                            ; Null/NUL/$00
+                        //jp nz, CheckNext
+                        //jp Return
+CheckNext:
+                        jp ProcessNext
+CopyChar:
+                        ld (de), a
+                        inc de                          ; Fall into ProcessNext
+ProcessNext:
+                        //zeusdatabreakpoint 1, "de<$4C000 or de>$4C3E7", $+disp
+                        zeusdatabreakpoint 1, "de<$E000 || de>$E3E7", $+disp
+                        //zeusdatabreakpoint 1, "zeusprinthex(1, de)", $+disp
+                        inc hl
+                        dec bc
+                        ld a, b
+                        or c
+                        jp nz, ProcessLoop
+Return:
+                        nextreg $57, [RestorePage]SMC
+                        ret
+pend
+
+
+
+Mod40 proc Table:
+                        for row = 0 to 24
+                          for col = 0 to 39
+                            db col
+                          next ; col
+                        next ; row
+pend
+
+//zeusmem ESPBuffer,"ESP Buffer",16,true,true,false
 

@@ -10,7 +10,7 @@ DisplayBuffer           proc
                           zeuserror "Invalid DisplayBuffer.Length!"
                         endif
 pend
-
+//zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
 
 
 Fonts                   proc
