@@ -80,12 +80,12 @@ namespace NXtelData
                             if (trimmed)
                             {
                                 if (lastPos == -1)
-                                    enc.Add(32); 
+                                    enc.Add(9); 
                                 enc.Add(13); // CR
                                 enc.Add(10); // LF
                             }
                         }
-                        while (enc[enc.Count - 1] == 32 || enc[enc.Count - 1] == 13 || enc[enc.Count - 1] == 10)
+                        while (enc[enc.Count - 1] == 9 || enc[enc.Count - 1] == 13 || enc[enc.Count - 1] == 10)
                             enc.RemoveAt(enc.Count - 1);
                     }
                     else
