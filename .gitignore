@@ -55,3 +55,5 @@
 /server/NXtelManager/App_Data
 /server/NXtelMonitor/bin
 /server/NXtelMonitor/obj
+/server/NXtelBbcBasic/bin
+/server/NXtelBbcBasic/obj
