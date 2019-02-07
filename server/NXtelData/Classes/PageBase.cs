@@ -45,6 +45,7 @@ namespace NXtelData
                     {
                         enc.Add(20); // Cursor Off
                         int lineCount = -1;
+                        bool lastTrimmed = false;
                         foreach (var line in Contents.AsChunks(40))
                         {
                             lineCount++;
@@ -79,11 +80,12 @@ namespace NXtelData
                             }
                             if (trimmed)
                             {
-                                if (lastPos == -1)
+                                if (lastPos == -1 && !lastTrimmed)
                                     enc.Add(9); 
                                 enc.Add(13); // CR
                                 enc.Add(10); // LF
                             }
+                            lastTrimmed = trimmed;
                         }
                         while (enc[enc.Count - 1] == 9 || enc[enc.Count - 1] == 13 || enc[enc.Count - 1] == 10)
                             enc.RemoveAt(enc.Count - 1);

@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelMonitor", "NXtelMonitor\NXtelMonitor.csproj", "{50E0087B-7989-459F-BB2C-8C216419D011}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelBbcBasic", "NXtelBbcBasic\NXtelBbcBasic.csproj", "{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,18 @@ Global
 		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x64.Build.0 = Release|Any CPU
 		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x86.ActiveCfg = Release|Any CPU
 		{50E0087B-7989-459F-BB2C-8C216419D011}.Release|x86.Build.0 = Release|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Debug|x86.Build.0 = Debug|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x64.Build.0 = Release|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
