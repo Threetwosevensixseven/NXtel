@@ -19,7 +19,6 @@ Entry6:
                         im 2
                         Turbo(MHz14)
                         Contention(false)
-                        call SetupBrowserPalette
                         nextreg $52, 10
                         ClsAttrFull(Teletext.Background)
                         nextreg $52, 13
@@ -27,6 +26,7 @@ Entry6:
                         ei
                         halt
 Start2:
+                        call SetupBrowserPalette
                         Border(Teletext.Border)
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 000 1 0      ; Disable sprites, over border, set SLU
