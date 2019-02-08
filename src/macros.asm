@@ -417,7 +417,6 @@ mend
 
 ResetLastKeypress       macro()
                         xor a
-                        //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $
                         ld (ReadKeyOLD.LastKey), a
 
 mend

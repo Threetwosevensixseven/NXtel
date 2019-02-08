@@ -149,9 +149,6 @@ ParseFile:
 //=========================================================================================================
 
 ParseLine:
-                        //zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, ix)", $+disp
-                        //zeusdatabreakpoint 0, $+disp
-
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
                         ld a, (hl)
                         cp [FirstEOLChar1]SMC           ; <SMC: Is this an empty line?
@@ -388,7 +385,6 @@ pend
 
 
 CfgFindKey              proc                            ; de = address of key to search for
-                        //zeusdatabreakpoint 1, "zeusdisplayaddr(true, 0, de)", $+disp
                         ld (SearchKey), de
                         ld ix, CfgList                  ; First linked list record
 RecordLoop:             ld de, [SearchKey]SMC
@@ -397,7 +393,6 @@ RecordLoop:             ld de, [SearchKey]SMC
                         jp z, NoKey
                         ld b, a                         ; b = key length
                         ld hl, (ix+CfgList.KeyAddr)     ; hl = address of record key
-                        //zeusdatabreakpoint 2, "zeusdisplayaddr(true, 1, hl)", $+disp
 KeyLoop:                ld a, (de)
                         ld c, (hl)
                         cp (hl)

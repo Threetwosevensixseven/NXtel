@@ -70,16 +70,15 @@ RenderBuffer            proc
                         xor [Toggle]5
                         ld (WhichLayer2), a
                         cp 12
-PrimarySMC:             call z, PagePrimaryScreen               ; call z,  NNNN = $CC
+                        call z, PagePrimaryScreen               ; call z,  NNNN = $CC
                         cp 12
-SecondarySMC:           call nz, PageSecondaryScreen            ; call nz, NNNN = $C4
+                        call nz, PageSecondaryScreen            ; call nz, NNNN = $C4
                         call ResetESPBuffer
                         if ULAMonochrome
                            ClsAttrFull(BrightWhiteBlackP)
 ToggleCLS:                 call Cls30
                         endif
                         ld hl, [PrintLength]DisplayBuffer.Length
-                        //ld hl, 880
                         push hl
 DoCLS:
                         ld hl, DoubleHeightFlags                ; First pass, to set the top lines
@@ -418,7 +417,7 @@ NoResetHeldChar:
 
                         //zeusdatabreakpoint 2, "((e-8)/6)=10 && (d/8)= 5", $+disp
                         //zeusdatabreakpoint 2, "((((e-8)/6)>0) && (((e-8)/6)<4)) && ((d/8)= 5)", $+disp
-                        nop
+                        //nop
 
                         pop bc                          ; Remaining length
 
@@ -447,13 +446,11 @@ ShowLayer2:
                           ld a, 0
                           jp nz, ULASwitchCont
                           ld a, 8
-ULAToggleSMC2:            xor 0
 ULASwitchCont:            MMU2(13, false)
                           MMU3(12, false)
-ULAToggleSMC:             ld (FlipULAScreen.WhichULAScreen), a
+                          ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
-                          //zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, a)", $+disp
                           nextreg $12, a
                           PortOut($123B, $02)           ; Show layer 2 and disable write paging
                         endif
@@ -634,12 +631,6 @@ HeightModeChanged:
                         pop af
                         ret
 Escape:
-                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $+disp
-                        //nop
-                        //cp $0C                          ; Clear Screen
-                        //jp z, CLS
-
-
                         ld a, 32
                         push hl
                         jp BlastThrough
@@ -754,13 +745,13 @@ DebugPrint              proc
                         cp b
                         jp nz, HeldCharChanged
 HeldCharChangedCont:    ld (HeldChar), a                        ; a = HeldChar
-NotHold:                nop
+NotHold:                //nop
 
                         // Breaks during the hold graphics calculation for the current char
                         //                                                              Coordinates: XX,         YY
                         //                                                                           ||          ||
                         //zeusdatabreakpoint 1, "zeusprint(1, (e-8)/6, d/8, b, a, c, b', c'), ((e-8)/6)=99 && (d/8)= 2", $+disp
-                        nop
+                        //nop
 
 
                         pop bc
@@ -798,11 +789,9 @@ pend
 
 PagePrimaryScreen       proc
                         if ULAMonochrome
-                          //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, 10)", $+disp
                           MMU2(10, false)
                           MMU3(12, false)
                         else
-                          //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(9, false)
                           ld a, 9*2
                           ld (GetTime.Page), a
@@ -816,11 +805,9 @@ pend
 
 PageSecondaryScreen     proc
                         if ULAMonochrome
-                          //zeusdatabreakpoint 2, "zeusprinthex(1, $AAAA, 14)", $+disp
                           MMU2(14, false)
                           MMU3(15, false)
                         else
-                          //zeusdatabreakpoint 2, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(12, false)
                           ld a, 12*2
                           ld (GetTime.Page), a
@@ -1008,7 +995,7 @@ ShowLayer2:
                           ld a, 8
 ULASwitchCont:            MMU2(10, false)
                           MMU3(12, false)
-ULAToggleSMC:             ld (FlipULAScreen.WhichULAScreen), a
+                          ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
                           nextreg $12, a

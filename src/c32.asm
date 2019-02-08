@@ -33,7 +33,6 @@ Loop:                   ld bc, Sprite_Index_Port        ; Set the sprite index (
                         out (c), h
                         out (c), h
                         jp nz, Loop
-                        nop
                         for n = 0 to Sprites32.Count-1
                           SetSpritePattern(Sprites32, n, n)
                         next;n

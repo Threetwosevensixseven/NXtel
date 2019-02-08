@@ -167,22 +167,10 @@ ESPReceiveIPD           proc
                         in a, (low UART_RxD)            ; from the UART Rx port
                         jp [StateJump]SMC
 FirstChar:              cp '+'
-                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
                         jp z, MatchPlusIPD
 SubsequentChar:         cp (hl)
-                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
                         jp z, MatchSubsequent
-Print:                  /*if enabled PrintIPDPacket
-                          push hl
-                          cp 32
-                          jp c, Hex
-                          cp 128
-                          jp nc, Hex
-                          //rst 16                          ; and print it with the ROM ULA print routine.
-                        endif*/
-//PrintReturn:            if enabled PrintIPDPacket
-                          //pop hl
-                        //endif
+Print:
                         ld de, [Compare]SMC
                         CpHL(de)
                         jp z, MatchSize
@@ -216,7 +204,6 @@ CaptureSize:            cp ':'
                         ld (SizePointer), hl
                         jp Print
 FillBuffer:             ld b, a
-                        //zeusdatabreakpoint 1, "zeusprinthex(1, a)", $
                         cp Teletext.Escape
                         jp z, EscapeNextChar
                         ld hl, [FillBufferPointer]SMC
@@ -649,19 +636,12 @@ End:
                         cp $1E                          ; End/END
                         jp nz, ProcessNext
                         ld de, DisplayBuffer+(40*24)-1  ; Fall into CheckNext
-//Null:
-                        //or a                            ; Null/NUL/$00
-                        //jp nz, CheckNext
-                        //jp Return
 CheckNext:
                         jp ProcessNext
 CopyChar:
                         ld (de), a
                         inc de                          ; Fall into ProcessNext
 ProcessNext:
-                        //zeusdatabreakpoint 1, "de<$4C000 or de>$4C3E7", $+disp
-                        //zeusdatabreakpoint 1, "de<$E000 || de>$E3E7", $+disp
-                        //zeusdatabreakpoint 1, "zeusprinthex(1, de)", $+disp
                         inc hl
                         dec bc
                         ld a, b

@@ -60,18 +60,6 @@ ENDIF
 ; ENTRY POINT #2 - PROPORTIONAL PRINT ROUTINE
 ; -----------------------------------------------------------------------------
 FZX_START proc
-/*        ld l, a
-        ld a, (TitleTeleportStub.FrameCounter)
-        cp $B2
-        ld a, l
-        jp nz, Continue
-        ret
-Continue:
-*/
-
-        //zeusdatabreakpoint 1, "zeusprinthex(1, hl)", $+Page4Disp32
-        //nop
-
         ld      hl, P_FLAG      ; initial address of local variables
         dec     (hl)            ; check P_FLAG value by decrementing it
         jp      m, CHK_AT       ; expecting a regular character?

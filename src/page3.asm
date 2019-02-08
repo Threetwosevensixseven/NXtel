@@ -330,7 +330,6 @@ CaptureTSFrame6         proc                            ; Interrupts are already
                         ld a, [Checksum]SMC             ;  a = stored checksum
                         cp e
                         jp nz, NotTSBody                ; Abort if checksum mismatch
-                        nop
                         loop 6
                           dec sp                        ; Move the stack pointer to the file body start
                         lend
@@ -356,8 +355,7 @@ EOF:                    ld a, 1
                         dec bc
                         dec bc                          ; Remove the |F EOF marker from the file length
                         jp SaveFileFrame
-NotEOF:                 nop
-                        xor a
+NotEOF:                 xor a
                         ld (IsEOF), a
 SaveFileFrame:
                         //ld ix, de                       ; ix = source, bc = length

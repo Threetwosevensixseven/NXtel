@@ -313,9 +313,11 @@ ClockTest               proc
                         ldir
                         call RenderBuffer
                         ld hl, ClearESPBuffer.Origin
-                        ld (RenderBuffer.Coordinates), hl
+                        ld (ClearESPBuffer.Start), hl
                         ld hl, DisplayBuffer.Length
                         ld (RenderBuffer.PrintLength), hl
+                        ld hl, DisplayBuffer
+                        ld (RenderBuffer.PrintStart), hl
 
                         ld a, 5
                         ld (RenderBuffer.Toggle), a

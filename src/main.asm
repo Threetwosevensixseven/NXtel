@@ -161,10 +161,7 @@ pend
                         endif
 
                         //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
-                        //zeusdatabreakpoint 3, "pc<$4000", 0, zeusmmu(33)
                         if enabled LogESP
                           //zeusmem zeusmmu(32),"ESP Log",24,true,true,false
                         endif
-
-                        //output_list "..\nxtel.lst"
 

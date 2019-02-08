@@ -75,7 +75,6 @@ sfxRS2:
         and 16
 sfxRoutineSampleBorder:
         or 0
-        //zeusdatabreakpoint 1, "zeusprint(1, 1, a)", $+disp
         out (254),a
         dec e
         jr nz,sfxRS1
