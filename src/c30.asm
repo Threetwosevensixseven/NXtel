@@ -10,7 +10,7 @@ DisplayBuffer           proc
                           zeuserror "Invalid DisplayBuffer.Length!"
                         endif
 pend
-//zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
+zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
 
 
 Fonts                   proc
@@ -37,9 +37,10 @@ pend
 
 ClearESPBuffer          proc
                         FillLDIR(DisplayBuffer, DisplayBuffer.Length, Teletext.Space)
-::ResetESPBuffer:       ld hl, $0008                    ; Top Left (8, 0)
+::ResetESPBuffer:       ld hl, [Start]Origin
                         ld (RenderBuffer.Coordinates), hl
                         ret
+Origin                  equ $0008                       ; Top Left (8, 0)
 pend
 
 
@@ -68,12 +69,12 @@ RenderBuffer            proc
                         MMU6(14, false)
                         call GetTime
                         ld a, [WhichLayer2]9
-                        xor 5
+                        xor [Toggle]5
                         ld (WhichLayer2), a
                         cp 12
-                        call z, PagePrimaryScreen
+PrimarySMC:             call z, PagePrimaryScreen               ; call z,  NNNN = $CC
                         cp 12
-                        call nz, PageSecondaryScreen
+SecondarySMC:           call nz, PageSecondaryScreen            ; call nz, NNNN = $C4
                         call ResetESPBuffer
                         if ULAMonochrome
                            ClsAttrFull(BrightWhiteBlackP)
@@ -82,7 +83,38 @@ RenderBuffer            proc
                         ld hl, [PrintLength]DisplayBuffer.Length
                         //ld hl, 880
                         push hl
-DoCLS:                  ld hl, Fonts.SAA5050
+DoCLS:
+                        ld hl, DoubleHeightFlags                ; First pass, to set the top lines
+                        ld (DHFlagPointer), hl
+                        ld hl, DisplayBuffer
+                        ld de, 24                               ; d = 0 (no DH); e = 24 rows
+DLHLoop:                ld bc, 40
+                        ld a, $CD                               ; $CD = double height
+                        cpir
+                        jp nz, NoDH
+                        inc d
+NoDH:                   ld a, d
+                        ld c, e
+                        ld de, [DHFlagPointer]SMC
+                        ld (de), a
+                        inc de
+                        ld (DHFlagPointer), de
+                        ld de, bc
+                        dec e
+                        jp nz, DLHLoop
+
+                        ld hl, DoubleHeightFlags                ; Second pass, to set the bottom lines
+                        ld bc, (24*256)+1                       ; b = 24 rows, c = 1
+DHPass2:                ld a, (hl)
+                        or a
+                        jp z, NotDHUpper
+                        inc hl
+                        ld (hl), c                              ; Mark lower line of DH as 1, to be sure
+                        dec b
+NotDHUpper:             inc hl
+                        djnz DHPass2
+
+                        ld hl, Fonts.SAA5050
                         ld (FontInUse), hl
                         ld hl, [PrintStart]DisplayBuffer
                         ld a, 32
@@ -187,9 +219,23 @@ Foreground:               db 0
 Coordinates:              dw 0
 ULAContinue1:
                         else
-                          ld a, h
-                          cp high Fonts.SAADouble
+                          ld a, h                       ; Don't fill char below with b/g colour
+                          cp high Fonts.SAADouble       ; if current font is double height
                           jp z, NoFill
+
+                          ld a, d                       ; Only fill char below with b/g colour if line is double height
+                          rrca                          ; / 2
+                          rrca                          ; / 4
+                          rrca                          ; / 8
+                          and %11111
+                          push hl
+                          ld hl, DoubleHeightFlags      ; Look up double height flag
+                          add hl, a
+                          ld a, (hl)
+                          pop hl
+                          or a
+                          jp z, NoFill                  ; and skip if not
+
                           push bc
                           push hl
                           push de
@@ -408,7 +454,7 @@ ULASwitchCont:            MMU2(13, false)
                           ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
-                          zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, a)", $+disp
+                          //zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, a)", $+disp
                           nextreg $12, a
                           PortOut($123B, $02)           ; Show layer 2 and disable write paging
                         endif
@@ -732,6 +778,7 @@ HeldCharChanged:
 pend
 
 
+
 LoadPage                proc                    ; Bank in a (e.g. 31), Page in b (0..7)
                         di
                         nextreg $56, a
@@ -756,7 +803,7 @@ PagePrimaryScreen       proc
                           MMU2(10, false)
                           MMU3(12, false)
                         else
-                          zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $+disp
+                          //zeusdatabreakpoint 1, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(9, false)
                           ld a, 9*2
                           ld (GetTime.Page), a
@@ -774,7 +821,7 @@ PageSecondaryScreen     proc
                           MMU2(14, false)
                           MMU3(15, false)
                         else
-                          zeusdatabreakpoint 2, "zeusprinthex(1, $AAAA, a)", $+disp
+                          //zeusdatabreakpoint 2, "zeusprinthex(1, $AAAA, a)", $+disp
                           PageLayer2Bottom48K(12, false)
                           ld a, 12*2
                           ld (GetTime.Page), a
@@ -972,4 +1019,10 @@ ULASwitchCont:            MMU2(10, false)
 pend
 
 
+
+DoubleHeightFlags       proc
+                        ds 8
+                        ds 8
+                        ds 8
+pend
 

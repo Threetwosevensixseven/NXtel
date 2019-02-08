@@ -596,3 +596,17 @@ DisplayBrowser          macro()
                         CallP3DOS(IDE_BROWSER, 7, true)
 mend
 
+
+
+[[
+function Layer2Addr(X, Y)
+  begin
+    return (8+(X*6))+((Y*8)*256)
+  end
+
+function DisplayBufferAddr(X, Y)
+  begin
+    return DisplayBuffer+(X+(Y*40))
+  end
+]]
+

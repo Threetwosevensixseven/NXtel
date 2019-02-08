@@ -660,7 +660,7 @@ CopyChar:
                         inc de                          ; Fall into ProcessNext
 ProcessNext:
                         //zeusdatabreakpoint 1, "de<$4C000 or de>$4C3E7", $+disp
-                        zeusdatabreakpoint 1, "de<$E000 || de>$E3E7", $+disp
+                        //zeusdatabreakpoint 1, "de<$E000 || de>$E3E7", $+disp
                         //zeusdatabreakpoint 1, "zeusprinthex(1, de)", $+disp
                         inc hl
                         dec bc

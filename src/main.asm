@@ -168,3 +168,5 @@ pend
                           //zeusmem zeusmmu(32),"ESP Log",24,true,true,false
                         endif
 
+                        //output_list "..\nxtel.lst"
+

@@ -254,6 +254,7 @@ FlipULAScreen           proc
                         if ULAMonochrome
                           ld a, $10
                           or [WhichULAScreen]SMC
+                          //zeusdatabreakpoint 1, "zeusprinthex(1, $BBBB, a)", $+disp
                           ld bc, $7FFD
                           out (c), a
                         endif
@@ -276,6 +277,7 @@ Return:                 call RenderBuffer
                         FlipScreen()
                         StatusIcon(Sprites32.Offline)
                         ei
+                        call ClockTest
                         call WaitNoKey
                         jp ReadMenuKeys
 Addresses:              dw MenuConnect                          ; 1: Connect
@@ -285,6 +287,54 @@ Addresses:              dw MenuConnect                          ; 1: Connect
                         dw MenuKeyDescriptions                  ; 5: Keys
                         dw MenuNotImplemented                   ; 6: About NXtel
 ItemCount               equ ($-Addresses)/2
+pend
+
+
+
+ClockTest               proc
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        ld hl, 36
+                        ld (RenderBuffer.PrintLength), hl
+                        ld hl, Layer2Addr(0, 0)
+                        ld (RenderBuffer.Coordinates), hl
+
+                        xor a
+                        ld (RenderBuffer.Toggle), a
+
+                        //ld a, $21                               ; ld hl, NNNN = $21
+                        //ld (RenderBuffer.PrimarySMC), a
+                        //ld (RenderBuffer.SecondarySMC), a
+
+                        //ld a, $C4                               ; call z,  NNNN = $CC
+                        //ld (RenderBuffer.PrimarySMC), a
+                        //ld a, $CC                               ; call nz, NNNN = $C4
+                        //ld (RenderBuffer.SecondarySMC), a
+
+                        ld hl, Text
+                        ld de, DisplayBufferAddr(22, 0)
+                        ld bc, TextLen
+                        ldir
+                        call RenderBuffer
+                        FlipScreen()
+                        ld hl, ClearESPBuffer.Origin
+                        ld (RenderBuffer.Coordinates), hl
+                        ld hl, DisplayBuffer.Length
+                        ld (RenderBuffer.PrintLength), hl
+
+                        //ld a, $CC                               ; call z,  NNNN = $CC
+                        //ld (RenderBuffer.PrimarySMC), a
+                        //ld a, $C4                               ; call nz, NNNN = $C4
+                        //ld (RenderBuffer.SecondarySMC), a
+
+                        ld a, 5
+                        ld (RenderBuffer.Toggle), a
+
+                        ei
+                        ret
+Text:                   db $C4, $DD, $C3, 'X', $DC, $C2, "12:34:56"
+TextLen                 equ $-Text
+zeusprint TextLen
 pend
 
 
