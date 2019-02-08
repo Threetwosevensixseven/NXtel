@@ -142,16 +142,12 @@ PagesCurrent:           db -1
                         //include "espat.asm"
                         include "esp.asm"
 
-if $ > $7FFF
-  zeuserror "Page 6 has overflowed past $7FFF."
-endif
+zeusassert $<$8000, "Page 6 has overflowed past $7FFF."
 
 Page6End32   equ $-1
 Page6End16   equ Page6End32
 Page6Size equ Page6End32-Page6Start32+1
-if Page6Size<>(Page6End16-Page6Start16+1)
-  zeuserror "Page6Size calculation error"
-endif
+zeusassert !(Page6Size<>(Page6End16-Page6Start16+1)), "Page6Size calculation error"
 zeusprinthex "Pg6Size = ", Page6Size
 org Page6Temp16
 disp 0

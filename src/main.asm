@@ -141,9 +141,7 @@ Text:                   db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, 
                         db $FF
 pend
 
-                        if zeusver < 73
-                          zeuserror "Upgrade to Zeus v3.991 or above, available at http://www.desdes.com/products/oldfiles/zeus.htm."
-                        endif
+                        zeusassert zeusver<=74, "Upgrade to Zeus v4.00 (TEST ONLY) or above, available at http://www.desdes.com/products/oldfiles/zeustest.exe"
 
                         output_sna "..\build\NXtel.sna", $FF40, Start
 

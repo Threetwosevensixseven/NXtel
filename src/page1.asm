@@ -546,9 +546,7 @@ pend
 Page1End32   equ $-1
 Page1End16   equ Page1End32
 Page1Size equ Page1End32-Page1Start32+1
-if Page1Size<>(Page1End16-Page1Start16+1)
-  zeuserror "Page1Size calculation error"
-endif
+zeusassert !(Page1Size<>(Page1End16-Page1Start16+1)), "Page1Size calculation error"
 zeusprinthex "Pg1Size = ", Page1Size
 org Page1Temp16
 disp 0

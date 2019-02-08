@@ -254,7 +254,6 @@ FlipULAScreen           proc
                         if ULAMonochrome
                           ld a, $10
                           or [WhichULAScreen]SMC
-                          //zeusdatabreakpoint 1, "zeusprinthex(1, $BBBB, a)", $+disp
                           ld bc, $7FFD
 ToggleSMC:                out (c), a
                         endif
@@ -294,10 +293,10 @@ pend
 ClockTest               proc
                         MMU6(31, false)
                         MMU7(30, false)
-                        ld hl, 36
+                        ld hl, TextLen
                         ld (RenderBuffer.PrintLength), hl
-                        ld hl, Layer2Addr(0, 0)
-                        ld (RenderBuffer.Coordinates), hl
+                        ld hl, Layer2Addr(31, 0)
+                        ld (ClearESPBuffer.Start), hl
 
                         xor a
                         ld (RenderBuffer.Toggle), a
@@ -308,7 +307,8 @@ ClockTest               proc
                         endif
 
                         ld hl, Text
-                        ld de, DisplayBufferAddr(22, 0)
+                        ld de, DisplayBufferAddr(2, 0)
+                        ld (RenderBuffer.PrintStart), de
                         ld bc, TextLen
                         ldir
                         call RenderBuffer
@@ -327,7 +327,7 @@ ClockTest               proc
 
                         ei
                         ret
-Text:                   db $C4, $DD, $C3, 'X', $DC, $C2, "12:34:56"
+Text:                   db $C2, "12:34:56"
 TextLen                 equ $-Text
 zeusprint TextLen
 pend

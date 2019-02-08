@@ -6,9 +6,7 @@ DisplayBuffer           proc
                         ds 1000, 32
                         //import_bin "..\pages\telstar-91a-raw.bin"
                         Length equ $-DisplayBuffer
-                        if Length <> 1000
-                          zeuserror "Invalid DisplayBuffer.Length!"
-                        endif
+                        zeusassert Length=1000, "Invalid DisplayBuffer.Length!"
 pend
 //zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
 
@@ -927,7 +925,7 @@ pend
 
 
 PrintTime               proc
-                        ld a, (RenderBuffer.WhichLayer2)
+/*                      ld a, (RenderBuffer.WhichLayer2)
                         or a
                         ld a, 9*2
                         jp z, Bank18
@@ -942,7 +940,7 @@ Bank18:                 nextreg $50, a
                         ld (RenderBuffer.PrintStart), hl
                         ld hl, DisplayBuffer.Length
                         ld (RenderBuffer.PrintLength), hl
-                        nextreg $50, 255
+                        nextreg $50, 255 */
                         ret
 pend
 
