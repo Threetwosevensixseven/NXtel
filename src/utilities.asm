@@ -256,7 +256,7 @@ FlipULAScreen           proc
                           or [WhichULAScreen]SMC
                           //zeusdatabreakpoint 1, "zeusprinthex(1, $BBBB, a)", $+disp
                           ld bc, $7FFD
-                          out (c), a
+ToggleSMC:                out (c), a
                         endif
                         ret
 pend
@@ -302,33 +302,28 @@ ClockTest               proc
                         xor a
                         ld (RenderBuffer.Toggle), a
 
-                        //ld a, $21                               ; ld hl, NNNN = $21
-                        //ld (RenderBuffer.PrimarySMC), a
-                        //ld (RenderBuffer.SecondarySMC), a
-
-                        //ld a, $C4                               ; call z,  NNNN = $CC
-                        //ld (RenderBuffer.PrimarySMC), a
-                        //ld a, $CC                               ; call nz, NNNN = $C4
-                        //ld (RenderBuffer.SecondarySMC), a
+                        if ULAMonochrome
+                          ld a, $21                             ; ld hl, NNNN = $21
+                          ld (RenderBuffer.ToggleCLS), a
+                        endif
 
                         ld hl, Text
                         ld de, DisplayBufferAddr(22, 0)
                         ld bc, TextLen
                         ldir
                         call RenderBuffer
-                        FlipScreen()
                         ld hl, ClearESPBuffer.Origin
                         ld (RenderBuffer.Coordinates), hl
                         ld hl, DisplayBuffer.Length
                         ld (RenderBuffer.PrintLength), hl
 
-                        //ld a, $CC                               ; call z,  NNNN = $CC
-                        //ld (RenderBuffer.PrimarySMC), a
-                        //ld a, $C4                               ; call nz, NNNN = $C4
-                        //ld (RenderBuffer.SecondarySMC), a
-
                         ld a, 5
                         ld (RenderBuffer.Toggle), a
+
+                        if ULAMonochrome
+                          ld a, $CD                             ; call NNNN = $CD
+                          ld (RenderBuffer.ToggleCLS), a
+                        endif
 
                         ei
                         ret

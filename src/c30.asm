@@ -10,7 +10,7 @@ DisplayBuffer           proc
                           zeuserror "Invalid DisplayBuffer.Length!"
                         endif
 pend
-zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
+//zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
 
 
 Fonts                   proc
@@ -78,7 +78,7 @@ SecondarySMC:           call nz, PageSecondaryScreen            ; call nz, NNNN 
                         call ResetESPBuffer
                         if ULAMonochrome
                            ClsAttrFull(BrightWhiteBlackP)
-                          call Cls30
+ToggleCLS:                 call Cls30
                         endif
                         ld hl, [PrintLength]DisplayBuffer.Length
                         //ld hl, 880
@@ -449,9 +449,10 @@ ShowLayer2:
                           ld a, 0
                           jp nz, ULASwitchCont
                           ld a, 8
+ULAToggleSMC2:            xor 0
 ULASwitchCont:            MMU2(13, false)
                           MMU3(12, false)
-                          ld (FlipULAScreen.WhichULAScreen), a
+ULAToggleSMC:             ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
                           //zeusdatabreakpoint 3, "zeusprinthex(1, $BBBB, a)", $+disp
@@ -1009,7 +1010,7 @@ ShowLayer2:
                           ld a, 8
 ULASwitchCont:            MMU2(10, false)
                           MMU3(12, false)
-                          ld (FlipULAScreen.WhichULAScreen), a
+ULAToggleSMC:             ld (FlipULAScreen.WhichULAScreen), a
                         else
                           xor 5
                           nextreg $12, a
