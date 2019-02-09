@@ -188,6 +188,9 @@ ROTATE_PIXELS:
 NO_ROTATE:
         inc     l
         inc     l
+
+        jp      [PrintType]OverPrint
+OverPrint:
         or      (hl)
         ld      (hl), a         ; put A on screen
         dec     l
@@ -198,6 +201,7 @@ NO_ROTATE:
         ld      a, d
         or      (hl)
         ld      (hl), a         ; put D on screen
+OverPrintReturn:
 
         inc     h               ; move screen address by 1 pixel down
         ld      a, h
@@ -240,6 +244,25 @@ P_COL:
         defb        MARGIN
 P_LIN:
         defb        191
+
+Clear:
+        cpl
+        and      (hl)
+        //or      (hl)
+        ld      (hl), a         ; put A on screen
+        dec     l
+        ld      a, c
+        cpl
+        and     (hl)
+        //or      (hl)
+        ld      (hl), a         ; put C on screen
+        dec     l
+        ld      a, d
+        cpl
+        and     (hl)
+        //or      (hl)
+        ld      (hl), a         ; put D on screen
+        jp OverPrintReturn
 endp
 ; -----------------------------------------------------------------------------
 

@@ -266,5 +266,19 @@ namespace NXtelData
                 return UsePrestelCharSet ? "Prestel" : "Teletext";
             }
         }
+
+        private static bool? _showStaticTimeAndDate;
+        public static bool ShowStaticTimeAndDate
+        {
+            get
+            {
+                if (_showStaticTimeAndDate == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["ShowStaticTimeAndDate"] ?? "").Trim().ToLower();
+                    _showStaticTimeAndDate = (cfg == "true");
+                }
+                return (bool)_showStaticTimeAndDate;
+            }
+        }
     }
 }

@@ -295,7 +295,7 @@ ClockTest               proc
                         MMU7(30, false)
                         ld hl, TextLen
                         ld (RenderBuffer.PrintLength), hl
-                        ld hl, Layer2Addr(31, 0)
+                        ld hl, Layer2Addr(30, 0)
                         ld (ClearESPBuffer.Start), hl
 
                         xor a

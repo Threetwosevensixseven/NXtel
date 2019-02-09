@@ -203,6 +203,20 @@ BlastThrough:
                           ld de, (Coordinates)
                           call DebugPrint
                           pop de
+                          push de
+                          push af
+                          ld hl, FZX_START.Clear
+                          ld (FZX_START.PrintType), hl
+                          ld hl, (FZX_COL)
+                          ld (FZXPrintPos), hl
+                          ld a, 255
+                          call FZX_START
+                          ld hl, [FZXPrintPos]SMC
+                          ld (FZX_COL), hl
+                          ld hl, FZX_START.OverPrint
+                          ld (FZX_START.PrintType), hl
+                          pop af
+                          pop de
                           call FZX_START
                           jp ULAContinue1
 ULAOutOfRange:            pop hl
@@ -844,7 +858,7 @@ GetTime                 proc
                         ret c
 
                         ld ix, DisplayBuffer+31
-                        ld (ix+0), 135                  ; Alpha white
+                        //ld (ix+0), 135                  ; Alpha white
 
                         ld a, d
                         and %1111 1000
@@ -900,11 +914,17 @@ Na2:                    inc b
                         add a, c
                         jp c, Na2
                         sub c                           ; works as add 100/10/1
+
+
                         ret                             ; result is in b
 Page:
                         db 0
 Disable:
-                        ld a, $C9
+                        ld a, 1
+                        ld (ShowClock), a
+                        ret
+Enable:
+                        xor a
                         ld (ShowClock), a
                         ret
 pend

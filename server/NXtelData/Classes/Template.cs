@@ -461,11 +461,11 @@ namespace NXtelData
                 val = Page.PageNo.ToString();
             else if (expr == "@pageframe")
                 val = Page.Frame;
-            else if (expr == "@date")
+            else if (Options.ShowStaticTimeAndDate && expr == "@date")
                 val = now.ToString("ddd dd MMM");
-            else if (expr == "@time")
+            else if (Options.ShowStaticTimeAndDate && expr == "@time")
                 val = now.ToString("HH:mm:ss");
-            else if (expr == "@year")
+            else if (Options.ShowStaticTimeAndDate && expr == "@year")
                 val = now.ToString("yyyy");
             else if (expr == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();

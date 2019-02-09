@@ -407,6 +407,14 @@ mend
 
 
 
+Frz                     macro(Colour1, Colour2)
+Loop:                   Border(Colour1)
+                        Border(Colour2)
+                        jp Loop
+mend
+
+
+
 FlipScreen              macro()
                         if ULAMonochrome
                           call FlipULAScreen
