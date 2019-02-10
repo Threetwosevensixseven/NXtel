@@ -134,7 +134,6 @@ WaitNotBusy:            in a, (c)                       ; Read the UART status
 ConnStringCommand:      db "AT+CIPSTART="
 ConnStringPreambleLen   equ $-ConnStringCommand
 ConnString:             ds 102
-zeusprinthex ConnStringCommand
 pend
 
 

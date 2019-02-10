@@ -291,6 +291,7 @@ pend
 
 
 ClockTest               proc
+                        ret
                         MMU6(31, false)
                         MMU7(30, false)
                         ld hl, TextLen
@@ -331,7 +332,6 @@ ClockTest               proc
                         ret
 Text:                   db $C2, "12:34:56"
 TextLen                 equ $-Text
-zeusprint TextLen
 pend
 
 

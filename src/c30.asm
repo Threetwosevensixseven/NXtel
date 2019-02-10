@@ -932,23 +932,52 @@ pend
 
 
 PrintTime               proc
-/*                      ld a, (RenderBuffer.WhichLayer2)
+                        ld a, [Frame]-1
+                        inc a
+                        cp 51
+                        jp c, NoSec
+                        xor a
+NoSec:                  ld (Frame), a
                         or a
-                        ld a, 9*2
-                        jp z, Bank18
-                        ld a, 12*2
-Bank18:                 nextreg $50, a
-                        ld hl, DisplayBuffer+31
-                        ld (RenderBuffer.PrintStart), hl
-                        ld hl, 9
+                        ret nz
+
+                        ld a, (Text)
+                        inc a
+                        cp '9'+1
+                        jp c, NoReset
+                        ld a, '0'
+NoReset:                ld (Text), a
+                        ld hl, 1
                         ld (RenderBuffer.PrintLength), hl
-                        //call RenderBuffer
-                        ld hl, DisplayBuffer
-                        ld (RenderBuffer.PrintStart), hl
+                        ld hl, Layer2Addr(39, 0)
+                        ld (ClearESPBuffer.Start), hl
+                        xor a
+                        ld (RenderBuffer.Toggle), a
+                        if ULAMonochrome
+                          ld a, $21                             ; ld hl, NNNN = $21
+                          ld (RenderBuffer.ToggleCLS), a
+                        endif
+                        ld hl, Text
+                        ld de, DisplayBufferAddr(39, 0)
+                        ld (RenderBuffer.PrintStart), de
+                        ld bc, TextLen
+                        ldir
+                        call RenderBuffer
+                        ld hl, ClearESPBuffer.Origin
+                        ld (ClearESPBuffer.Start), hl
                         ld hl, DisplayBuffer.Length
                         ld (RenderBuffer.PrintLength), hl
-                        nextreg $50, 255 */
+                        ld hl, DisplayBuffer
+                        ld (RenderBuffer.PrintStart), hl
+                        ld a, 5
+                        ld (RenderBuffer.Toggle), a
+                        if ULAMonochrome
+                          ld a, $CD                             ; call NNNN = $CD
+                          ld (RenderBuffer.ToggleCLS), a
+                        endif
                         ret
+Text:                   db '0'-1
+TextLen                 equ $-Text
 pend
 
 

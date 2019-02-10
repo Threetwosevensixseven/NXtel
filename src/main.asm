@@ -53,13 +53,17 @@ org $8181
                         push de
                         push hl
                         NextRegRead($56)
-                        push af
+                        ld (ISR56), a
+                        NextRegRead($57)
+                        ld (ISR57), a
                         nextreg $56, 6
 EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or $21 (ld hl, nnnn: disabled)
                         call DoFlash
-//PrintTimeCallX:       //ld hl, PrintTime
-                        pop af
-                        nextreg $56, a
+                        nextreg $56, 31
+                        nextreg $57, 30
+PrintTimeCall:          ld hl, PrintTime
+                        nextreg $56, [ISR56]SMC
+                        nextreg $57, [ISR57]SMC
                         pop hl
                         pop de
                         pop bc
@@ -165,4 +169,6 @@ pend
                         if enabled LogESP
                           //zeusmem zeusmmu(32),"ESP Log",24,true,true,false
                         endif
+
+//zeusdatabreakpoint 11, "(addr=$FDC3) || (addr=$4DDC3)", 0, $52400
 
