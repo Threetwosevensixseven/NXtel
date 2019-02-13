@@ -150,6 +150,22 @@ pend
 
                         output_sna "..\build\NXtel.sna", $FF40, Start
 
+                        mUnmarkBank(5)
+                        nexFile equ "..\bin\NXtelZ.nex"
+                        output_nex nexFile, $FF40, $C000, "2.0.27", 6
+                        output_nex_screen nexFile, "..\build\loading-screen3.bmp", false, 0
+                        ; A screen file
+                        //sNexScreenFN ="..\scr\ULA.scr"
+                        //sNexScreenFN ="..\scr\layer2.bmp"
+                        //sNexScreenFN ="..\scr\HiColor.shc"
+                        //sNexScreenFN ="..\scr\HiRes.shr"
+                        //output_nex_screen sNexFN,"",0,6912,2,3,4;
+                        //output_nex_screen sNexFN,sNexScreenFN,true,2
+                        ; A palette file
+                        //output_nex_palette sNexFN,"",0,256;
+                        //zeusinvoke "..\build\UploadNextZ.bat"
+
+
                         if enabled BuildNex
                           zeusprint "Creating NEX file"
                           zeusinvoke "..\build\deploy.bat"

@@ -605,6 +605,22 @@ mend
 
 
 
+mMarkBank               macro(n)
+                        disp 0
+                        org zeusmmu(n*2): ds $2000, n*2 ; Fill up 8k bank nn with nn
+                        org zeusmmu((n*2)+1): ds $2000, (n*2)+1;
+                        output_bin BankName(n), zeusmmu(n*2), $4000;
+mend
+
+
+
+mUnmarkBank             macro(n)
+                        zeusmarkunused zeusmmu(n*2),$2000
+                        zeusmarkunused zeusmmu((n*2)+1),$2000
+ mend
+
+
+
 [[
 function Layer2Addr(X, Y)
   begin

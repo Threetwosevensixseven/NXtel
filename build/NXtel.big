@@ -15,6 +15,8 @@
 
 !PCSP$C000,$FF40,6
 
+!COR2,0,27
+
 ; Layer 2 loading screen:
 ; [!BMP[a,]Filename.bmp[,b[,c[,d[,e[,f[,g]]]]]]]]
 ; a = 8: use 8 bit palette
@@ -39,7 +41,7 @@
 ; a = 16k MMU bank number (0..111) to include file at
 ; b = Address offset within 8k bank (0..$3FFF, wraps around)
 ;..\banks\Page15.bin,15,$0000
-..\banks\Page16.bin,16,$0000
+;..\banks\Page16.bin,16,$0000
 ;..\banks\Page17.bin,17,$0000
 ;..\banks\Page18.bin,18,$0000
 ;..\banks\Page19.bin,19,$0000

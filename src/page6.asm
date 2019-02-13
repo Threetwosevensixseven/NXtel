@@ -32,7 +32,7 @@ Start2:
                         nextreg $15, %0 00 000 1 0      ; Disable sprites, over border, set SLU
 
                         //DisplayBrowser()
-
+                        ld a, a
                         ESPLogInit()
                         PageBankZX(0, false)            ; Force MMU reset
                         call ClsAttr

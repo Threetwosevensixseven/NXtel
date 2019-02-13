@@ -852,69 +852,90 @@ pend
 GetTime                 proc
                         ld a, [ShowClock]SMC
                         or a
-                        ret z
+                        //ret z
 
-                        call esxDOS.GetDate
-                        ret c
+                        zeusdatabreakpoint 0, $+disp
+                        nop
 
-                        ld ix, DisplayBuffer+31
-                        //ld (ix+0), 135                  ; Alpha white
+                        if enabled ZeusDebug
+                          //zeusemucmd $FF                ; Zeus emulator command $FF returns RTC date in BC, time in DE
+                                                        ; We don't check carry for error, so no need to clear it here
+                          zeusemucmd $FD, dw RTC
 
-                        ld a, d
-                        and %1111 1000
-                        rrca
-                        rrca
-                        rrca                            ; hour
+                          ld hl, DisplayBuffer+31
+                          ld (hl), 135                  ; Alpha white
+                          inc hl
+                          ex de, hl
+                          ld hl, RTC
+                          ld bc, 8
+                          ldir
+                        else
+                          call esxDOS.GetDate
+                          ret c
 
-                        cp 25
-                        jp nc, Disable
+                          ld ix, DisplayBuffer+31
+                          ld (ix+0), $82                  ; Alpha green
 
-                        ld c, -10
-                        call Na1
-                        ld (ix+1), b                    ; Hour first digit
-                        ld c, -1
-                        call Na1
-                        ld (ix+2), b                    ; Hour second digit
-                        ld (ix+3), ':'                  ; Colon
+                          ld a, d
+                          and %1111 1000
+                          rrca
+                          rrca
+                          rrca                            ; hour
 
-                        ld a, d
-                        and %0000 0111
-                        rlca
-                        rlca
-                        rlca
-                        ld c, a
-                        ld a, e
-                        and %1110 0000
-                        rlca
-                        rlca
-                        rlca
-                        add a, c
+                          cp 25
+                          jp nc, Disable
 
-                        ld c, -10
-                        call Na1
-                        ld (ix+4), b                    ; Minute first digit
-                        ld c, -1
-                        call Na1
-                        ld (ix+5), b                    ; Minute second digit
-                        ld (ix+6), ':'                  ; Colon
+                          ld c, -10
+                          call Na1
+                          ld (ix+1), b                    ; Hour first digit
+                          ld c, -1
+                          call Na1
+                          ld (ix+2), b                    ; Hour second digit
+                          ld (ix+3), ':'                  ; Colon
 
-                        ld a, e
-                        and %0001 1111
+                          ld a, d
+                          and %0000 0111
+                          rlca
+                          rlca
+                          rlca
+                          ld c, a
+                          ld a, e
+                          and %1110 0000
+                          rlca
+                          rlca
+                          rlca
+                          add a, c
 
-                        ld c, -10
-                        call Na1
-                        ld (ix+7), b                    ; Second first digit
-                        ld c, -1
-                        call Na1
-                        ld (ix+8), b                    ; Second second digit
+                          ld c, -10
+                          call Na1
+                          ld (ix+4), b                    ; Minute first digit
+                          ld c, -1
+                          call Na1
+                          ld (ix+5), b                    ; Minute second digit
+                          ld (ix+6), ':'                  ; Colon
 
-                        ret
-Na1:                    ld b, '0'-1
-Na2:                    inc b
-                        add a, c
-                        jp c, Na2
-                        sub c                           ; works as add 100/10/1
+                          ld a, e
+                          and %0001 1111
+                          add a, a
+                          ld c, a
+                          ld a, h
+                          and %1
+                          or c
 
+                          ld c, -10
+                          call Na1
+                          ld (ix+7), b                    ; Second first digit
+                          ld c, -1
+                          call Na1
+                          ld (ix+8), b                    ; Second second digit
+
+                          ret
+Na1:                      ld b, '0'-1
+Na2:                      inc b
+                          add a, c
+                          jp c, Na2
+                          sub c                           ; works as add 100/10/1
+                        endif
 
                         ret                             ; result is in b
 Page:
@@ -927,6 +948,11 @@ Enable:
                         xor a
                         ld (ShowClock), a
                         ret
+RTC:                    ds 8
+                        ds 8
+                        ds 8
+                        ds 8
+                        ds 8
 pend
 
 
@@ -941,15 +967,16 @@ NoSec:                  ld (Frame), a
                         or a
                         ret nz
 
-                        ld a, (Text)
-                        inc a
-                        cp '9'+1
-                        jp c, NoReset
-                        ld a, '0'
-NoReset:                ld (Text), a
-                        ld hl, 1
+                        call GetTime
+                        //ld a, (Text)
+                        //inc a
+                        //cp '9'+1
+                        //jp c, NoReset
+                        //ld a, '0'
+//NoReset:                ld (Text), a
+                        ld hl, 40
                         ld (RenderBuffer.PrintLength), hl
-                        ld hl, Layer2Addr(39, 0)
+                        ld hl, Layer2Addr(0, 0)
                         ld (ClearESPBuffer.Start), hl
                         xor a
                         ld (RenderBuffer.Toggle), a
@@ -957,11 +984,11 @@ NoReset:                ld (Text), a
                           ld a, $21                             ; ld hl, NNNN = $21
                           ld (RenderBuffer.ToggleCLS), a
                         endif
-                        ld hl, Text
-                        ld de, DisplayBufferAddr(39, 0)
-                        ld (RenderBuffer.PrintStart), de
-                        ld bc, TextLen
-                        ldir
+                        //ld hl, Text
+                        ld hl, DisplayBuffer// DisplayBufferAddr(0, 0)
+                        ld (RenderBuffer.PrintStart), hl
+                        //ld bc, TextLen
+                        //ldir
                         call RenderBuffer
                         ld hl, ClearESPBuffer.Origin
                         ld (ClearESPBuffer.Start), hl
@@ -976,8 +1003,8 @@ NoReset:                ld (Text), a
                           ld (RenderBuffer.ToggleCLS), a
                         endif
                         ret
-Text:                   db '0'-1
-TextLen                 equ $-Text
+//Text:                   db '0'-1
+//TextLen                 equ $-Text
 pend
 
 
@@ -1061,3 +1088,4 @@ DoubleHeightFlags       proc
                         ds 8
 pend
 
+zeusprinthex "yy",$

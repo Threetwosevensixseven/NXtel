@@ -39,4 +39,4 @@
 ; b = address in bank to load at - ANDed with $1FFF?
 ; NexCreator says a and b are optional - defaults?
 
-
+zoNexFileOptions=0
