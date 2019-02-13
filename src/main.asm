@@ -1,7 +1,7 @@
 ; main.asm
 
 zeusemulate             "Next"
- zoLogicOperatorsHighPri = false
+zoLogicOperatorsHighPri = false
 zoSupportStringEscapes  = false
 zxAllowFloatingLabels   = false
 zoParaSysNotEmulate     = false

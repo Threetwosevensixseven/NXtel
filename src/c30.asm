@@ -66,6 +66,7 @@ RenderBuffer            proc
                         ld sp, $FFFF
                         MMU6(14, false)
                         call GetTime
+                        di
                         ld a, [WhichLayer2]9
                         xor [Toggle]5
                         ld (WhichLayer2), a
@@ -968,6 +969,7 @@ NoSec:                  ld (Frame), a
                         ret nz
 
                         call GetTime
+                        di
                         //ld a, (Text)
                         //inc a
                         //cp '9'+1
