@@ -52,6 +52,14 @@ org $8181
                         push bc
                         push de
                         push hl
+                        exx
+                        ex af, af'
+                        push af
+                        push bc
+                        push de
+                        push hl
+                        push ix
+                        push iy
                         NextRegRead($56)
                         ld (ISR56), a
                         NextRegRead($57)
@@ -64,6 +72,14 @@ EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or
 PrintTimeCall:          ld hl, PrintTime
                         nextreg $56, [ISR56]SMC
                         nextreg $57, [ISR57]SMC
+                        pop iy
+                        pop ix
+                        pop hl
+                        pop de
+                        pop bc
+                        pop af
+                        ex af, af'
+                        exx
                         pop hl
                         pop de
                         pop bc
