@@ -66,7 +66,7 @@ RenderBuffer            proc
                         ld sp, $FFFF
                         MMU6(14, false)
                         call GetTime
-                        di
+                        //di
                         ld a, [WhichLayer2]9
                         xor [Toggle]5
                         ld (WhichLayer2), a
@@ -853,10 +853,12 @@ pend
 GetTime                 proc
                         ld a, [ShowClock]SMC
                         or a
-                        //ret z
+                        if enabled ZeusDebug
+                          ret z
+                        endif
 
-                        zeusdatabreakpoint 0, $+disp
-                        nop
+                        //zeusdatabreakpoint 0, $+disp
+                        //nop
 
                         if enabled ZeusDebug
                           //zeusemucmd $FF                ; Zeus emulator command $FF returns RTC date in BC, time in DE
@@ -969,7 +971,7 @@ NoSec:                  ld (Frame), a
                         ret nz
 
                         call GetTime
-                        di
+                        //di
                         //ld a, (Text)
                         //inc a
                         //cp '9'+1

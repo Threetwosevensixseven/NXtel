@@ -1,18 +1,19 @@
 ; main.asm
 
-zeusemulate             "Next"
+zeusemulate             "Next", "RAW"
 zoLogicOperatorsHighPri = false
 zoSupportStringEscapes  = false
 zxAllowFloatingLabels   = false
 zoParaSysNotEmulate     = false
 zoDebug                 = true
 Zeus_PC                 = Start
-Stack                   equ Start
+Stack                   = Start
 Zeus_P7FFD              = $10
 Zeus_IY                 = $5C3A
 Zeus_AltHL              = $5C3A
 Zeus_IM                 = 1
 Zeus_IE                 = false
+//bOnlyUse128KSNAVector=true
 optionsize 5
 Cspect optionbool 15, -15, "Cspect", false
 //ZEsarUX optionbool 80, -15, "ZEsarUX", false
@@ -164,10 +165,10 @@ pend
 
                         zeusassert zeusver<=74, "Upgrade to Zeus v4.00 (TEST ONLY) or above, available at http://www.desdes.com/products/oldfiles/zeustest.exe"
 
-                        output_sna "..\build\NXtel.sna", $FF40, Start
+                        //output_sna "..\build\NXtel.sna", $FF40, Start
 
                         mUnmarkBank(5)
-                        nexFile equ "..\bin\NXtelZ.nex"
+                        nexFile equ "..\bin\NXtel.nex"
                         output_nex nexFile, $FF40, $C000, "2.0.27", 6
                         output_nex_screen nexFile, "..\build\loading-screen3.bmp", false, 0
                         ; A screen file
@@ -181,11 +182,10 @@ pend
                         //output_nex_palette sNexFN,"",0,256;
                         //zeusinvoke "..\build\UploadNextZ.bat"
 
-
-                        if enabled BuildNex
-                          zeusprint "Creating NEX file"
-                          zeusinvoke "..\build\deploy.bat"
-                        endif
+                        //if enabled BuildNex
+                        //  zeusprint "Creating NEX file"
+                        //  zeusinvoke "..\build\deploy.bat"
+                        //endif
 
                         if enabled Cspect
                           zeusinvoke "..\build\cspect.bat", "", false

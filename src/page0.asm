@@ -39,7 +39,7 @@ Resources proc Table:
   Count         equ Len/Size
   ROM           equ 255
 
-  output_bin "..\build\BankList.bin", Table, Len
+  //output_bin "..\build\BankList.bin", Table, Len
 pend
 
 
