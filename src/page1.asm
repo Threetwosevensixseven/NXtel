@@ -17,7 +17,7 @@ PreloadedCfgLen equ $-CfgBuffer
 
 org CfgFileStart-CfgList.Size                           ; The CfgList linked list is positioned near
 CfgList proc                                            ; the top of 8k bank 2, and grows downwards.
-  struct                                                ; The first record is at $DFE4-$DFF3.
+  struct                                                ; The first record is at $DFDF-$DFF0.
     LineAddr            ds 1
     LineAddrMSB         ds 1
     KeyAddr             ds 2
@@ -29,11 +29,23 @@ CfgList proc                                            ; the top of 8k bank 2, 
     PrevEntry           ds 1
     PrevEntryMSB        ds 1
     NextEntry           ds 2
+    SectionEntry        ds 2
   Size send
   //zeusprinthex CfgList,CfgList+CfgList.Size-1, Size
 pend
 
-                                                        ;
+SectionList proc
+  struct
+    NameAddr            ds 2
+    NameLen             ds 2
+    Number              ds 2
+    Dummy               ds CfgList.Size-10
+    NextEntry           ds 2
+    Dummy2              ds 2
+  Size send
+  //zeusprinthex Size
+pend
+                                                       ;
 EOLStyle proc                                           ;
   LF       equ 0                                        ; %00     Constants to
   CR       equ 1                                        ; %01     represent the
@@ -42,16 +54,20 @@ EOLStyle proc                                           ;
   IsDouble equ %10
 pend
 
-org $DFF4                                               ; The Cfg global vars are positioned right at
-CfgFileStart:      dw CfgBuffer                         ; the top of 8k bank 2, between $DFF4 and $FFFF.
+org $DFF1                                               ; The Cfg global vars are positioned right at
+CfgFileStart:      dw CfgBuffer                         ; the top of 8k bank 2, between $DFF1 and $FFFF.
 CfgFileEnd:        dw PreloadedCfgAddr
 CfgFileLen:        dw PreloadedCfgLen
 CfgNextLineStart:  dw 0
 CfgLastRecord:     dw 0
+CfgSectionsStart:  dw 0
+CfgSectionsNext:   dw 0
 CfgLineEndings:    db 0
 
 org $E000
 ParseCfgFile            proc
+                        ld (BalanceStack), sp
+ParseCfgFile2:
                         if not enabled ZeusDebug        ; When running in Zeus, the cfg file contents
                           ld ix, FileName               ; will already be planted in memory in the buffer.
                           call esxDOS.fOpen             ; Otherwise, open cfg file.
@@ -67,8 +83,15 @@ ParseCfgFile            proc
                           call esxDOS.fClose            ; Close the cfg file again,ignoring any errors.
                         endif
 
+                        //zeusdatabreakpoint 0, $+disp
+
+                        ld iy, 0
                         xor a
                         ld (IsLastLine), a
+                        ld hl, 0
+                        ld (CfgSectionsStart), hl
+                        ld (CfgSectionsNext), hl
+                        ld (SectionAdjust), hl
                         ld hl, CfgBuffer                ; Detect a CR line ending
                         ld bc, (CfgFileLen)
                         ld a, CR
@@ -95,7 +118,7 @@ CreateDefaultCfgFile:
                           call esxDOS.fWrite
                           jp c, LoadSettings.Error
                           call esxDOS.fClose
-                          jp ParseCfgFile
+                          jp ParseCfgFile2              ; Don't save stack a second time
                         endif
 IsCR:
                         ld b, a                         ; Preserve first char of line ending
@@ -133,6 +156,7 @@ SingleEOL:              ld (DoubleEOL1), a              ; SMC> nop or inc hl
                         ld a, b
                         ld (FirstEOLChar1), a           ; SMC> CR or LF
                         ld (FirstEOLChar2), a           ; SMC> CR or LF
+                        ld (FirstEOLChar3), a           ; SMC> CR or LF
                         ld a, c
                         ld (DoubleEOL3), a              ; SMC> nop or dec hl
 ParseFile:
@@ -149,6 +173,9 @@ ParseFile:
 //=========================================================================================================
 
 ParseLine:
+                        //zeusdatabreakpoint 1, "iy<>0", $+disp
+                        //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
+
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
                         ld a, (hl)
                         cp [FirstEOLChar1]SMC           ; <SMC: Is this an empty line?
@@ -168,6 +195,12 @@ EmptyLine:
 NonEmptyLine:
                         cp ';'                          ; Is this a comment line?
                         jp z, Comment
+                        cp '['
+                        jp z, SectionStart
+
+                        //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
+                        //nop
+
                         call FindNextEOL                ; Not a blank line or comment, so fine the line end.
                         ld bc, (ix+CfgList.LineLen)
                         ld a, '='
@@ -252,11 +285,45 @@ ValueLoop2:             dec hl
                         inc hl
                         ld (ix+CfgList.ValueLen), hl    ; Set the length of the value into the record
 ValueEndOfLine:         jp SetupNextLine
-
 NoEquals:                                               ; This line has no equals,
                         ld hl, (ix+CfgList.LineAddr)    ; so restore the line start, and treat like a comment
 Comment:
                         call SetNoKey                   ; Setting a zero key length will make parsing ignore comments.
+                        call FindNextEOL
+                        jp SetupNextLine
+SectionStart:
+                        //zeusdatabreakpoint 0, $+disp
+                        call SetNoKey                   ; Setting a zero key length will make parsing ignore sections.
+                        ld bc, 0
+SecLoop1:               inc hl
+                        push hl
+                        ld a, (hl)
+                        cp ']'
+                        jp z, EOS
+                        cp [FirstEOLChar3]SMC
+                        jp z, EOS
+                        inc bc
+                        jp SecLoop1
+EOS:
+                        push ix
+                        pop hl
+                        add hl, -CfgList.Size
+                        push hl
+                        ld (ix+CfgList.SectionEntry), hl
+                        pop iy
+                        ld hl, -CfgList.Size
+                        ld (SectionAdjust), hl
+                        pop hl
+                        ld (iy+SectionList.NameAddr), hl
+                        ld (iy+SectionList.NameLen), bc
+                        ld a, (CfgSectionsStart)
+                        or a
+                        jp nz, NotFirstSection
+                        ld (CfgSectionsStart), iy
+NotFirstSection:        ld (CfgSectionsNext), iy
+                        call FindNextEOL
+                        jp SetupNextLine
+
                         call FindNextEOL
                         jp SetupNextLine
 SetNoKey:
@@ -285,13 +352,15 @@ DoubleEOL2:             nop//inc hl                     ; <SMC: nop (single EOL)
                         push de
                         ex de, hl
                         ld hl, (CfgFileEnd)
+                        //zeusdatabreakpoint 2, "zeusprinthex(1, de, hl)", $+disp
+                        inc de
                         CpHL(de)
                         jp c, EndOfFile
                         pop de
                         pop hl
 
                         ld (CfgNextLineStart), hl
-                        pop de
+ReturnFromEOF:          pop de
                         push de
                         or a
                         sbc hl, de
@@ -299,29 +368,41 @@ DoubleEOL2:             nop//inc hl                     ; <SMC: nop (single EOL)
                         pop hl
                         ret
 EndOfFile:
+                        //zeusdatabreakpoint 0, $+disp
+
                         ld a, 1
                         ld (IsLastLine), a
-                        pop hl                          ; Balance the stack
+                        pop de
                         pop hl
-                        pop hl
-                        ret
+                        jp ReturnFromEOF
+                        //pop hl
+
+                        //ld sp, [BalanceStack]SMC        ; Balance the stack
+                        //dec sp
+                        //dec sp
+                        //pop hl
+                        //jp (hl)
+                        //ret
 SetupNextLine:
                         ld a, [IsLastLine]SMC
                         or a
                         jp z, NotLastLine
                         xor a
-                        ld (ix+(CfgList.Size*2)-1), a   ; Clear NextLine pointer
-                        ld (ix+(CfgList.Size*2)-2), a   ; on last record of linked list
-                        ld de, ix
-                        add de, CfgList.Size
+                        ld (ix+(CfgList.Size*2)-3), a   ; Clear NextLine pointer
+                        ld (ix+(CfgList.Size*2)-4), a   ; on last record of linked list
+                        ld de, (ix+CfgList.PrevEntry)
                         ld (CfgLastRecord), de          ; Save the last CfgList record
+                        ld sp, [BalanceStack]SMC
                         ret                             ; Return to the routine that called ParseCfgFile
 NotLastLine:            ld de, ix
                         ld bc, de
                         add de, -CfgList.Size           ; Set the NextEntry of the current (old) record
+                        add de, [SectionAdjust]SMC
                         ld (ix+CfgList.NextEntry), de   ; to the new record,
                         ld ix, de                       ; set the link list pointer to the new (now current) record,
                         ld (ix+CfgList.PrevEntry), bc   ; Set the PrevEntry to the previous (old) record,
+                        ld hl, 0
+                        ld (SectionAdjust), hl
                         ld hl, (CfgNextLineStart)       ; and set hl to the current buffer pointer.
                         jp ParseLine
 ExtendFileByOneLine:
@@ -536,6 +617,7 @@ DefaultCfg proc File:
   Len equ $-File
 pend
 
+TestData: ds 4
 
 
 Page1End32   equ $-1

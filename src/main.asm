@@ -203,4 +203,8 @@ pend
                         endif
 
 //zeusdatabreakpoint 11, "(addr=$FDC3) || (addr=$4DDC3)", 0, $52400
+zeusmem zeusmmu(2)+$2000-15,"CFG List",CfgList.Size,true,true,false
+zeusmem zeusmmu(2),"CFG Buffer",CfgList.Size,true,true,false
+
+//zeusdatabreakpoint 4,"([TestData]L:=[TestData]L+1)=0,0", zeuspage(1), $4000
 
