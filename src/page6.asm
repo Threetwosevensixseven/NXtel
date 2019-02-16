@@ -64,7 +64,6 @@ IsNext:                 ld a, $CD                       ; call NN
                         MMU6(2, false)
                         MMU7(3, false)
                         call ParseCfgFile
-zeusprinthex $
                         call LoadSettings
                         jp MainMenu
 RunCarousel:

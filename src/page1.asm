@@ -207,6 +207,8 @@ NonEmptyLine:
                         cpir                            ; Does the line contain an equals?
                         jp po, NoEquals
 Equals:
+                        ld bc, iy
+                        ld (ix+CfgList.SectionEntry), bc
                         dec hl                          ; We have an equals, so work back to find the end of the key.
                         ld (EqualsAddr), hl             ; Save the equals point so we can find the value later.
                         push hl
@@ -295,14 +297,15 @@ SectionStart:
                         //zeusdatabreakpoint 0, $+disp
                         call SetNoKey                   ; Setting a zero key length will make parsing ignore sections.
                         ld bc, 0
-SecLoop1:               inc hl
+                        inc hl
                         push hl
-                        ld a, (hl)
+SecLoop1:               ld a, (hl)
                         cp ']'
                         jp z, EOS
                         cp [FirstEOLChar3]SMC
                         jp z, EOS
                         inc bc
+                        inc hl
                         jp SecLoop1
 EOS:
                         push ix
@@ -310,7 +313,18 @@ EOS:
                         add hl, -CfgList.Size
                         push hl
                         ld (ix+CfgList.SectionEntry), hl
+                        ld de, iy
+                        ld a, d
+                        or a
                         pop iy
+                        jp z, WasFirstConfig
+                        add de, SectionList.NextEntry
+                        ld a, iyl
+                        ld (de), a
+                        inc de
+                        ld a, iyh
+                        ld (de), a
+WasFirstConfig:
                         ld hl, -CfgList.Size
                         ld (SectionAdjust), hl
                         pop hl
@@ -321,6 +335,7 @@ EOS:
                         jp nz, NotFirstSection
                         ld (CfgSectionsStart), iy
 NotFirstSection:        ld (CfgSectionsNext), iy
+                        dec hl                          ; Back up one to ensure we find the EOL of the current line
                         call FindNextEOL
                         jp SetupNextLine
 
