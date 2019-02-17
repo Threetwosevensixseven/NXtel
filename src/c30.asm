@@ -854,24 +854,104 @@ GetTime                 proc
                         ld a, [ShowClock]SMC
                         or a
                         if enabled ZeusDebug
-                          ret z
+                          //ret z
                         endif
 
                         //zeusdatabreakpoint 0, $+disp
                         //nop
 
                         if enabled ZeusDebug
-                          //zeusemucmd $FF                ; Zeus emulator command $FF returns RTC date in BC, time in DE
-                                                        ; We don't check carry for error, so no need to clear it here
-                          zeusemucmd $FD, dw RTC
+                          //zeusmem RTC+disp,"RTC",8,true,true,false
 
-                          ld hl, DisplayBuffer+31
-                          ld (hl), 135                  ; Alpha white
-                          inc hl
-                          ex de, hl
-                          ld hl, RTC
-                          ld bc, 8
+                          ld a, $82
+                          ld (DisplayBuffer+31), a
+                          ld (DisplayBuffer+7), a
+                          ld a, '0'
+                          ld (DisplayBuffer+12), a
+
+                          ld hl, Zeroes
+                          ld de, DisplayBuffer+32
+                          ld bc, ZeroesLen
                           ldir
+                          zeusemucmd $FD, dw RTC        ; h:n:s.z dddd d of mmmm yyyy
+
+                          ld hl, RTC
+                          ld bc, 3
+                          ld a, ':'
+                          cpir
+                          ld (MinStart), hl
+                          ld de, DisplayBuffer+32
+                          ld a, c
+                          add de, a
+                          xor %1
+                          inc a
+                          ld c, a
+                          ld hl, RTC
+                          ld c, a
+                          ldir
+
+                          ld hl, [MinStart]SMC
+                          ld bc, 3
+                          ld a, ':'
+                          cpir
+                          ld (SecStart), hl
+                          ld de, DisplayBuffer+35
+                          ld a, c
+                          add de, a
+                          xor %1
+                          inc a
+                          ld c, a
+                          ld hl, (MinStart)
+                          ld c, a
+                          ldir
+
+                          ld hl, [SecStart]SMC
+                          ld bc, 3
+                          ld a, '.'
+                          cpir
+                          ld de, DisplayBuffer+38
+                          ld a, c
+                          add de, a
+                          xor %1
+                          inc a
+                          ld c, a
+                          ld hl, (SecStart)
+                          ld c, a
+                          ldir
+
+                          ld hl, RTC
+                          ld bc, 14
+                          ld a, ' '
+                          cpir
+                          ld de, DisplayBuffer+8
+                          ldi
+                          ldi
+                          ldi
+
+                          ld c, 14
+                          cpir
+                          ld (DayStart), hl
+                          ld bc, 3
+                          ld a, ' '
+                          cpir
+                          ld (MonStart), hl
+                          ld de, DisplayBuffer+12
+                          ld a, c
+                          add de, a
+                          xor %1
+                          inc a
+                          ld c, a
+                          ld hl, [DayStart]SMC
+                          ld c, a
+                          ldir
+
+                          ld hl, [MonStart]SMC
+                          add hl, 3
+                          ld c, 3
+                          ld de, DisplayBuffer+15
+                          ldir
+
+                          ret
                         else
                           call esxDOS.GetDate
                           ret c
@@ -951,6 +1031,8 @@ Enable:
                         xor a
                         ld (ShowClock), a
                         ret
+Zeroes:                 db "00:00:00"
+ZeroesLen               equ $-Zeroes
 RTC:                    ds 8
                         ds 8
                         ds 8
