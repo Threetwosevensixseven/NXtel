@@ -851,6 +851,7 @@ pend
 
 
 GetTime                 proc
+                        ret
                         ld a, [ShowClock]SMC
                         or a
                         if enabled ZeusDebug

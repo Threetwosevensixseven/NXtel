@@ -15,3 +15,5 @@
 *.sln   		text
 *.gitignore 		text
 *.gitattributes 	text
+
+nxtel*.cfg		binary
