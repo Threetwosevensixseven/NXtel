@@ -1089,8 +1089,6 @@ NoSec:                  ld (Frame), a
                           ld (RenderBuffer.ToggleCLS), a
                         endif
                         ret
-//Text:                   db '0'-1
-//TextLen                 equ $-Text
 pend
 
 
@@ -1174,4 +1172,3 @@ DoubleHeightFlags       proc
                         ds 8
 pend
 
-zeusprinthex "yy",$

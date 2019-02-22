@@ -617,7 +617,36 @@ mend
 mUnmarkBank             macro(n)
                         zeusmarkunused zeusmmu(n*2),$2000
                         zeusmarkunused zeusmmu((n*2)+1),$2000
- mend
+mend
+
+
+
+EnableTime              macro(Enable, ReenableInterrupts)
+                        di
+                        NextRegRead($53)
+                        ld (Slot3), a
+                        NextRegRead($57)
+                        ld (Slot7), a
+                        nextreg $53, 12
+                        nextreg $57, 30
+                        if Enable
+                          ld a, $CD                     ; call NNNN
+                        else
+                          ld a, $32                     ; ld hl, NNNN
+                        endif
+                        ld (PrintTimeCall), a
+                        if Enable
+                          xor a                         ; nop
+                        else
+                          ld a, $C9                     ; ret
+                        endif
+                        ld (GetTime), a
+                        nextreg $52, [Slot3]SMC  ;12
+                        nextreg $57, [Slot7]SMC
+                        if (ReenableInterrupts)
+                          ei
+                        endif
+mend
 
 
 
