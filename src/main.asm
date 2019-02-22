@@ -15,7 +15,7 @@ Zeus_IM                 = 1
 Zeus_IE                 = false
 //bOnlyUse128KSNAVector=true
 optionsize 5
-Cspect optionbool 15, -15, "Cspect", false
+//Cspect optionbool 15, -15, "Cspect", false
 //ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
@@ -24,7 +24,7 @@ LogESP optionbool 710, -15, "Log", false
 //Carousel optionbool 755, -15, "Carousel", false
 EmulateTime optionbool 755, -15, "Time", false
 NoDivMMC                = ZeusDebug
-BuildNex                = Cspect or UploadNext
+bp alias zeusdatabreakpoint 0, $+disp
 
 
 
@@ -167,10 +167,25 @@ pend
 
                         //output_sna "..\build\NXtel.sna", $FF40, Start
 
+OutputNex               macro(FileName)
+                        output_nex        FileName, $FF40, $C000, "2.0.27", 6
+                        output_nex_screen FileName, "..\build\loading-screen3.bmp", false, 0
+                        output_nex_data   FileName, "MARKER", 1, 2, dw $1234, 4
+mend
+
                         mUnmarkBank(5)
-                        nexFile equ "..\bin\NXtel.nex"
-                        output_nex nexFile, $FF40, $C000, "2.0.27", 6
-                        output_nex_screen nexFile, "..\build\loading-screen3.bmp", false, 0
+                        OutputNex("..\bin\NXtel.nex")
+                        OutputNex("..\sd\NXtel.nex")
+                        if enabled UploadNext
+                          OutputNex("Q:\NXtel.nex")
+                        endif
+
+
+                        //nexFile equ "..\bin\NXtel.nex"
+                        //output_nex nexFile, $FF40, $C000, "2.0.27", 6
+                        //output_nex_screen nexFile, "..\build\loading-screen3.bmp", false, 0
+                        //output_nex_data nexFile, "MARKER", 1, 2, dw $1234, 4
+
                         ; A screen file
                         //sNexScreenFN ="..\scr\ULA.scr"
                         //sNexScreenFN ="..\scr\layer2.bmp"
@@ -193,9 +208,6 @@ pend
                         //if enabled ZEsarUX
                         //  zeusinvoke "..\build\ZEsarUX.bat", "", false
                         //endif
-                        if enabled UploadNext
-                          zeusinvoke "..\build\UploadNext.bat"
-                        endif
 
                         //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
                         if enabled LogESP
