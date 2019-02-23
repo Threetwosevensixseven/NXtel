@@ -164,7 +164,9 @@ pend
 Page4End16  equ $-$A000
 Page4End32  equ Page4End16+zeuspage(4)
 Page4Size equ Page4End32-Page4Start32+1
-zeusprinthex "Pg4Size = ", Page4Size
+if enabled ReportBankSizes
+  zeusprinthex "Pg4Size = ", Page4Size
+endif
 org Page4Temp16
 disp 0
 

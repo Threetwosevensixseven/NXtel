@@ -151,10 +151,10 @@ SetupEOL:
                         jp z, SingleEOL
                         ld a, $23                       ; $23 = inc hl
                         ld c, $2B                       ; $2b = dec hl
-SingleEOL:              ld (DoubleEOL1), a              ; SMC> nop or inc hl
+SingleEOL:              //ld (DoubleEOL1), a              ; SMC> nop or inc hl
                         ld (DoubleEOL2), a              ; SMC> nop or inc hl
                         ld a, b
-                        ld (FirstEOLChar1), a           ; SMC> CR or LF
+                        //ld (FirstEOLChar1), a           ; SMC> CR or LF
                         ld (FirstEOLChar2), a           ; SMC> CR or LF
                         ld (FirstEOLChar3), a           ; SMC> CR or LF
                         ld a, c
@@ -175,13 +175,15 @@ ParseFile:
 ParseLine:
                         //zeusdatabreakpoint 1, "iy<>0", $+disp
                         //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
+                        bp
 
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
                         ld a, (hl)
-                        cp [FirstEOLChar1]SMC           ; <SMC: Is this an empty line?
+                        cp CR                           ; Is this an empty line?
                         jp nz, NonEmptyLine
-DoubleEOL1:             nop//inc hl                     ; <SMC: nop (single EOL) or inc hl (double EOL)
-
+                        cp LF
+                        jp nz, NonEmptyLine
+                        call SkipEOL                    ; Skips CR, LF, CRLF or LFCR
 EmptyLine:
                         ld de, (ix+CfgList.LineAddr)
                         or a                            ; Clear carry
@@ -609,6 +611,13 @@ FileBufferLen           equ $-FileBuffer
 pend
 
 
+
+SkipEOL                 proc                    ; Skips CR, LF, CRLF or LFCR
+                        ret
+pend
+
+
+
 ConnectMenuDisplay proc Table:
   Size   equ 36
   Count  equ 8
@@ -639,7 +648,9 @@ Page1End32   equ $-1
 Page1End16   equ Page1End32
 Page1Size equ Page1End32-Page1Start32+1
 zeusassert !(Page1Size<>(Page1End16-Page1Start16+1)), "Page1Size calculation error"
-zeusprinthex "Pg1Size = ", Page1Size
+if enabled ReportBankSizes
+  zeusprinthex "Pg1Size = ", Page1Size
+endif
 org Page1Temp16
 disp 0
 

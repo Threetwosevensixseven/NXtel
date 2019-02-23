@@ -33,7 +33,7 @@ Start2:
 
                         //DisplayBrowser()
                         ld a, a
-                        ESPLogInit()
+                        //ESPLogInit()
                         PageBankZX(0, false)            ; Force MMU reset
                         call ClsAttr
                         MMU7(30, false)
@@ -148,7 +148,9 @@ Page6End32   equ $-1
 Page6End16   equ Page6End32
 Page6Size equ Page6End32-Page6Start32+1
 zeusassert !(Page6Size<>(Page6End16-Page6Start16+1)), "Page6Size calculation error"
-zeusprinthex "Pg6Size = ", Page6Size
+if enabled ReportBankSizes
+  zeusprinthex "Pg6Size = ", Page6Size
+endif
 org Page6Temp16
 disp 0
 

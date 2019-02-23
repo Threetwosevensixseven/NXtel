@@ -209,16 +209,17 @@ mend
                         //  zeusinvoke "..\build\ZEsarUX.bat", "", false
                         //endif
 
-                        //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
-                        if enabled LogESP
-                          //zeusmem zeusmmu(32),"ESP Log",24,true,true,false
-                        endif
-
 //zeusdatabreakpoint 11, "(addr=$FDC3) || (addr=$4DDC3)", 0, $52400
-zeusmem zeusmmu(2)+$2000-15,"CFG List",CfgList.Size,true,true,false
-zeusmem zeusmmu(2),"CFG Buffer",CfgList.Size,true,true,false
-//zeusmem ConnectMenuDisplay,"ConnectMenuDisplay",18,true,true,false
-//zeusmem ConnectMenuServer,"ConnectMenuServer",25,true,true,false
-
 //zeusdatabreakpoint 4,"([TestData]L:=[TestData]L+1)=0,0", zeuspage(1), $4000
+
+if enabled LogESP
+  //zeusmem zeusmmu(2)+$2000-15,"CFG List",CfgList.Size,true,true,false
+  zeusmem CfgList-(7*CfgList.Size),"CFG List",CfgList.Size,true,true,false
+  //zeusmem zeusmmu(2),"CFG Buffer",CfgList.Size,true,true,false
+  zeusmem CfgBuffer,"CFG Buffer",CfgList.Size,true,true,false
+  //zeusmem ConnectMenuDisplay,"ConnectMenuDisplay",18,true,true,false
+  //zeusmem ConnectMenuServer,"ConnectMenuServer",25,true,true,false
+  //zeusmem zeusmmu(18),"Layer 2",256,true,false      ; Show layer 2 screen memory
+  //zeusmem zeusmmu(32),"ESP Log",24,true,true,false
+endif
 

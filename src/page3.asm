@@ -554,7 +554,9 @@ Page3End32   equ $-1
 Page3End16   equ Page3End32
 Page3Size equ Page3End32-Page3Start32+1
 zeusassert !(Page3Size<>(Page3End16-Page3Start16+1)), "Page3Size calculation error"
-zeusprinthex "Pg3Size = ", Page3Size
+if enabled ReportBankSizes
+  zeusprinthex "Pg3Size = ", Page3Size
+endif
 org Page3Temp16
 disp 0
 

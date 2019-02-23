@@ -123,7 +123,9 @@ pend
 Page0End32   equ $-1
 Page0End16   equ Page0End32
 Page0Size equ Page0End32-Page0Start32+1
-zeusprinthex "Pg0Size = ", Page0Size
+if enabled ReportBankSizes
+  zeusprinthex "Pg0Size = ", Page0Size
+endif
 zeusassert !(Page0Size<>(Page0End16-Page0Start16+1)), "Page0Size calculation error"
 org Page0Temp16
 

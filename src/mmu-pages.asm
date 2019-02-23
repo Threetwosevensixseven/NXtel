@@ -8,7 +8,9 @@ dispto zeusmmu(30)
 include "c30.asm"
 P30Size = $-$E000
 //output_bin "..\banks\Bank30.bin", zeusmmu(30), P30Size
-zeusprinthex "P30Size = ", P30Size
+if enabled ReportBankSizes
+  zeusprinthex "P30Size = ", P30Size
+endif
 
 ; PAGE 31 - BANK31.BIN - Config file and menus
 org $C000
@@ -16,7 +18,9 @@ dispto zeusmmu(31)
 include "c31.asm"
 P31Size = $-$C000
 //output_bin "..\banks\Bank31.bin", zeusmmu(31), P31Size
-zeusprinthex "P31Size = ", P31Size
+if enabled ReportBankSizes
+  zeusprinthex "P31Size = ", P31Size
+endif
 //output_bin "..\banks\Page15.bin", zeusmmu(30), $4000
 
 ; PAGE 32 - BANK32.BIN - Sprites
@@ -25,7 +29,9 @@ dispto zeusmmu(32)
 include "c32.asm"
 P32Size = $-$C000
 //output_bin "..\banks\Bank32.bin", zeusmmu(32), P32Size
-zeusprinthex "P32Size = ", P32Size
+if enabled ReportBankSizes
+  zeusprinthex "P32Size = ", P32Size
+endif
 
 ; PAGE 33 - BANK33.BIN - BeepFX
 org $E000
@@ -43,7 +49,9 @@ BeepFX proc
 pend
 P33Size = $-$E000
 //output_bin "..\banks\Bank33.bin", zeusmmu(33), P33Size
-zeusprinthex "P33Size = ", P33Size
+if enabled ReportBankSizes
+  zeusprinthex "P33Size = ", P33Size
+endif
 //output_bin "..\banks\Page16.bin", zeusmmu(32), $4000
 
 ; PAGE 34 - BANK33.BIN - Pages C
@@ -69,7 +77,9 @@ Pages34 proc
 pend
 P34Size = $-$C000
 //output_bin "..\banks\Bank34.bin", zeusmmu(34), P34Size
-zeusprinthex "P34Size = ", P34Size
+if enabled ReportBankSizes
+  zeusprinthex "P34Size = ", P34Size
+endif
 
 ; PAGE 35 - BANK35.BIN - Pages E
 org $C000
@@ -94,7 +104,9 @@ Pages35 proc
 pend
 P35Size = $-$C000
 //output_bin "..\banks\Bank35.bin", zeusmmu(35), P35Size
-zeusprinthex "P35Size = ", P35Size
+if enabled ReportBankSizes
+  zeusprinthex "P35Size = ", P35Size
+endif
 //output_bin "..\banks\Page17.bin", zeusmmu(34), $4000
 
 ; PAGE 36 - BANK36.BIN - Pages F
@@ -120,7 +132,9 @@ Pages36 proc
 pend
 P36Size = $-$C000
 //output_bin "..\banks\Bank36.bin", zeusmmu(36), P36Size
-zeusprinthex "P36Size = ", P36Size
+if enabled ReportBankSizes
+  zeusprinthex "P36Size = ", P36Size
+endif
 
 ; PAGE 37 - BANK37.BIN - Pages G
 org $C000
@@ -145,7 +159,9 @@ Pages37 proc
 pend
 P37Size = $-$C000
 //output_bin "..\banks\Bank37.bin", zeusmmu(37), P37Size
-zeusprinthex "P37Size = ", P37Size
+if enabled ReportBankSizes
+  zeusprinthex "P37Size = ", P37Size
+endif
 //output_bin "..\banks\Page18.bin", zeusmmu(36), $4000
 
 ; PAGE 38 - BANK38.BIN - Pages H
@@ -171,7 +187,9 @@ Pages38 proc
 pend
 P38Size = $-$C000
 //output_bin "..\banks\Bank38.bin", zeusmmu(38), P38Size
-zeusprinthex "P38Size = ", P38Size
+if enabled ReportBankSizes
+  zeusprinthex "P38Size = ", P38Size
+endif
 
 ; PAGE 39 - BANK39.BIN - Pages B
 org $C000
@@ -196,7 +214,9 @@ Pages39 proc
 pend
 P39Size = $-$C000
 //output_bin "..\banks\Bank39.bin", zeusmmu(39), P39Size
-zeusprinthex "P39Size = ", P39Size
+if enabled ReportBankSizes
+  zeusprinthex "P39Size = ", P39Size
+endif
 //output_bin "..\banks\Page19.bin", zeusmmu(38), $4000
 
 ; PAGE 40 - BANK34.BIN - Pages D
@@ -222,7 +242,9 @@ Pages40 proc
 pend
 P40Size = $-$C000
 //output_bin "..\banks\Bank40.bin", zeusmmu(40), P40Size
-zeusprinthex "P40Size = ", P40Size
+if enabled ReportBankSizes
+  zeusprinthex "P40Size = ", P40Size
+endif
 //output_bin "..\banks\Page20.bin", zeusmmu(40), $4000
 
 org MMUTemp16

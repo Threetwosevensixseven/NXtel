@@ -430,7 +430,7 @@ ResetLastKeypress       macro()
 mend
 
 
-
+/*
 ESPLogInit              macro()
                         if enabled LogESP
                           nextreg $55, 32
@@ -460,7 +460,7 @@ ESPLogText              macro(Text)
                           next;n
                         endif
 mend
-
+*/
 
 
 TSHeaderMatch           macro(Char)

@@ -406,7 +406,7 @@ pend
 
 
 ESPSend                 macro(Text)                     ; 1 <= length(Text) <= 253
-                        ESPLogText("[SEND]")
+                        //ESPLogText("[SEND]")
                         ld hl, Address                  ; Start of the text to send
                         ld e, length(Text)+2            ; Length of the text to send, including terminating CRLF
                         jp ESPSendProc                  ; Remaining send code is generic and reusable
