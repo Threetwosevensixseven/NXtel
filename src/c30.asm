@@ -65,8 +65,6 @@ RenderBuffer            proc
                         ld (Stack), sp
                         ld sp, $FFFF
                         MMU6(14, false)
-                        call GetTime
-                        //di
                         ld a, [WhichLayer2]9
                         xor [Toggle]5
                         ld (WhichLayer2), a
@@ -446,6 +444,7 @@ NoResetHeldChar:
                         jp nz, Read
 Abort:                  pop bc
 Return:
+                        call GetTime
                         if not ULAMonochrome
                           PageResetBottom48K()
                         endif
@@ -808,8 +807,6 @@ PagePrimaryScreen       proc
                           MMU3(12, false)
                         else
                           PageLayer2Bottom48K(9, false)
-                          ld a, 9*2
-                          ld (GetTime.Page), a
                           ld a, (RenderBuffer.WhichLayer2)
                         endif
                         or a
@@ -824,8 +821,6 @@ PageSecondaryScreen     proc
                           MMU3(15, false)
                         else
                           PageLayer2Bottom48K(12, false)
-                          ld a, 12*2
-                          ld (GetTime.Page), a
                           ld a, (RenderBuffer.WhichLayer2)
                         endif
                         or a
@@ -851,18 +846,18 @@ pend
 
 
 GetTime                 proc
-                        ret
+                        nop                             ; <SMC this nop needs to be here
+
                         ld a, [ShowClock]SMC
                         or a
-                        if enabled ZeusDebug
-                          //ret z
-                        endif
-
-                        //zeusdatabreakpoint 0, $+disp
-                        //nop
+                        ret z
 
                         if enabled ZeusDebug
-                          //zeusmem RTC+disp,"RTC",8,true,true,false
+                          if enabled LogESP
+                            zeusmem RTC+disp,"RTC",16,true,true,false
+                            zeusmem DisplayBuffer+8+disp,"DisplayBuffer",16,true,true,false
+
+                          endif
 
                           ld a, $82
                           ld (DisplayBuffer+31), a
@@ -1022,8 +1017,6 @@ Na2:                      inc b
                         endif
 
                         ret                             ; result is in b
-Page:
-                        db 0
 Disable:
                         ld a, 1
                         ld (ShowClock), a
@@ -1035,6 +1028,7 @@ Enable:
 Zeroes:                 db "00:00:00"
 ZeroesLen               equ $-Zeroes
 RTC:                    ds 8
+                        ds 8
                         ds 8
                         ds 8
                         ds 8
