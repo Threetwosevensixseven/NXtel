@@ -3,7 +3,7 @@
 zeusemulate             "Next", "RAW"
 zoLogicOperatorsHighPri = false
 zoSupportStringEscapes  = false
-zxAllowFloatingLabels   = false
+zxAllowFloatingLabels   = true
 zoParaSysNotEmulate     = false
 zoDebug                 = true
 Zeus_PC                 = Start
@@ -179,7 +179,6 @@ mend
                         if enabled UploadNext
                           OutputNex("Q:\NXtel.nex")
                         endif
-
 
                         //nexFile equ "..\bin\NXtel.nex"
                         //output_nex nexFile, $FF40, $C000, "2.0.27", 6

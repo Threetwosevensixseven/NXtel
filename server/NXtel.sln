@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelMonitor", "NXtelMonito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelBbcBasic", "NXtelBbcBasic\NXtelBbcBasic.csproj", "{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToLFCR", "ToLFCR\ToLFCR.csproj", "{6ACA8719-9F6A-4DD8-A406-C38220479BC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,18 @@ Global
 		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x64.Build.0 = Release|Any CPU
 		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x86.ActiveCfg = Release|Any CPU
 		{F47D3D13-F9E9-4910-B2A9-0BD3FCEB87D0}.Release|x86.Build.0 = Release|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Debug|x64.Build.0 = Debug|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Debug|x86.Build.0 = Debug|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Release|x64.ActiveCfg = Release|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Release|x64.Build.0 = Release|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Release|x86.ActiveCfg = Release|Any CPU
+		{6ACA8719-9F6A-4DD8-A406-C38220479BC6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

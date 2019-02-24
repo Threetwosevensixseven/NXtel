@@ -442,7 +442,7 @@ WaitNotBusy:            in a, (c)                       ; Read the UART status
                         jr nz, WaitNotBusy              ; If busy, keep trying until not busy
                         out (c), d                      ; Otherwise send the byte to the UART Tx port
                         if enabled LogESP
-                          ESPLogText("[SEND]")
+                          //ESPLogText("[SEND]")
                           ld a, d
                           call ESPLogProc
                         endif

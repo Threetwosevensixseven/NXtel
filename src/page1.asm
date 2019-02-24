@@ -11,6 +11,7 @@ CfgBuffer:                                              ; CfgBuffer is 8KB minus
                                                         ; and grows upwards.
 if enabled ZeusDebug
   import_bin "..\sd\NXtel.cfg"                          ; When running in Zeus, the cfg file contents
+  db 0                                                  ; EOF marker just in case
 endif                                                   ; will already be planted in memory in the buffer.
 PreloadedCfgAddr equ $-1
 PreloadedCfgLen equ $-CfgBuffer
@@ -77,6 +78,7 @@ ParseCfgFile2:
                           ld bc, $1C00                  ; bc = number of bytes to read
                           call esxDOS.fRead             ; Read the entire file (or most of it if huge)
                           jp c, LoadSettings.Error      ; into the buffer.
+                          ld (hl), 0                    ; Set the EOF byte
                           dec hl
                           ld (CfgFileEnd), hl
                           ld (CfgFileLen), bc
@@ -86,26 +88,10 @@ ParseCfgFile2:
                         //zeusdatabreakpoint 0, $+disp
 
                         ld iy, 0
-                        xor a
-                        ld (IsLastLine), a
                         ld hl, 0
                         ld (CfgSectionsStart), hl
                         ld (CfgSectionsNext), hl
                         ld (SectionAdjust), hl
-                        ld hl, CfgBuffer                ; Detect a CR line ending
-                        ld bc, (CfgFileLen)
-                        ld a, CR
-                        cpir
-                        jp z, IsCR
-                        ld hl, CfgBuffer                ; No CR at all, so detect a LF ending
-                        ld bc, (CfgFileLen)
-                        ld a, LF
-                        cpir
-                        jp z, IsLF
-                        ld a, EOLStyle.LF               ; There are no line endings at all!
-                        ld (CfgLineEndings), a          ; Why not assume LF, for simplicity ;)
-                        jp SetupEOL
-
 CreateDefaultCfgFile:
                         if not enabled ZeusDebug
                           cp 5                          ; Only trap "No such file or dir"
@@ -120,45 +106,6 @@ CreateDefaultCfgFile:
                           call esxDOS.fClose
                           jp ParseCfgFile2              ; Don't save stack a second time
                         endif
-IsCR:
-                        ld b, a                         ; Preserve first char of line ending
-                        inc hl
-                        ld a, (hl)
-                        or a
-                        ld a, EOLStyle.CR               ; Are we CR?
-                        cp LF                           ; Or CRLF?
-                        jp z, IsCRLF
-                        jp SaveCR                       ; We are CR /
-IsCRLF:                 ld a, EOLStyle.CRLF             ; We are CRLF
-SaveCR:                 ld (CfgLineEndings), a
-                        jp SetupEOL
-IsLF:
-                        ld b, a                         ; Preserve first char of line ending
-                        inc hl
-                        ld a, (hl)
-                        or a
-                        ld a, EOLStyle.LF               ; Are we LF?
-                        cp LF                           ; Or LFCR?
-                        jp z, IsLFCR
-                        jp SaveLF                       ; We are LR /
-IsLFCR:                 ld a, EOLStyle.LFCR             ; We are LFCR
-SaveLF:                 ld (CfgLineEndings), a
-                        call ExtendFileByOneLine
-SetupEOL:
-                        and EOLStyle.IsDouble           ; a is 0..4 (EOL Style)
-                        ld a, $00                       ; $00 = nop
-                        ld c, a
-                        jp z, SingleEOL
-                        ld a, $23                       ; $23 = inc hl
-                        ld c, $2B                       ; $2b = dec hl
-SingleEOL:              //ld (DoubleEOL1), a              ; SMC> nop or inc hl
-                        ld (DoubleEOL2), a              ; SMC> nop or inc hl
-                        ld a, b
-                        //ld (FirstEOLChar1), a           ; SMC> CR or LF
-                        ld (FirstEOLChar2), a           ; SMC> CR or LF
-                        ld (FirstEOLChar3), a           ; SMC> CR or LF
-                        ld a, c
-                        ld (DoubleEOL3), a              ; SMC> nop or dec hl
 ParseFile:
                         ld ix, CfgList                  ; Set up linked list at the first record,
                         xor a
@@ -175,23 +122,35 @@ ParseFile:
 ParseLine:
                         //zeusdatabreakpoint 1, "iy<>0", $+disp
                         //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
-                        bp
+                        //bp
 
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
                         ld a, (hl)
+                        or a                            ; Is this the last line?
+                        jp z, LastLine
                         cp CR                           ; Is this an empty line?
-                        jp nz, NonEmptyLine
+                        jp z, EmptyLine
                         cp LF
-                        jp nz, NonEmptyLine
-                        call SkipEOL                    ; Skips CR, LF, CRLF or LFCR
+                        jp z, EmptyLine
+                        jp NonEmptyLine
 EmptyLine:
-                        ld de, (ix+CfgList.LineAddr)
-                        or a                            ; Clear carry
-                        sbc hl, de                      ; Since this is an empty line,
-                        inc hl                          ; line length is
-                        ld (ix+CfgList.LineLen), hl     ; either 1 or 2
-                        inc de
-                        ld (CfgNextLineStart), de       ; Set the next line start
+                        ld bc, 1                        ; Line length is potentially 1 or 2, starting with 1
+                        inc hl
+                        cp (hl)
+                        jp z, SngEOL                    ; If next char is the same then we must have a single char EOL,
+                        ld a, (hl)                      ; because there is no CRCR or LFLF style.
+                        cp CR
+                        jp z, DblEOL
+                        cp LF
+                        jp z, DblEOL
+                        jp SngEOL                       ; If next char isn't CR or LF we also have a single char EOL
+DblEOL:                 inc c                           ; For double char EOLs, line length is now 2
+
+SngEOL:
+                        dec hl                          ; hl is now back at the start of the line, and bc is length
+                        ld (ix+CfgList.LineLen), bc     ; Store line length
+                        add hl, bc                      ; Calculate start of next line
+                        ld (CfgNextLineStart), hl       ; Store start of next line
                         call SetNoKey                   ; Signal there is no key or value on this line
                         jp SetupNextLine
 NonEmptyLine:
@@ -203,7 +162,9 @@ NonEmptyLine:
                         //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
                         //nop
 
+                        push hl
                         call FindNextEOL                ; Not a blank line or comment, so fine the line end.
+                        pop hl
                         ld bc, (ix+CfgList.LineLen)
                         ld a, '='
                         cpir                            ; Does the line contain an equals?
@@ -217,21 +178,21 @@ Equals:
                         ld de, (ix+CfgList.LineAddr)
                         or a                            ; Clear carry
                         sbc hl, de
-                        ld b, l                         ; b = length back to the start of the line (assumes key <= 255)
+                        ld bc, hl                       ; bc = length back to the start of the line
                         pop hl
 KeyLoop1:               dec hl
-                        dec b                           ; Keep track of chars back to the start of the line
+                        dec bc                          ; Keep track of chars back to the start of the line
                         ld a, (hl)
                         cp ' '
                         jp z, KeyLoop1
                         ld a, b
-                        or a
+                        or c
                         ld de, hl                       ; de = the address of the end of the key.
                         jp z, KeyStartOfLine
 KeyLoop2:               dec hl                          ; Now work back to find the start of the key.
-                        dec b                           ; Keep track of chars back to the start of the line
+                        dec bc                          ; Keep track of chars back to the start of the line
                         ld a, b
-                        or a
+                        or c
                         jp z, KeyStartOfLine
                         ld a, (hl)
                         cp ' '
@@ -253,16 +214,14 @@ FindValue:                                              ; Now we have the key, F
                         ld hl, (ix+CfgList.LineLen)
                         or a                            ; Clear carry
                         sbc hl, de
-                        ld b, l
-                        dec b
-                        dec b                           ; b = chars remaining from the char after equals to the EOL,
-                        ld a, b
-                        ld (AfterEqualsLen), a          ; and save value for later.
+                        ld bc, hl
+                        dec bc                         ; bc = chars remaining from the char after equals to the EOL
+                        ld (AfterEqualsLen), bc         ; and save value for later.
                         ld hl, (EqualsAddr)
 ValueLoop1:             inc hl
-                        dec b
+                        dec bc
                         ld a, b
-                        or a
+                        or c
                         jp z, ValueEndOfLine
                         ld a, (hl)
                         cp ' '
@@ -272,21 +231,24 @@ TrimValueEndSpaces:
                         ld hl, (ix+CfgList.LineAddr)
                         ld de, (ix+CfgList.LineLen)
                         add hl, de
-DoubleEOL3:             nop//dec hl                     ; <SMC: nop (single EOL) or dec hl (double EOL)
                         dec hl
-                        ld b, [AfterEqualsLen]SMC       ; Restore search length
+                        ld bc, [AfterEqualsLen]SMC      ; Restore search length
 ValueLoop2:             dec hl
-                        dec b
+                        dec bc
                         ld a, b
-                        or a
+                        or c
                         jp z, ValueEndOfLine
                         ld a, (hl)
+                        cp CR
+                        jp z, ValueLoop2
+                        cp LF
+                        jp z, ValueLoop2
                         cp ' '
                         jp z, ValueLoop2
                         ld de, (ix+CfgList.ValueAddr)   ; hl = value end address, de = value start address
                         or a
-                        sbc hl, de                      ; de = value length
-                        inc hl
+                        sbc hl, de
+                        inc hl                          ; hl = value length
                         ld (ix+CfgList.ValueLen), hl    ; Set the length of the value into the record
 ValueEndOfLine:         jp SetupNextLine
 NoEquals:                                               ; This line has no equals,
@@ -296,20 +258,28 @@ Comment:
                         call FindNextEOL
                         jp SetupNextLine
 SectionStart:
+                        //bp
                         //zeusdatabreakpoint 0, $+disp
+                        ld (StartOfSecName), hl         ; Save start of key for later
                         call SetNoKey                   ; Setting a zero key length will make parsing ignore sections.
-                        ld bc, 0
-                        inc hl
-                        push hl
-SecLoop1:               ld a, (hl)
+NextSectionChar:        inc hl                          ; Start looking for the end of the line after the [
+                        ld a, (hl)
                         cp ']'
-                        jp z, EOS
-                        cp [FirstEOLChar3]SMC
-                        jp z, EOS
-                        inc bc
-                        inc hl
-                        jp SecLoop1
-EOS:
+                        jp z, EndOfSection
+                        or a                            ; Is this the last line?
+                        jp z, LastLine
+                        cp CR                           ; Is this an empty line?
+                        jp z, EndOfSection
+                        cp LF
+                        jp z, EndOfSection
+                        jp NextSectionChar
+
+EndOfSection:           dec hl                          ; Address of the end of the section name
+                        ld de, [StartOfSecName]SMC
+                        push de
+                        or a
+                        sbc hl, de
+                        ld bc, hl                       ; bc = Length of the section name
                         push ix
                         pop hl
                         add hl, -CfgList.Size
@@ -330,6 +300,7 @@ WasFirstConfig:
                         ld hl, -CfgList.Size
                         ld (SectionAdjust), hl
                         pop hl
+                        inc hl
                         ld (iy+SectionList.NameAddr), hl
                         ld (iy+SectionList.NameLen), bc
                         ld a, (CfgSectionsStart)
@@ -349,49 +320,43 @@ SetNoKey:
                         ld (ix+CfgList.KeyLenMSB), a
                         ret
 FindNextEOL:
-                        ld a, [FirstEOLChar2]SMC        ; <SMC: CR or LF
-                        push hl                         ; hl is already the start of the search
-                        ex de, hl
-                        ld hl, (CfgFileStart)
-                        or a                            ; Clear carry
-                        sbc hl, de
-                        ex de, hl                       ; This is amount of the file we've processed so far
-                        ld hl, (CfgFileLen)
-                        or a                            ; Clear carry
-                        sbc hl, de
-                        ld bc, hl                       ; This is the number of bytes until the end of the file
-                        pop hl
-                        push hl
-                        cpir                            ; Search for the first EOL char
-DoubleEOL2:             nop//inc hl                     ; <SMC: nop (single EOL) or inc hl (double EOL)
-
-                        push hl
-                        push de
-                        ex de, hl
-                        ld hl, (CfgFileEnd)
-                        //zeusdatabreakpoint 2, "zeusprinthex(1, de, hl)", $+disp
-                        inc de
-                        CpHL(de)
-                        jp c, EndOfFile
-                        pop de
-                        pop hl
-
-                        ld (CfgNextLineStart), hl
-ReturnFromEOF:          pop de
-                        push de
+                        ld a, (hl)
+                        or a                            ; Is this the last line?
+                        jp z, LastLine
+                        cp CR                           ; Is this an empty line?
+                        jp z, FoundEOL1
+                        cp LF
+                        jp z, FoundEOL1
+                        inc hl
+                        jp FindNextEOL
+FoundEOL1:
+                        inc hl
+                        cp (hl)
+                        jp z, SngEOL2                    ; If next char is the same then we must have a single char EOL,
+                        ld a, (hl)                       ; because there is no CRCR or LFLF style.
+                        cp CR
+                        jp z, DblEOL2
+                        cp LF
+                        jp z, DblEOL2
+                        jp SngEOL2                       ; If next char isn't CR or LF we also have a single char EOL
+DblEOL2:                inc hl                           ; For double char EOLs, advance pointer again
+SngEOL2:                push hl                          ; hl is now at the start of the next line
+                        ld de, (ix+CfgList.LineAddr)
                         or a
                         sbc hl, de
                         ld (ix+CfgList.LineLen), hl
                         pop hl
+                        ld (CfgNextLineStart), hl
                         ret
-EndOfFile:
+EndOfFilex:
                         //zeusdatabreakpoint 0, $+disp
-
+                        bp
                         ld a, 1
-                        ld (IsLastLine), a
+                        //ld (IsLastLine), a
                         pop de
                         pop hl
-                        jp ReturnFromEOF
+                        //jp ReturnFromEOF // this no longer exists, uncomment out later
+
                         //pop hl
 
                         //ld sp, [BalanceStack]SMC        ; Balance the stack
@@ -400,18 +365,7 @@ EndOfFile:
                         //pop hl
                         //jp (hl)
                         //ret
-SetupNextLine:
-                        ld a, [IsLastLine]SMC
-                        or a
-                        jp z, NotLastLine
-                        xor a
-                        ld (ix+(CfgList.Size*2)-3), a   ; Clear NextLine pointer
-                        ld (ix+(CfgList.Size*2)-4), a   ; on last record of linked list
-                        ld de, (ix+CfgList.PrevEntry)
-                        ld (CfgLastRecord), de          ; Save the last CfgList record
-                        ld sp, [BalanceStack]SMC
-                        ret                             ; Return to the routine that called ParseCfgFile
-NotLastLine:            ld de, ix
+SetupNextLine:          ld de, ix
                         ld bc, de
                         add de, -CfgList.Size           ; Set the NextEntry of the current (old) record
                         add de, [SectionAdjust]SMC
@@ -422,59 +376,9 @@ NotLastLine:            ld de, ix
                         ld (SectionAdjust), hl
                         ld hl, (CfgNextLineStart)       ; and set hl to the current buffer pointer.
                         jp ParseLine
-ExtendFileByOneLine:
-                        push af
-                        cp EOLStyle.LF
-                        jp z, ExtendLF
-                        cp EOLStyle.CR
-                        jp z, ExtendCR
-                        cp EOLStyle.LF
-                        jp z, ExtendLFCR
-ExtendCRLF:
-                        ld hl, (CfgFileLen)
-                        inc hl
-                        inc hl
-                        ld (CfgFileLen), hl
-                        ld hl, (CfgFileEnd)
-                        inc hl
-                        ld (hl), CR
-                        inc hl
-                        ld (hl), LF
-                        ld (CfgFileEnd), hl
-                        pop af
-                        ret
-ExtendLFCR:
-                        ld hl, (CfgFileLen)
-                        inc hl
-                        inc hl
-                        ld (CfgFileLen), hl
-                        ld hl, (CfgFileEnd)
-                        inc hl
-                        ld (hl), LF
-                        inc hl
-                        ld (hl), CR
-                        ld (CfgFileEnd), hl
-                        pop af
-                        ret
-ExtendCR:
-                        ld hl, (CfgFileLen)
-                        inc hl
-                        ld (CfgFileLen), hl
-                        ld hl, (CfgFileEnd)
-                        inc hl
-                        ld (hl), CR
-                        ld (CfgFileEnd), hl
-                        pop af
-                        ret
-ExtendLF:
-                        ld hl, (CfgFileLen)
-                        inc hl
-                        ld (CfgFileLen), hl
-                        ld hl, (CfgFileEnd)
-                        inc hl
-                        ld (hl), LF
-                        ld (CfgFileEnd), hl
-                        pop af
+LastLine:
+                        ld (CfgLastRecord), ix          ; Save the last CfgList record
+                        ld sp, [BalanceStack]SMC
                         ret
 
 FileName:               db "NXtel.cfg", 0
@@ -485,19 +389,21 @@ pend
 CfgFindKey              proc                            ; de = address of key to search for
                         ld (SearchKey), de
                         ld ix, CfgList                  ; First linked list record
-RecordLoop:             ld de, [SearchKey]SMC
+RecordLoop:             ld de, [SearchKey]SMC           ; de = address of search key
                         ld a, (ix+CfgList.KeyLen)
                         or (ix+CfgList.KeyLenMSB)
                         jp z, NoKey
-                        ld b, a                         ; b = key length
+                        ld c, a
+                        ld b, (ix+CfgList.KeyLenMSB)    ; bc = key length
                         ld hl, (ix+CfgList.KeyAddr)     ; hl = address of record key
 KeyLoop:                ld a, (de)
-                        ld c, (hl)
                         cp (hl)
                         jp nz, NoKey
                         inc hl
                         inc de
-                        dec b
+                        dec bc
+                        ld a, b
+                        or c
                         jp nz, KeyLoop
 Success:
                         ld hl, (ix+CfgList.ValueAddr)   ; Return hl = Value Address
