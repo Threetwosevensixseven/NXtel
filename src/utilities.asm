@@ -270,6 +270,7 @@ MainMenu                proc
                         ld (MenuNotImplemented.Return), hl
                         MMU6(31, false)
                         MMU7(30, false)
+                        EnableTime(false, false)
                         jp MainMenu31
 Return:                 call RenderBuffer
                         FlipScreen()

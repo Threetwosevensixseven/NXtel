@@ -46,64 +46,64 @@ pend
 
 Pages proc Table:
 
-  ; Bank  Slot  Duration    Notes
+  ; Bank  Slot  Duration     Slot  Page
 
-  db  37,    5, dw 350+NOC  ;   Title
-  db  37,    7, dw  50+NOC  ;   Blank
+  db  37,    5, dw 350+NOC  ;      Demo title
+  db  37,    7, dw  50+NOC  ;      Blank
 
-  db  39,    0, dw 200+CLK  ;   0
-  db  39,    1, dw 200+CLK  ;   1
-  db  39,    2, dw 200+CLK  ;   2
-  db  39,    3, dw 200+CLK  ;   3
-  db  39,    4, dw 200+NOC  ;   4
-  db  39,    5, dw 200+NOC  ;   5
-  db  39,    6, dw 200+NOC  ;   6
-  db  39,    7, dw 200+CLK  ;   7
+  db  39,    0, dw 200+CLK  ;   0  TELSTAR Welcome
+  db  39,    1, dw 200+CLK  ;   1  TELSTAR Index 0a
+  db  39,    2, dw 200+CLK  ;   2  TELSTAR Elite 8a
+  db  39,    3, dw 200+CLK  ;   3  TELSTAR Don't Panic 91b
+  db  39,    4, dw 200+NOC  ;   4  Space Raiders
+  db  39,    5, dw 200+NOC  ;   5  Bob Pape book
+  db  39,    6, dw 200+NOC  ;   6  Bender
+  db  39,    7, dw 200+NOC  ;   7  1984 Charts
 
-  db  40,    0, dw 200+NOC  ;   0
-  db  40,    1, dw 200+CLK  ;   1
-  db  40,    2, dw 200+NOC  ;   2
-  db  40,    3, dw 200+CLK  ;   3
-  db  40,    4, dw 100+CLK  ;   4
-  db  40,    5, dw 100+CLK  ;   5
-  db  40,    6, dw 100+CLK  ;   6
-  db  40,    7, dw 100+NOC  ;   7
+  db  40,    0, dw 200+CLK  ;   0  TELSTAR News 2001a
+  db  40,    1, dw 200+CLK  ;   1  TELSTAR News 2001b
+  db  40,    2, dw 200+CLK  ;   2  TELSTAR News 2001c
+  db  40,    3, dw 200+CLK  ;   3  TELSTAR News 2001d
+  db  40,    4, dw 100+CLK  ;   4  TELSTAR News 2001e
+  db  40,    5, dw 100+CLK  ;   5  TELSTAR News 2001f
+  db  40,    6, dw 100+CLK  ;   6  TELSTAR News 2001g
+  db  40,    7, dw 100+CLK  ;   7  TELSTAR News 2001h
 
-  db  34,    0, dw 200+CLK  ;   0
-  db  34,    1, dw 100+CLK  ;   1
-  db  34,    2, dw 100+CLK  ;   2
-  db  34,    3, dw 100+CLK  ;   3
-  db  34,    4, dw 100+CLK  ;   4
-  db  34,    5, dw 100+CLK  ;   5
-  db  34,    6, dw 100+CLK  ;   6
-  db  34,    7, dw 100+CLK  ;   7
+  db  35,    0, dw 100+CLK  ;   0  TELSTAR News 2001i
+  db  35,    1, dw 100+CLK  ;   1  TELSTAR News 2001j
+  db  35,    2, dw 100+CLK  ;   2  TELSTAR News 2001k
+  db  35,    3, dw 100+CLK  ;   3  TELSTAR News 2001l
+  db  35,    4, dw 100+CLK  ;   4  TELSTAR News 2001m
+  db  35,    5, dw 100+CLK  ;   5  TELSTAR News 2001n
+  db  35,    6, dw 200+NOC  ;   6  Cat girls
+  db  35,    7, dw 200+NOC  ;   7  Dalek
 
-  db  35,    0, dw 100+CLK  ;   0
-  db  35,    1, dw 100+CLK  ;   1
-  db  35,    2, dw 100+CLK  ;   2
-  db  35,    3, dw 100+CLK  ;   3
-  db  35,    4, dw 100+CLK  ;   4
-  db  35,    5, dw 100+CLK  ;   5
-  db  35,    6, dw 200+NOC  ;   6
-  db  35,    7, dw 200+NOC  ;   7
+  db  34,    0, dw 200+NOC  ;   0  Holly
+  db  34,    1, dw 100+CLK  ;   1  TELSTAR Engineering page 91a
+  db  34,    2, dw 100+NOC  ;   2  High Speed Train
+  db  34,    3, dw 100+CLK  ;   3  TELSTAR What's New 7a
+  db  34,    4, dw 100+CLK  ;   4  TELSTAR What's New 7b
+  db  34,    5, dw 100+CLK  ;   5  TELSTAR What's New 7c
+  db  34,    6, dw 100+CLK  ;   6  TELSTAR What's New 7d
+  db  34,    7, dw 100+NOC  ;   7  Picard
 
-  db  36,    0, dw 200+NOC  ;   0
-  db  36,    1, dw 200+NOC  ;   1
-  db  36,    2, dw 200+NOC  ;   2
-  db  36,    3, dw 200+NOC  ;   3
-  db  36,    4, dw 200+NOC  ;   4
-  db  36,    5, dw 200+NOC  ;   5
-  db  36,    6, dw 200+NOC  ;   6
-  db  36,    7, dw 200+NOC  ;   7
+  db  36,    0, dw 200+NOC  ;   0  Eeyore
+  db  36,    1, dw 200+NOC  ;   1  Escher cube
+  db  36,    2, dw 200+NOC  ;   2  Homer
+  db  36,    3, dw 200+NOC  ;   3  Blake's 7
+  db  36,    4, dw 200+NOC  ;   4  Spirited Away
+  db  36,    5, dw 200+NOC  ;   5  Red Dwarf
+  db  36,    6, dw 200+NOC  ;   6  Clive Sinclair
+  db  36,    7, dw 200+NOC  ;   7  Yoda
 
-  db  37,    0, dw 200+NOC  ;   0
-  db  37,    1, dw 200+NOC  ;   1
-  db  37,    2, dw 200+NOC  ;   2
-  db  37,    3, dw 200+NOC  ;   3
-  db  37,    4, dw 200+NOC  ;   4
-  db  37,    7, dw 100+NOC  ;   7
-  db  37,    6, dw 350+NOC  ;   5
-  db  37,    7, dw 100+NOC  ;   7
+  db  37,    0, dw 200+NOC  ;   0  Thunderbirds Rolls
+  db  37,    1, dw 200+NOC  ;   1  Wizard
+  db  37,    2, dw 200+NOC  ;   2  Thunderbirds ship
+  db  37,    3, dw 200+NOC  ;   3  Elite
+  db  37,    4, dw 200+NOC  ;   4  Girl
+  db  37,    7, dw 100+NOC  ;   7  Blank
+  db  37,    6, dw 350+NOC  ;   5  Demo credits
+  db  37,    7, dw 100+NOC  ;   7  Blank
 
   struct
     Bank        ds 1

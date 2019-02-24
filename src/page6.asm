@@ -95,8 +95,12 @@ SavePage:               ld (PagesCurrent), a
                         ld d, (hl)
                         ld a, d
                         and %1000 0000
-                        ld (GetTime.ShowClock), a
-                        ld a, d
+                        nextreg $57, 30
+                        jp z, DisableDemoClock
+EnableDemoClock:        EnableTime(true, false)
+                        jp DemoClockContinue
+DisableDemoClock:       EnableTime(false, false)
+DemoClockContinue:      ld a, d
                         and %0111 1111
                         ld d, a
                         ex de, hl
