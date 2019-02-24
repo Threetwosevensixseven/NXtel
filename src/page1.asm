@@ -65,11 +65,12 @@ CfgSectionsStart:  dw 0
 CfgSectionsNext:   dw 0
 CfgLineEndings:    db 0
 
+
+
 org $E000
 ParseCfgFile            proc
                         ld (BalanceStack), sp
-ParseCfgFile2:
-                        if not enabled ZeusDebug        ; When running in Zeus, the cfg file contents
+Reparse:                if not enabled ZeusDebug        ; When running in Zeus, the cfg file contents
                           ld ix, FileName               ; will already be planted in memory in the buffer.
                           call esxDOS.fOpen             ; Otherwise, open cfg file.
                           jp c, CreateDefaultCfgFile
@@ -84,29 +85,11 @@ ParseCfgFile2:
                           ld (CfgFileLen), bc
                           call esxDOS.fClose            ; Close the cfg file again,ignoring any errors.
                         endif
-
-                        //zeusdatabreakpoint 0, $+disp
-
                         ld iy, 0
                         ld hl, 0
                         ld (CfgSectionsStart), hl
                         ld (CfgSectionsNext), hl
                         ld (SectionAdjust), hl
-CreateDefaultCfgFile:
-                        if not enabled ZeusDebug
-                          cp 5                          ; Only trap "No such file or dir"
-                          jp nz, LoadSettings.Error     ; Otherwise display standard error message
-                          ld ix, FileName
-                          call esxDOS.fCreate
-                          jp c, LoadSettings.Error
-                          ld ix, DefaultCfg.File
-                          ld bc, DefaultCfg.Len
-                          call esxDOS.fWrite
-                          jp c, LoadSettings.Error
-                          call esxDOS.fClose
-                          jp ParseCfgFile2              ; Don't save stack a second time
-                        endif
-ParseFile:
                         ld ix, CfgList                  ; Set up linked list at the first record,
                         xor a
                         ld (ix+CfgList.PrevEntry), a    ; set a blank previous entry
@@ -120,10 +103,6 @@ ParseFile:
 //=========================================================================================================
 
 ParseLine:
-                        //zeusdatabreakpoint 1, "iy<>0", $+disp
-                        //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
-                        //bp
-
                         ld (ix+CfgList.LineAddr), hl    ; Set the record start
                         ld a, (hl)
                         or a                            ; Is this the last line?
@@ -158,10 +137,6 @@ NonEmptyLine:
                         jp z, Comment
                         cp '['
                         jp z, SectionStart
-
-                        //zeusdatabreakpoint 1, "ix<=$DEF5", $+disp
-                        //nop
-
                         push hl
                         call FindNextEOL                ; Not a blank line or comment, so fine the line end.
                         pop hl
@@ -258,8 +233,6 @@ Comment:
                         call FindNextEOL
                         jp SetupNextLine
 SectionStart:
-                        //bp
-                        //zeusdatabreakpoint 0, $+disp
                         ld (StartOfSecName), hl         ; Save start of key for later
                         call SetNoKey                   ; Setting a zero key length will make parsing ignore sections.
 NextSectionChar:        inc hl                          ; Start looking for the end of the line after the [
@@ -348,24 +321,8 @@ SngEOL2:                push hl                          ; hl is now at the star
                         pop hl
                         ld (CfgNextLineStart), hl
                         ret
-EndOfFilex:
-                        //zeusdatabreakpoint 0, $+disp
-                        bp
-                        ld a, 1
-                        //ld (IsLastLine), a
-                        pop de
-                        pop hl
-                        //jp ReturnFromEOF // this no longer exists, uncomment out later
-
-                        //pop hl
-
-                        //ld sp, [BalanceStack]SMC        ; Balance the stack
-                        //dec sp
-                        //dec sp
-                        //pop hl
-                        //jp (hl)
-                        //ret
-SetupNextLine:          ld de, ix
+SetupNextLine:
+                        ld de, ix
                         ld bc, de
                         add de, -CfgList.Size           ; Set the NextEntry of the current (old) record
                         add de, [SectionAdjust]SMC
@@ -382,6 +339,24 @@ LastLine:
                         ret
 
 FileName:               db "NXtel.cfg", 0
+pend
+
+
+
+CreateDefaultCfgFile    proc
+                        if not enabled ZeusDebug
+                          cp 5                          ; Only trap "No such file or dir"
+                          jp nz, LoadSettings.Error     ; Otherwise display standard error message
+                          ld ix, FileName
+                          call esxDOS.fCreate
+                          jp c, LoadSettings.Error
+                          ld ix, DefaultCfg.File
+                          ld bc, DefaultCfg.Len
+                          call esxDOS.fWrite
+                          jp c, LoadSettings.Error
+                          call esxDOS.fClose
+                          jp ParseCfgFile.Reparse       ; Don't save stack a second time
+                        endif
 pend
 
 
@@ -434,13 +409,10 @@ LoadSettings            proc
                         ld (URLNumber), a
                         xor a
                         ld (CurrentRow), a
-ReadURLLoop:
-                        FillLDIR(LoadSettings.ValueBuffer, LoadSettings.ValueBufferLen, 0)
-
+ReadURLLoop:            FillLDIR(LoadSettings.ValueBuffer, LoadSettings.ValueBufferLen, 0)
                         ld de, KeyBuffer                ; Address of key to search for (URL1..URL7)
                         call CfgFindKey
                         jp c, NoMoreLines               ; If key isn't present then return
-
                         push hl
                         ld a, [CurrentRow]SMC
                         ld d, a
@@ -450,8 +422,7 @@ ReadURLLoop:
                         add hl, de
                         pop de
                         ex de, hl
-CopyDisplayLoop:
-                        ld a, (hl)
+CopyDisplayLoop:        ld a, (hl)
                         or a
                         jp z, EndServerLine
                         cp ","
@@ -472,8 +443,7 @@ EndDisplayLine:
                         add hl, de
                         ex de, hl
                         pop hl
-CopyServerLoop:
-                        ld a, (hl)
+CopyServerLoop:         ld a, (hl)
                         or a
                         jp z, EndServerLine
                         ldi
@@ -513,13 +483,6 @@ ValueBuffer:            ds 151
 ValueBufferLen          equ $-ValueBuffer-1
 FileBuffer:             ds 128
 FileBufferLen           equ $-FileBuffer
-
-pend
-
-
-
-SkipEOL                 proc                    ; Skips CR, LF, CRLF or LFCR
-                        ret
 pend
 
 
@@ -547,7 +510,6 @@ DefaultCfg proc File:
   Len equ $-File
 pend
 
-TestData: ds 4
 
 
 Page1End32   equ $-1
