@@ -124,8 +124,6 @@ MainLoop:
 NoCarouselBreak:
                         call DoFlash
                         MMU7(30, true)
-PrintTimeCallX:          ld hl, PrintTime
-
                         ld hl, [PageTimer]SMC
                         inc hl
                         ld (PageTimer), hl

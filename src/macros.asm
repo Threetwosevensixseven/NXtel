@@ -649,13 +649,22 @@ mend
 
 [[
 function Layer2Addr(X, Y)
-  begin
-    return (8+(X*6))+((Y*8)*256)
-  end
+begin
+  return (8+(X*6))+((Y*8)*256)
+end
 
 function DisplayBufferAddr(X, Y)
-  begin
-    return DisplayBuffer+(X+(Y*40))
+begin
+  return DisplayBuffer+(X+(Y*40))
+end
+
+function PrintTimeFrameCount()
+begin
+  if ULAMonochrome
+    return 51
+  else
+   return 11
   end
+end
 ]]
 

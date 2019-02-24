@@ -82,6 +82,7 @@ ToggleCLS:                 call Cls30
                         endif
                         ld hl, [PrintLength]DisplayBuffer.Length
                         push hl
+                        call GetTime
 DoCLS:
                         ld hl, DoubleHeightFlags                ; First pass, to set the top lines
                         ld (DHFlagPointer), hl
@@ -447,7 +448,6 @@ NoResetHeldChar:
                         jp nz, Read
 Abort:                  pop bc
 Return:
-                        call GetTime
                         if not ULAMonochrome
                           PageResetBottom48K()
                         endif
@@ -1099,7 +1099,7 @@ pend
 PrintTime               proc
                         ld a, [Frame]-1
                         inc a
-                        cp 51
+                        cp PrintTimeFrameCount()
                         jp c, NoSec
                         xor a
 NoSec:                  ld (Frame), a
