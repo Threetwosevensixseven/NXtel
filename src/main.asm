@@ -180,6 +180,8 @@ mend
                           OutputNex("Q:\NXtel.nex")
                         endif
 
+                        zeusinvoke "..\build\ZXVersion.exe", "", false
+
                         //nexFile equ "..\bin\NXtel.nex"
                         //output_nex nexFile, $FF40, $C000, "2.0.27", 6
                         //output_nex_screen nexFile, "..\build\loading-screen3.bmp", false, 0

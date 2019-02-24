@@ -321,6 +321,16 @@ PageResetBottom48K      macro()
 mend
 
 
+PageResetBottom48KStd   macro()
+                        nextreg $50,255                 ; MMU page bottom 48K back
+                        nextreg $51,255
+                        nextreg $52, 10
+                        nextreg $53, 11
+                        nextreg $54,  4
+                        nextreg $55,  5
+mend
+
+
 
 CpHL                    macro(Register)
                         or a

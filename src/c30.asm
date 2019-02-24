@@ -2,6 +2,8 @@
 
 // This gets mapped in at $E000-$FFFF
 
+Page30Start:
+
 DisplayBuffer           proc
                         ds 1000, 32
                         //import_bin "..\pages\telstar-91a-raw.bin"
@@ -9,6 +11,7 @@ DisplayBuffer           proc
                         zeusassert Length=1000, "Invalid DisplayBuffer.Length!"
 pend
 //zeusmem DisplayBuffer+disp,"Display Buffer",40,true,true,false
+
 
 
 Fonts                   proc
@@ -947,8 +950,48 @@ GetTime                 proc
 
                           ret
                         else
-                          call esxDOS.GetDate
-                          ret c
+
+                          push af
+                          push bc
+                          push de
+                          push hl
+                          push ix
+
+                          NextRegRead($50)
+                          ld (Restore0), a
+
+                          NextRegRead($51)
+                          ld (Restore1), a
+/*
+                          NextRegRead($52)
+                          ld (Restore2), a
+
+                          NextRegRead($53)
+                          ld (Restore3), a
+
+                          NextRegRead($54)
+                          ld (Restore4), a
+
+                          NextRegRead($55)
+                          ld (Restore5), a
+*/
+                          //NextRegRead($56)
+                          //ld (Restore6), a
+
+                          //NextRegRead($57)
+                          //ld (Restore7), a
+
+                          //di
+                          //PageResetBottom48KStd()
+                          nextreg $50,255
+                          nextreg $51,255
+                          //nextreg $56, 31
+                          //nextreg $57, 30
+
+                          //di
+                          Rst8(esxDOS.M_GETDATE)
+                          //Freeze()
+                          jp c, Restore
 
                           ld ix, DisplayBuffer+31
                           ld (ix+0), $82                  ; Alpha green
@@ -1006,15 +1049,33 @@ GetTime                 proc
                           call Na1
                           ld (ix+8), b                    ; Second second digit
 
+Restore:
+                          nextreg $50, [Restore0]SMC
+                          nextreg $51, [Restore1]SMC
+                          //nextreg $52, [Restore2]SMC
+                          //nextreg $53, [Restore3]SMC
+                          //nextreg $54, [Restore4]SMC
+                          //nextreg $55, [Restore5]SMC
+                          //nextreg $56, [Restore6]SMC
+                          //nextreg $57, [Restore7]SMC
+
+                          pop ix
+                          pop hl
+                          pop de
+                          pop bc
+                          pop af
+
                           ret
+
+
 Na1:                      ld b, '0'-1
 Na2:                      inc b
                           add a, c
                           jp c, Na2
                           sub c                           ; works as add 100/10/1
-                        endif
+                          ret                             ; result is in b
 
-                        ret                             ; result is in b
+                        endif
 Disable:
                         ld a, 1
                         ld (ShowClock), a
@@ -1164,4 +1225,6 @@ DoubleHeightFlags       proc
                         ds 8
                         ds 8
 pend
+
+zeusassert ($-Page30Start)<$2000, "Page 30 has overflowed to $"+tohex($-Page30Start,4)+"!"
 
