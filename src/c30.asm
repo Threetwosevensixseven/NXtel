@@ -846,8 +846,6 @@ pend
 
 
 GetTime                 proc
-                        nop                             ; <SMC this nop needs to be here
-
                         ld a, [ShowClock]SMC
                         or a
                         ret z

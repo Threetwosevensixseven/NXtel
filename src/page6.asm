@@ -51,11 +51,7 @@ Start2:
                         jp z, IsNext
                         cp 8                            ; ZEsarUX and Zeus doesn't yet
                         jp nz, IsNext
-                        ld a, $C9                       ; ret
-                        ld (GetTime), a                 ; Disable clock
-IsNext:                 ld a, $CD                       ; call NN
-                        ld (PrintTimeCall), a
-                        ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
+IsNext:                 ld hl, Resources.Table          ; Calculate Pages.Table address dynamically
                         ld a, (ResourcesCount)
                         add a, a
                         add hl, a

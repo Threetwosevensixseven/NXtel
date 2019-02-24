@@ -48,13 +48,13 @@ NoKey:
 Received:
                         EnableKeyboardScan(false)
                         nextreg $57, 30
-                        //ld hl, ESPBuffer+1
-                        //ld de, DisplayBuffer
-                        //ld bc, DisplayBuffer.Length
-                        //ldir
+
+                        //EnableTime2(true, true)
+
                         ld a, 1
                         ld (ToggleConcealReveal.ConcealEnabled), a
                         call RenderBuffer
+                        //EnableTime2(true, false)
                         FlipScreen()
                         StatusIcon(Sprites32.Online)
 CaptureTSFrameOrNot:    ld hl, CaptureTSFrame           ; $CD (call nnnn: enabled) or $21 (ld hl, nnnn: disabled)

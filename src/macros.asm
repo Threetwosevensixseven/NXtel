@@ -620,7 +620,7 @@ mUnmarkBank             macro(n)
 mend
 
 
-
+/*
 EnableTime              macro(Enable, ReenableInterrupts)
                         di
                         NextRegRead($53)
@@ -634,20 +634,36 @@ EnableTime              macro(Enable, ReenableInterrupts)
                         else
                           ld a, $32                     ; ld hl, NNNN
                         endif
-                        ld (PrintTimeCall), a
+                        //ld (PrintTimeCall), a
                         if Enable
-                          xor a                         ; nop
+                          ld a, 1
                         else
-                          ld a, $C9                     ; ret
+                          xor a
                         endif
-                        ld (GetTime), a
+                        //ld (GetTime.ShowClock), a
                         nextreg $52, [Slot3]SMC  ;12
                         nextreg $57, [Slot7]SMC
                         if (ReenableInterrupts)
                           ei
                         endif
 mend
+*/
 
+
+EnableTime2             macro(Enable, ReenableInterrupts)
+                        if Enable
+                          ld a, 1
+                        else
+                          xor a
+                        endif
+                        ld (GetTime.ShowClock), a
+                        if Enable
+                          ld a, $CD                     ; call NNNN
+                        else
+                          ld a, $21                     ; ld hl, NNNN
+                        endif
+                        ld (PrintTimeCall), a
+mend
 
 
 [[
