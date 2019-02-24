@@ -80,7 +80,6 @@ Loop:                   ld a, (hl)
                         dec c
                         ld a, c
                         jp nz, NextSet
-                        //call GetTime
                         ret
 pend
 
