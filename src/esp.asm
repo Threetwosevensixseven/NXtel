@@ -629,7 +629,7 @@ Home:
                         ld de, DisplayBuffer
                         jp ProcessNext
 End:
-                        cp $1E                          ; End/END
+                        cp $05                          ; End/END
                         jp nz, ProcessNext
                         ld de, DisplayBuffer+(40*24)-1  ; Fall into CheckNext
 CheckNext:
