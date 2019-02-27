@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using NXtelData;
 using NXtelServer.Classes;
@@ -67,14 +64,9 @@ namespace NXtelServer
             clientList.Add(newSocket, client);
             Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             var page = Page.Load(Options.StartPageNo, Options.StartFrameNo);
-            //var page = Page.Load(9999, 0);
-            //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\docs\TestPages\Welcome7Bit.bin", page.Contents7BitEncoded);
-            //File.WriteAllBytes(@"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\docs\TestPages\Welcome8Bit.bin", page.Contents);
             client.PageHistory.Push(page);
-            //page.SetVersion(Version);
             client.clientState = ClientStates.Logging;
             Console.WriteLine(string.Format("Sending page {0} (To: {1}:{2}", Options.StartPage, client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-            //Console.WriteLine(string.Format("History: {0}", client.GetHistory()));
             try
             {
                 newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
@@ -112,11 +104,27 @@ namespace NXtelServer
                     Console.WriteLine("Client disconnected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
                     return;
                 }
+                byte[] sendIAC = null;
+                byte[] pageData = null;
                 //client.DebugLog(data, received);
-                if (client.ProcessInput(data, received, out nextPage))
+                bool processed = client.ProcessInput(data, received, out nextPage, out sendIAC);
+                if (sendIAC.Length > 0)
                 {
-                    Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
-                    clientSocket.BeginSend(nextPage.Contents7BitEncoded, 0, nextPage.Contents7BitEncoded.Length,
+                    //Console.WriteLine("Sending IAC " + BitConverter.ToString(sendIAC) + " (To: " + string.Format("{0}:{1}", 
+                    //    client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    //clientSocket.BeginSend(sendIAC, 0, sendIAC.Length, SocketFlags.None, new AsyncCallback(SendData), 
+                    //    clientSocket);
+                }
+                if (processed)
+                {
+                    Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " 
+                        + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    pageData = nextPage.Contents7BitEncoded;
+                }
+                var sendData = client.Combine(sendIAC, pageData);
+                if (sendData.Length > 0)
+                {
+                    clientSocket.BeginSend(sendData, 0, sendData.Length, 
                         SocketFlags.None, new AsyncCallback(SendData), clientSocket);
                 }
                 clientSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), clientSocket);

@@ -89,6 +89,9 @@
     <Compile Include="Classes\Client.cs" />
     <Compile Include="Classes\ClientStates.cs" />
     <Compile Include="Classes\CommandStates.cs" />
+    <Compile Include="Classes\IACCommands.cs" />
+    <Compile Include="Classes\IACOptions.cs" />
+    <Compile Include="Classes\IACStates.cs" />
     <Compile Include="Classes\Version.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

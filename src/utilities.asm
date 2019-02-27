@@ -351,9 +351,23 @@ Return:                 call RenderBuffer
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
-Addresses:              dw MenuNotImplemented                   ; Key 1
-                        dw MenuNotImplemented                   ; Key 2
+Addresses:              dw MenuNotImplemented                   ; Key 1 - NXtelBaud
+                        dw MenuNotImplemented                   ; Key 2 - Join Wifi Network
+                        dw TestLatency                          ; Key 3 - Test Latency
 ItemCount               equ ($-Addresses)/2
+pend
+
+
+
+TestLatency             proc
+                        MMU6(31, false)
+                        MMU7(30, false)
+                        jp SetupTestLatency31
+Return:                 call RenderBuffer
+                        FlipScreen()
+                        MMU6(31, false)
+                        MMU7(30, true)
+                        jp TestLatency31
 pend
 
 

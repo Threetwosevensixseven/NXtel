@@ -413,6 +413,15 @@ mend                                                    ; ESPSendProc jumps back
 
 
 
+ESPSendBytes            macro(Address, Length)          ; 1 <= length(Text) <= 255 - MUST HAVE CRLF termination
+                        //ESPLogText("[SEND]")
+                        ld hl, Address                  ; Start of the text to send
+                        ld e, Length                    ; Length of the text to send, including terminating CRLF
+                        jp ESPSendProc                  ; Remaining send code is generic and reusable
+mend                                                    ; ESPSendProc jumps back to the address after the CRLF.
+
+
+
 ESPSendProc             proc
                         ld bc, UART_GetStatus           ; UART Tx port also gives the UART status when read
 ReadNextChar:           ld d, (hl)                      ; Read the next byte of the text to be sent

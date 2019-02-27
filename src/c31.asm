@@ -217,12 +217,52 @@ pend
 
 
 
-MenuKeyDescriptions31:  proc
+MenuKeyDescriptions31   proc
                         Border(Teletext.Border)
                         ld hl, Menus.Keys               ; Source address (compressed data)
                         ld de, DisplayBuffer            ; Destination address (decompressing)
                         call dzx7_mega
                         jp MainMenu.Return
+pend
+
+
+
+SetupTestLatency31      proc
+                        ld hl, Message
+                        ld de, DisplayBuffer+856
+                        ld bc, MessageEnd
+                        ldir
+                        jp TestLatency.Return
+Message:                db $82, "** Press", $86, "Q", $82, "to finish **"
+MessageEnd              equ $-Message
+pend
+
+
+
+TestLatency31           proc
+                        ESPSend("ATE0")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPCLOSE")
+                        call ESPReceiveWaitOK
+                        ESPSend("AT+CIPMUX=0")
+                        call ESPReceiveWaitOK
+                        //ESPSend("AT+CIPSTART=""TCP"",""192.168.1.3"",23280")    ; LOCAL
+                        ESPSend("AT+CIPSTART=""TCP"",""nx.nxtel.org"",23281") ; TEST
+                        //ESPSend("AT+CIPSTART=""TCP"",""nx.nxtel.org"",23280") ; WENDY
+                        call ESPReceiveWaitOK ; The welcome page will get sent, but we can ignore it
+SendLatencyMessage:
+                        ESPSend("AT+CIPSEND=10")
+                        call ESPReceiveWaitOK
+                        ESPSendBytes(TestLatency31.Command, TestLatency31.CommandLen) ; Bytes follow inline
+Command:                db 255, 253, 142, 6, "LATENT", CR, LF
+CommandLen              equ $-Command
+                        call ESPReceiveWaitOK
+WaitForQ:
+                        ld bc, zeuskeyaddr("Q")
+                        in a, (c)
+                        and zeuskeymask("Q")
+                        jp nz, SendLatencyMessage
+                        jp MenuNetworkSettings
 pend
 
 

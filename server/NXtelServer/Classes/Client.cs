@@ -20,6 +20,11 @@ namespace NXtelServer.Classes
         public Queue<Byte> KeyBuffer;
         public string CurrentCommand;
         public CommandStates CommandState;
+        public IACStates IACState;
+        private Random _random;
+        private byte[] _latencyBytes;
+        private int _latencyPacketCount;
+        private DateTime _latencyStart;
 
         public Client(IPEndPoint _remoteEndPoint, DateTime _connectedAt, ClientStates _clientState)
         {
@@ -30,6 +35,11 @@ namespace NXtelServer.Classes
             this.KeyBuffer = new Queue<Byte>();
             this.CurrentCommand = "";
             this.CommandState = CommandStates.RegularRouting;
+            this.IACState = IACStates.OutsideIAC;
+            this._random = new Random();
+            this._latencyBytes = new byte[100];
+            this._random.NextBytes(this._latencyBytes);
+            this._latencyPacketCount = 0;
         }
 
         public Page CurrentPage
@@ -42,8 +52,10 @@ namespace NXtelServer.Classes
             }
         }
 
-        public bool ProcessInput(byte[] Chars, int Received, out Page NextPage)
+        public bool ProcessInput(byte[] Chars, int Received, out Page NextPage, out byte[] SendIAC)
         {
+            var sendIAC = new List<byte>();
+
             //Page first = null;
             //foreach (var item in PageHistory)
             //    first = item;
@@ -57,6 +69,75 @@ namespace NXtelServer.Classes
             for (int i = 0; i < count; i++)
             {
                 var b = KeyBuffer.Peek();
+
+                if (b == IACCommands.IAC && IACState == IACStates.OutsideIAC)
+                {
+                    IACState = IACStates.InsideIAC;
+                    KeyBuffer.Dequeue();
+                    continue;
+                }
+
+                if (b == IACCommands.IAC && IACState == IACStates.InsideIAC)
+                {
+                    Debugger.Break(); // This is an escaped 255
+                    KeyBuffer.Dequeue();
+                    continue;
+                }
+
+                if (b == IACCommands.DO && IACState == IACStates.InsideIAC)
+                {
+                    IACState = IACStates.Doing;
+                    KeyBuffer.Dequeue(); 
+                    continue;
+                }
+
+                if (IACState == IACStates.Doing)
+                {
+                    if (b == IACOptions.CUSTOM_LATENCY)
+                    {
+                        sendIAC.AddRange(_latencyBytes);
+                        KeyBuffer.Dequeue();
+                        IACState = IACStates.OutsideIAC;
+                        if (_latencyPacketCount == 0) {
+                            _latencyStart = DateTime.Now;
+                            _latencyPacketCount++;
+                            Console.WriteLine("Starting LAT test. One LAT is 10 bytes->server + 100 bytes->client (To: " + string.Format("{0}:{1}",
+                                remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        }
+                        else
+                        {
+                            double tot = (DateTime.Now - _latencyStart).TotalMilliseconds;
+                            double avg = Math.Round(tot / _latencyPacketCount, 0);
+                            Console.WriteLine(_latencyPacketCount + " LATs in " + tot.ToString() 
+                                + "ms = avg " + avg.ToString() + "ms (To: " + string.Format("{0}:{1}",
+                                remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                            _latencyPacketCount++;
+                        }
+                        continue;
+                    }
+                    if (b == IACOptions.SUPPRESS_GOAHEAD)
+                    {
+                        sendIAC.Add(IACCommands.IAC);
+                        sendIAC.Add(IACCommands.WILL);
+                        sendIAC.Add(IACOptions.SUPPRESS_GOAHEAD);
+                        KeyBuffer.Dequeue();
+                        IACState = IACStates.OutsideIAC;
+                    }
+                    //else if (b == IACOptions.NEW_ENVIRON)
+                    //{
+
+                    //}
+                    else
+                    {
+                        // If it's not an option we support, we send IAC WONT <OPTION> 
+                        sendIAC.Add(IACCommands.IAC);
+                        sendIAC.Add(IACCommands.WONT);
+                        sendIAC.Add(IACOptions.NEW_ENVIRON);
+                        KeyBuffer.Dequeue();
+                        IACState = IACStates.OutsideIAC;
+                    }
+                    continue;
+                }
 
                 if (CommandState == CommandStates.InsideStarPageCommand)
                 {
@@ -86,6 +167,7 @@ namespace NXtelServer.Classes
                                 PageHistory.Pop();
                             NextPage = PageHistory.Peek();
                             Debug.Assert(PageHistory.Count > 0);
+                            SendIAC = sendIAC.ToArray();
                             return true;
                         }
                         else
@@ -98,6 +180,7 @@ namespace NXtelServer.Classes
                             PageHistory.Push(NextPage);
                             CommandState = CommandStates.RegularRouting;
                             CurrentCommand = "";
+                            SendIAC = sendIAC.ToArray();
                             return true;
                         }
                     }
@@ -126,6 +209,7 @@ namespace NXtelServer.Classes
                             NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
+                            SendIAC = sendIAC.ToArray();
                             return true;
                         }
                         else if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
@@ -133,9 +217,11 @@ namespace NXtelServer.Classes
                             NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
+                            SendIAC = sendIAC.ToArray();
                             return true;
                         }
                         KeyBuffer.Dequeue();
+                        SendIAC = sendIAC.ToArray();
                         return false;
                     }
                     KeyBuffer.Dequeue();
@@ -174,6 +260,7 @@ namespace NXtelServer.Classes
                                     PageHistory.Push(NextPage);
                                     CommandState = CommandStates.RegularRouting;
                                     CurrentCommand = "";
+                                    SendIAC = sendIAC.ToArray();
                                     return true;
                                 }
                             }
@@ -191,6 +278,7 @@ namespace NXtelServer.Classes
                 }
             }
 
+            SendIAC = sendIAC.ToArray();
             return false;
         }
 
@@ -202,7 +290,18 @@ namespace NXtelServer.Classes
         internal void DebugLog(byte[] Buffer, int Received)
         {
             for (int i = 0; i < Received; i++)
-                Console.WriteLine("Received: " + Buffer[i] + " (From: " + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                Console.WriteLine("Received: " + Buffer[i].ToString("X2") + " [" + Buffer[i].ToString().PadLeft(3)
+                    + (Buffer[i] > 32 ? " " + Convert.ToChar(Buffer[i]).ToString() : "  ")
+                    + "] (From: " + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+        }
+
+        internal byte[] Combine(params byte[][] BytesList)
+        {
+            var list = new List<byte>();
+            foreach (var bytes in BytesList)
+                if (bytes != null && bytes.Length > 0)
+                    list.AddRange(bytes);
+            return list.ToArray();
         }
     }
 }
