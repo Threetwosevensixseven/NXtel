@@ -280,5 +280,32 @@ namespace NXtelData
                 return (bool)_showStaticTimeAndDate;
             }
         }
+
+        private static bool? _enableInputParserLogging;
+        public static bool EnableInputParserLogging
+        {
+            get
+            {
+                if (_enableInputParserLogging == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["EnableInputParserLogging"] ?? "").Trim().ToLower();
+                    _enableInputParserLogging = (cfg == "true");
+                }
+                return (bool)_enableInputParserLogging;
+            }
+        }
+
+        public static int IACTimeoutMillisecs
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["IACTimeoutMillisecs"] ?? "").Trim();
+                int val;
+                int.TryParse(cfg, out val);
+                if (val <= 0)
+                    val = 1000;
+                return val;
+            }
+        }
     }
 }

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NXtelData;
 
@@ -25,6 +27,7 @@ namespace NXtelServer.Classes
         private byte[] _latencyBytes;
         private int _latencyPacketCount;
         private DateTime _latencyStart;
+        private Timer _queuedPageTimer;
 
         public Client(IPEndPoint _remoteEndPoint, DateTime _connectedAt, ClientStates _clientState)
         {
@@ -40,6 +43,8 @@ namespace NXtelServer.Classes
             this._latencyBytes = new byte[100];
             this._random.NextBytes(this._latencyBytes);
             this._latencyPacketCount = 0;
+            this._queuedPage = null;
+            this._queuedPageTimer = null;
         }
 
         public Page CurrentPage
@@ -49,6 +54,69 @@ namespace NXtelServer.Classes
                 if (PageHistory.Count == 0)
                     return new Page();
                 return PageHistory.Peek();
+            }
+        }
+
+        private Page _queuedPage = null;
+        private object _queuedPageLock = new object();
+        public void SetQueuedPage(Page value, Socket Socket)
+        {
+                lock (_queuedPageLock)
+                {
+                    if (value != null)
+                    {
+                        _queuedPageTimer = new Timer(QueuedPageCallback, Socket, Options.IACTimeoutMillisecs, Timeout.Infinite);
+                    }
+                    else
+                    {
+                        _queuedPageTimer = null;
+                    }
+                    _queuedPage = value;
+                }
+        }
+        
+        public byte[] GetQueuedPageContents()
+        {
+            lock (_queuedPageLock)
+            {
+                if (_queuedPage == null)
+                    return new byte[0];
+                var rv = _queuedPage.Contents7BitEncoded ?? new byte[0];
+                _queuedPage = null;
+                return rv;
+            }
+        }
+
+        //private DateTime? _lastIACCommandSent = null;
+        //public bool QueuedPageTimedOut()
+        //{
+        //    lock (_queuedPageLock)
+        //    {
+        //        if (_queuedPage == null || _lastIACCommandSent == null)
+        //            return false;
+        //        if (((DateTime)_lastIACCommandSent).AddMilliseconds(Options.IACTimeoutMillisecs) >= DateTime.Now)
+        //            return true;
+        //        return false;
+        //    }
+        //}
+
+        private void QueuedPageCallback(object state)
+        {
+            lock (_queuedPageLock)
+            {
+                if (_queuedPage != null)
+                {
+                    var socket = state as Socket;
+                    if (socket != null)
+                    {
+                        Console.WriteLine("Sending queued page (To: " + string.Format("{0}:{1}",
+                            remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        socket.BeginSend(_queuedPage.Contents7BitEncoded, 0, _queuedPage.Contents7BitEncoded.Length,
+                            SocketFlags.None, new AsyncCallback(Program.SendData), socket);
+                    }
+                    _queuedPage = null;
+                    _queuedPageTimer = null;
+                }
             }
         }
 
@@ -123,10 +191,14 @@ namespace NXtelServer.Classes
                         KeyBuffer.Dequeue();
                         IACState = IACStates.OutsideIAC;
                     }
-                    //else if (b == IACOptions.NEW_ENVIRON)
-                    //{
-
-                    //}
+                    else if (b == IACOptions.NEW_ENVIRON)
+                    {
+                        sendIAC.Add(IACCommands.IAC);
+                        sendIAC.Add(IACCommands.WILL);
+                        sendIAC.Add(IACOptions.NEW_ENVIRON);
+                        KeyBuffer.Dequeue();
+                        IACState = IACStates.OutsideIAC;
+                    }
                     else
                     {
                         // If it's not an option we support, we send IAC WONT <OPTION> 

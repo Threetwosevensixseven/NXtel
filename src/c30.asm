@@ -991,6 +991,7 @@ GetTime                 proc
                           //di
                           Rst8(esxDOS.M_GETDATE)
                           //Freeze()
+                          di
                           jp c, Restore
 
                           ld ix, DisplayBuffer+31
