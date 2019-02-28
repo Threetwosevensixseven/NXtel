@@ -25,6 +25,7 @@ namespace NXtelData
         Green = 0x84,
         Cyan = 0x85,
         Yellow = 0x86,
-        White = 0x87     
+        White = 0x87,
+        Carousel = 0xff     
     }
 }

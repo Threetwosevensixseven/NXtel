@@ -28,6 +28,11 @@ namespace NXtelServer.Classes
         private int _latencyPacketCount;
         private DateTime _latencyStart;
         private Timer _queuedPageTimer;
+        private List<Tuple<int, int>> _carouselPages;
+        private Tuple<int, int> _carouselPage;
+        private Carousel _carousel;
+        public Socket Socket;
+        public object CarouselLock = new object();
 
         public Client(IPEndPoint _remoteEndPoint, DateTime _connectedAt, ClientStates _clientState)
         {
@@ -45,6 +50,13 @@ namespace NXtelServer.Classes
             this._latencyPacketCount = 0;
             this._queuedPage = null;
             this._queuedPageTimer = null;
+            this._carouselPages = new List<Tuple<int, int>>();
+            this._carouselPages.Add(new Tuple<int, int>(91, 0));
+            this._carouselPages.Add(new Tuple<int, int>(91, 1));
+            this._carouselPages.Add(new Tuple<int, int>(150, 0));
+            this._carouselPages.Add(new Tuple<int, int>(666, 0));
+            this._carouselPages.Add(new Tuple<int, int>(999, 3));
+            this._carousel = new Carousel(this);
         }
 
         public Page CurrentPage
@@ -87,19 +99,6 @@ namespace NXtelServer.Classes
             }
         }
 
-        //private DateTime? _lastIACCommandSent = null;
-        //public bool QueuedPageTimedOut()
-        //{
-        //    lock (_queuedPageLock)
-        //    {
-        //        if (_queuedPage == null || _lastIACCommandSent == null)
-        //            return false;
-        //        if (((DateTime)_lastIACCommandSent).AddMilliseconds(Options.IACTimeoutMillisecs) >= DateTime.Now)
-        //            return true;
-        //        return false;
-        //    }
-        //}
-
         private void QueuedPageCallback(object state)
         {
             lock (_queuedPageLock)
@@ -117,6 +116,45 @@ namespace NXtelServer.Classes
                     _queuedPage = null;
                     _queuedPageTimer = null;
                 }
+            }
+        }
+
+        public void EnableCarousel(int WaitSeconds)
+        {
+            lock (CarouselLock)
+            {
+                _queuedPageTimer = new Timer(CarouselCallback, Socket, WaitSeconds * 1000, Timeout.Infinite);
+            }
+        }
+
+        public void DisableCarousel()
+        {
+            lock (CarouselLock)
+            {
+                _queuedPageTimer = null;
+            }
+        }
+
+        private void CarouselCallback(object state)
+        {
+            lock (CarouselLock)
+            {
+                if (_carousel == null || _carousel.Count == 0)
+                    _queuedPageTimer = null;
+                if (_carousel.Count == 0)
+                    return;
+                if (_carousel.NextIndex < 0 || _carousel.NextIndex > _carousel.Count - 1)
+                    _carousel.NextIndex = 0;
+                var page = _carousel[_carousel.NextIndex];
+                _carousel.NextIndex++;
+                if (_carousel.NextIndex < 0 || _carousel.NextIndex > _carousel.Count - 1)
+                    _carousel.NextIndex = 0;
+                var nextPage = _carousel[_carousel.NextIndex];
+                Console.WriteLine("Sending carousel page " + page.PageAndFrame + " (To: " + string.Format("{0}:{1}",
+                    remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                Socket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
+                    SocketFlags.None, new AsyncCallback(Program.SendData), Socket);
+                _queuedPageTimer = new Timer(CarouselCallback, state, nextPage.CarouselWait * 1000, Timeout.Infinite);
             }
         }
 
@@ -246,9 +284,9 @@ namespace NXtelServer.Classes
                         {
                             int pageNo;
                             int.TryParse(CurrentCommand, out pageNo);
-                            NextPage = Page.Load(pageNo, 0);
+                            NextPage = Page.Load(pageNo, 0, _carousel);
                             if (NextPage.PageNo != pageNo)
-                                NextPage = Page.Load(1, 0);
+                                NextPage = Page.Load(1, 0, _carousel);
                             PageHistory.Push(NextPage);
                             CommandState = CommandStates.RegularRouting;
                             CurrentCommand = "";
@@ -278,7 +316,7 @@ namespace NXtelServer.Classes
                     {
                         if (CurrentPage.PageType == PageTypes.TeleSoftware && route.NextPageNo != null && route.NextFrameNo != null)
                         {
-                            NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo);
+                            NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo, _carousel);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
                             SendIAC = sendIAC.ToArray();
@@ -286,7 +324,7 @@ namespace NXtelServer.Classes
                         }
                         else if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                         {
-                            NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo);
+                            NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo, _carousel);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
                             SendIAC = sendIAC.ToArray();
@@ -328,7 +366,7 @@ namespace NXtelServer.Classes
                             {
                                 if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                                 {
-                                    NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo);
+                                    NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo, _carousel);
                                     PageHistory.Push(NextPage);
                                     CommandState = CommandStates.RegularRouting;
                                     CurrentCommand = "";

@@ -20,7 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateGetUniqueMailbox(ConX);
+            CreatePageCarouselFields(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -890,5 +890,34 @@ END$$";
             }
         }
 
+        public static void CreatePageCarouselFields(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+                string sql = @"ALTER TABLE `page` 
+                    ADD COLUMN `IsCarousel` BIT(1) NULL AFTER `OwnerID`,
+                    ADD COLUMN `CarouselWait` INT(10) NULL AFTER `IsCarousel`;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }

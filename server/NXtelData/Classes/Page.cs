@@ -42,6 +42,10 @@ namespace NXtelData
         public Zones Zones { get; set; }
         public string ZoneIDs { get; set; }
         public int OwnerID { get; set; }
+        public bool IsCarousel { get; set; }
+        [Range(1, 99, ErrorMessage = "Carousel Wait must be between 1 and 99 seconds.")]
+        [Required(ErrorMessage = "Carousel Wait must be between 1 and 99 seconds.")]
+        public int CarouselWait { get; set; }
 
         public Page()
         {
@@ -138,7 +142,7 @@ namespace NXtelData
             }
         }
 
-        public static Page Load(int PageNo, int FrameNo)
+        public static Page Load(int PageNo, int FrameNo, ICarousel Carousel = null)
         {
             var item = PageCache.GetPage(PageNo, FrameNo);
             if (item == null)
@@ -198,6 +202,9 @@ namespace NXtelData
                     item = page;
                 }
             }
+            if (Carousel != null)
+                Carousel.Create(item);
+
             return item;
         }
 
@@ -255,10 +262,10 @@ namespace NXtelData
                 {
                     con.Open();
                     string sql = @"INSERT INTO page
-                        (PageNo,FrameNo,Title,Contents,BoxMode,URL,
-                        FromPageFrameNo,ToPageFrameNo,TeleSoftwareID,OwnerID)
-                        VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,
-                        @FromPageFrameNo,@ToPageFrameNo,@TeleSoftwareID,@OwnerID);
+                        (PageNo,FrameNo,Title,Contents,BoxMode,URL,FromPageFrameNo,ToPageFrameNo,
+                        TeleSoftwareID,OwnerID,IsCarousel,CarouselWait)
+                        VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,@FromPageFrameNo,@ToPageFrameNo,
+                        @TeleSoftwareID,@OwnerID,@IsCarousel,@CarouselWait);
                         SELECT LAST_INSERT_ID();";
                     var cmd = new MySqlCommand(sql, con);
                     cmd.Parameters.AddWithValue("PageNo", PageNo);
@@ -275,6 +282,9 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
                     int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
                     cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                    cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
+                    cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
+
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv > 0)
                         PageID = rv;
@@ -325,7 +335,9 @@ namespace NXtelData
                         FromPageFrameNo=@FromPageFrameNo,
                         ToPageFrameNo=@ToPageFrameNo,
                         TeleSoftwareID=@TeleSoftwareID,
-                        OwnerID=@OwnerID
+                        OwnerID=@OwnerID,
+                        IsCarousel=@IsCarousel,
+                        CarouselWait=@CarouselWait
                         WHERE PageID=@PageID;
                         SELECT ROW_COUNT();";
                     var cmd = new MySqlCommand(sql, con);
@@ -344,6 +356,9 @@ namespace NXtelData
                     cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
                     int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
                     cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                    cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
+                    cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
+
                     int rv = cmd.ExecuteScalarInt32();
                     if (rv <= 0)
                         Err = "The page could not be saved.";
@@ -431,6 +446,8 @@ namespace NXtelData
             this.BoxMode = rdr.GetBoolean("BoxMode");
             this.TeleSoftwareID = rdr.GetInt32Nullable("TeleSoftwareID");
             this.OwnerID = rdr.GetInt32Safe("OwnerID");
+            this.IsCarousel = rdr.GetBooleanSafe("IsCarousel");
+            this.CarouselWait = rdr.GetInt32Safe("CarouselWait");
             this.ConvertContentsFromURL();
         }
 
@@ -586,6 +603,10 @@ namespace NXtelData
                 ToPageNo = PageNo;
                 ToFrameNo = FrameNo;
             }
+
+            // Carousel
+            if (!IsCarousel)
+                CarouselWait = 99;
         }
 
         public void SetSelectedTemplates()

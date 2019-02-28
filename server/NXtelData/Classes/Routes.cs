@@ -37,6 +37,7 @@ namespace NXtelData
                     _masterList.Add(new Route(RouteKeys.Yellow, "Yellow"));
                     _masterList.Add(new Route(RouteKeys.White, "White"));
                     _masterList.Add(new Route(RouteKeys.Black, "Black"));
+                    _masterList.Add(new Route(RouteKeys.Carousel, "Carousel"));
                 }
                 return _masterList;
             }

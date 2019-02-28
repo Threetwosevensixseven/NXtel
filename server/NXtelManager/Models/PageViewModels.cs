@@ -24,6 +24,8 @@ namespace NXtelManager.Models
         public string OldToFrame { get; set; }
         public IEnumerable<SelectListItem> Owners { get; set; }
 
+        public Dictionary<string, object> CarouselDic;
+
         public PageEditModel()
         {
             Templates = GetSelectList(NXtelData.Templates.LoadStubs());
@@ -31,6 +33,12 @@ namespace NXtelManager.Models
             Files = GetSelectList(NXtelData.TSFiles.LoadStubs());
             Zones = GetSelectList(NXtelData.Zones.Load());
             Owners = GetSelectList(NXtelData.Users.LoadOwners());
+            CarouselDic = new Dictionary<string, object>();
+            CarouselDic.Add("maxlength", 2);
+            CarouselDic.Add("style", "width:36px;text-align:right;display:inline");
+            CarouselDic.Add("class", "form-control input-sm");
+            CarouselDic.Add("onkeypress", "javascript:return allownumbers(event);");
+            //CarouselDic.Add("placeholder", "10");
         }
 
         public IEnumerable<SelectListItem> GetSelectList(Templates Items)

@@ -140,6 +140,7 @@
     <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />
     <Compile Include="Classes\Pages.cs" />
+    <Compile Include="Interfaces\ICarousel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\UserPreferences.cs" />
   </ItemGroup>

@@ -13,6 +13,8 @@
     int z = 0;
     bool admin = User.IsInRole("Admin");
     string zonesLink = admin ? "Manage Zones" : "View Zones";
+    string wait = Model.Page.IsCarousel && Model.Page.CarouselWait > 0 ? Model.Page.CarouselWait.ToString() : "";
+
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -160,6 +162,18 @@
                         </tbody>
                     </table>
                     <a href="#" class="ordered ordered-btn add" title="Add route" style="display:inline-block;position:relative;top:-3px">Add</a>
+                </td>
+            </tr>
+            <tr>
+                @if (!Model.Page.IsCarousel)
+                {
+                    Model.CarouselDic.Add("disabled", "disabled");
+                }
+                <td class="lbl">Carousel</td>
+                <td class="data">@Html.CheckBox("Page.IsCarousel", Model.Page.IsCarousel, new { @class = "next-page", onclick= "toggleCarousel();" })
+                    Wait 
+                    @Html.TextBox("Page.CarouselWait", wait, Model.CarouselDic)
+                    secs, then follow the <i>Carousel</i> route if present
                 </td>
             </tr>
             <tr>
@@ -502,7 +516,14 @@
         } else {
             $("#PageRouting a.ordered-btn.add").removeClass("no-rows").addClass("some-rows");
         }
+    }
 
+    function toggleCarousel() {
+        var enabled = $("#Page_IsCarousel").is(":checked");
+        if (enabled)
+            $("#Page_CarouselWait").removeProp("disabled");
+        else
+            $("#Page_CarouselWait").prop("disabled", "disabled");
     }
 
     function validateRoutes() 
@@ -558,6 +579,8 @@
         });
         var list = zones.join();
         $("#SelectedZones").val(list);
+        if (!$("#Page_IsCarousel").is(":checked"))
+            $("#Page_CarouselWait").removeProp("disabled").val("99");
         return true;
     }
     </script>

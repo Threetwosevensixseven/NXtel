@@ -86,6 +86,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Carousel.cs" />
     <Compile Include="Classes\Client.cs" />
     <Compile Include="Classes\ClientStates.cs" />
     <Compile Include="Classes\CommandStates.cs" />
