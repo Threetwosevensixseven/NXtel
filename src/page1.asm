@@ -347,7 +347,7 @@ CreateDefaultCfgFile    proc
                         if not enabled ZeusDebug
                           cp 5                          ; Only trap "No such file or dir"
                           jp nz, LoadSettings.Error     ; Otherwise display standard error message
-                          ld ix, FileName
+                          ld ix, ParseCfgFile.FileName
                           call esxDOS.fCreate
                           jp c, LoadSettings.Error
                           ld ix, DefaultCfg.File
