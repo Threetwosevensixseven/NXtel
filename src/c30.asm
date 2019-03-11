@@ -451,8 +451,8 @@ Return:
                         if not ULAMonochrome
                           PageResetBottom48K()
                         endif
-                        ld a, 1
-                        ld (DoFlash.OnOff), a
+                        //ld a, 1
+                        //ld (DoFlash.FlOnOff), a
                         nextreg $14, $E3                ; Global L2 transparency colour
                         nextreg $4B, $E3                ; Global sprite transparency index
                         nextreg $4A, $00                ; Transparency fallback colour (black)
@@ -528,7 +528,7 @@ Graphics:
                         cp 141
                         jp z, DoubleHeight
                         cp 145
-                        jp c, NotYetImplemented         ; Skip 136-144 for now
+                        jp c, NotYetImplemented
                         cp 152
                         jp z, Conceal
                         cp 153

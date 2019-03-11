@@ -409,6 +409,13 @@ mend
 
 
 
+/*Delay                   macro(Time)
+                        ld hl, Time
+                        call DelayProc
+mend*/
+
+
+
 Freeze                  macro()
 Loop:                   Border(Red)
                         Border(Blue)
@@ -645,6 +652,7 @@ EnableTime              macro(Enable, ReenableInterrupts)
                         endif
                         ld (PrintTimeCall), a
 mend
+
 
 
 [[

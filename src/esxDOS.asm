@@ -14,6 +14,7 @@ F_WRITE                 equ $9e
 F_SEEK                  equ $9f
 F_GET_DIR               equ $a8
 F_SET_DIR               equ $a9
+F_SYNC                  equ $9c
 
 FA_READ                 equ $01
 FA_APPEND               equ $06
@@ -98,6 +99,17 @@ fRead:
 fWrite:
                         ld a, (Handle)                  ; a  = file handler
                         Rst8(esxDOS.F_WRITE)            ; write file
+                        ret
+
+
+
+; Function:             Sync file
+; In:                   A  = file handle
+; Out:                  Carry flag active if error when syncing
+;                       A  = error code
+fSync:
+                        ld a, (Handle)
+                        Rst8(esxDOS.F_SYNC)            ; sync file
                         ret
 
 

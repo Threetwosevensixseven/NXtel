@@ -42,11 +42,10 @@ pend
 
 
 DoFlash                 proc
-                        ld hl, [Frame]SMC
-                        inc hl
-                        ld (Frame), hl
-                        ld a, l
+                        ld a, [Frame]SMC
+                        inc a
                         and 31
+                        ld (Frame), a
                         ret nz
                         nextreg $43, %0 001 000 0       ; Set Layer 2 primary palette, incrementing
                         nextreg $40, 64                 ; Start at index 64

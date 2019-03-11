@@ -168,7 +168,7 @@ pend
                         //output_sna "..\build\NXtel.sna", $FF40, Start
 
 OutputNex               macro(FileName)
-                        output_nex        FileName, $FF40, $C000, "2.0.27", 6
+                        output_nex        FileName, $FF40, $C000, "2.0.26", 6
                         output_nex_screen FileName, "..\build\loading-screen3.bmp", false, 0
                         output_nex_data   FileName, "MARKER", 1, 2, dw $1234, 4
 mend

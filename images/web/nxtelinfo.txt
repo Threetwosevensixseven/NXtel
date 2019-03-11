@@ -1,0 +1,30 @@
+NXtel
+=====
+
+Team: 
+Design: Robin Verhagen-Guest, John Newcombe & Stale Pixels
+Coding: Robin Verhagen-Guest
+Graphics: The entire Next community!
+Music: NA
+Audio: NA
+Type: Network Application, BBS
+Controls: Keyboard
+Media: Digital
+Release: Beta available now
+Website: https://github.com/Threetwosevensixseven/NXtel/wiki/FAQ
+
+NXtel is a complete videotex BBS system using teletext graphics, designed to be used by modern, retro and mobile devices. We provide a dedicated client for the ZX Spectrum Next, a server, and a page manager for creating and editing content.
+
+You need an ESP 8266-01 wifi module. If you backed the Spectrum Next Plus, Accelerated, Yours Truly or Ultimate tiers of the Kickstarter campaign, your Next will be fitted with an ESP module. Otherwise you can purchase one very cheaply, which is easy to fit.
+
+We encourage anyone with a Next, Spectrum, or neat special interest to create interesting pages on NXtel. This could be a development blog, general blog, game or hardware reviews, or anything. Pages are easy to set up, and getting to grips with teletext graphics is a lot of fun.
+
+The system is up and running in beta now, and ready to use. Even if you don't have a Next, there are ways you can use NXtel and download telesoftware. We plan to add further features such as logins and mailboxes, and gateways to other BBS systems and online MUD games.
+
+Screenshots:
+
+
+Videos:
+https://www.youtube.com/watch?v=_Eo87ZELtSc
+https://www.youtube.com/watch?v=V9lhEi3sHtE
+

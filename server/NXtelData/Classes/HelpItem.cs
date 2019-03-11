@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,8 +20,9 @@ namespace NXtelData
         public HelpItem(string FileName, bool LoadContent = true)
         {
             this.FileName = (FileName ?? "").Trim();
-            this.Slug = Path.GetFileNameWithoutExtension(this.FileName).Trim().Replace("-", "");
-            this.Title = HelpItem.SplitCamelCase(this.Slug);
+            this.Slug = Path.GetFileNameWithoutExtension(this.FileName).Trim().Replace("-", "").Replace(",", "").Replace("  ", " ");
+            this.Title = Path.GetFileNameWithoutExtension(this.FileName).Replace("-", "").Replace(",", ",").Replace("  ", " ");
+            this.Title = HelpItem.SplitCamelCase(this.Title).Replace(" ,", ",").Replace("  ", " ");
             if (LoadContent)
                 Content = File.ReadAllText(FileName);
         }

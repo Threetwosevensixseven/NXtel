@@ -429,12 +429,6 @@ PipeThreeQuarters:
                         ld (de), a
                         jp Advance
 PipeUnknown:
-
-
-
-
-
-
 NotPipe:
                         cp Teletext.ThreeQuarters       ; ¾ - Replace with space
                         jp nz, NormalChar
@@ -465,6 +459,7 @@ WriteFile:
                         xor a                           ; Clear carry (valid body)
                         jp IsTSBody
 NotTSBody:
+                        //call esxDOS.fSync
                         call esxDOS.fClose              ; In case we were writing a file. Ignore error.
                         ld a, $CD                       ; $CD (call nnnn: enabled)
                         ld (CreateFileOrNot), a
