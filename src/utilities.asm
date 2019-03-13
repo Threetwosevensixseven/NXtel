@@ -613,3 +613,11 @@ SetupBrowserPalette     proc
 Return:                 ret
 pend
 
+
+
+SetupCopperFlash        proc
+                        MMU6(32, false)
+                        jp SetupCopperFlash32
+Return:                 ret
+pend
+

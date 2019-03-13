@@ -176,3 +176,35 @@ SetupBrowserPalette6    proc
                         jp SetupBrowserPalette.Return
 pend
 
+
+
+SetupCopperFlash32      proc
+                        CopperControl(%00, 0)
+                        ld b, CopperFlash.Count
+                        ld hl, CopperFlash.Program
+Loop:                   ld a, (hl)
+                        nextreg $60, a
+                        inc hl
+                        ld a, (hl)
+                        nextreg $60, a
+                        inc hl
+                        djnz Loop
+                        CopperControl(%01, 0)
+                        jp SetupCopperFlash.Return
+pend
+
+CopperFlash             proc Program:
+                        CopperWait(0, 192, 32)                          ; Wait for 32 frames, ending on line 192
+                        CopperMove($43, %0 001 000 0, 1)                ; Set Layer 2 primary palette, incrementing
+                        CopperMove($40, 64, 1)                          ; Start writing palette entries at index 64
+                        CopperPalette(64, 8)                            ; Redefine as background (8 of each colour)
+                        CopperWait(0, 192, 16)                          ; Wait for another 16 frames, ending on line 192
+                        CopperMove($43, %0 001 000 0, 1)                ; Set Layer 2 primary palette, incrementing
+                        CopperMove($40, 64, 1)                          ; Start writing palette entries at index 64
+                        CopperPalette(64, 1)                            ; Redefine as foreground (1 of each colour)
+                        CopperMove($62, %01 000 111, 1)                 ; Reset the copper PC to zero
+                        CopperMove($61, %11111111, 1)                   ; as the last program instruction
+  Size  equ ($-Program)
+  Count equ Size/2
+pend
+

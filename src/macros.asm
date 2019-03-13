@@ -653,6 +653,58 @@ EnableTime              macro(Enable, ReenableInterrupts)
                         ld (PrintTimeCall), a
 mend
 
+[[
+function TeletextColour(Value)
+begin
+  if (Value mod 8) = 0
+    return %000 000 00                                  ; 0  Black    The layer 2 primary palette repeats these
+  if (Value mod 8) = 1
+    return %111 000 00                                  ; 1  Red      8 colours 32 times through indices 0..255.
+  if (Value mod 8) = 2
+    return %000 111 00                                  ; 2  Green
+  if (Value mod 8) = 3
+    return %111 111 00                                  ; 3  Yellow
+  if (Value mod 8) = 4
+    return %001 001 11                                  ; 4  Blue     Lightened for readability on black background.
+  if (Value mod 8) = 5
+    return %111 001 11                                  ; 5  Magenta  Uses $E7 because global transparency is $E3.
+  if (Value mod 8) = 6
+    return %000 111 11                                  ; 6  Cyan
+  return %111 111 11                                    ; 7  White
+end
+]]
+
+CopperNOP               macro(Iterations)
+                        ds Iterations*2
+mend
+
+CopperWait              macro(X, Y, Frames)
+                        for n = Y+Frames-1 to Y step -1
+                          db %10000000 | ((X & %111111) << 1) | ((high n) & %1)
+                          db low n
+                        next ;n
+mend
+
+
+CopperMove              macro(Reg, Val, Iterations)
+                        for n = 1 to Iterations
+                          db Reg & %01111111
+                          db Val & %11111111
+                        next ;n
+mend
+
+CopperPalette           macro(Iterations, Each)
+                        for n = 0 to Iterations - 1
+                          db $41                        ; 8-bit palette register
+                          db TeletextColour(n / Each)   ; 8-bit teletext colour value (RRRGGGBB)
+                        next ;n
+mend
+
+CopperControl           macro(Command, Position)
+                        nextreg $62, ((Command & %11) << 6) | ((high Position) & %111)
+                        nextreg $61, low Position
+mend
+
 
 
 [[

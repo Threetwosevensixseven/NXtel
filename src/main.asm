@@ -67,7 +67,7 @@ org $8181
                         ld (ISR57), a
                         nextreg $56, 6
 EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or $21 (ld hl, nnnn: disabled)
-                        call DoFlash
+                        //call DoFlash
                         nextreg $56, 31
                         nextreg $57, 30
 PrintTimeCall:          ld hl, PrintTime

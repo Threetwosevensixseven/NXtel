@@ -2,7 +2,7 @@
 
 ; Testing
 PrintIPDPacket          equ true
-ReportBankSizes         equ true
+ReportBankSizes         equ false
 
 ; UART
 UART_RxD                equ $143B                       ; Also used to set the baudrate

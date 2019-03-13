@@ -264,7 +264,6 @@ WaitForQ:
                         jp nz, SendLatencyMessage
                         jp MenuNetworkSettings
 pend
-zeusprint $-TestLatency31
 
 
 

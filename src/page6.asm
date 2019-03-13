@@ -42,6 +42,7 @@ Start2:
                         di
                         call SetupDataFileSystem
                         call SetupSprites
+                        call SetupCopperFlash
                         di
                         MMU7(30, false)
                         call DefinePalettes
