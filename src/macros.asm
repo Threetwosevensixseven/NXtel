@@ -653,6 +653,8 @@ EnableTime              macro(Enable, ReenableInterrupts)
                         ld (PrintTimeCall), a
 mend
 
+
+
 [[
 function TeletextColour(Value)
 begin
@@ -674,9 +676,19 @@ begin
 end
 ]]
 
+
+
 CopperNOP               macro(Iterations)
                         ds Iterations*2
 mend
+
+
+
+CopperHalt              macro()
+                        dw $FFFF
+mend
+
+
 
 CopperWait              macro(X, Y, Frames)
                         for n = Y+Frames-1 to Y step -1
@@ -686,6 +698,7 @@ CopperWait              macro(X, Y, Frames)
 mend
 
 
+
 CopperMove              macro(Reg, Val, Iterations)
                         for n = 1 to Iterations
                           db Reg & %01111111
@@ -693,12 +706,16 @@ CopperMove              macro(Reg, Val, Iterations)
                         next ;n
 mend
 
+
+
 CopperPalette           macro(Iterations, Each)
                         for n = 0 to Iterations - 1
                           db $41                        ; 8-bit palette register
                           db TeletextColour(n / Each)   ; 8-bit teletext colour value (RRRGGGBB)
                         next ;n
 mend
+
+
 
 CopperControl           macro(Command, Position)
                         nextreg $62, ((Command & %11) << 6) | ((high Position) & %111)

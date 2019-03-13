@@ -19,6 +19,11 @@ Entry6:
                         im 2
                         Turbo(MHz14)
                         Contention(false)
+
+                        //NextRegRead(5)
+                        //and %00000100
+                        //ld (CurrentHz), a
+
                         nextreg $52, 10
                         ClsAttrFull(Teletext.Background)
                         nextreg $52, 13

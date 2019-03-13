@@ -179,19 +179,27 @@ pend
 
 
 SetupCopperFlash32      proc
-                        CopperControl(%00, 0)
-                        ld b, CopperFlash.Count
-                        ld hl, CopperFlash.Program
-Loop:                   ld a, (hl)
-                        nextreg $60, a
+                        CopperControl(%00, 0)                           ; Stop the copper and position to program index 0
+                        ld b, CopperFlash.Count                         ; Count is the number of words in the program,
+                        ld hl, CopperFlash.Program                      ; coded like this so b is 180, which is < 256
+ProgramLoop:            ld a, (hl)                                      ; Read pairs of copper instruction bytes
+                        nextreg $60, a                                  ; And write them to the copper program register
                         inc hl
                         ld a, (hl)
                         nextreg $60, a
                         inc hl
-                        djnz Loop
-                        CopperControl(%01, 0)
-                        jp SetupCopperFlash.Return
+                        djnz ProgramLoop                                ; DJNZ is why b is better < 256
+                        ld b, CopperFlash.Empty                         ; Empty is the count of unused instruction pairs
+                        xor a
+EmptyLoop:              loop 4
+                          nextreg $60, a                                ; Zero four bytes for every pass through loop
+                        lend
+                        djnz EmptyLoop                                  ; Again, b is 166, which is < 256
+                        CopperControl(%01, 0)                           ; Finally turn the copper on. It will run
+                        jp SetupCopperFlash.Return                      ; without attention as long as NXtel is running.
 pend
+
+
 
 CopperFlash             proc Program:
                         CopperWait(0, 192, 32)                          ; Wait for 32 frames, ending on line 192
@@ -202,9 +210,9 @@ CopperFlash             proc Program:
                         CopperMove($43, %0 001 000 0, 1)                ; Set Layer 2 primary palette, incrementing
                         CopperMove($40, 64, 1)                          ; Start writing palette entries at index 64
                         CopperPalette(64, 1)                            ; Redefine as foreground (1 of each colour)
-                        CopperMove($62, %01 000 111, 1)                 ; Reset the copper PC to zero
-                        CopperMove($61, %11111111, 1)                   ; as the last program instruction
-  Size  equ ($-Program)
-  Count equ Size/2
+
+  Size  equ ($-Program)                                                 ; This program will run forever,
+  Count equ Size/2                                                      ; restarting automatically every 48 frames.
+  Empty equ (1024-Size)/4
 pend
 

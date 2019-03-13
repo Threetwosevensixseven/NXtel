@@ -66,6 +66,12 @@ org $8181
                         NextRegRead($57)
                         ld (ISR57), a
                         nextreg $56, 6
+
+                        //NextRegRead(5)
+                        //and %11111011
+                        //or [CurrentHz]SMC
+                        //out (c), a
+
 EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or $21 (ld hl, nnnn: disabled)
                         //call DoFlash
                         nextreg $56, 31
