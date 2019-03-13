@@ -628,7 +628,7 @@ Left:
                         dec de
                         jp ProcessNext
 Right:
-                        cp $08                          ; Right/Tab/APF
+                        cp $09                          ; Right/Tab/APF
                         jp nz, Home
                         inc de
                         jp ProcessNext
