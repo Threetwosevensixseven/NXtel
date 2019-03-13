@@ -15,7 +15,7 @@ Zeus_IM                 = 1
 Zeus_IE                 = false
 //bOnlyUse128KSNAVector=true
 optionsize 5
-//Cspect optionbool 15, -15, "Cspect", false
+Cspect optionbool 15, -15, "Cspect", false
 //ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", true
 UploadNext optionbool 205, -15, "Next", false
@@ -168,12 +168,17 @@ pend
                         //output_sna "..\build\NXtel.sna", $FF40, Start
 
 OutputNex               macro(FileName)
-                        output_nex        FileName, $FF40, $C000, "2.0.26", 6
+                        if enabled Cspect
+                          output_nex      FileName, $FF40, $6000, "2.0.26"
+                        else
+                          output_nex      FileName, $FF40, $C000, "2.0.26", 6
+                        endif
                         output_nex_screen FileName, "..\build\loading-screen3.bmp", false, 0
                         output_nex_data   FileName, "MARKER", 1, 2, dw $1234, 4
 mend
-
-                        mUnmarkBank(5)
+                        if not enabled Cspect
+                          mUnmarkBank(5)
+                        endif
                         OutputNex("..\bin\NXtel.nex")
                         OutputNex("..\sd\NXtel.nex")
                         if enabled UploadNext
