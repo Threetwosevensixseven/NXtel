@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Web;
 using System.Web.Mvc;
 using NXtelData;
@@ -96,6 +97,16 @@ namespace NXtelManager.Controllers
                 return View("Edit", model);
             }
             return RedirectToAction("Index");
+        }
+
+        public ActionResult Download(int? ID)
+        {
+            int id = ID ?? -1;
+            var model = new FileEditModel();
+            model.File = TSFile.Load(id);
+            if (id != -1 && model.File.TeleSoftwareID <= 0)
+                return RedirectToAction("Index");
+            return File(model.File.Contents, MediaTypeNames.Application.Octet, model.File.FileName);
         }
     }
 }
