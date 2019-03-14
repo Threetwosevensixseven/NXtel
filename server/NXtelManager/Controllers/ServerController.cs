@@ -84,10 +84,11 @@ namespace NXtelManager.Controllers
         public ActionResult DownloadLog(ServerStatus Status)
         {
             string fileName = Options.LogFile;
+            string ts = DateTime.Now.ToString("_yyyyMMdd_HHmmssfff");
             try
             {
                 var fs = System.IO.File.Open(fileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
-                return File(fs, "text/plain", Path.GetFileName(fileName));
+                return File(fs, "text/plain", Path.GetFileNameWithoutExtension(fileName) + ts + Path.GetExtension(fileName));
             }
             catch (Exception /*ex*/)
             {
