@@ -174,17 +174,17 @@ pend
                         //output_sna "..\build\NXtel.sna", $FF40, Start
 
 OutputNex               macro(FileName)
-                        if enabled Cspect
-                          output_nex      FileName, $FF40, $6000, "2.0.26"
-                        else
+                        //if enabled Cspect
+                        //  output_nex      FileName, $FF40, $6000, "2.0.26"
+                        //else
                           output_nex      FileName, $FF40, $C000, "2.0.26", 6
-                        endif
+                        //endif
                         output_nex_screen FileName, "..\build\loading-screen3.bmp", false, 0
                         output_nex_data   FileName, "MARKER", 1, 2, dw $1234, 4
 mend
-                        if not enabled Cspect
+                        //if not enabled Cspect
                           mUnmarkBank(5)
-                        endif
+                        //endif
                         OutputNex("..\bin\NXtel.nex")
                         OutputNex("..\sd\NXtel.nex")
                         if enabled UploadNext

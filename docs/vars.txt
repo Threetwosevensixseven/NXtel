@@ -1,0 +1,26 @@
+https://nxtel.me/colconst
+
+https://go.nxtel.org/colconst
+
+
+Client: IAC DO NEW-ENVIRON (willing to receive)
+Server: IAC WILL NEW-ENVIRON (willing to send)
+Client: IAC SB NEW-ENVIRON SEND USERVAR IAC SE (send all uservar variables)
+; Welcome screen
+Server: IAC SB NEW-ENVIRON IS 
+    USERVAR "Date" VALUE "24,21" 
+    USERVAR "Time" VALUE "31,20" 
+    USERVAR "Year" VALUE "35,21" 
+    USERVAR "Year" VALUE "35,21" 
+IAC SE
+; Later, reposition date and time and disable year
+Server: IAC SB NEW-ENVIRON INFO 
+    USERVAR "Date" VALUE "8,0" 
+    USERVAR "Time" VALUE "32,0" 
+    USERVAR "Year" 
+IAC SE
+; Later, disable date and time
+Server: IAC SB NEW-ENVIRON INFO 
+    USERVAR "Date" 
+    USERVAR "Time" 
+IAC SE

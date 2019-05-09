@@ -124,6 +124,7 @@ namespace NXtelServer
                     //    clientSocket);
                 }
                 var queued = client.GetQueuedPageContents();
+                queued = new byte[0];
                 if (queued.Length > 0)
                     Console.WriteLine("Sending queued page (To: "+ string.Format("{0}:{1}", 
                         client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");

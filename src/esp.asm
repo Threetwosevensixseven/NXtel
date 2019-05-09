@@ -19,6 +19,18 @@ ESPConnect              proc
                         ld e, a                         ; Length of the command to send, including preamble and CRLF
                         call Connect
                         call ESPReceiveWaitOK
+
+
+
+                        ESPSend("AT+CIPSEND=3")
+                        call ESPReceiveWaitOK
+                        ESPSendBytes(ESPConnect.IacDoNewEnviron, ESPConnect.IacDoNewEnvironLen) ; Bytes follow inline
+IacDoNewEnviron:        db 255, 253, 39, CR, LF
+IacDoNewEnvironLen      equ $-IacDoNewEnviron
+                        call ESPReceiveWaitOK
+
+
+
 StartReceive:           call ESPReceiveIPDInit
                         EnableKeyboardScan(true)
 MainLoop:               call ESPReceiveIPD
@@ -46,6 +58,7 @@ NoKey:
                         nextreg $56, [RestoreKeyPage]SMC
                         jp MainLoop
 Received:
+                        call ProcessIACSends
                         EnableKeyboardScan(false)
                         nextreg $57, 30
                         ld a, 1
@@ -582,6 +595,9 @@ ProcessESPBufferToPage  proc
                         ld bc, [SourceCount]SMC
 ProcessLoop:
                         ld a, (hl)
+                        cp $FF                          ; IAC
+                        jp z, IAC
+
                         cp $20                          ; Space
                         jp nc, CopyChar
 CLS:
@@ -637,6 +653,25 @@ Home:
                         jp nz, End
                         ld de, DisplayBuffer
                         jp ProcessNext
+IAC:
+                        inc hl                          ; Comsume IAC ($FF)
+                        dec bc
+                        ld a, (hl)                      ; Get Command
+                        cp $FB                          ; WILL
+                        jp z, Will
+                        inc hl                          ; Only interested in WILLs for now so consume option
+                        jp ProcessNext
+Will:
+                        inc hl                          ; Comsume WILL ($FB)
+                        dec bc
+                        ld a, (hl)                      ; Get Option
+                        cp $27                          ; NEW-ENVIRON ($27)
+                        jp z, NewEnviron
+                        jp ProcessNext
+NewEnviron:
+                        ld a, 1
+                        ld (SendWillNewEnviron), a
+                        jp ProcessNext
 End:
                         cp $05                          ; End/END
                         jp nz, ProcessNext
@@ -653,10 +688,24 @@ ProcessNext:
                         or c
                         jp nz, ProcessLoop
 Return:
+                        ld a, [SendWillNewEnviron]SMC
+                        or a
+                        jp z, NoSendWillNewEnviron
+                        nop
+NoSendWillNewEnviron:   xor a
+                        ld (SendWillNewEnviron), a
                         nextreg $57, [RestorePage]SMC
                         ret
 pend
 
+
+ProcessIACSends         proc
+                        ret
+pend
+
+IACSendBuffer           proc
+                        ds 256
+pend
 
 
 Mod40 proc Table:

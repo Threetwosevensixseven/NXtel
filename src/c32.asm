@@ -189,12 +189,12 @@ ProgramLoop:            ld a, (hl)                                      ; Read p
                         nextreg $60, a
                         inc hl
                         djnz ProgramLoop                                ; DJNZ is why b is better < 256
-                        ld b, CopperFlash.Empty                         ; Empty is the count of unused instruction pairs
-                        xor a
-EmptyLoop:              loop 4
-                          nextreg $60, a                                ; Zero four bytes for every pass through loop
-                        lend
-                        djnz EmptyLoop                                  ; Again, b is 166, which is < 256
+                        ld bc, CopperFlash.Empty                        ; Empty is the count of unused instruction pairs
+EmptyLoop:              nextreg $60, 0                                  ; Write NOPs for every unused byte
+                        dec bc                                          ; in the 1024-instruction program
+                        ld a, b                                         ; (total 2048 bytes)
+                        or c
+                        jp nz, EmptyLoop                                ; Again, b is 166, which is < 256
                         CopperControl(%01, 0)                           ; Finally turn the copper on. It will run
                         jp SetupCopperFlash.Return                      ; without attention as long as NXtel is running.
 pend
@@ -211,8 +211,8 @@ CopperFlash             proc Program:
                         CopperMove($40, 64, 1)                          ; Start writing palette entries at index 64
                         CopperPalette(64, 1)                            ; Redefine as foreground (1 of each colour)
 
-  Size  equ ($-Program)                                                 ; This program will run forever,
+  Size  equ $-Program                                                   ; This program will run forever,
   Count equ Size/2                                                      ; restarting automatically every 48 frames.
-  Empty equ (1024-Size)/4
+  Empty equ 2048-Size
 pend
 

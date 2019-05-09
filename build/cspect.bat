@@ -8,7 +8,10 @@ copy ..\bin\NXtel.nex ..\sd\*.*
 ..\tools\pskill.exe -t cspect.exe
 
 ::"C:\Program Files (x86)\CSpect1_14\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
-"C:\Program Files (x86)\CSpect_2_0_0\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
+::"C:\Program Files (x86)\CSpect_2_0_0\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
+::"C:\Program Files (x86)\CSpect2_3_3\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
+::"C:\Program Files (x86)\CSpect2_4_0\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
+"C:\Program Files (x86)\CSpect2_7_0\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
 
 
 :: pause
