@@ -64,3 +64,5 @@
 /server/NXtelGeo/bin
 /server/NXtelGeo/obj
 /server/NXtelGeo/Publish
+/server/NXtelLogImport/bin
+/server/NXtelLogImport/obj

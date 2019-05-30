@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToLFCR", "ToLFCR\ToLFCR.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelGeo", "NXtelGeo\NXtelGeo.csproj", "{C2FAA149-ADB6-4986-9E16-7E40C4CD12AC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXtelLogImport", "NXtelLogImport\NXtelLogImport.csproj", "{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -181,6 +183,18 @@ Global
 		{C2FAA149-ADB6-4986-9E16-7E40C4CD12AC}.Release|x64.Build.0 = Release|Any CPU
 		{C2FAA149-ADB6-4986-9E16-7E40C4CD12AC}.Release|x86.ActiveCfg = Release|Any CPU
 		{C2FAA149-ADB6-4986-9E16-7E40C4CD12AC}.Release|x86.Build.0 = Release|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Debug|x64.Build.0 = Debug|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Debug|x86.Build.0 = Debug|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Release|x64.ActiveCfg = Release|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Release|x64.Build.0 = Release|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{72EC907A-B5E4-4A7A-B99C-62FACEDAF4AB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
