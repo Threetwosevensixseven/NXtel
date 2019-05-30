@@ -1,0 +1,17 @@
+There are also the following editing keys in the NextBASIC editor, although it probably doesn't make too much sense to follow these:
+3. The following additional editing keys are available (EXTEND,key means press
+and release the EXTEND key (to enter EXTEND mode) and then press the key):
+• EXTEND,EDIT - Switch between full/lower screen editor (same as choosing Screen from the edit menu)
+• EXTEND,CURSOR LEFT - Move to start of BASIC line
+• EXTEND,CURSOR RIGHT - Move to end of BASIC line
+• EXTEND,CURSOR UP - Move up 10 screen lines
+• EXTEND,CURSOR DOWN - Move down 10 screen lines
+• EXTEND,GRAPHICS - Move to start of program
+• EXTEND,CAPS LOCK - Move to end of program
+• TRUE VIDEO - Move left one word
+• INVERSE VIDEO - Move right one word
+• EXTEND,TRUE VIDEO - Delete word left
+• EXTEND,INVERSE VIDEO - Delete word right
+• EXTEND,DELETE - Delete character right
+• EXTEND,9 - Delete to start of BASIC line
+• EXTEND,0 - Delete to end of BASIC line

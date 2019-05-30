@@ -106,6 +106,7 @@
     <Compile Include="Classes\Feed.cs" />
     <Compile Include="Classes\FeedItem.cs" />
     <Compile Include="Classes\FeedItems.cs" />
+    <Compile Include="Classes\Geo.cs" />
     <Compile Include="Classes\HelpItem.cs" />
     <Compile Include="Classes\HelpItems.cs" />
     <Compile Include="Classes\Logger.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Classes\Routes.cs" />
     <Compile Include="Classes\ServerStatus.cs" />
     <Compile Include="Classes\SQL.cs" />
+    <Compile Include="Classes\Stats.cs" />
     <Compile Include="Classes\TelesoftEscapes.cs" />
     <Compile Include="Classes\Template.cs" />
     <Compile Include="Classes\Templates.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="Classes\Zone.cs" />
     <Compile Include="Classes\Zones.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
+    <Compile Include="Extensions\IPEndPointExtensions.cs" />
     <Compile Include="Extensions\MySqlCommandExtensions.cs" />
     <Compile Include="Extensions\MySqlDataReaderExtensions.cs" />
     <Compile Include="Classes\Page.cs" />

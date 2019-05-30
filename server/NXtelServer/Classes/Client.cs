@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,20 +74,20 @@ namespace NXtelServer.Classes
         private object _queuedPageLock = new object();
         public void SetQueuedPage(Page value, Socket Socket)
         {
-                lock (_queuedPageLock)
+            lock (_queuedPageLock)
+            {
+                if (value != null)
                 {
-                    if (value != null)
-                    {
-                        _queuedPageTimer = new Timer(QueuedPageCallback, Socket, Options.IACTimeoutMillisecs, Timeout.Infinite);
-                    }
-                    else
-                    {
-                        _queuedPageTimer = null;
-                    }
-                    _queuedPage = value;
+                    _queuedPageTimer = new Timer(QueuedPageCallback, Socket, Options.IACTimeoutMillisecs, Timeout.Infinite);
                 }
+                else
+                {
+                    _queuedPageTimer = null;
+                }
+                _queuedPage = value;
+            }
         }
-        
+
         public byte[] GetQueuedPageContents()
         {
             lock (_queuedPageLock)
@@ -178,7 +179,8 @@ namespace NXtelServer.Classes
 
                 if (b == IACCommands.IAC && IACState == IACStates.OutsideIAC)
                 {
-                    IACState = IACStates.InsideIAC;
+                    if (Options.IACEnabled)
+                        IACState = IACStates.InsideIAC;
                     KeyBuffer.Dequeue();
                     continue;
                 }
@@ -193,7 +195,7 @@ namespace NXtelServer.Classes
                 if (b == IACCommands.DO && IACState == IACStates.InsideIAC)
                 {
                     IACState = IACStates.Doing;
-                    KeyBuffer.Dequeue(); 
+                    KeyBuffer.Dequeue();
                     continue;
                 }
 
@@ -204,7 +206,8 @@ namespace NXtelServer.Classes
                         sendIAC.AddRange(_latencyBytes);
                         KeyBuffer.Dequeue();
                         IACState = IACStates.OutsideIAC;
-                        if (_latencyPacketCount == 0) {
+                        if (_latencyPacketCount == 0)
+                        {
                             _latencyStart = DateTime.Now;
                             _latencyPacketCount++;
                             Console.WriteLine("Starting LAT test. One LAT is 10 bytes->server + 100 bytes->client (To: " + string.Format("{0}:{1}",
@@ -214,7 +217,7 @@ namespace NXtelServer.Classes
                         {
                             double tot = (DateTime.Now - _latencyStart).TotalMilliseconds;
                             double avg = Math.Round(tot / _latencyPacketCount, 0);
-                            Console.WriteLine(_latencyPacketCount + " LATs in " + tot.ToString() 
+                            Console.WriteLine(_latencyPacketCount + " LATs in " + tot.ToString()
                                 + "ms = avg " + avg.ToString() + "ms (To: " + string.Format("{0}:{1}",
                                 remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
                             _latencyPacketCount++;

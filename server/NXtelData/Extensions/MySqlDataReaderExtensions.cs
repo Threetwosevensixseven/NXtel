@@ -50,6 +50,16 @@ namespace MySql.Data.MySqlClient
             return rdr.GetInt32(column);
         }
 
+        public static uint GetUint32Safe(this MySqlDataReader rdr, string column)
+        {
+            if (rdr == null)
+                return 0;
+            if (rdr.IsDBNull(rdr.GetOrdinal(column)))
+                return 0;
+            return rdr.GetUInt32(column);
+        }
+
+
         public static bool GetBooleanSafe(this MySqlDataReader rdr, string column)
         {
             if (rdr == null)

@@ -20,8 +20,9 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreatePageCarouselFields(ConX);
-
+            CreateStatsTable(ConX);
+            CreateGeoTable(ConX);
+            
             if (openConX)
                 ConX.Close();
         }
@@ -903,6 +904,75 @@ END$$";
                 string sql = @"ALTER TABLE `page` 
                     ADD COLUMN `IsCarousel` BIT(1) NULL AFTER `OwnerID`,
                     ADD COLUMN `CarouselWait` INT(10) NULL AFTER `IsCarousel`;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateStatsTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `stats` (
+                    `StatsID` int(11) NOT NULL AUTO_INCREMENT,
+                    `ClientHash` char(32) NOT NULL,
+                    `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    `PageNo` int(11) NOT NULL,
+                    `FrameNo` int(11) NOT NULL,
+                    PRIMARY KEY (`StatsID`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateGeoTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `geo` (
+                    `ClientHash` CHAR(32) NOT NULL,
+                    `IPAddress` INT(11) UNSIGNED NULL,
+                    `Geo` POINT NULL,
+                    PRIMARY KEY (`ClientHash`));";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

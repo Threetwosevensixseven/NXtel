@@ -23,6 +23,20 @@ DEL  /F /Q /S Publish\*.config
 ::XCOPY /Y "Publish\*.*" "%USERPROFILE%\Dropbox\Spectrum\Next\NxTelSync\NXtelMonitor\"
 XCOPY /Y "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelMonitor\"
 
+:: Prepare NXtelGeo for publishing
+CD ..\NXtelGeo
+DEL  /F /Q /S Publish\*.*
+RMDIR /S /Q "Publish\app.publish"
+
+:: Publish NXtelGeo
+msbuild NXtelGeo.csproj /p:Configuration="Release" /p:Platform="AnyCPU"
+
+:: Deploy NXtelGeo
+DEL  /F /Q /S Publish\*.pdb
+DEL  /F /Q /S Publish\*.config
+DEL  /F /Q /S Publish\NXtelGeo.vshost.*
+XCOPY /Y "Publish\*.*" "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy\NXtelGeo\"
+
 :: Prepare NXtelServer for publishing
 CD ..\NXtelServer
 DEL  /F /Q /S Publish\*.*

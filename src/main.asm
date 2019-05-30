@@ -188,7 +188,7 @@ mend
                         OutputNex("..\bin\NXtel.nex")
                         OutputNex("..\sd\NXtel.nex")
                         if enabled UploadNext
-                          OutputNex("Q:\NXtel.nex")
+                          OutputNex("Q:\Mine\NXtel.nex")
                         endif
 
                         zeusinvoke "..\build\ZXVersion.exe", "", false

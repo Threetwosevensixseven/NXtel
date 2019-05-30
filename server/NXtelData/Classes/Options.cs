@@ -307,5 +307,59 @@ namespace NXtelData
                 return val;
             }
         }
+
+        private static bool? _iACEnabled;
+        public static bool IACEnabled
+        {
+            get
+            {
+                if (_iACEnabled == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["IACEnabled"] ?? "").Trim().ToLower();
+                    _iACEnabled = (cfg == "true");
+                }
+                return (bool)_iACEnabled;
+            }
+        }
+
+        public static string HashSalt
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["HashSalt"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
+        public static string GeoEndpoint
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["GeoEndpoint"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
+        public static int GeoRequestsPerMinute
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["GeoRequestsPerMinute"] ?? "").Trim();
+                int val;
+                int.TryParse(cfg, out val);
+                if (val <= 0)
+                    val = 175;
+                return val;
+            }
+        }
+
+        public static int GeoRequestDelayMillisecs
+        {
+            get
+            {
+                return Convert.ToInt32(Math.Round(60000m / Convert.ToDecimal(GeoRequestsPerMinute), 0));
+            }
+        }
+
     }
 }

@@ -61,3 +61,6 @@
 /server/ToLFCR/bin
 /server/ToLFCR/obj
 /bin/NXtel.cfg
+/server/NXtelGeo/bin
+/server/NXtelGeo/obj
+/server/NXtelGeo/Publish

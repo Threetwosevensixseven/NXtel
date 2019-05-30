@@ -18,6 +18,7 @@ namespace NXtelServer
         private const int dataSize = 1024;
         private static Dictionary<Socket, Client> clientList = new Dictionary<Socket, Client>();
         private static string Version;
+        private static bool IACEnabled = false;
 
         static void Main(string[] args)
         {
@@ -35,6 +36,7 @@ namespace NXtelServer
                     Console.WriteLine("Database: " + settings.DatabaseName);
                     Console.WriteLine("Using " + Options.CharSetName + " character set");
                     Console.WriteLine((Options.TrimSpaces ? "T" : "Not t") + "rimming spaces");
+                    Console.WriteLine("IAC " + (Options.IACEnabled ? "en" : "dis") + "abled");
                     new Thread(new ThreadStart(backgroundThread)) { IsBackground = false }.Start();
                     serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Options.TCPListeningPort); //2380
@@ -67,19 +69,32 @@ namespace NXtelServer
             var page = Page.Load(Options.StartPageNo, Options.StartFrameNo);
             client.PageHistory.Push(page);
             client.clientState = ClientStates.Logging;
-            Console.WriteLine(string.Format("Queuing page {0} for sending (To: {1}:{2}", Options.StartPage, 
-                client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
             try
             {
-                client.SetQueuedPage(page, newSocket);
-                //newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
-                //    SocketFlags.None, new AsyncCallback(SendData), newSocket);
-                //newSocket.Listen(100);
-                newSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), newSocket);
-                serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+                if (Options.IACEnabled)
+                {
+                    Console.WriteLine(string.Format("Queuing page {0} for sending (To: {1}:{2}", Options.StartPage,
+                        client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Stats.Update(client.remoteEndPoint, page);
+                    client.SetQueuedPage(page, newSocket);
+                    //newSocket.Listen(100);
+                    newSocket.BeginReceive(data, 0, dataSize, SocketFlags.None, new AsyncCallback(ReceiveData), newSocket);
+                    serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+                }
+                else
+                {
+                        Console.WriteLine(string.Format("Sending page {0} (To: {1}:{2}", Options.StartPage, 
+                            client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Stats.Update(client.remoteEndPoint, page);
+                    newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
+                        SocketFlags.None, new AsyncCallback(SendData), newSocket);
+                    serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
         }
 
@@ -126,12 +141,15 @@ namespace NXtelServer
                 var queued = client.GetQueuedPageContents();
                 queued = new byte[0];
                 if (queued.Length > 0)
-                    Console.WriteLine("Sending queued page (To: "+ string.Format("{0}:{1}", 
+                {
+                    Console.WriteLine("Sending queued page (To: " + string.Format("{0}:{1}",
                         client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                }
                 if (processed)
                 {
                     Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " 
                         + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Stats.Update(client.remoteEndPoint, nextPage);
                     pageData = nextPage.Contents7BitEncoded;
                 }
                 var sendData = client.Combine(sendIAC, queued, pageData);

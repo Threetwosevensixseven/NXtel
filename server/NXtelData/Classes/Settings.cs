@@ -13,14 +13,17 @@ namespace NXtelData
         private string appDir;
 
         public string ConnectionString { get; set; }
+        public List<string> AdditionalConnectionStrings { get; set; }
 
         public Settings()
         {
+            AdditionalConnectionStrings = new List<string>();
         }
 
         public Settings(string AppDir)
         {
             appDir = AppDir;
+            AdditionalConnectionStrings = new List<string>();
         }
 
         public Settings Load()
@@ -42,6 +45,8 @@ namespace NXtelData
             {
                 settings = new Settings(appDir);
             }
+            if (AdditionalConnectionStrings == null)
+                AdditionalConnectionStrings = new List<string>();
             return settings;
         }
 
@@ -75,6 +80,17 @@ namespace NXtelData
                     return "";
                 return (m.Groups["DB"].Value ?? "").Trim();
             }
+        }
+
+        public List<string> GetAllConnectionStrings()
+        {
+            var list = new List<string>();
+            if (!string.IsNullOrWhiteSpace(ConnectionString))
+                list.Add(ConnectionString);
+            foreach (var item in AdditionalConnectionStrings ?? new List<string>())
+                if (!string.IsNullOrWhiteSpace(item))
+                    list.Add(item);
+            return list;
         }
     }
 }

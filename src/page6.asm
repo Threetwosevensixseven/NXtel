@@ -20,6 +20,11 @@ Entry6:
                         Turbo(MHz14)
                         Contention(false)
 
+                        //PortOut($7ffd, %000 1 0 000)
+                        //PortOut($1ffd, %00000 1 00)
+                        //Freeze()
+
+
                         //NextRegRead(5)
                         //and %00000100
                         //ld (CurrentHz), a
