@@ -414,7 +414,7 @@ namespace NXtelData
             return null;
         }
 
-        public void Compose(Page Page)
+        public void Compose(Page Page, DateTime? LastSeen = null)
         {
             if (!Active)
             {
@@ -467,6 +467,11 @@ namespace NXtelData
                 val = now.ToString("HH:mm:ss");
             else if (Options.ShowStaticTimeAndDate && expr == "@year")
                 val = now.ToString("yyyy");
+            else if (expr == "@lastseen" && LastSeen != null)
+                if (LastSeen == DateTime.MinValue)
+                val = "                   Never";
+            else
+                val = ((DateTime)LastSeen).ToString("ddd dd MMM yyyy HH:mm:ss");
             else if (expr == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
             else if (expr == "@ts.percent")

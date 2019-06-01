@@ -142,7 +142,7 @@ namespace NXtelData
             }
         }
 
-        public static Page Load(int PageNo, int FrameNo, ICarousel Carousel = null)
+        public static Page Load(int PageNo, int FrameNo, ICarousel Carousel = null, DateTime? LastSeen = null)
         {
             var item = PageCache.GetPage(PageNo, FrameNo);
             if (item == null)
@@ -173,7 +173,7 @@ namespace NXtelData
                         item.Templates = Templates.LoadForPage(item.PageID, con);
                         item.Routing = Routes.LoadForPage(item.PageID, con);
                         item.Zones = Zones.LoadForPage(item.PageID, con);
-                        item.Compose();
+                        item.Compose(LastSeen);
                         new TSEncoder().Encode(ref item);
                     }
                 }
@@ -482,7 +482,7 @@ namespace NXtelData
             }
         }
 
-        public void Compose()
+        public void Compose(DateTime? LastSeen = null)
         {
             if (PageType == PageTypes.TeleSoftware)
             {
@@ -528,7 +528,7 @@ namespace NXtelData
             if (Contents.Length != 960)
                 Contents = Pad(Contents, 960, 32);
             foreach (var template in FlattenTemplates() ?? new Templates())
-                template.Compose(this);
+                template.Compose(this, LastSeen);
             Contents = Pad(Contents, 960, 32);
         }
 

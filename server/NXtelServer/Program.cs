@@ -63,11 +63,11 @@ namespace NXtelServer
             Socket oldSocket = (Socket)result.AsyncState;
             Socket newSocket = oldSocket.EndAccept(result);
             Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, ClientStates.NotLogged);
-            client.ClientHash = Stats.Connect((IPEndPoint)newSocket.RemoteEndPoint);
+            client.ClientHash = Stats.Connect((IPEndPoint)newSocket.RemoteEndPoint, out client.LastSeen);
             client.Socket = newSocket;
             clientList.Add(newSocket, client);
             Console.WriteLine("Client connected. (From: " + client.LogAddress + ")");
-            var page = Page.Load(Options.StartPageNo, Options.StartFrameNo);
+            var page = Page.Load(Options.StartPageNo, Options.StartFrameNo, null, client.LastSeen);
             client.PageHistory.Push(page);
             client.clientState = ClientStates.Logging;
             try

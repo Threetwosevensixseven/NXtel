@@ -35,6 +35,7 @@ namespace NXtelServer.Classes
         public Socket Socket;
         public object CarouselLock = new object();
         public string ClientHash = "";
+        public DateTime LastSeen;
 
         public Client(IPEndPoint _remoteEndPoint, DateTime _connectedAt, ClientStates _clientState)
         {
@@ -287,9 +288,9 @@ namespace NXtelServer.Classes
                         {
                             int pageNo;
                             int.TryParse(CurrentCommand, out pageNo);
-                            NextPage = Page.Load(pageNo, 0, _carousel);
+                            NextPage = Page.Load(pageNo, 0, _carousel, LastSeen);
                             if (NextPage.PageNo != pageNo)
-                                NextPage = Page.Load(1, 0, _carousel);
+                                NextPage = Page.Load(1, 0, _carousel, LastSeen);
                             PageHistory.Push(NextPage);
                             CommandState = CommandStates.RegularRouting;
                             CurrentCommand = "";
@@ -322,7 +323,7 @@ namespace NXtelServer.Classes
                     {
                         if (CurrentPage.PageType == PageTypes.TeleSoftware && route.NextPageNo != null && route.NextFrameNo != null)
                         {
-                            NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo, _carousel);
+                            NextPage = Page.Load((int)route.NextPageNo, (int)route.NextFrameNo, _carousel, LastSeen);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
                             SendIAC = sendIAC.ToArray();
@@ -330,7 +331,7 @@ namespace NXtelServer.Classes
                         }
                         else if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                         {
-                            NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo, _carousel);
+                            NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo, _carousel, LastSeen);
                             PageHistory.Push(NextPage);
                             KeyBuffer.Dequeue();
                             SendIAC = sendIAC.ToArray();
@@ -372,7 +373,7 @@ namespace NXtelServer.Classes
                             {
                                 if (route.GoesToPageNo >= 0 && route.GoesToFrameNo >= 0 && route.GoesToFrameNo <= 25)
                                 {
-                                    NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo, _carousel);
+                                    NextPage = Page.Load(route.GoesToPageNo, route.GoesToFrameNo, _carousel, LastSeen);
                                     PageHistory.Push(NextPage);
                                     CommandState = CommandStates.RegularRouting;
                                     CurrentCommand = "";

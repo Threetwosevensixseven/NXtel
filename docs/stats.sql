@@ -52,3 +52,7 @@ SELECT dt,MAX(ky) AS mx FROM (
 GROUP BY dt
 ORDER BY dt DESC;
 
+SELECT MAX(`Timestamp`) AS ts
+FROM stats
+WHERE ClientHash='03c797814c031ad9c99748c5c999bc4b';
+

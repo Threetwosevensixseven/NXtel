@@ -71,20 +71,15 @@ namespace NXtelData
             cmd.Parameters.AddWithValue("FrameNo", Frame);
             cmd.ExecuteNonQuery();
 
-            sql = @"INSERT IGNORE INTO geo (ClientHash,IPAddress) VALUES (@ClientHash,@IPAddress);";
-            cmd = new MySqlCommand(sql, ConX);
-            cmd.Parameters.AddWithValue("ClientHash", hash);
-            cmd.Parameters.AddWithValue("IPAddress", ip);
-            cmd.ExecuteNonQuery();
-
             if (openConX)
                 ConX.Close();
 
             return true;
         }
 
-        public static string Connect(IPEndPoint EndPoint)
+        public static string Connect(IPEndPoint EndPoint, out DateTime LastSeen)
         {
+            LastSeen = DateTime.MinValue;
             if (EndPoint == null || EndPoint.Address == null)
                 return "";
             MySqlConnection ConX = null;
@@ -102,6 +97,22 @@ namespace NXtelData
                 cmd.Parameters.AddWithValue("ClientHash", hash);
                 cmd.Parameters.AddWithValue("IPAddress", EndPoint.Address.ToString());
                 cmd.ExecuteNonQuery();
+            }
+
+            sql = @"SELECT MAX(`Timestamp`) AS ts
+                FROM stats
+                WHERE ClientHash=@ClientHash;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("ClientHash", hash);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        LastSeen = rdr.GetDateTimeSafe("ts");
+                        break;
+                    }
+                }
             }
 
             if (openConX)
