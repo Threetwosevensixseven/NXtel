@@ -121,12 +121,16 @@ namespace NXtelData
             // Most popular page per day
             sql = @"SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
                 SELECT dt,MAX(ky) AS mx FROM (
-                    SELECT DATE(`Timestamp`) AS dt,PageNo,COUNT(*) AS cnt,
-                    CAST(CONCAT(DATE(`Timestamp`),'-',LPAD(CAST(COUNT(*) AS char),11,'0'),'-',LPAD(CAST(PageNo AS char),11,'0')) AS char) AS ky
-                    FROM stats
-                    WHERE PageNo NOT IN(0,1)
+                    SELECT dt,PageNo,
+                    CAST(CONCAT(dt,'-',LPAD(CAST(COUNT(*) AS char),11,'0'),'-',LPAD(CAST(PageNo AS char),11,'0')) AS char) AS ky
+                     FROM (
+                        SELECT DATE(`Timestamp`) AS dt,PageNo
+                        FROM stats
+                        WHERE PageNo NOT IN(0,1)
+                        GROUP BY dt,PageNo,ClientHash
+                    ) AS daysclientspages
                     GROUP BY dt,PageNo
-                ) AS clientdayspages
+                ) AS dayspages
                 GROUP BY dt
                 ORDER BY dt DESC;";
             using (var cmd = new MySqlCommand(sql, ConX))
