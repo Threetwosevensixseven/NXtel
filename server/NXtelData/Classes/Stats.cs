@@ -82,5 +82,32 @@ namespace NXtelData
 
             return true;
         }
+
+        public static string Connect(IPEndPoint EndPoint)
+        {
+            if (EndPoint == null || EndPoint.Address == null)
+                return "";
+            MySqlConnection ConX = null;
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            string hash = IPEndPointExtensions.CalculateHash(EndPoint);
+            string sql = @"INSERT IGNORE INTO geo (ClientHash,IPAddress) VALUES (@ClientHash,@IPAddress);";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("ClientHash", hash);
+                cmd.Parameters.AddWithValue("IPAddress", EndPoint.Address.ToString());
+                cmd.ExecuteNonQuery();
+            }
+
+            if (openConX)
+                ConX.Close();
+
+            return hash;
+        }
     }
 }

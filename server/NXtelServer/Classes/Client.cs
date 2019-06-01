@@ -34,6 +34,7 @@ namespace NXtelServer.Classes
         private Carousel _carousel;
         public Socket Socket;
         public object CarouselLock = new object();
+        public string ClientHash = "";
 
         public Client(IPEndPoint _remoteEndPoint, DateTime _connectedAt, ClientStates _clientState)
         {
@@ -109,8 +110,7 @@ namespace NXtelServer.Classes
                     var socket = state as Socket;
                     if (socket != null)
                     {
-                        Console.WriteLine("Sending queued page (To: " + string.Format("{0}:{1}",
-                            remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        Console.WriteLine("Sending queued page (To: " + LogAddress + ")");
                         socket.BeginSend(_queuedPage.Contents7BitEncoded, 0, _queuedPage.Contents7BitEncoded.Length,
                             SocketFlags.None, new AsyncCallback(Program.SendData), socket);
                     }
@@ -151,8 +151,7 @@ namespace NXtelServer.Classes
                 if (_carousel.NextIndex < 0 || _carousel.NextIndex > _carousel.Count - 1)
                     _carousel.NextIndex = 0;
                 var nextPage = _carousel[_carousel.NextIndex];
-                Console.WriteLine("Sending carousel page " + page.PageAndFrame + " (To: " + string.Format("{0}:{1}",
-                    remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                Console.WriteLine("Sending carousel page " + page.PageAndFrame + " (To: " + string.Format("{0}", LogAddress) + ")");
                 Socket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
                     SocketFlags.None, new AsyncCallback(Program.SendData), Socket);
                 _queuedPageTimer = new Timer(CarouselCallback, state, nextPage.CarouselWait * 1000, Timeout.Infinite);
@@ -210,16 +209,15 @@ namespace NXtelServer.Classes
                         {
                             _latencyStart = DateTime.Now;
                             _latencyPacketCount++;
-                            Console.WriteLine("Starting LAT test. One LAT is 10 bytes->server + 100 bytes->client (To: " + string.Format("{0}:{1}",
-                                remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                            Console.WriteLine("Starting LAT test. One LAT is 10 bytes->server + 100 bytes->client (To: " 
+                                + string.Format("{0}", LogAddress) + ")");
                         }
                         else
                         {
                             double tot = (DateTime.Now - _latencyStart).TotalMilliseconds;
                             double avg = Math.Round(tot / _latencyPacketCount, 0);
                             Console.WriteLine(_latencyPacketCount + " LATs in " + tot.ToString()
-                                + "ms = avg " + avg.ToString() + "ms (To: " + string.Format("{0}:{1}",
-                                remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                                + "ms = avg " + avg.ToString() + "ms (To: " + string.Format("{0}", LogAddress) + ")");
                             _latencyPacketCount++;
                         }
                         continue;
@@ -265,12 +263,14 @@ namespace NXtelServer.Classes
                     {
                         KeyBuffer.Dequeue();
                         CurrentCommand += Convert.ToChar(b).ToString();
-                        //Console.WriteLine(string.Format("Inside Star Page Command, Adding {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        //Console.WriteLine(string.Format("Inside Star Page Command, Adding {0}; CurrentCommand: '{1}' (", 
+                        //    b.ToString("X2"), CurrentCommand) + string.Format("{0}", LogAddress) + ")");
                         continue;
                     }
                     if (b == ENTER)
                     {
-                        //Console.WriteLine(string.Format("Exiting Star Page Command; CurrentCommand: '{0}' (", CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        //Console.WriteLine(string.Format("Exiting Star Page Command; CurrentCommand: '{0}' (", CurrentCommand) 
+                        //    + string.Format("{0}", LogAddress) + ")");
                         KeyBuffer.Dequeue();
                         if (CurrentCommand == "00") // Previous page
                         {
@@ -300,7 +300,8 @@ namespace NXtelServer.Classes
                     KeyBuffer.Dequeue();
                     CommandState = CommandStates.RegularRouting;
                     CurrentCommand = "";
-                    //Console.WriteLine(string.Format("Exiting Star Page Command, Invalid {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    //Console.WriteLine(string.Format("Exiting Star Page Command, Invalid {0}; CurrentCommand: '{1}' (", 
+                    //    b.ToString("X2"), CurrentCommand) + string.Format("{0}", LogAddress) + ")");
                     continue;
                 }
 
@@ -308,12 +309,14 @@ namespace NXtelServer.Classes
                 {
                     if (b == '*')
                     {
-                        //Console.WriteLine(string.Format("Entering Star Page Command; CurrentCommand: '{0}' (", CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                        //Console.WriteLine(string.Format("Entering Star Page Command; CurrentCommand: '{0}' (", CurrentCommand) 
+                        //    + string.Format("{0}", LogAddress) + ")");
                         CommandState = CommandStates.InsideStarPageCommand;
                         KeyBuffer.Dequeue();
                         continue;
                     }
-                    //Console.WriteLine(string.Format("Outside Commands, Processing {0} (", b.ToString("X2")) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    //Console.WriteLine(string.Format("Outside Commands, Processing {0} (", b.ToString("X2")) 
+                    //    + string.Format("{0}", LogAddress) + ")");
                     var route = CurrentPage.Routing.FirstOrDefault(r => r.KeyCode == b);
                     if (route != null)
                     {
@@ -386,7 +389,8 @@ namespace NXtelServer.Classes
                     KeyBuffer.Dequeue();
                     CommandState = CommandStates.RegularRouting;
                     CurrentCommand = "";
-                    //Console.WriteLine(string.Format("Exiting Star Page Command, Invalid {0}; CurrentCommand: '{1}' (", b.ToString("X2"), CurrentCommand) + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    //Console.WriteLine(string.Format("Exiting Star Page Command, Invalid {0}; CurrentCommand: '{1}' (", 
+                    //    b.ToString("X2"), CurrentCommand) + string.Format("{0}", LogAddress) + ")");
                     continue;
                 }
             }
@@ -405,7 +409,7 @@ namespace NXtelServer.Classes
             for (int i = 0; i < Received; i++)
                 Console.WriteLine("Received: " + Buffer[i].ToString("X2") + " [" + Buffer[i].ToString().PadLeft(3)
                     + (Buffer[i] > 32 ? " " + Convert.ToChar(Buffer[i]).ToString() : "  ")
-                    + "] (From: " + string.Format("{0}:{1}", remoteEndPoint.Address.ToString(), remoteEndPoint.Port) + ")");
+                    + "] (From: " + string.Format("{0}", LogAddress) + ")");
         }
 
         internal byte[] Combine(params byte[][] BytesList)
@@ -415,6 +419,14 @@ namespace NXtelServer.Classes
                 if (bytes != null && bytes.Length > 0)
                     list.AddRange(bytes);
             return list.ToArray();
+        }
+
+        public string LogAddress
+        {
+            get
+            {
+                return (ClientHash ?? "").Trim() + ":" + remoteEndPoint.Port.ToString();
+            }
         }
     }
 }

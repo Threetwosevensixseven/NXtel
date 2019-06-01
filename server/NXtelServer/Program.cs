@@ -63,9 +63,10 @@ namespace NXtelServer
             Socket oldSocket = (Socket)result.AsyncState;
             Socket newSocket = oldSocket.EndAccept(result);
             Client client = new Client((IPEndPoint)newSocket.RemoteEndPoint, DateTime.Now, ClientStates.NotLogged);
+            client.ClientHash = Stats.Connect((IPEndPoint)newSocket.RemoteEndPoint);
             client.Socket = newSocket;
             clientList.Add(newSocket, client);
-            Console.WriteLine("Client connected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+            Console.WriteLine("Client connected. (From: " + client.LogAddress + ")");
             var page = Page.Load(Options.StartPageNo, Options.StartFrameNo);
             client.PageHistory.Push(page);
             client.clientState = ClientStates.Logging;
@@ -73,8 +74,8 @@ namespace NXtelServer
             {
                 if (Options.IACEnabled)
                 {
-                    Console.WriteLine(string.Format("Queuing page {0} for sending (To: {1}:{2}", Options.StartPage,
-                        client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Console.WriteLine(string.Format("Queuing page {0} for sending (To: {1}", Options.StartPage,
+                        client.LogAddress) + ")");
                     Stats.Update(client.remoteEndPoint, page);
                     client.SetQueuedPage(page, newSocket);
                     //newSocket.Listen(100);
@@ -83,8 +84,8 @@ namespace NXtelServer
                 }
                 else
                 {
-                        Console.WriteLine(string.Format("Sending page {0} (To: {1}:{2}", Options.StartPage, 
-                            client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                        Console.WriteLine(string.Format("Sending page {0} (To: {1}", Options.StartPage, 
+                            client.LogAddress) + ")");
                     Stats.Update(client.remoteEndPoint, page);
                     newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
                         SocketFlags.None, new AsyncCallback(SendData), newSocket);
@@ -123,7 +124,7 @@ namespace NXtelServer
                     clientSocket.Close();
                     clientList.Remove(clientSocket);
                     serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
-                    Console.WriteLine("Client disconnected. (From: " + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Console.WriteLine("Client disconnected. (From: " + string.Format("{0}", client.LogAddress) + ")");
                     return;
                 }
                 byte[] sendIAC = null;
@@ -134,7 +135,7 @@ namespace NXtelServer
                 if (sendIAC.Length > 0)
                 {
                     if (log) Console.WriteLine("Sending IAC " + BitConverter.ToString(sendIAC) + " (To: " 
-                        + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                        + string.Format("{0}", client.LogAddress) + ")");
                     //clientSocket.BeginSend(sendIAC, 0, sendIAC.Length, SocketFlags.None, new AsyncCallback(SendData), 
                     //    clientSocket);
                 }
@@ -142,13 +143,12 @@ namespace NXtelServer
                 queued = new byte[0];
                 if (queued.Length > 0)
                 {
-                    Console.WriteLine("Sending queued page (To: " + string.Format("{0}:{1}",
-                        client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                    Console.WriteLine("Sending queued page (To: " + string.Format("{0}", client.LogAddress) + ")");
                 }
                 if (processed)
                 {
                     Console.WriteLine("Sending page " + nextPage.PageAndFrame + " (To: " 
-                        + string.Format("{0}:{1}", client.remoteEndPoint.Address.ToString(), client.remoteEndPoint.Port) + ")");
+                        + string.Format("{0}", client.LogAddress) + ")");
                     Stats.Update(client.remoteEndPoint, nextPage);
                     pageData = nextPage.Contents7BitEncoded;
                 }
@@ -203,8 +203,8 @@ namespace NXtelServer
                     {
                         Client currentClient = client.Value;
                         clientNumber++;
-                        Console.WriteLine(string.Format("Client #{0} (From: {1}:{2}, ECurrentState: {3}, Connection time: {4})", clientNumber,
-                        currentClient.remoteEndPoint.Address.ToString(), currentClient.remoteEndPoint.Port, currentClient.clientState, currentClient.connectedAt));
+                        Console.WriteLine(string.Format("Client #{0} (From: {1}, ECurrentState: {2}, Connection time: {3})", 
+                            clientNumber, currentClient.LogAddress, currentClient.clientState, currentClient.connectedAt));
                     }
                 }
 
