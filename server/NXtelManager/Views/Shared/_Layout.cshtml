@@ -42,6 +42,10 @@
                       <li>@Html.ActionLink("Templates", "Index", "Template")</li>
                       <li>@Html.ActionLink("Files", "Index", "File")</li>
                     }
+                    @if (ShowHeader && !admin)
+                    {
+                      <li>@Html.ActionLink("Statistics", "Summary", "Statistics")</li>
+                    }
                 </ul>
                 @if (ShowHeader)
                 {

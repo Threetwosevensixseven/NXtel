@@ -198,6 +198,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\ServerController.cs" />
+    <Compile Include="Controllers\StatisticsController.cs" />
     <Compile Include="Controllers\TemplateController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\UserPreferenceController.cs" />
@@ -335,6 +336,7 @@
     <Content Include="Views\Zone\Index.cshtml" />
     <Content Include="Views\Zone\Edit.cshtml" />
     <Content Include="Views\Zone\View.cshtml" />
+    <Content Include="Views\Statistics\Summary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

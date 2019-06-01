@@ -1,0 +1,82 @@
+﻿@using NXtelData
+@model Metric
+@{
+    ViewBag.Title = "Statistics";
+}
+<h1>@ViewBag.Title</h1>
+<h3>@ViewBag.Message</h3>
+
+<h3>Overall Totals</h3>
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th style="text-align:right">Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><b>Total Unique Users</b></td>
+            <td style="text-align:right">@Metric.Format(Model.ClientCount)</td>
+        </tr>
+        <tr>
+            <td><b>Total Unique Page Views</b></td>
+            <td style="text-align:right">@Metric.Format(Model.PageCount)</td>
+        </tr>
+        <tr>
+            <td><b>Total Days With Activity</b></td>
+            <td style="text-align:right">@Metric.Format(Model.DayCount)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Daily Statistics</h3>
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th style="text-align:right">User</th>
+            <th style="text-align:right">Page</th>
+            <th style="text-align:center" colspan="2">Most Popular Page<sup>*</sup></th>
+        </tr>
+        <tr>
+            <th>Day</th>
+            <th style="text-align:right">Count</th>
+            <th style="text-align:right">Count</th>
+            <th style="text-align:right">Number</th>
+            <th style="text-align:right">Unique Views</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var day in @Model.DailyMetrics)
+        {
+        <tr>
+            <td><b>@day.Key.ToString("dd/MM/yyyy")</b></td>
+            <td style="text-align:right">@Metric.Format(day.Value.ClientCount)</td>
+            <td style="text-align:right">@Metric.Format(day.Value.PageCount)</td>
+            <td style="text-align:right">@day.Value.PopularPageNo</td>
+            <td style="text-align:right">@Metric.Format(day.Value.PopularCount)</td>
+        </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5"><i><sup>*</sup> Excluding welcome page (0) and main index (1)</i></td>
+        </tr>
+    </tfoot>
+</table>
+
+@section head {
+<style type="text/css">
+    th {
+        font-size: 1.2em;
+    }
+    th, td {
+        padding-right: 20px;
+    }
+    tfoot td {
+        padding-top: 10px;
+        font-size: 0.9em;
+    }
+</style>
+}

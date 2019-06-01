@@ -110,6 +110,7 @@
     <Compile Include="Classes\HelpItem.cs" />
     <Compile Include="Classes\HelpItems.cs" />
     <Compile Include="Classes\Logger.cs" />
+    <Compile Include="Classes\Metric.cs" />
     <Compile Include="Classes\Options.cs" />
     <Compile Include="Classes\PageBase.cs" />
     <Compile Include="Classes\PageCache.cs" />

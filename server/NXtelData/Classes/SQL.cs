@@ -20,8 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateStatsTable(ConX);
-            CreateGeoTable(ConX);
+            CreateStatsIndex(ConX);
             
             if (openConX)
                 ConX.Close();
@@ -973,6 +972,36 @@ END$$";
                     `IPAddress` INT(11) UNSIGNED NULL,
                     `Geo` POINT NULL,
                     PRIMARY KEY (`ClientHash`));";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateStatsIndex(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `stats` 
+                    ADD INDEX `ix_stats_PageNo` (`PageNo` ASC);";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

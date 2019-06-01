@@ -36,7 +36,7 @@ namespace NXtelData
         {
             if (EndPoint == null || EndPoint.Address == null || Page == null || Page.PageNo < 0 || Page.FrameNo < 0)
                 return false;
-            return Update(DateTime.MinValue, EndPoint.Address.ToString(), Page.PageNo, Page.FrameNo);
+            return Update(DateTime.Now, EndPoint.Address.ToString(), Page.PageNo, Page.FrameNo);
         }
 
         public bool Update()
