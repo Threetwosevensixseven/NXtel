@@ -212,7 +212,7 @@ table.dataTable thead tr .sorting_desc_disabled::after {
 }
 
 #ManageUser table.inner td {
-    line-height: normal;
+    line-height: 18px;
     padding-bottom: 0;
 }
 

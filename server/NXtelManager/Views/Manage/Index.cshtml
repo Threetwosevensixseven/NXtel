@@ -3,6 +3,7 @@
     ViewBag.Title = "My Account";
     bool admin = User.IsInRole("Admin");
     bool pageEditor = User.IsInRole("Page Editor");
+    //Model.Permissions.Clear();
 }
 
 <h1>@ViewBag.Title</h1>
@@ -18,34 +19,11 @@
             <td class="lbl">Mailbox:</td>
             <td class="data">@Model.Mailbox</td>
         </tr>
-        @if (pageEditor && !admin)
-        {
-            string desc = Model.PageRanges.Count <= 1 ? "Page Range:" : "Page Ranges:";
-            <tr>
-                <td class="lbl" style="vertical-align:text-top">@desc</td>
-                <td class="data">
-                    <table class="inner">
-                        @foreach (var pr in Model.PageRanges)
-                        {
-                            <tr>
-                                <td style="text-align:right">@pr.FromPageNo</td>
-                                <td>-</td>
-                                <td style="text-align:right">@pr.ToPageNo</td>
-                            </tr>
-                        }
-                        @if (Model.PageRanges.Count == 0)
-                        {
-                            <tr><td>All</td></tr>
-                        }
-                    </table>
-                </td>
-            </tr>
-        }
         <tr>
             <td class="lbl">Password:</td>
             <td>
                 @if (Model.HasPassword)
-            {
+                {
                     @Html.ActionLink("Change your password", "ChangePassword")
                 }
                 else
@@ -54,5 +32,56 @@
                 }
             </td>
         </tr>
+        @if (pageEditor && !admin)
+        {
+            <tr>
+                <td class="lbl" style="vertical-align:text-top">Page Editor:</td>
+                <td class="data" style="vertical-align:text-top">Yes</td>
+            </tr>
+            <tr>
+                <td class="lbl" style="vertical-align:text-top">Editing Permissions:</td>
+                <td class="data">
+                    <table class="inner">
+                        @foreach (var p in Model.Permissions)
+                        {
+                            string range = p.Type == NXtelData.PermissionTypes.Page ? " range" : "";
+                            <tr>
+                                <td style="padding-right:20px">@p.Type.ToString()@range</td>
+                                @if (p.Type == NXtelData.PermissionTypes.Page)
+                                {
+                                    <td>@p.From - @p.To</td>
+                                }
+                                else if (p.Type == NXtelData.PermissionTypes.Template)
+                                {
+                                    var tt = Model.Templates.FirstOrDefault(t => t.TemplateID == p.From) ?? new NXtelData.Template();
+                                    string desc = string.IsNullOrWhiteSpace(tt.Description) ? "Template " + p.From : tt.Description.Trim();
+                                    <td style="font-weight:normal">@Html.ActionLink(desc, "Edit", "Template", new { id = p.From }, null)</td>
+                                }
+                                else if (p.Type == NXtelData.PermissionTypes.Zone)
+                                {
+                                    var zz = Model.Zones.FirstOrDefault(z => z.ID == p.From) ?? new NXtelData.Zone();
+                                    string desc = string.IsNullOrWhiteSpace(zz.Description) ? "Zone " + p.From : zz.Description.Trim();
+                                    <td style="font-weight:normal">@Html.ActionLink(desc, "Edit", "Zone", new { id = p.From }, null)</td>
+                                }
+                                else if (p.Type == NXtelData.PermissionTypes.File)
+                                {
+                                    var ff = Model.Files.FirstOrDefault(f => f.TeleSoftwareID == p.From) ?? new NXtelData.TSFile();
+                                    string desc = string.IsNullOrWhiteSpace(ff.Key) ? "File " + p.From : ff.Key.Trim();
+                                    <td style="font-weight:normal">@Html.ActionLink(desc, "Edit", "File", new { id = p.From }, null)</td>
+                                }
+                            </tr>
+                        }
+                        @if (Model.Permissions.Count == 0)
+                        {
+                            <tr><td colspan="2">Only pages and templates you own</td></tr>
+                        }
+                        else
+                        {
+                            <tr><td colspan="2" style="padding-top: 10px">Plus any pages and templates you own</td></tr>
+                        }
+                    </table>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

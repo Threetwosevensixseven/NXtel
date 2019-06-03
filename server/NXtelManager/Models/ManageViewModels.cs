@@ -16,12 +16,18 @@ namespace NXtelManager.Models
         public string Mailbox { get; set; }
         public Permissions Permissions { get; set; }
         public string Email { get; set; }
+        public Templates Templates { get; set; }
+        public Zones Zones { get; set; }
+        public TSFiles Files { get; set; }
 
         public IndexViewModel()
         {
             Permissions = new Permissions();
+            Templates = Templates.LoadStubs();
+            Zones = Zones.Load();
+            Files = TSFiles.LoadStubs();
         }
-}
+    }
 
     public class ManageLoginsViewModel
     {
