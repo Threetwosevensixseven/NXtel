@@ -11,13 +11,25 @@ namespace NXtelManager.Models
     {
         public User User { get; set; }
         public IEnumerable<SelectListItem> Roles { get; set; }
+        public IEnumerable<SelectListItem> Templates { get; set; }
+        public Templates TemplateList { get; set; }
+        public IEnumerable<SelectListItem> Zones { get; set; }
+        public Zones ZoneList { get; set; }
+        public IEnumerable<SelectListItem> Files { get; set; }
+        public TSFiles FileList { get; set; }
         public string SelectedRolesJSON { get; set; }
-        public string SelectedPageRanges { get; set; }
+        public string SelectedPermissions { get; set; }
 
         public UserEditModel()
         {
             Roles = GetSelectList(NXtelData.Roles.Load());
-            SelectedRolesJSON = SelectedPageRanges = "";
+            TemplateList = NXtelData.Templates.LoadStubs();
+            Templates = GetSelectList(TemplateList);
+            ZoneList = NXtelData.Zones.Load();
+            Zones = GetSelectList(ZoneList);
+            FileList = TSFiles.LoadStubs();
+            Files = GetSelectList(FileList);
+            SelectedRolesJSON = SelectedPermissions = "";
         }
 
         public IEnumerable<SelectListItem> GetSelectList(Roles Items)
@@ -30,6 +42,50 @@ namespace NXtelManager.Models
                 {
                     Value = item.ID.ToString(),
                     Text = (item.Name ?? "").Trim()
+                });
+            }
+            return rv;
+        }
+
+        public IEnumerable<SelectListItem> GetSelectList(Templates Items)
+        {
+            var rv = new List<SelectListItem>();
+            if (Items == null) return rv;
+            foreach (var item in Items)
+            {
+                rv.Add(new SelectListItem
+                {
+                    Value = item.TemplateID.ToString(),
+                    Text = (item.Description ?? "").Trim()
+                });
+            }
+            return rv;
+        }
+
+        public IEnumerable<SelectListItem> GetSelectList(Zones Items)
+        {
+            var rv = new List<SelectListItem>();
+            if (Items == null) return rv;
+            foreach (var item in Items)
+            {
+                rv.Add(new SelectListItem
+                {
+                    Value = item.ID.ToString(),
+                    Text = (item.Description ?? "").Trim()
+                });
+            }
+            return rv;
+        }
+        public IEnumerable<SelectListItem> GetSelectList(TSFiles Items)
+        {
+            var rv = new List<SelectListItem>();
+            if (Items == null) return rv;
+            foreach (var item in Items)
+            {
+                rv.Add(new SelectListItem
+                {
+                    Value = item.TeleSoftwareID.ToString(),
+                    Text = (item.Key ?? "").Trim()
                 });
             }
             return rv;
@@ -48,22 +104,17 @@ namespace NXtelManager.Models
                     User.Roles.Add(role.Text);
             }
 
-            // Set Page Ranges
-            var prs = new List<UserPageRange>();
-            foreach (var pr in (this.SelectedPageRanges ?? "").Split(';'))
+            // Set Permissions
+            var perms = new List<Permission>();
+            try
             {
-                var fields = (pr ?? "").Split(',');
-                int id = 0, from = 0, to = 0;
-                int.TryParse(fields[0], out id);
-                if (fields.Length > 1)
-                    int.TryParse(fields[1], out from);
-                if (fields.Length > 2)
-                    int.TryParse(fields[2], out to);
-                if (from > 0 && to > 0)
-                    prs.Add(new UserPageRange(id, from, to));
+                if (string.IsNullOrWhiteSpace(this.SelectedPermissions))
+                    this.SelectedPermissions = "{}";
+                perms = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Permission>>(this.SelectedPermissions);
             }
-            User.PageRanges = new UserPageRanges();
-            User.PageRanges.AddRange(prs.OrderBy(r => r.Sort));
+            catch { }
+            User.Permissions = new Permissions();
+            User.Permissions.AddRange(perms.OrderBy(r => r.Sort));
         }
     }
 }

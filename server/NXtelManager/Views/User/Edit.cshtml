@@ -63,33 +63,70 @@
     </div>
 
     <div class="form-group">
-        @Html.Label("Page Ranges", "Page Ranges", new { @class = "control-label col-sm-2" })
-        <div id="PageRanges" class="col-sm-10">
-            @Html.Hidden("SelectedPageRanges", @Model.SelectedPageRanges, new { id = "SelectedPageRanges" })
+        @Html.Label("Permissions", "Permissions", new { @class = "control-label col-sm-2" })
+        <div id="Permissions" class="col-sm-10">
+            @Html.Hidden("SelectedPermissions", @Model.SelectedPermissions, new { id = "SelectedPermissions" })
             <table style="display:inline">
-                <tbody id="tbodyPageRanges">
-                    @for (int j = 0; j < @Model.User.PageRanges.Count; j++)
+                <tbody id="tbodyPermissions">
+                    @for (int j = 0; j < @Model.User.Permissions.Count; j++)
                     {
-                        string id = "trPageRange" + (j + 1).ToString();
-                        string prid = @Model.User.PageRanges[j].ID.ToString();
-                        <tr id="@id" class="page-range ordered" data-range-id="@prid">
-                            <td>@Html.TextBox("User.PageRanges[" + j + "].FromPageNo", Model.User.PageRanges[j].FromPageNo, new { @class = "form-control user-page-range from allow-numbers", maxlength = 8 })</td>
-                            <td>-</td>
-                            <td>@Html.TextBox("User.PageRanges[" + j + "].ToPageNo", Model.User.PageRanges[j].ToPageNo, new { @class = "form-control user-page-range to allow-numbers", maxlength = 8 })</td>
-                            <td><a href="#" class="ordered ordered-btn delete" title="Delete page range">Delete</a></td>
+                        string id = "trPermission" + (j + 1).ToString();
+                        string prid = @Model.User.Permissions[j].UserPermissionID.ToString();
+                        <tr id="@id" class="permission ordered" data-permission-id="@prid" data-type="@Model.User.Permissions[j].PType">
+                            <td class="ptype">@Model.User.Permissions[j].Type.ToString()</td>
+                            @if (Model.User.Permissions[j].Type == NXtelData.PermissionTypes.Page)
+                            {
+                                <td>@Html.TextBox("User.Permissions[" + j + "].From", Model.User.Permissions[j].From, new { @class = "form-control user-permission from to-from allow-numbers", maxlength = 8 })</td>
+                                <td>-</td>
+                                <td>@Html.TextBox("User.Permissions[" + j + "].To", Model.User.Permissions[j].To, new { @class = "form-control user-permission to to-from allow-numbers", maxlength = 8 })</td>
+                            }
+                            else if (Model.User.Permissions[j].Type == NXtelData.PermissionTypes.Template)
+                            {
+                                var ti = @Model.TemplateList.FirstOrDefault(t => t.TemplateID == Model.User.Permissions[j].From) ?? new NXtelData.Template();
+                                <td colspan="3" class="desc" data-id="@Model.User.Permissions[j].From" data-type="@Model.User.Permissions[j].PType">@ti.Description</td>
+                            }
+                            else if (Model.User.Permissions[j].Type == NXtelData.PermissionTypes.Zone)
+                            {
+                                var zi = @Model.ZoneList.FirstOrDefault(z => z.ID == Model.User.Permissions[j].From) ?? new NXtelData.Zone();
+                                <td colspan="3" class="desc" data-id="@Model.User.Permissions[j].From" data-type="@Model.User.Permissions[j].PType">@zi.Description</td>
+                            }
+                            else if (Model.User.Permissions[j].Type == NXtelData.PermissionTypes.File)
+                            {
+                                var fi = @Model.FileList.FirstOrDefault(f => f.TeleSoftwareID == Model.User.Permissions[j].From) ?? new NXtelData.TSFile();
+                                <td colspan="3" class="desc" data-id="@Model.User.Permissions[j].From" data-type="@Model.User.Permissions[j].PType">@fi.Key</td>
+                                @*<td colspan="3"></td>*@
+                            }
+                            else
+                            {
+                                <td colspan="3" ></td>
+                            }
+                            <td><a href="#" class="ordered ordered-btn delete" title="Delete permission">Delete</a></td>
                         </tr>
                     }
                 </tbody>
                 <tbody style="display:none">
-                    <tr id="trPageRangeXXX" class="page-range ordered">
-                        <td><input class="form-control user-page-range from" maxlength="8" type="text" onkeypress="javascript:return allownumbers(event);"></td>
-                        <td>-</td>
-                        <td><input class="form-control user-page-range to" maxlength="8" type="text" onkeypress="javascript:return allownumbers(event);"></td>
-                        <td><a href="#" class="ordered ordered-btn delete" title="Delete page range">Delete</a></td>
+                    <tr id="trPermissionXXX" class="permission ordered" data-permission-id="-1" data-type="-1">
+                        <td class="ptype">
+                            <select id="ddlPermissionXXX" class="form-control input-sm" onchange="permissionTypeChanged(this);">
+                                <option value="0">Page</option>
+                                <option value="1">Template</option>
+                                <option value="2">Zone</option>
+                                <option value="3">File</option>
+                            </select>
+                        </td>
+                        <td class="ptype-page"><input class="form-control user-permission from to-from" maxlength="8" type="text" onkeypress="javascript:return allownumbers(event);"></td>
+                        <td class="ptype-page">-</td>
+                        <td class="ptype-page"><input class="form-control user-permission to to-from" maxlength="8" type="text" onkeypress="javascript:return allownumbers(event);"></td>
+                        <td id="tdPermissionsListsXXX" colspan="3" style="display:none">
+                            @Html.DropDownList("TemplateMasterListXXX", Model.Templates, new { @class = "form-control input-sm ptype-template" })
+                            @Html.DropDownList("ZoneMasterListXXX", Model.Zones, new { @class = "form-control input-sm ptype-zone" })
+                            @Html.DropDownList("FileMasterListXXX", Model.Files, new { @class = "form-control input-sm ptype-file" })
+                        </td>
+                        <td><a href="#" class="ordered ordered-btn delete" title="Delete permission">Delete</a></td>
                     </tr>
                 </tbody>
             </table>
-            <a href="#" class="ordered ordered-btn add" title="Add page range" style="display:inline-block;position:relative;top:-3px">Add</a>
+            <a href="#" class="ordered ordered-btn add" title="Add permission" style="display:inline-block;position:relative;top:-3px">Add</a>
         </div>
     </div>
 
@@ -103,6 +140,32 @@
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
 }
 
+@section head {
+    <link type="text/css" rel="stylesheet" href="~/Content/teletext.css" />
+    <style type="text/css">
+        #Permissions td input, #Permissions .ptype, #Permissions .desc {
+            padding: 2px 4px;
+            font-size: 12px;
+        }
+        #Permissions select {
+            padding: 2px 4px;
+            font-size: 12px;
+            height: unset;
+        }
+        #Permissions .desc {
+            font-weight: bold;
+        }
+        #Permissions td input.to-from {
+            width: 65px;
+            height: unset;
+            text-align: right; 
+        }  
+        #Permissions .ptype {
+            padding-left: 8px;
+        }
+      </style>
+}
+
 @section scripts {
     <script type="text/javascript">
         var nextID = 0;
@@ -113,7 +176,7 @@
                 allSelectedText: false,
                 numberDisplayed: 0
             });
-            fixAddPageRangeButton();
+            fixAddPermissionButton();
         });
 
         function getNextID() {
@@ -122,77 +185,118 @@
             return rv.toString();
         }
 
-        $("#PageRanges .ordered-btn.add").click(function (event) {
+        $("#Permissions .ordered-btn.add").click(function (event) {
             event.preventDefault();
-            addPageRange(this);
+            addPermission(this);
         });
 
-        $("#PageRanges .ordered-btn.delete").click(function (event) {
+        $("#Permissions .ordered-btn.delete").click(function (event) {
             event.preventDefault();
-            deletePageRange(this);
+            deletePermission(this);
         });
 
         $(".allow-numbers").keypress(function(event) {
             return allownumbers(event);
         });
 
-        function addPageRange(btn) {
+        function addPermission(btn) {
             var id = getNextID();
             var id2 = id.replace("-", "_");
-            var html = $("#trPageRangeXXX").outerHTML().replace(/XXX/g, id2);
-            $("#tbodyPageRanges").append(html);
-            $("#trPageRange" + id2 + " .ordered-btn.delete").click(function (ev) {
+            var html = $("#trPermissionXXX").outerHTML().replace(/XXX/g, id2);
+            $("#tbodyPermissions").append(html);
+            $("#trPermission" + id2 + " .ordered-btn.delete").click(function (ev) {
                 ev.preventDefault();
-                deletePageRange(this);
+                deletePermission(this);
             });
-            fixAddPageRangeButton();
+            fixAddPermissionButton();
         }
 
-        function deletePageRange(btn) {
-            var row = $(btn).parents("tr.page-range.ordered");
+        function deletePermission(btn) {
+            var row = $(btn).parents("tr.permission.ordered");
             $(row.remove());
-            fixAddPageRangeButton();
+            fixAddPermissionButton();
         }
 
-        function validatePageRanges() {
+        function validatePermissions() {
             var valid = true;
             var val = "";
             var join = "";
             var error = "";
             var ctrl = undefined;
-            $("#tbodyPageRanges tr").each(function (index, row) {
-                var id = $(row).data("range-id") * 1;
+            var data = [];
+            $("#tbodyPermissions tr").each(function (index, row) {
+                var id = $(row).data("permission-id") * 1;
                 if (id <= 0) id = -1;
-                var from = $(row).find("input.from").val() * 1;
-                var to = $(row).find("input.to").val() * 1;
-                if (from <= 0) {
-                    error = "From Page No must be larger than zero.";
-                    ctrl = $(row).find("input.from");
+                var ptype = $(row).data("type") * 1;
+                if (ptype < 0)
+                    ptype = $(row).find("td.ptype select").val() * 1;
+
+                var from = -1;
+                var to = -1;
+                if (id <= 0) {
+                    if (ptype == 0) {
+                        from = $.trim($(row).find("input.from").val());
+                        if (from === "") from = null;
+                        to = $.trim($(row).find("input.to").val());
+                        if (to === "") to = null;
+                        if (to === null && from !== null) {
+                            to = from;
+                            $.trim($(row).find("input.to").val(to.toString()));
+                        }
+                        if (from !== null && to !== null && from > to) {
+                            $.trim($(row).find("input.to").val(from.toString()));
+                            $.trim($(row).find("input.from").val(to.toString()));
+                        }
+                    } else if (ptype == 1) {
+                        from = $(row).find("select.ptype-template").val() * 1;
+                    } else if (ptype == 2) {
+                        from = $(row).find("select.ptype-zone").val() * 1;
+                    } else if (ptype == 3) {
+                        from = $(row).find("select.ptype-file").val() * 1;
+                    }
+                } else {
+                    if (ptype == 0) {
+                        from = $.trim($(row).find("input.from").val());
+                        if (from === "") from = null;
+                        to = $.trim($(row).find("input.to").val());
+                        if (to === "") to = null;
+                        if (to === null && from !== null) {
+                            to = from;
+                            $.trim($(row).find("input.to").val(to.toString()));
+                        }
+                        if (from !== null && to !== null && from > to) {
+                            $.trim($(row).find("input.to").val(from.toString()));
+                            $.trim($(row).find("input.from").val(to.toString()));
+                        }
+                    } else {
+                        from = $(row).find("td.desc").data("id") * 1;
+                    }
+                }
+
+                if (from === null) {
+                    $(row).find("input.from").focus();
+                    setTimeout(function () {
+                        alert("Please enter a Page Number");
+                    }, 100);
                     valid = false;
                     return false;
                 }
 
-                if (to <= 0) {
-                    error = "To Page No must be larger than zero.";
-                    ctrl = $(row).find("input.to");
-                    valid = false;
+                if (!valid)
                     return false;
-                }
-                if (to < from) {
-                    var tmp = from;
-                    var from = to;
-                    var to = tmp;
-                }
-                val += join + id.toString() + "," + from.toString() + "," + to.toString();
-                join = ";";
+
+                var item = {};
+                item.UserPermissionID = id;
+                item.Type = ptype;
+                item.From = from == null ? -1 : (from * 1);
+                item.To = to === null ? -1 : (to * 1);
+                data.push(item);
+                return true;
+
             });
-            if (ctrl) {
-                $(ctrl).focus();
-                setTimeout(function () { alert(error); }, 100);
-                return false;
-            }
-            $("#SelectedPageRanges").val(val);
-            return true;
+
+            $("#SelectedPermissions").val(JSON.stringify(data));
+            return valid;
         }
 
         function validateName() {
@@ -234,25 +338,34 @@
                 setTimeout(function () { alert(error); }, 100);
                 return false;
             }
-            $("#SelectedPageRanges").val(val);
             return true;
         }
 
         function saveUser() {
             if (!validateName())
                 return false;
-            if (!validatePageRanges())
+            if (!validatePermissions())
                 return false;
             $("#SelectedRolesJSON").val($("#SelectedRoles").val());
             return true;
         }
 
-        function fixAddPageRangeButton() {
-            if ($("tr.page-range").length <= 1) {
+        function fixAddPermissionButton() {
+            if ($("tr.permission").length <= 1) {
                 $("a.ordered-btn.add").removeClass("some-rows").addClass("no-rows");
             } else {
                 $("a.ordered-btn.add").removeClass("no-rows").addClass("some-rows");
             }
+        }
+
+        function permissionTypeChanged(ctrl) {
+            var id = $(ctrl).attr("id").replace(/ddlPermission_/g, "");
+            var ptype = $(ctrl).val() * 1;
+            $("#trPermission_" + id + " .ptype-page").toggle(ptype == 0);
+            $("#tdPermissionsLists_" + id).toggle(ptype != 0);
+            $("#trPermission_" + id + " .ptype-template").toggle(ptype == 1);
+            $("#trPermission_" + id + " .ptype-zone").toggle(ptype == 2);
+            $("#trPermission_" + id + " .ptype-file").toggle(ptype == 3);
         }
     </script>
 }

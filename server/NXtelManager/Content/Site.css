@@ -200,7 +200,7 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     width: 65px;
 }
 
-.user-page-range {
+.user-permission {
     max-width: 80px;
     text-align: right;
     padding: 3px 6px;

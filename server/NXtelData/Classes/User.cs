@@ -20,7 +20,7 @@ namespace NXtelData
         [Required(ErrorMessage = "Mailbox must be a number between 100,000,000 and 999,999,999.")]
         [Range(100000000, 999999999, ErrorMessage = "Mailbox must be a number between 100,000,000 and 999,999,999.")]
         public string Mailbox { get; set; }
-        public UserPageRanges PageRanges { get; set; }
+        public Permissions Permissions { get; set; }
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
         [Display(Name = "Last Name")]
@@ -32,7 +32,7 @@ namespace NXtelData
             ID = Email = Mailbox = FirstName = LastName = "";
             UserNo = -1;
             Roles = new List<string>();
-            PageRanges = new UserPageRanges();
+            Permissions = new Permissions();
         }
 
         public bool IsAdmin
@@ -81,7 +81,7 @@ namespace NXtelData
                     }
                 }
                 if (!string.IsNullOrWhiteSpace(user.ID))
-                    user.PageRanges = UserPageRanges.Load(user.ID, con);
+                    user.Permissions = Permissions.Load(user.ID, con);
 
             }
             return user;
@@ -117,7 +117,7 @@ namespace NXtelData
                     }
                 }
                 if (!string.IsNullOrWhiteSpace(user.ID))
-                    user.PageRanges = UserPageRanges.Load(user.ID, con);
+                    user.Permissions = Permissions.Load(user.ID, con);
 
             }
             return user;
@@ -240,7 +240,7 @@ namespace NXtelData
                         NXtelData.Roles.SaveForUser(ID, Roles, out Err, con);
                         if (!string.IsNullOrWhiteSpace(Err))
                             return false;
-                        PageRanges.Save(ID, out Err, con);
+                        Permissions.Save(ID, out Err, con);
                         if (!string.IsNullOrWhiteSpace(Err))
                             return false;
 

@@ -14,12 +14,12 @@ namespace NXtelManager.Models
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
         public string Mailbox { get; set; }
-        public UserPageRanges PageRanges { get; set; }
+        public Permissions Permissions { get; set; }
         public string Email { get; set; }
 
         public IndexViewModel()
         {
-            PageRanges = new UserPageRanges();
+            Permissions = new Permissions();
         }
 }
 

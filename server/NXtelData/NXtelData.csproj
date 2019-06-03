@@ -116,6 +116,9 @@
     <Compile Include="Classes\PageCache.cs" />
     <Compile Include="Classes\PageCacheItem.cs" />
     <Compile Include="Classes\PageTypes.cs" />
+    <Compile Include="Classes\Permission.cs" />
+    <Compile Include="Classes\Permissions.cs" />
+    <Compile Include="Classes\PermissionTypes.cs" />
     <Compile Include="Classes\Role.cs" />
     <Compile Include="Classes\Roles.cs" />
     <Compile Include="Classes\Route.cs" />
@@ -133,8 +136,6 @@
     <Compile Include="Classes\TSFile.cs" />
     <Compile Include="Classes\TSFiles.cs" />
     <Compile Include="Classes\User.cs" />
-    <Compile Include="Classes\UserPageRange.cs" />
-    <Compile Include="Classes\UserPageRanges.cs" />
     <Compile Include="Classes\Users.cs" />
     <Compile Include="Classes\Zone.cs" />
     <Compile Include="Classes\Zones.cs" />

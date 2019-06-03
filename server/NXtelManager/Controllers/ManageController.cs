@@ -73,7 +73,7 @@ namespace NXtelManager.Controllers
                 Logins = await UserManager.GetLoginsAsync(userId),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
                 Mailbox = mailbox,
-                PageRanges = NXtelData.UserPageRanges.Load(userId),
+                Permissions = NXtelData.Permissions.Load(userId),
                 Email = await UserManager.GetEmailAsync(userId)
             };
             return View(model);

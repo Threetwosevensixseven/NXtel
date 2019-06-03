@@ -20,8 +20,9 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateStatsIndex(ConX);
-            
+            CreateUserPermissionTable(ConX);
+            DropUserPageRangeTable(ConX);
+
             if (openConX)
                 ConX.Close();
         }
@@ -1002,6 +1003,72 @@ END$$";
 
                 string sql = @"ALTER TABLE `stats` 
                     ADD INDEX `ix_stats_PageNo` (`PageNo` ASC);";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateUserPermissionTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `userpermission` (
+                    `UserPermissionID` int(11) NOT NULL AUTO_INCREMENT,
+                    `UserID` varchar(128) NOT NULL,
+                    `PermissionType` int(11) NOT NULL,
+                    `From` int(11) NOT NULL,
+                    `To` int(11) NULL,
+                    PRIMARY KEY (`UserPermissionID`),
+                    KEY `IX_userpermission_user` (`UserID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void DropUserPageRangeTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"DROP TABLE `userpagerange`;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();
