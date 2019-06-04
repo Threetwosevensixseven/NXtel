@@ -39,6 +39,7 @@ namespace NXtelManager.Controllers
             Session["PageCopy"] = null;
             if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index");
+            model.Permissions = Permissions.Load(User);
             return View(model);
         }
 
@@ -46,6 +47,9 @@ namespace NXtelManager.Controllers
         [MultipleButton("save")]
         public ActionResult Save(Page Page)
         {
+            var perms = Permissions.Load(User);
+            if (!perms.Can(Page))
+                return RedirectToAction("Index");
             PageEditModel model;
             Page.Fixup();
             if (ModelState.IsValid)
@@ -93,6 +97,9 @@ namespace NXtelManager.Controllers
         [MultipleButton("delete")]
         public ActionResult Delete(Page Page)
         {
+            var perms = Permissions.Load(User);
+            if (!perms.Can(Page))
+                return RedirectToAction("Index");
             PageEditModel model;
             if (Page == null || Page.PageID <= 0)
                 return RedirectToAction("Index");

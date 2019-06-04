@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using MySql.Data.MySqlClient;
 
@@ -8,6 +9,16 @@ namespace NXtelData
 {
     public class Permissions : List<Permission>
     {
+        public bool IsAdmin { get; set; }
+        public bool IsPageEditor { get; set; }
+        public List<int> ZoneIDs { get; set; }
+        public User User { get; set; }
+
+        public Permissions()
+        {
+            ZoneIDs = new List<int>();
+        }
+
         public static Permissions Load(string UserID, MySqlConnection ConX = null)
         {
             var list = new Permissions();
@@ -127,6 +138,46 @@ namespace NXtelData
                 if (openConX)
                     ConX.Close();
             }
+        }
+
+        public static Permissions Load(IPrincipal User)
+        {
+            var rv = new Permissions();
+            if (User == null || User.Identity == null)
+                return rv;
+            bool isAdmin = User.IsInRole("Admin");
+            bool isPageEditor = User.IsInRole("Page Editor");
+            var user = NXtelData.User.LoadByUserName(User.Identity.Name);
+            rv.IsAdmin = isAdmin;
+            rv.IsPageEditor = isPageEditor;
+            rv.User = user;
+            if (rv.IsAdmin || !rv.IsPageEditor)
+                return rv;
+            rv = user.Permissions ?? new Permissions();
+            rv.IsAdmin = isAdmin;
+            rv.IsPageEditor = isPageEditor;
+            rv.User = user;
+            rv.ZoneIDs = rv.Where(p => p.Type == PermissionTypes.Zone).Select(p => p.From).Distinct().OrderBy(i => i).ToList();
+            return rv;
+        }
+
+        public bool Can(Page Page)
+        {
+            if (Page == null)
+                return false;
+            if (Page.PageID <= 0 || IsAdmin)
+                return true;
+            if (!IsPageEditor)
+                return false;
+            if (Page.OwnerID == this.User.UserNo)
+                return true;
+            foreach (var perm in this.Where(p => p.Type == PermissionTypes.Page))
+                if (Page.PageNo >= perm.From && Page.PageNo <= perm.To)
+                    return true;
+            foreach (int zid in this.ZoneIDs)
+                if ((Page.Zones ?? new Zones()).Any(z => z.ID == zid))
+                    return true;
+            return false;
         }
     }
 }

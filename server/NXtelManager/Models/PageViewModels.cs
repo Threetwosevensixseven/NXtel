@@ -23,8 +23,10 @@ namespace NXtelManager.Models
         public string OldToPageNo { get; set; }
         public string OldToFrame { get; set; }
         public IEnumerable<SelectListItem> Owners { get; set; }
+        public Permissions Permissions { get; set; }
 
         public Dictionary<string, object> CarouselDic;
+        public Dictionary<string, object> FileDic;
 
         public PageEditModel()
         {
@@ -38,6 +40,10 @@ namespace NXtelManager.Models
             CarouselDic.Add("style", "width:36px;text-align:right;display:inline");
             CarouselDic.Add("class", "form-control input-sm");
             CarouselDic.Add("onkeypress", "javascript:return allownumbers(event);");
+            FileDic = new Dictionary<string, object>();
+            FileDic.Add("style", "width:auto");
+            FileDic.Add("class", "form-control input-sm");
+            Permissions = new Permissions();
             //CarouselDic.Add("placeholder", "10");
         }
 

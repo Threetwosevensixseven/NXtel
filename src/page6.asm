@@ -24,7 +24,6 @@ Entry6:
                         //PortOut($1ffd, %00000 1 00)
                         //Freeze()
 
-
                         //NextRegRead(5)
                         //and %00000100
                         //ld (CurrentHz), a

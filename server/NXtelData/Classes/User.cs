@@ -94,7 +94,7 @@ namespace NXtelData
             {
                 con.Open();
                 string sql = @"SELECT u.Id,Email,EmailConfirmed,Mailbox,r.`Name` AS Role,
-                    u.FirstName,u.LastName
+                    u.FirstName,u.LastName,u.UserNo
                     FROM aspnetusers u
                     LEFT JOIN aspnetuserroles ur ON u.Id = ur.UserId
                     LEFT JOIN aspnetroles r ON ur.RoleId = r.Id
@@ -111,6 +111,7 @@ namespace NXtelData
                         user.Mailbox = rdr.GetString("Mailbox").Trim();
                         user.FirstName = rdr.GetStringNullable("FirstName").Trim();
                         user.LastName = rdr.GetStringNullable("LastName").Trim();
+                        user.UserNo = rdr.GetInt32Safe("UserNo");
                         string role = rdr.GetStringNullable("Role").Trim();
                         if (!string.IsNullOrEmpty(role))
                             user.Roles.Add(role);

@@ -38,21 +38,35 @@ namespace NXtelData
             return list;
         }
 
-        public static Pages LoadStubs(int ZoneID = -1)
+        public static Pages LoadStubs(int ZoneID = -1, string ZoneIDs = null)
         {
             var list = new Pages();
             var pids = new List<int>();
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string filter = "";
-                if (ZoneID > 0)
-                    filter = "WHERE PageID IN (SELECT PageID FROM pagezone pz WHERE pz.ZoneID=" + ZoneID + ") ";
-                else if (ZoneID == -2)
-                    filter = "WHERE PageID NOT IN (SELECT PageID FROM pagezone pz) ";
-                string sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo 
+                string sql;
+                if (ZoneIDs == null)
+                {
+                    string filter = "";
+                    if (ZoneID > 0)
+                        filter = "WHERE PageID IN (SELECT PageID FROM pagezone pz WHERE pz.ZoneID=" + ZoneID + ") ";
+                    else if (ZoneID == -2)
+                        filter = "WHERE PageID NOT IN (SELECT PageID FROM pagezone pz) ";
+                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo 
                     FROM page " + filter + @"
                     ORDER BY PageNo,FrameNo;";
+                }
+                else
+                {
+                    string filter = ZoneIDs == "" ? "-1" : ZoneIDs;
+                    sql = @"SELECT p.PageID,PageNo,FrameNo,Title,ToPageFrameNo
+                        FROM `page` p
+                        JOIN pagezone pz ON p.PageID=pz.PageID
+                        JOIN zone z ON pz.ZoneID=z.ZoneID
+                        WHERE z.ZoneID IN(" + filter + @")
+                        ORDER BY PageNo,FrameNo;";
+                }
                 var cmd = new MySqlCommand(sql, con);
                 using (var rdr = cmd.ExecuteReader())
                 {

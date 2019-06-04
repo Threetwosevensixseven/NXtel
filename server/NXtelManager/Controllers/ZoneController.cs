@@ -28,7 +28,7 @@ namespace NXtelManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Page Editor")]
         public ActionResult Edit(int? ID)
         {
             int id = ID ?? -1;
@@ -36,6 +36,8 @@ namespace NXtelManager.Controllers
             model.Zone = Zone.Load(id);
             if (id != -1 && model.Zone.ID <= 0)
                 return RedirectToAction("Index");
+            model.Permissions = Permissions.Load(User);
+            model.Pages = Pages.LoadStubs(-1, string.Join(",", model.Permissions.ZoneIDs));
             return View(model);
         }
 

@@ -26,8 +26,6 @@ EmulateTime optionbool 755, -15, "Time", false
 NoDivMMC                = ZeusDebug
 bp alias zeusdatabreakpoint 0, $+disp
 
-
-
                         org $6000
 Start:
                         di
