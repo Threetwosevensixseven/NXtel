@@ -11,7 +11,7 @@
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
-<table id="FileList"  class="paged" style="width:auto">
+<table id="FileList" class="paged" style="width:auto">
     <thead>
         <tr>
             <th>Key</th>
@@ -25,7 +25,7 @@
         {
             bool can = Model.Permissions.Can(file);
             string cls = can ? "unlocked" : "locked";
-            val = can ? "You don't have permission to edit this file" : "You have permission to edit this file";
+            val = can ? "You have permission to edit this file" : "You don't have permission to edit this file";
             val2 = can ? "0" : "1";
             val3 = Model.Permissions.IsAdmin ? (file.OwnerID == Model.Permissions.User.UserNo ? "0" : "1") : val2;
             <tr>

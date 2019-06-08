@@ -311,7 +311,7 @@ namespace NXtelData
             try
             {
                 string fields;
-                if (StubsOnly) fields = "t.TemplateID,t.Description";
+                if (StubsOnly) fields = "t.TemplateID,t.Description,t.OwnerID";
                 else fields = "t.*";
                 string sql = @"SELECT " + fields + @"
                     FROM template t
@@ -348,6 +348,7 @@ namespace NXtelData
         {
             this.TemplateID = rdr.GetInt32("TemplateID");
             this.Description = rdr.GetString("Description").Trim();
+            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             if (StubOnly) return;
             this.X = rdr.GetByte("X");
             this.Y = rdr.GetByte("Y");
@@ -367,7 +368,6 @@ namespace NXtelData
             this.NotContinuedOver = rdr.GetBoolean("NotContinuedOver");
             this.NotContinuedFrom = rdr.GetBoolean("NotContinuedFrom");
             this.KeepTogether = rdr.GetBoolean("KeepTogether");
-            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             this.ConvertContentsFromURL();
         }
 

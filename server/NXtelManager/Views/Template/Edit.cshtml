@@ -1,16 +1,19 @@
-﻿@model NXtelManager.Models.TemplateEditModel
+﻿@model TemplateEditModel
+@using NXtelManager.Models
 @{
     var template = Model.Template;
-    ViewBag.Title = (Model.Copying ? "Copy" : (@template.TemplateID <= 0 ? "New" : "Edit")) + " Template";
+    bool can = Model.Permissions.Can(template);
+    bool admin = Model.Permissions.IsAdmin;
     string templateID = @template.TemplateID <= 0 ? "NEW" : @template.TemplateID.ToString();
     string x = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.X.ToString();
     string y = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Y.ToString();
     string width = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Width.ToString();
     string height = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Height.ToString();
     string placeholder = Model.Copying ? Model.OldDescription : "";
-    bool admin = User.IsInRole("Admin");
+    ViewBag.Title = (@template.TemplateID <= 0 ? "New" : (can ? "Edit" : "View")) + " Template";
+    string lockcls = @template.TemplateID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
 }
-<h1>@ViewBag.Title</h1>
+<h1>@ViewBag.Title<span class="@lockcls"></span></h1>
 <h3>@ViewBag.Message</h3>
 @using (Html.BeginForm("Edit", "Template", new { id = template.TemplateID }))
 {
@@ -62,22 +65,31 @@
                                         @Html.Hidden("Templates[" + i + "].Description", template.ChildTemplates[i].Description)
                                         @Html.ActionLink(@desc, "Edit", "Template", new { id = template.ChildTemplates[i].TemplateID }, null)
                                     </td>
+                                    @if (can)
+                                    {
                                     <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
                                     <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
                                     <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
+                                    }
                                 </tr>
                             }
                         </tbody>
                         <tbody style="display:none">
                             <tr id="trPageTemplateXXX" class="template ordered">
                                 <td>@Html.DropDownList("TemplateMasterListXXX", Model.Templates)</td>
+                                @if (can)
+                                {
                                 <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
                                 <td><a href="#" class="ordered ordered-btn down" title="Move template down">Down</a></td>
                                 <td><a href="#" class="ordered ordered-btn delete" title="Delete template">Delete</a></td>
+                                }
                             </tr>
                         </tbody>
                     </table>
+                    @if (can)
+                    {
                     <a href="#" class="ordered ordered-btn add" title="Add template" style="display:inline-block;position:relative;top:-3px">Add</a>
+                    }
                 </td>
             </tr>
             <tr>
@@ -145,9 +157,12 @@
             </tr>
         </tbody>
     </table>
-    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    @Html.Raw(HttpUtility.HtmlDecode(Html.ValidationSummary(false, "", new { @class = "text-danger" }).ToString()))
+    if (can)
+    {
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this template?');" />
+    }
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
     if (template.TemplateID > 0)

@@ -8,6 +8,8 @@ namespace NXtelData
 {
     public class Templates : List<Template>
     {
+        public bool MineFilter { get; set; }
+
         public static Templates Load()
         {
             var list = new Templates();
@@ -78,7 +80,9 @@ namespace NXtelData
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = "SELECT TemplateID,Description FROM template ORDER BY Description,TemplateID;";
+                string sql = @"SELECT TemplateID,Description,OwnerID
+                    FROM template
+                    ORDER BY Description,TemplateID;";
                 var cmd = new MySqlCommand(sql, con);
                 using (var rdr = cmd.ExecuteReader())
                 {

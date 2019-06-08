@@ -51,8 +51,6 @@ namespace NXtelManager.Controllers
         {
             var perms = Permissions.Load(User);
             bool can = perms.Can(Page);
-            if (!can && Page.PageID > 0)
-                return RedirectToAction("Index");
             PageEditModel model;
             Page.Fixup();
             if (ModelState.IsValid)
@@ -63,6 +61,7 @@ namespace NXtelManager.Controllers
                     ModelState.AddModelError("", "To Page No/Frame cannot be before From Page No/Frame.");
                     model = new PageEditModel();
                     model.Page = Page;
+                    model.Permissions = perms;
                     return View("Edit", model);
                 }
                 if (!Page.IsPageRangeValid())
@@ -79,6 +78,7 @@ namespace NXtelManager.Controllers
                     }
                     model = new PageEditModel();
                     model.Page = Page;
+                    model.Permissions = perms;
                     return View("Edit", model);
                 }
                 if (!can) {
@@ -87,6 +87,7 @@ namespace NXtelManager.Controllers
                         + "' target='_blank'>permissions</a>.");
                     model = new PageEditModel();
                     model.Page = Page;
+                    model.Permissions = perms;
                     return View("Edit", model);
                 }
                 if (Page.PageID <= 0 && Page.OwnerID <= 0)
@@ -97,12 +98,14 @@ namespace NXtelManager.Controllers
                     ModelState.AddModelError("", err);
                     model = new PageEditModel();
                     model.Page = Page;
+                    model.Permissions = perms;
                     return View("Edit", model);
                 }
                 return RedirectToAction("Index");
             }
             model = new PageEditModel();
             model.Page = Page;
+            model.Permissions = perms;
             return View("Edit", model);
         }
 
@@ -110,9 +113,19 @@ namespace NXtelManager.Controllers
         [MultipleButton("delete")]
         public ActionResult Delete(Page Page)
         {
+            Page.Fixup();
             var perms = Permissions.Load(User);
-            if (!perms.Can(Page))
-                return RedirectToAction("Index");
+            bool can = perms.Can(Page);
+            if (!can)
+            {
+                ModelState.AddModelError("", "You can't delete this page. Check your <a href='"
+                    + Url.Action("Index", "Manage")
+                    + "' target='_blank'>permissions</a>.");
+                var model2 = new PageEditModel();
+                model2.Page = Page;
+                model2.Permissions = perms;
+                return View("Edit", model2);
+            }
             PageEditModel model;
             if (Page == null || Page.PageID <= 0)
                 return RedirectToAction("Index");
@@ -122,6 +135,7 @@ namespace NXtelManager.Controllers
                 ModelState.AddModelError("", err);
                 model = new PageEditModel();
                 model.Page = Page;
+                model.Permissions = perms;
                 return View("Edit", model);
             }
             return RedirectToAction("Index");

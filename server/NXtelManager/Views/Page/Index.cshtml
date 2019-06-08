@@ -52,7 +52,7 @@ else
                 string primary = page.FrameNo == 0 ? "\uE012" : "";
                 bool can = Model.Permissions.Can(page);
                 string cls = can ? "unlocked" : "locked";
-                val = can ? "You don't have permission to edit this page" : "You have permission to edit this page";
+                val = can ? "You have permission to edit this page" : "You don't have permission to edit this page";
                 val2 = can ? "0" : "1";
                 val3 = Model.Permissions.IsAdmin ? (page.OwnerID == Model.Permissions.User.UserNo ? "0" : "1") : val2;
                 string from = @page.PageNo.ToString("X8") + @page.FrameNo.ToString("X2");

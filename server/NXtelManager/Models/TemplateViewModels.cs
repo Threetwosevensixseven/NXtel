@@ -7,6 +7,12 @@ using NXtelData;
 
 namespace NXtelManager.Models
 {
+    public class TemplateIndexModel
+    {
+        public Templates Templates { get; set; }
+        public Permissions Permissions { get; set; }
+    }
+
     public class TemplateEditModel
     {
         public Template Template { get; set; }
@@ -16,11 +22,13 @@ namespace NXtelManager.Models
         public bool Copying { get; set; }
         public string OldDescription { get; set; }
         public IEnumerable<SelectListItem> Owners { get; set; }
+        public Permissions Permissions { get; set; }
 
         public TemplateEditModel()
         {
             Templates = GetSelectList(NXtelData.Templates.LoadStubs());
             Owners = GetSelectList(NXtelData.Users.LoadOwners());
+            Permissions = new Permissions();
         }
 
         public IEnumerable<SelectListItem> GetSelectList(Templates Items)

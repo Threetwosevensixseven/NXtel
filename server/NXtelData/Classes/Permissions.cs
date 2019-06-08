@@ -13,12 +13,14 @@ namespace NXtelData
         public bool IsPageEditor { get; set; }
         public List<int> ZoneIDs { get; set; }
         public List<int> FileIDs { get; set; }
+        public List<int> TemplateIDs { get; set; }
         public User User { get; set; }
 
         public Permissions()
         {
             ZoneIDs = new List<int>();
             FileIDs = new List<int>();
+            TemplateIDs = new List<int>();
         }
 
         public static Permissions Load(string UserID, MySqlConnection ConX = null)
@@ -161,6 +163,7 @@ namespace NXtelData
             rv.User = user;
             rv.ZoneIDs = rv.Where(p => p.Type == PermissionTypes.Zone).Select(p => p.From).Distinct().OrderBy(i => i).ToList();
             rv.FileIDs = rv.Where(p => p.Type == PermissionTypes.File).Select(p => p.From).Distinct().OrderBy(i => i).ToList();
+            rv.TemplateIDs = rv.Where(p => p.Type == PermissionTypes.Template).Select(p => p.From).Distinct().OrderBy(i => i).ToList();
             return rv;
         }
 
@@ -198,6 +201,21 @@ namespace NXtelData
             if (File.OwnerID == this.User.UserNo)
                 return true;
             if (FileIDs.Any(f => f == File.TeleSoftwareID))
+                return true;
+            return false;
+        }
+
+        public bool Can(Template Template)
+        {
+            if (Template == null)
+                return false;
+            if (IsAdmin || Template.TemplateID == -1)
+                return true;
+            if (!IsPageEditor)
+                return false;
+            if (Template.OwnerID == this.User.UserNo)
+                return true;
+            if (TemplateIDs.Any(t => t == Template.TemplateID))
                 return true;
             return false;
         }

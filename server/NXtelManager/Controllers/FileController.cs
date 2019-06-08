@@ -42,11 +42,19 @@ namespace NXtelManager.Controllers
         {
             var perms = Permissions.Load(User);
             bool can = perms.Can(File);
-            if (!can && File.TeleSoftwareID > 0)
-                return RedirectToAction("Index");
             FileEditModel model;
             if (ModelState.IsValid)
             {
+                if (!can)
+                {
+                    ModelState.AddModelError("", "You can't save this file. Check your <a href='"
+                        + Url.Action("Index", "Manage")
+                        + "' target='_blank'>permissions</a>.");
+                    model = new FileEditModel();
+                    model.File = File;
+                    model.Permissions = perms;
+                    return View("Edit", model);
+                }
                 File.Contents = new byte[0];
                 File.FileName = "";
                 try
@@ -80,6 +88,7 @@ namespace NXtelManager.Controllers
                     ModelState.AddModelError("", err);
                     model = new FileEditModel();
                     model.File = File;
+                    model.Permissions = perms;
                     return View("Edit", model);
                 }
                 return RedirectToAction("Index");
@@ -90,6 +99,7 @@ namespace NXtelManager.Controllers
             if (File.TeleSoftwareID > 0)
                 File = TSFile.Load(File.TeleSoftwareID);
             model.File = File;
+            model.Permissions = perms;
             return View("Edit", model);
         }
 
@@ -97,6 +107,18 @@ namespace NXtelManager.Controllers
         [MultipleButton("delete")]
         public ActionResult Delete(TSFile File)
         {
+            var perms = Permissions.Load(User);
+            bool can = perms.Can(File);
+            if (!can)
+            {
+                ModelState.AddModelError("", "You can't delete this file. Check your <a href='"
+                    + Url.Action("Index", "Manage")
+                    + "' target='_blank'>permissions</a>.");
+                var model2 = new FileEditModel();
+                model2.File = File;
+                model2.Permissions = perms;
+                return View("Edit", model2);
+            }
             FileEditModel model;
             if (File == null || File.TeleSoftwareID <= 0)
                 return RedirectToAction("Index");
@@ -106,6 +128,7 @@ namespace NXtelManager.Controllers
                 ModelState.AddModelError("", err);
                 model = new FileEditModel();
                 model.File = File;
+                model.Permissions = perms;
                 return View("Edit", model);
             }
             return RedirectToAction("Index");
