@@ -51,7 +51,8 @@ else
             {
                 string primary = page.FrameNo == 0 ? "\uE012" : "";
                 bool can = Model.Permissions.Can(page);
-                val = can ? "Unlocked" : "Locked";
+                string cls = can ? "unlocked" : "locked";
+                val = can ? "You don't have permission to edit this page" : "You have permission to edit this page";
                 val2 = can ? "0" : "1";
                 val3 = Model.Permissions.IsAdmin ? (page.OwnerID == Model.Permissions.User.UserNo ? "0" : "1") : val2;
                 string from = @page.PageNo.ToString("X8") + @page.FrameNo.ToString("X2");
@@ -60,7 +61,7 @@ else
                     <td style="text-align:right;padding-right:32px" data-pageno="@from">@Html.ActionLink(@page.PageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
                     <td style="text-align:right;padding-right:32px" data-pageno="@to">@Html.ActionLink(@page.ToPageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
                     <td>@Html.ActionLink(@page.Title, "Edit", "Page", new { id = page.PageID }, null)</td>
-                    <td class="lock @val.ToLower()" title="@val">@val2</td>
+                    <td class="lock @cls" title="@val">@val2</td>
                     <td style="display:none">@val3</td>
                     <td style="display:none">@page.ZoneIDsEncoded</td>
                     <td style="display:none">@primary</td>

@@ -12,11 +12,13 @@ namespace NXtelData
         public bool IsAdmin { get; set; }
         public bool IsPageEditor { get; set; }
         public List<int> ZoneIDs { get; set; }
+        public List<int> FileIDs { get; set; }
         public User User { get; set; }
 
         public Permissions()
         {
             ZoneIDs = new List<int>();
+            FileIDs = new List<int>();
         }
 
         public static Permissions Load(string UserID, MySqlConnection ConX = null)
@@ -158,6 +160,7 @@ namespace NXtelData
             rv.IsPageEditor = isPageEditor;
             rv.User = user;
             rv.ZoneIDs = rv.Where(p => p.Type == PermissionTypes.Zone).Select(p => p.From).Distinct().OrderBy(i => i).ToList();
+            rv.FileIDs = rv.Where(p => p.Type == PermissionTypes.File).Select(p => p.From).Distinct().OrderBy(i => i).ToList();
             return rv;
         }
 
@@ -181,6 +184,21 @@ namespace NXtelData
                 if ((Page.Zones ?? new Zones()).Any(z => z.ID == zid))
                     return true;
             }
+            return false;
+        }
+
+        public bool Can(TSFile File)
+        {
+            if (File == null)
+                return false;
+            if (IsAdmin || File.TeleSoftwareID == -1)
+                return true;
+            if (!IsPageEditor)
+                return false;
+            if (File.OwnerID == this.User.UserNo)
+                return true;
+            if (FileIDs.Any(f => f == File.TeleSoftwareID))
+                return true;
             return false;
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
 using NXtelData;
@@ -16,8 +17,12 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            var files = TSFiles.LoadStubs();
-            return View(files);
+            var model = new FileIndexModel();
+            model.Files = TSFiles.LoadStubs();
+            model.Permissions = Permissions.Load(User);
+            string userID = User.GetUserID();
+            model.Files.MineFilter = UserPreferences.Get<bool>(userID, "PageIndexMine");
+            return View(model);
         }
 
         public ActionResult Edit(int? ID)
@@ -27,6 +32,7 @@ namespace NXtelManager.Controllers
             model.File = TSFile.Load(id);
             if (id != -1 && model.File.TeleSoftwareID <= 0)
                 return RedirectToAction("Index");
+            model.Permissions = Permissions.Load(User);
             return View(model);
         }
 
@@ -34,6 +40,10 @@ namespace NXtelManager.Controllers
         [MultipleButton("save")]
         public ActionResult Save(TSFile File)
         {
+            var perms = Permissions.Load(User);
+            bool can = perms.Can(File);
+            if (!can && File.TeleSoftwareID > 0)
+                return RedirectToAction("Index");
             FileEditModel model;
             if (ModelState.IsValid)
             {
@@ -63,6 +73,8 @@ namespace NXtelManager.Controllers
                     File.FileName = existing.FileName;
                 }
                 string err;
+                if (File.TeleSoftwareID <= 0 && File.OwnerID <= 0)
+                    File.OwnerID = perms.User.UserNo;
                 if (!TSFile.Save(File, out err))
                 {
                     ModelState.AddModelError("", err);

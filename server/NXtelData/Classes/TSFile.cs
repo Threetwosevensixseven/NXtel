@@ -181,9 +181,9 @@ namespace NXtelData
             this.TeleSoftwareID = rdr.GetInt32("TeleSoftwareID");
             this.Key = rdr.GetStringNullable("Key");
             this.FileName = rdr.GetStringNullable("FileName");
+            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
-            this.OwnerID = rdr.GetInt32Safe("OwnerID");
         }
     }
 }

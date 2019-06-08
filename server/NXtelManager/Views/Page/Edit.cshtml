@@ -220,7 +220,7 @@
             </tr>
         </tbody>
     </table>
-    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    @Html.Raw(HttpUtility.HtmlDecode(Html.ValidationSummary(false, "", new { @class = "text-danger" }).ToString()))
     if (can)
     {
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();" />

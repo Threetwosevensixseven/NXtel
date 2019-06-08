@@ -77,7 +77,10 @@
                         }
                         else
                         {
-                            <tr><td colspan="2" style="padding-top: 10px">Plus any pages and templates you own</td></tr>
+                            <tr><td colspan="2" style="padding-top: 10px">Plus any 
+                                @Html.ActionLink("pages", "Index", "Page"),
+                                @Html.ActionLink("templates", "Index", "Template") and
+                                @Html.ActionLink("files", "Index", "File") you own.</td></tr>
                         }
                     </table>
                 </td>

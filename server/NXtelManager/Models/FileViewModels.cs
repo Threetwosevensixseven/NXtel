@@ -7,14 +7,22 @@ using NXtelData;
 
 namespace NXtelManager.Models
 {
+    public class FileIndexModel
+    {
+        public TSFiles Files { get; set; }
+        public Permissions Permissions { get; set; }
+    }
+
     public class FileEditModel
     {
         public TSFile File { get; set; }
         public IEnumerable<SelectListItem> Owners { get; set; }
+        public Permissions Permissions { get; set; }
 
         public FileEditModel()
         {
             Owners = GetSelectList(NXtelData.Users.LoadOwners());
+            Permissions = new Permissions();
         }
 
         public IEnumerable<SelectListItem> GetSelectList(Users Items)

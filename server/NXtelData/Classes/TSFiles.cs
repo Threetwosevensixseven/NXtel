@@ -8,13 +8,17 @@ namespace NXtelData
 {
     public class TSFiles : List<TSFile>
     {
+        public bool MineFilter { get; set; }
+
         public static TSFiles LoadStubs()
         {
             var list = new TSFiles();
             using (var con = new MySqlConnection(DBOps.ConnectionString))
             {
                 con.Open();
-                string sql = @"SELECT TeleSoftwareID,`Key`,FileName FROM telesoftware ORDER BY `Key`;";
+                string sql = @"SELECT TeleSoftwareID,`Key`,FileName,OwnerID
+                    FROM telesoftware
+                    ORDER BY `Key`;";
                 var cmd = new MySqlCommand(sql, con);
                 using (var rdr = cmd.ExecuteReader())
                 {

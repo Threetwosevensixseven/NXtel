@@ -17,7 +17,6 @@ namespace NXtelManager.Controllers
         public ActionResult Index()
         {
             var model = new PageIndexModel();
-            string id = User.GetUserID();
             model.Pages = Pages.LoadStubs();
             model.Permissions = Permissions.Load(User);
             string userID = User.GetUserID();
@@ -83,11 +82,15 @@ namespace NXtelManager.Controllers
                     return View("Edit", model);
                 }
                 if (!can) {
-                    ModelState.AddModelError("", "You don't have permission to save this page. Try a different Page Number range or Zone.");
+                    ModelState.AddModelError("", "You can't save this page. Check your <a href='"
+                        + Url.Action("Index", "Manage")
+                        + "' target='_blank'>permissions</a>.");
                     model = new PageEditModel();
                     model.Page = Page;
                     return View("Edit", model);
                 }
+                if (Page.PageID <= 0 && Page.OwnerID <= 0)
+                    Page.OwnerID = perms.User.UserNo;
                 string err;
                 if (!Page.Save(Page, out err))
                 {

@@ -2,12 +2,14 @@
 @using NXtelManager.Models
 @{
     ViewBag.Title = "Edit File";
-    int i = 0;
-    bool admin = User.IsInRole("Admin");
+    bool can = Model.Permissions.Can(Model.File);
+    bool admin = Model.Permissions.IsAdmin;
     bool hasFile = @Model.File.Contents != null && Model.File.Contents.Length > 0 && Model.File.TeleSoftwareID > 0;
     string fn = hasFile && !string.IsNullOrWhiteSpace(Model.File.FileName) ? Model.File.FileName : "Download";
+    ViewBag.Title = (@Model.File.TeleSoftwareID <= 0 ? "New" : (can ? "Edit" : "View")) + " File";
+    string lockcls = @Model.File.TeleSoftwareID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
 }
-<h1>@ViewBag.Title</h1>
+<h1>@ViewBag.Title<span class="@lockcls"></span></h1>
 <h3>@ViewBag.Message</h3>
 
 @using (Html.BeginForm("Edit", "File", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
@@ -39,12 +41,15 @@
             @Html.DisplayFor(m => @Model.File.FileSize, new { @class = "form-control" })
         </div>
     </div>
+    if (can)
+    {
     <div class="form-group">
         @Html.LabelFor(m => @Model.File.Contents, new { @class = "control-label col-sm-2" })
         <div class="col-sm-10">
             <input id="Contents" type="file" name="Contents" />
         </div>
     </div>
+    }
     <div class="form-group">
         @Html.LabelFor(m => @Model.File.OwnerID, new { @class = "control-label col-sm-2" })
         <div class="col-sm-10">
@@ -66,10 +71,12 @@
         </div>
     </div>
 
-
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    if (can)
+    {
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this file?');" />
+    }
     @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
 }
 

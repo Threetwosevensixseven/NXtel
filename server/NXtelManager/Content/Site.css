@@ -265,9 +265,15 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     width: 20px;
 }
 
+.text-danger a {
+    color: #b94a48;
+    text-decoration: underline;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
-    div.dataTables_wrapper div.dataTables_primary {
+    div.dataTables_wrapper div.dataTables_primary,
+    div.dataTables_wrapper div.dataTables_mine {
         text-align: center;
     }
 }
