@@ -7,6 +7,12 @@ using NXtelData;
 
 namespace NXtelManager.Models
 {
+    public class PageIndexModel
+    {
+        public Pages Pages { get; set; }
+        public Permissions Permissions { get; set; }
+    }
+
     public class PageEditModel
     {
         public Page Page { get; set; }

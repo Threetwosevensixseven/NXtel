@@ -10,11 +10,13 @@ namespace NXtelData
     {
         public int ZoneFilter { get; set; }
         public bool PrimaryFilter { get; set; }
+        public bool MineFilter { get; set; }
 
         public Pages()
         {
             ZoneFilter = -1;
             PrimaryFilter = false;
+            MineFilter = false;
         }
 
         public static Pages Load()
@@ -53,14 +55,14 @@ namespace NXtelData
                         filter = "WHERE PageID IN (SELECT PageID FROM pagezone pz WHERE pz.ZoneID=" + ZoneID + ") ";
                     else if (ZoneID == -2)
                         filter = "WHERE PageID NOT IN (SELECT PageID FROM pagezone pz) ";
-                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo 
+                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo,OwnerID 
                     FROM page " + filter + @"
                     ORDER BY PageNo,FrameNo;";
                 }
                 else
                 {
                     string filter = ZoneIDs == "" ? "-1" : ZoneIDs;
-                    sql = @"SELECT p.PageID,PageNo,FrameNo,Title,ToPageFrameNo
+                    sql = @"SELECT p.PageID,PageNo,FrameNo,Title,ToPageFrameNo,OwnerID
                         FROM `page` p
                         JOIN pagezone pz ON p.PageID=pz.PageID
                         JOIN zone z ON pz.ZoneID=z.ZoneID

@@ -245,17 +245,50 @@ namespace NXtelData
             }
         }
 
-        private static bool? _testTheme;
-        public static bool TestTheme
+        private static EnvironmentNames? _environment;
+        public static EnvironmentNames Environment
         {
             get
             {
-                if (_testTheme == null)
+                if (_environment == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["TestTheme"] ?? "").Trim().ToLower();
-                    _testTheme = (cfg == "true");
+                    bool match = false;
+                    string cfg = (ConfigurationManager.AppSettings["Environment"] ?? "").Trim().ToLower();
+                    foreach (EnvironmentNames env in EnvironmentNames.Prod.GetList())
+                    {
+                        if (cfg == env.ToString().ToLower())
+                        {
+                            _environment = env;
+                            match = true;
+                            break;
+                        }
+                    }
+                    if (!match)
+                        _environment = EnvironmentNames.Prod;
                 }
-                return (bool)_testTheme;
+                return (EnvironmentNames)_environment;
+            }
+        }
+
+        private static string _cssBundle;
+        public static string CssBundle
+        {
+            get
+            {
+                if (_cssBundle == null)
+                    _cssBundle = ("~/Content/css" + EnumExtensions.GetDescription(Options.Environment)).Trim().ToLower();
+                return _cssBundle;
+            }
+        }
+
+        private static string _appName;
+        public static string AppName
+        {
+            get
+            {
+                if (_appName == null)
+                    _appName = ("NXtel " + NXtelData.EnumExtensions.GetDescription(NXtelData.Options.Environment)).Trim();
+                return _appName;
             }
         }
 

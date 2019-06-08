@@ -440,12 +440,12 @@ namespace NXtelData
             decimal toPageFrameNo = rdr.GetDecimal("ToPageFrameNo");
             this.ToPageNo = Convert.ToInt32(toPageFrameNo);
             this.ToFrameNo = Convert.ToInt32((toPageFrameNo - this.ToPageNo) * 100);
+            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
             this.BoxMode = rdr.GetBoolean("BoxMode");
             this.TeleSoftwareID = rdr.GetInt32Nullable("TeleSoftwareID");
-            this.OwnerID = rdr.GetInt32Safe("OwnerID");
             this.IsCarousel = rdr.GetBooleanSafe("IsCarousel");
             this.CarouselWait = rdr.GetInt32Safe("CarouselWait");
             this.ConvertContentsFromURL();

@@ -4,8 +4,8 @@
     bool admin = User.IsInRole("Admin");
     bool pageEditor = User.IsInRole("Page Editor");
     string version = "v" + MvcApplication.ApplicationVersion;
-    string appName = NXtelData.Options.TestTheme ? "NXtel Test" : "NXtel";
-    string cssBundle = NXtelData.Options.TestTheme ? "~/Content/csstest" : "~/Content/css";
+    string appName = NXtelData.Options.AppName;
+    string cssBundle = NXtelData.Options.CssBundle;
 }
 <!DOCTYPE html>
 <html>

@@ -239,6 +239,32 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     font-weight: bold;
 }
 
+.lock {
+    background: url('/Content/Images/unlocked.png') center center no-repeat;
+    width: 16px;
+    height: 16px;
+    text-indent: -9999px;
+    display: block;
+    padding-left: 35px;
+}
+
+.lock.locked {
+    background-image: url('/Content/Images/locked.png');
+}
+
+.lock.large {
+    background-image: url('/Content/Images/unlocked_26.png');
+    display: inline-block;
+    width: 31px;
+    height: 26px;
+    margin-left: 2px;
+}
+
+.lock.large.locked {
+    background-image: url('/Content/Images/locked_26.png');
+    width: 20px;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
     div.dataTables_wrapper div.dataTables_primary {

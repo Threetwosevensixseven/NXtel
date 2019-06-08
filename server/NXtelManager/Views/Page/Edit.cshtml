@@ -1,8 +1,10 @@
 ﻿@model NXtelManager.Models.PageEditModel
 @{
     var page = Model.Page;
-    ViewBag.Title = (Model.Copying ? "Copy" : (@page.PageID <= 0 ? "New" : "Edit")) + " Page";
     bool can = Model.Permissions.Can(Model.Page);
+    can = @page.PageID <= 0 ? true : can;
+    ViewBag.Title = (Model.Copying ? "Copy" : (@page.PageID <= 0 ? "New" : (can ? "Edit" : "View"))) + " Page";
+    string lockcls = @page.PageID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
     string frame = @page.PageID <= 0 ? "" : @page.Frame;
@@ -18,7 +20,7 @@
     string dis = can ? "" : "disabled";
     if (!can) Model.FileDic.Add("disabled", "disabled");
 }
-<h1>@ViewBag.Title</h1>
+<h1>@ViewBag.Title<span class="@lockcls"></span></h1>
 <h3>@ViewBag.Message</h3>
 @using (Html.BeginForm())
 {

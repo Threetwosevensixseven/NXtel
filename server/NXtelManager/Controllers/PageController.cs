@@ -16,12 +16,15 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
+            var model = new PageIndexModel();
             string id = User.GetUserID();
-            var pages = Pages.LoadStubs();
+            model.Pages = Pages.LoadStubs();
+            model.Permissions = Permissions.Load(User);
             string userID = User.GetUserID();
-            pages.ZoneFilter = UserPreferences.Get<int>(userID, "PageIndexZone");
-            pages.PrimaryFilter = UserPreferences.Get<bool>(userID, "PageIndexPrimary");
-            return View(pages);
+            model.Pages.ZoneFilter = UserPreferences.Get<int>(userID, "PageIndexZone");
+            model.Pages.PrimaryFilter = UserPreferences.Get<bool>(userID, "PageIndexPrimary");
+            model.Pages.MineFilter = UserPreferences.Get<bool>(userID, "PageIndexMine");
+            return View(model);
         }
 
         public ActionResult Edit(int? ID, string ID2)
@@ -48,7 +51,8 @@ namespace NXtelManager.Controllers
         public ActionResult Save(Page Page)
         {
             var perms = Permissions.Load(User);
-            if (!perms.Can(Page))
+            bool can = perms.Can(Page);
+            if (!can && Page.PageID > 0)
                 return RedirectToAction("Index");
             PageEditModel model;
             Page.Fixup();
@@ -74,6 +78,12 @@ namespace NXtelManager.Controllers
                         ModelState.AddModelError("", "An existing page range overlaps with the range "
                             + Page.PageAndFrame + " to " + Page.ToPageAndFrame + ".");
                     }
+                    model = new PageEditModel();
+                    model.Page = Page;
+                    return View("Edit", model);
+                }
+                if (!can) {
+                    ModelState.AddModelError("", "You don't have permission to save this page. Try a different Page Number range or Zone.");
                     model = new PageEditModel();
                     model.Page = Page;
                     return View("Edit", model);
@@ -132,17 +142,22 @@ namespace NXtelManager.Controllers
             var zone = NXtelData.Zone.Load(ID);
             if (zone == null || zone.ID <= 0)
                 return RedirectToAction("Index", "Zone");
-            var pages = Pages.LoadStubs(ID);
+
+            var model = new PageIndexModel();
+            model.Pages = Pages.LoadStubs(ID);
+            model.Permissions = Permissions.Load(User);
             ViewBag.ViewZone = zone.Description;
-            return View("Index", pages);
+            return View("Index", model);
         }
 
         public ActionResult Unzoned()
         {
-            var pages = Pages.LoadStubs(-2);
+            var model = new PageIndexModel();
+            model.Pages = Pages.LoadStubs(-2);
+            model.Permissions = Permissions.Load(User);
             ViewBag.ViewZone = "None";
             ViewBag.ViewUnzoned = true;
-            return View("Index", pages);
+            return View("Index", model);
         }
 
         public ActionResult Copy(int ID)

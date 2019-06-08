@@ -226,6 +226,7 @@
     <Compile Include="Version.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-dev.css" />
     <Content Include="Content\bootstrap-multiselect.css" />
     <Content Include="Content\bootstrap-test.css" />
     <Content Include="Content\bootstrap.css" />
@@ -246,7 +247,11 @@
     <Content Include="Content\Images\btn-open.png" />
     <Content Include="Content\Images\btn-up-highlight.png" />
     <Content Include="Content\Images\btn-up.png" />
+    <Content Include="Content\Images\locked.png" />
+    <Content Include="Content\Images\locked_26.png" />
     <Content Include="Content\Images\title.png" />
+    <Content Include="Content\Images\unlocked.png" />
+    <Content Include="Content\Images\unlocked_26.png" />
     <Content Include="Content\Images\wait.gif" />
     <Content Include="Content\teletext.css" />
     <Content Include="favicon.ico" />

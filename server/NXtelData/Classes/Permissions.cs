@@ -165,7 +165,7 @@ namespace NXtelData
         {
             if (Page == null)
                 return false;
-            if (Page.PageID <= 0 || IsAdmin)
+            if (IsAdmin)
                 return true;
             if (!IsPageEditor)
                 return false;
@@ -175,8 +175,12 @@ namespace NXtelData
                 if (Page.PageNo >= perm.From && Page.PageNo <= perm.To)
                     return true;
             foreach (int zid in this.ZoneIDs)
+            {
+                if (("," + (Page.ZoneIDs ?? "") + ",").Contains("," + zid + ","))
+                    return true;
                 if ((Page.Zones ?? new Zones()).Any(z => z.ID == zid))
                     return true;
+            }
             return false;
         }
     }

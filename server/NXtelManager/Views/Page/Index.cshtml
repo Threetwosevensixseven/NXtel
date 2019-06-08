@@ -1,5 +1,5 @@
 ﻿@using NXtelData
-@model Pages
+@model NXtelManager.Models.PageIndexModel
 @{
     ViewBag.Title = "Pages";
     bool viewAllZones = @ViewBag.ViewZone != null;
@@ -11,6 +11,10 @@
         ViewBag.Title = "Unzoned Pages";
     string tablePageSize = NXtelData.UserPreferences.Get(System.Security
         .Principal.IPrincipalExtensions.GetUserID(User), "TablePageSize", "10");
+    string val = "";
+    string val2 = "";
+    string val3 = "";
+    string mine = Model.Permissions.IsAdmin ? "Owned?" : "Editable?";
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -36,18 +40,28 @@ else
                 <th style="text-align:right">From Page</th>
                 <th style="text-align:right">To Page</th>
                 <th>Title</th>
+                <th>Editable</th>
+                <th style="display:none"></th>
                 <th style="display:none"></th>
                 <th style="display:none"></th>
           </tr>
         </thead>
         <tbody>
-            @foreach (NXtelData.Page page in Model)
+            @foreach (NXtelData.Page page in Model.Pages)
             {
                 string primary = page.FrameNo == 0 ? "\uE012" : "";
+                bool can = Model.Permissions.Can(page);
+                val = can ? "Unlocked" : "Locked";
+                val2 = can ? "0" : "1";
+                val3 = Model.Permissions.IsAdmin ? (page.OwnerID == Model.Permissions.User.UserNo ? "0" : "1") : val2;
+                string from = @page.PageNo.ToString("X8") + @page.FrameNo.ToString("X2");
+                string to = @page.ToPageNo.ToString("X8") + @page.ToFrameNo.ToString("X2");
                 <tr>
-                    <td style="text-align:right;padding-right:32px">@Html.ActionLink(@page.PageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
-                    <td style="text-align:right;padding-right:32px">@Html.ActionLink(@page.ToPageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
+                    <td style="text-align:right;padding-right:32px" data-pageno="@from">@Html.ActionLink(@page.PageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
+                    <td style="text-align:right;padding-right:32px" data-pageno="@to">@Html.ActionLink(@page.ToPageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
                     <td>@Html.ActionLink(@page.Title, "Edit", "Page", new { id = page.PageID }, null)</td>
+                    <td class="lock @val.ToLower()" title="@val">@val2</td>
+                    <td style="display:none">@val3</td>
                     <td style="display:none">@page.ZoneIDsEncoded</td>
                     <td style="display:none">@primary</td>
                 </tr>
@@ -62,15 +76,23 @@ else
             <div class="col-sm-6">
                 <label style="font-weight:normal">
                     Zones:
-                    @Html.DropDownListFor(model => model.ZoneFilter, Zones.Load().GetSelectList(), new { @class = "form-control input-sm", style = "width:auto;display:inline", id = "ZoneFilter_XXX" })
+                    @Html.DropDownListFor(model => model.Pages.ZoneFilter, Zones.Load().GetSelectList(), new { @class = "form-control input-sm", style = "width:auto;display:inline", id = "ZoneFilter_XXX" })
                 </label>
             </div>
         </div>
         <div class="dataTables_primary">
             <div class="col-sm-6">
                 <label style="font-weight:normal">
-                    @Html.CheckBoxFor(model => model.PrimaryFilter, new { @class = "form-control input-sm", style = "width:auto;display:inline;height:auto", id = "ZonePrimary_XXX" })
+                    @Html.CheckBoxFor(model => model.Pages.PrimaryFilter, new { @class = "form-control input-sm", style = "width:auto;display:inline;height:auto", id = "ZonePrimary_XXX" })
                     <span style="top:3px;position:relative">Primary?</span>
+                </label>
+            </div>
+        </div>
+        <div class="dataTables_mine">
+            <div class="col-sm-6">
+                <label style="font-weight:normal">
+                    @Html.CheckBoxFor(model => model.Pages.MineFilter, new { @class = "form-control input-sm", style = "width:auto;display:inline;height:auto", id = "ZoneMine_XXX" })
+                    <span style="top:3px;position:relative">@mine</span>
                 </label>
             </div>
         </div>
@@ -83,7 +105,7 @@ else
                     pageLength: @tablePageSize,
                     columnDefs: [
                         { targets: [0, 1], "type": "natural-nohtml" },
-                        { targets: [3, 4], orderable: false }
+                        { targets: [5, 6], orderable: false }
                     ]
                 });
                 @if (filtered)
@@ -96,13 +118,16 @@ else
                 $("#ZoneFilter_0").change(function () {
                     filter();
                     setUserPreference("PageIndexZone", $("#ZoneFilter_0").val());
-
                 });
                 $("#ZonePrimary_0").change(function () {
-                    debugger;
                     var x = $("#ZonePrimary_0").is(":checked");
                     filter();
                     setUserPreference("PageIndexPrimary", $("#ZonePrimary_0").is(":checked"));
+                });
+                $("#ZoneMine_0").change(function () {
+                    var x = $("#ZoneMine_0").is(":checked");
+                    filter();
+                    setUserPreference("PageIndexMine", $("#ZoneMine_0").is(":checked"));
                 });
             });
 
@@ -115,9 +140,11 @@ else
             function filter() {
                 var zone = $("#ZoneFilter_0").val();
                 var primary = $("#ZonePrimary_0").is(":checked");
+                var mine = $("#ZoneMine_0").is(":checked");
                 $("#PageList").DataTable()
-                    .columns(3).search(getZoneRegex(zone), true, false)
-                    .columns(4).search(getPrimaryRegex(primary), true, false)
+                    .columns(4).search(getMineRegex(mine), true, false)
+                    .columns(5).search(getZoneRegex(zone), true, false)
+                    .columns(6).search(getPrimaryRegex(primary), true, false)
                     .draw();
             }
 
@@ -141,6 +168,14 @@ else
             function getPrimaryRegex(checked) {
                 if (checked) {
                     return "^.+$";
+                } else {
+                    return "";
+                }
+            }
+
+            function getMineRegex(checked) {
+                if (checked) {
+                    return "^0$";
                 } else {
                     return "";
                 }
