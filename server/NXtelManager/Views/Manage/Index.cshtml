@@ -32,6 +32,14 @@
                 }
             </td>
         </tr>
+        @*@if (!pageEditor && !admin)
+        {
+            <tr>
+                <td class="lbl" style="vertical-align:text-top"></td>
+                <td style="vertical-align:text-top">Do you want to create pages on NXtel? It's easy,
+                    @Html.ActionLink("just ask us", "RequestPageEditor") and we'll get you set up!</td>
+            </tr>
+        }*@
         @if (pageEditor && !admin)
         {
             <tr>

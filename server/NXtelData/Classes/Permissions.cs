@@ -171,7 +171,7 @@ namespace NXtelData
         {
             if (Page == null)
                 return false;
-            if (IsAdmin)
+            if (Options.DisablePermissions || IsAdmin)
                 return true;
             if (!IsPageEditor)
                 return false;
@@ -194,7 +194,7 @@ namespace NXtelData
         {
             if (File == null)
                 return false;
-            if (IsAdmin || File.TeleSoftwareID == -1)
+            if (Options.DisablePermissions || IsAdmin || File.TeleSoftwareID == -1)
                 return true;
             if (!IsPageEditor)
                 return false;
@@ -209,7 +209,7 @@ namespace NXtelData
         {
             if (Template == null)
                 return false;
-            if (IsAdmin || Template.TemplateID == -1)
+            if (Options.DisablePermissions || IsAdmin || Template.TemplateID == -1)
                 return true;
             if (!IsPageEditor)
                 return false;

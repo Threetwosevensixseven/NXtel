@@ -98,4 +98,10 @@ namespace NXtelManager.Models
         public string SelectedProvider { get; set; }
         public ICollection<System.Web.Mvc.SelectListItem> Providers { get; set; }
     }
+
+    public class RequestPageEditorModel
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
 }

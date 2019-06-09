@@ -394,5 +394,18 @@ namespace NXtelData
             }
         }
 
+        private static bool? _disablePermissions;
+        public static bool DisablePermissions
+        {
+            get
+            {
+                if (_disablePermissions == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["DisablePermissions"] ?? "").Trim().ToLower();
+                    _disablePermissions = (cfg == "true");
+                }
+                return (bool)_disablePermissions;
+            }
+        }
     }
 }

@@ -342,6 +342,7 @@
     <Content Include="Views\Zone\Edit.cshtml" />
     <Content Include="Views\Zone\View.cshtml" />
     <Content Include="Views\Statistics\Summary.cshtml" />
+    <Content Include="Views\Manage\RequestPageEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

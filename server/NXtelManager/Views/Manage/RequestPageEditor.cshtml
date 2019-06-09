@@ -1,0 +1,28 @@
+﻿@model RequestPageEditorModel
+@using NXtelManager.Models
+@{
+    ViewBag.Title = "I'd like to create pages on NXtel!";
+}
+
+<h1>@ViewBag.Title</h1>
+<h4>It's very simple to request to be a NXtel page editor. Just fill in some details below, and click the <i>Request</i> button.</h4>
+<br/>
+
+@using (Html.BeginForm("Request", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <p>
+        Firstly, we'd like to know your real name. We didn't ask you when you registered,
+        but NXtel is a small community, and we have a close relationship with our page editors,
+        so it'd be great to be on first name terms.
+    </p>
+    <div class="form-group">
+        <label for="exampleInputEmail1">First Name</label>
+        @Html.TextBoxFor(m => @Model.FirstName, new { maxlength = 30, @class = "form-control", placeholder = "First Name" })
+        <input class="form-control" id="exampleInputEmail1" placeholder="First Name">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Last Name</label>
+        @Html.TextBoxFor(m => @Model.LastName, new { maxlength = 30, @class = "form-control", placeholder = "Last Name" })
+    </div>}
