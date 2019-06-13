@@ -192,6 +192,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\HelpController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -212,6 +213,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\EmailViewModels.cs" />
     <Compile Include="Models\FileViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -343,6 +345,9 @@
     <Content Include="Views\Zone\View.cshtml" />
     <Content Include="Views\Statistics\Summary.cshtml" />
     <Content Include="Views\Manage\RequestPageEditor.cshtml" />
+    <Content Include="Views\Email\ForgotPassword.cshtml" />
+    <Content Include="Views\Email\_ViewStart.cshtml" />
+    <Content Include="Views\Email\ConfirmAccount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

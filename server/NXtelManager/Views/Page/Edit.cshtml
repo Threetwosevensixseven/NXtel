@@ -230,7 +230,29 @@
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
     if (page.PageID > 0)
     {
-        @Html.ActionLink("Copy", "Copy", new { id = @page.PageID }, new { @class = "btn btn-default", style = "margin-left:4px" })
+        var settings = new NXtelData.Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Load();
+        if (admin && settings.AdditionalConnections.Count > 0)
+        {
+            <div class="btn-group">
+                @Html.ActionLink("Copy", "Copy", new { id = @page.PageID }, new { @class = "btn btn-default" })
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>@Html.ActionLink("Copy to NXtel " + settings.Environment.ToString(), "Copy", new { id = @page.PageID })</li>
+                    <li role="separator" class="divider"></li>
+                    @foreach (var con in settings.AdditionalConnections)
+                    {
+                    <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @page.PageID, id2 = con.Environment.ToString() })</li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            @Html.ActionLink("Copy", "Copy", new { id = @page.PageID }, new { @class = "btn btn-default", style = "margin-left:4px" })
+        }
     }
 }
 

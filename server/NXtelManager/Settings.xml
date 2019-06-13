@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ConnectionString>A</ConnectionString>
+  <Environment>Dev</Environment>
+  <AdditionalConnections>
+    <EnvironmentConnection>
+      <Environment>Test</Environment>
+      <ConnectionString>X</ConnectionString>
+    </EnvironmentConnection>
+    <EnvironmentConnection>
+      <Environment>Prod</Environment>
+      <ConnectionString>Y</ConnectionString>
+    </EnvironmentConnection>
+    <EnvironmentConnection>
+      <Environment>Test</Environment>
+      <ConnectionString>X</ConnectionString>
+    </EnvironmentConnection>
+    <EnvironmentConnection>
+      <Environment>Prod</Environment>
+      <ConnectionString>Y</ConnectionString>
+    </EnvironmentConnection>
+    <EnvironmentConnection>
+      <Environment>Test</Environment>
+      <ConnectionString>X</ConnectionString>
+    </EnvironmentConnection>
+    <EnvironmentConnection>
+      <Environment>Prod</Environment>
+      <ConnectionString>Y</ConnectionString>
+    </EnvironmentConnection>
+  </AdditionalConnections>
+</Settings>

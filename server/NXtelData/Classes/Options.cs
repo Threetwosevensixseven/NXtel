@@ -407,5 +407,27 @@ namespace NXtelData
                 return (bool)_disablePermissions;
             }
         }
+
+        public static string AdminEmailAddress
+        {
+            get
+            {
+                string cfg = (ConfigurationManager.AppSettings["AdminEmailAddress"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
+        public static List<string> AdminEmailBCCList
+        {
+            get
+            {
+                var rv = new List<string>();
+                var cfg = (ConfigurationManager.AppSettings["AdminEmailBCC"] ?? "").Trim().Replace(";", ",").Split(',');
+                foreach (string addr in cfg)
+                    if (!string.IsNullOrWhiteSpace(addr))
+                        rv.Add(addr.Trim());
+                return rv;
+            }
+        }
     }
 }

@@ -90,7 +90,9 @@ namespace NXtelManager.Controllers
                             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Url.Scheme);
                             try
                             {
-                                await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                                var emailModel = new CallbackEmailModel(callbackUrl);
+                                string body = EmailController.RenderViewToString("Email", "ConfirmAccount", emailModel).Trim();
+                                await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your account", body);
                             }
                             catch
                             {
@@ -193,7 +195,9 @@ namespace NXtelManager.Controllers
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     try
                     {
-                        await UserManager.SendEmailAsync(user.Id, "Confirm your NXtel account", string.Format("Please confirm your NXtel account by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                        var emailModel = new CallbackEmailModel(callbackUrl);
+                        string body = EmailController.RenderViewToString("Email", "ConfirmAccount", emailModel).Trim();
+                        await UserManager.SendEmailAsync(user.Id, "Confirm your account", body);
                     }
                     catch
                     {
@@ -271,10 +275,12 @@ namespace NXtelManager.Controllers
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                string callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 try
                 {
-                    await UserManager.SendEmailAsync(user.Id, "Reset your NXtel password", string.Format("Please reset your NXtel password by clicking this link:\r\n\r\n{0}\r\n\r\nRobin Verhagen-Guest\r\nNXtel Admin", callbackUrl));
+                    var emailModel = new CallbackEmailModel(callbackUrl);
+                    string body = EmailController.RenderViewToString("Email", "ForgotPassword", emailModel).Trim();
+                    await UserManager.SendEmailAsync(user.Id, "Reset your password", body);
                 }
                 catch
                 {

@@ -16,6 +16,13 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
+            //var settings = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load();
+            //settings.ConnectionString = "A";
+            //settings.Environment = EnvironmentNames.Dev;
+            //settings.AdditionalConnections.Add(new EnvironmentConnection(EnvironmentNames.Test, "X"));
+            //settings.AdditionalConnections.Add(new EnvironmentConnection(EnvironmentNames.Prod, "Y"));
+            //settings.ToXML();
+
             var model = new PageIndexModel();
             model.Pages = Pages.LoadStubs();
             model.Permissions = Permissions.Load(User);

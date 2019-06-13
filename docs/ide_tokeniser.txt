@@ -1,0 +1,80 @@
+; ***************************************************************************
+; * IDE_TOKENISER                                                           *
+; ***************************************************************************
+; Entry: MUST BE CALLED WITH ROM2/RAM5/RAM2/RAM0 configuration, like the
+;        IDE_STREAM_* calls
+;        B=0, tokenise BASIC line
+;        B=1, detokenise BASIC line
+;        C=8K bank containing buffer for untokenised BASIC line (ASCII text)
+;        HL=offset in bank of buffer for untokenised BASIC line ($0000..$1fff)
+;
+;        If tokenising (B=0):
+;           the untokenised BASIC line should be terminated with ENTER ($0d)
+;
+;        If detokenising (B=1):
+;           DE=address of tokenised BASIC line within normal BASIC workspace,
+;              terminated with ENTER ($0d)
+;           The recommended way to reserve and use this space is:
+;               (i) Call the 48K ROM routine SET_WORK ($16bf) to clear the
+;                   workspace area
+;               (ii) Call the 48K ROM routine BC_SPACES ($0030) to reserve
+;                    enough room in the workspace area to hold the tokenised
+;                    line (enter with BC=line length, including the ENTER)
+;               (iii) Copy the tokenised line (including the ENTER) to the
+;                     address returned by BC_SPACES in the DE register, and
+;                     use this as the DE entry parameter for IDE_TOKENISER
+;           Alternatively, you could map a bank containing the entire
+;           tokenised line into any of MMU3/4/5 and provide an address to
+;           there. Care must be taken that there is no possibility of the
+;           stack being in the MMU that you have selected.
+;
+; Line numbers should NOT be present at the start of the input buffer.
+;
+; Exit:  Fc=0, failure
+;        A=error code
+;
+;        Fc=1, success
+;
+;        If tokenising (B=0):
+;           HL=(WORKSP)=address of (partly or fully) tokenised line
+;           The length of the line can be calculated as (STKBOT)-(WORKSP)
+;           Fz=0, line successfully tokenised and syntax-checked
+;           Fz=1, syntax error occurred, and:
+;                 BC=count of successfully processed chars in untokenised line
+;
+;        If detokenising (B=1):
+;           HL=offset in provided buffer following the detokenised line
+;
+; NOTE:
+;
+; The tokenised line returned cannot be immediately executed using the
+; IDE_BASIC command, because it is generated in the WORKSP area, which is
+; cleared by BASIC at the start of every statement.
+;
+; Therefore you should first copy the line to some safe memory above (RAMTOP).
+;
+; Alternatively, you can temporarily make the tokenised line "safe" by
+; combining it into the E_LINE area. After executing with IDE_BASIC, reduce
+; the size of the E_LINE area again.
+;
+; For example:
+;       ...make the IDE_TOKENISE call...
+;       push    hl              ; save start of tokenised line, (WORKSP)
+;       ld      de,(E_LINE)
+;       and     a
+;       sbc     hl,de           ; calculate current length of E_LINE
+;       push    hl              ; save it
+;       add     hl,de           ; re-calculate start of tokenised line
+;       push    hl              ; save it
+;       ld      hl,(STKBOT)
+;       ld      (hl),$80        ; terminate expanded E_LINE area with $80
+;       inc     hl
+;       ld      (WORKSP),hl     ; move WORKSP past the tokenised line
+;       ld      (STKBOT),hl     ; clear workspace
+;       ld      (STKEND),hl     ; clear calculator stack
+;       pop     hl              ; HL=start of tokenised line for IDE_BASIC
+;       ...make the IDE_BASIC call...
+;       ld      hl,(E_LINE)
+;       pop     de              ; DE=original length of E_LINE area
+;       add     hl,de
+;       ld      (WORKSP),hl     ; reset WORKSPACE to the end of it

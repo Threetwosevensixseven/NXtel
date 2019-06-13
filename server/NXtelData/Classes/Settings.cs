@@ -13,17 +13,18 @@ namespace NXtelData
         private string appDir;
 
         public string ConnectionString { get; set; }
-        public List<string> AdditionalConnectionStrings { get; set; }
+        public EnvironmentNames Environment { get; set; }
+        public List<EnvironmentConnection> AdditionalConnections { get; set; }
 
         public Settings()
         {
-            AdditionalConnectionStrings = new List<string>();
+            AdditionalConnections = new List<EnvironmentConnection>();
         }
 
         public Settings(string AppDir)
         {
             appDir = AppDir;
-            AdditionalConnectionStrings = new List<string>();
+            AdditionalConnections = new List<EnvironmentConnection>();
         }
 
         public Settings Load()
@@ -45,8 +46,8 @@ namespace NXtelData
             {
                 settings = new Settings(appDir);
             }
-            if (AdditionalConnectionStrings == null)
-                AdditionalConnectionStrings = new List<string>();
+            if (AdditionalConnections == null)
+                AdditionalConnections = new List<EnvironmentConnection>();
             return settings;
         }
 
@@ -87,9 +88,9 @@ namespace NXtelData
             var list = new List<string>();
             if (!string.IsNullOrWhiteSpace(ConnectionString))
                 list.Add(ConnectionString);
-            foreach (var item in AdditionalConnectionStrings ?? new List<string>())
-                if (!string.IsNullOrWhiteSpace(item))
-                    list.Add(item);
+            foreach (var item in AdditionalConnections ?? new List<EnvironmentConnection>())
+                if (!string.IsNullOrWhiteSpace(item.ConnectionString))
+                    list.Add(item.ConnectionString);
             return list;
         }
     }

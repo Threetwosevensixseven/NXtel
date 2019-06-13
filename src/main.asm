@@ -161,7 +161,7 @@ Text:                   db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, 
                         db Inv, On, " D ", Inv, Off, "rive m", Inv, On, " K ", Inv, Off, "dir "
                         db Inv, On, " R ", Inv, Off, "ename ", Inv, On, " C ", Inv, Off, "opy "
                         db Inv, On, " E ", Inv, Off, "rase   ", Inv, On, " U ", Inv, Off, "nmount"
-                        db TextWidth, 8, At, 21, 0, Inv, On, Bright, On
+                        db TextWidth, 8, At, 20, 0, Inv, On, Bright, On
                         db "Open Download"
                         db Inv, Off, Bright, Off, TextWidth, 5
                         db $FF

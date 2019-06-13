@@ -103,6 +103,7 @@
     <Compile Include="Classes\Character.cs" />
     <Compile Include="Classes\DB.cs" />
     <Compile Include="Classes\DebugLogger.cs" />
+    <Compile Include="Classes\EnvironmentConnection.cs" />
     <Compile Include="Classes\EnvironmentNames.cs" />
     <Compile Include="Classes\Feed.cs" />
     <Compile Include="Classes\FeedItem.cs" />

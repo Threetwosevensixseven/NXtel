@@ -12,6 +12,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
+using NXtelData;
 using NXtelManager.Models;
 
 namespace NXtelManager
@@ -23,10 +24,15 @@ namespace NXtelManager
             try
             {
                 SmtpClient client = new SmtpClient();
-                return client.SendMailAsync(ConfigurationManager.AppSettings["AdminEmailAddress"],
-                                            message.Destination,
-                                            message.Subject,
-                                            message.Body);
+                var msg = new MailMessage();
+                msg.From = new MailAddress(Options.AdminEmailAddress);
+                msg.To.Add(new MailAddress(message.Destination));
+                foreach (string bcc in Options.AdminEmailBCCList)
+                    msg.Bcc.Add(new MailAddress(bcc));
+                msg.Subject = (("NXtel " + (Options.Environment.GetDescription() ?? "")).Trim() 
+                    + " - " + (message.Subject ?? "").Trim()).Trim();
+                msg.Body = message.Body;
+                return client.SendMailAsync(msg);
             }
             catch
             {

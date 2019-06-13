@@ -40,7 +40,7 @@ Start2:
                         PortOut($123B, $00)             ; Hide layer 2 and disable write paging
                         nextreg $15, %0 00 000 1 0      ; Disable sprites, over border, set SLU
 
-                        //DisplayBrowser()
+                        DisplayBrowser()
                         ld a, a
                         //ESPLogInit()
                         PageBankZX(0, false)            ; Force MMU reset
