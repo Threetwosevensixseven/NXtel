@@ -10,6 +10,7 @@ namespace NXtelData
     public static partial class DBOps
     {
         public static string ConnectionString { get; set; }
+        public static Settings Settings { get; set; }
 
         public static string ConnectionStringBackup
         {
@@ -28,6 +29,13 @@ namespace NXtelData
                     cs = cs + ";";
                 return cs;
             }
+        }
+
+        public static string GetConnectionString(string Environment)
+        {
+            EnvironmentConnection ec;
+            EnvironmentConnection.TryParse(Environment, out ec);
+            return ec == null ? ConnectionString : ec.ConnectionString;
         }
     }
 }

@@ -5,7 +5,6 @@
     bool pageEditor = User.IsInRole("Page Editor");
     string version = "v" + MvcApplication.ApplicationVersion;
     string appName = NXtelData.Options.AppName;
-    string cssBundle = NXtelData.Options.CssBundle;
 }
 <!DOCTYPE html>
 <html>
@@ -13,7 +12,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - @appName</title>
-    @Styles.Render(cssBundle)
+    @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @RenderSection("head", required: false)
 </head>

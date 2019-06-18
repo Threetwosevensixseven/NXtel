@@ -1,5 +1,8 @@
-﻿using System.Web;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Web;
 using System.Web.Optimization;
+using NXtelData;
 
 namespace NXtelManager
 {
@@ -27,25 +30,15 @@ namespace NXtelManager
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/datatables.min.css",
-                      "~/Content/bootstrap-multiselect.css",
-                      "~/Content/site.css"));
-
-            bundles.Add(new StyleBundle("~/Content/csstest").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/bootstrap-test.css",
-                      "~/Content/datatables.min.css",
-                      "~/Content/bootstrap-multiselect.css",
-                      "~/Content/site.css"));
-
-            bundles.Add(new StyleBundle("~/Content/cssdev").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/bootstrap-dev.css",
-                      "~/Content/datatables.min.css",
-                      "~/Content/bootstrap-multiselect.css",
-                      "~/Content/site.css"));
+            var files = new List<string>();
+            files.Add("~/Content/bootstrap.css");
+            string vir = "~/Content/bootstrap-" + Options.Environment.ToString().ToLower() + ".css";
+            string abs = HttpContext.Current.Server.MapPath(vir);
+            if (File.Exists(abs)) files.Add(vir);
+            files.Add("~/Content/datatables.min.css");
+            files.Add("~/Content/bootstrap-multiselect.css");
+            files.Add("~/Content/site.css");
+            bundles.Add(new StyleBundle("~/Content/css").Include(files.ToArray()));
         }
     }
 }

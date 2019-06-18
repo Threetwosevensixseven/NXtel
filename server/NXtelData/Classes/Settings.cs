@@ -13,7 +13,6 @@ namespace NXtelData
         private string appDir;
 
         public string ConnectionString { get; set; }
-        public EnvironmentNames Environment { get; set; }
         public List<EnvironmentConnection> AdditionalConnections { get; set; }
 
         public Settings()
@@ -42,7 +41,7 @@ namespace NXtelData
                 }
                 settings.appDir = appDir;
             }
-            catch
+            catch (Exception ex)
             {
                 settings = new Settings(appDir);
             }

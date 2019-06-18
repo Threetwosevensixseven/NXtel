@@ -29,11 +29,20 @@ namespace NXtelManager.Controllers
         }
 
         [Authorize(Roles = "Admin,Page Editor")]
-        public ActionResult Edit(int? ID)
+        public ActionResult Edit(int? ID, string ID2)
         {
             int id = ID ?? -1;
             var model = new ZoneEditModel();
             model.Zone = Zone.Load(id);
+            var copy = Session["ZoneCopy"] as ZoneEditModel;
+            if (copy == null)
+                model.Zone = Zone.Load(id);
+            else
+            {
+                model = copy;
+                model.Zone.Environment = copy.Zone.Environment;
+            }
+            Session["ZoneCopy"] = null;
             if (id != -1 && model.Zone.ID <= 0)
                 return RedirectToAction("Index");
             model.Permissions = Permissions.Load(User);
@@ -75,6 +84,25 @@ namespace NXtelManager.Controllers
                 return RedirectToAction("Index");
             }
             return View("Edit", Model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult Copy(int ID, string ID2)
+        {
+            if (ID <= 0)
+                return RedirectToAction("Index");
+            var model = new ZoneEditModel();
+            model.Copying = true;
+            model.Zone = Zone.Load(ID);
+            model.Zone.Environment = ID2;
+            model.Zone.ID = -1;
+            if (string.IsNullOrWhiteSpace(model.Zone.Environment))
+            {
+                model.OldDescription = model.Zone.Description;
+                model.Zone.Description = "";
+            }
+            Session["ZoneCopy"] = model;
+            return RedirectToAction("Edit");
         }
     }
 }

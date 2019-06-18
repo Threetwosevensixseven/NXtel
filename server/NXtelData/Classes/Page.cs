@@ -46,11 +46,12 @@ namespace NXtelData
         [Range(1, 99, ErrorMessage = "Carousel Wait must be between 1 and 99 seconds.")]
         [Required(ErrorMessage = "Carousel Wait must be between 1 and 99 seconds.")]
         public int CarouselWait { get; set; }
+        public string Environment { get; set; }
 
         public Page()
         {
             PageID = OwnerID = -1;
-            Title = URL = SelectedTemplates = SelectedRoutes = "";
+            Title = URL = SelectedTemplates = SelectedRoutes = Environment = "";
             Templates = new Templates();
             Routing = new Routes();
             PageRange = new Pages();
@@ -258,7 +259,7 @@ namespace NXtelData
             Err = "";
             try
             {
-                using (var con = new MySqlConnection(DBOps.ConnectionString))
+                using (var con = new MySqlConnection(DBOps.GetConnectionString(Environment)))
                 {
                     con.Open();
                     string sql = @"INSERT INTO page
@@ -413,7 +414,7 @@ namespace NXtelData
 
         public bool IsPageRangeValid()
         {
-            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            using (var con = new MySqlConnection(DBOps.GetConnectionString(Environment)))
             {
                 con.Open();
                 string sql = @"SELECT COUNT(*) AS cnt

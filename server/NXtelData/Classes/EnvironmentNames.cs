@@ -9,6 +9,7 @@ namespace NXtelData
     public enum EnvironmentNames
     {
         Dev,
+        Dev2,
         Test,
         [Description("")]
         Prod

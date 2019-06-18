@@ -5,6 +5,8 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NXtelData;
 using NXtelManager.Attributes;
 using NXtelManager.Models;
@@ -16,13 +18,6 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            //var settings = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load();
-            //settings.ConnectionString = "A";
-            //settings.Environment = EnvironmentNames.Dev;
-            //settings.AdditionalConnections.Add(new EnvironmentConnection(EnvironmentNames.Test, "X"));
-            //settings.AdditionalConnections.Add(new EnvironmentConnection(EnvironmentNames.Prod, "Y"));
-            //settings.ToXML();
-
             var model = new PageIndexModel();
             model.Pages = Pages.LoadStubs();
             model.Permissions = Permissions.Load(User);
@@ -43,7 +38,10 @@ namespace NXtelManager.Controllers
             if (copy == null)
                 model.Page = Page.Load(id);
             else
+            {
                 model = copy;
+                model.Page.Environment = copy.Page.Environment;
+            }
             model.SendURL = sendURL;
             Session["PageCopy"] = null;
             if (id != -1 && model.Page.PageID <= 0)
@@ -184,13 +182,14 @@ namespace NXtelManager.Controllers
             return View("Index", model);
         }
 
-        public ActionResult Copy(int ID)
+        public ActionResult Copy(int ID, string ID2)
         {
             if (ID <= 0)
                 return RedirectToAction("Index");
-               var model = new PageEditModel();
+            var model = new PageEditModel();
             model.Copying = true;
             model.Page = Page.Load(ID);
+            model.Page.Environment = ID2;
             model.Page.PageID = -1;
             model.OldTitle = model.Page.Title;
             model.Page.Title = "";

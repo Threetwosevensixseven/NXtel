@@ -4,6 +4,8 @@
     bool can = Model.Permissions.Can(Model.Page);
     can = @page.PageID <= 0 ? true : can;
     ViewBag.Title = (Model.Copying ? "Copy" : (@page.PageID <= 0 ? "New" : (can ? "Edit" : "View"))) + " Page";
+    if (!string.IsNullOrWhiteSpace(Model.Page.Environment))
+        ViewBag.Title = "Copy Page to NXtel " + Model.Page.Environment;
     string lockcls = @page.PageID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
@@ -26,6 +28,7 @@
 {
     @Html.AntiForgeryToken()
     @Html.Hidden("CopyPageID", Model.CopyPageID)
+    @Html.Hidden("Page.Environment", Model.Page.Environment)
     <table id="tblEdit" class="edit">
         <tbody>
             <tr>
@@ -230,8 +233,7 @@
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
     if (page.PageID > 0)
     {
-        var settings = new NXtelData.Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Load();
-        if (admin && settings.AdditionalConnections.Count > 0)
+        if (admin && NXtelData.DBOps.Settings.AdditionalConnections.Count > 0)
         {
             <div class="btn-group">
                 @Html.ActionLink("Copy", "Copy", new { id = @page.PageID }, new { @class = "btn btn-default" })
@@ -240,9 +242,9 @@
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li>@Html.ActionLink("Copy to NXtel " + settings.Environment.ToString(), "Copy", new { id = @page.PageID })</li>
+                    <li>@Html.ActionLink("Copy to NXtel " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @page.PageID })</li>
                     <li role="separator" class="divider"></li>
-                    @foreach (var con in settings.AdditionalConnections)
+                    @foreach (var con in NXtelData.DBOps.Settings.AdditionalConnections)
                     {
                     <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @page.PageID, id2 = con.Environment.ToString() })</li>
                     }

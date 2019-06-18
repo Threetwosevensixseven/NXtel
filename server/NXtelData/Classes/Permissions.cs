@@ -219,5 +219,14 @@ namespace NXtelData
                 return true;
             return false;
         }
+
+        public bool Can(Zone Zone)
+        {
+            if (Zone == null)
+                return false;
+            if (IsAdmin)
+                return true;
+            return false;
+        }
     }
 }

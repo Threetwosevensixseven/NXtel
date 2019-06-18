@@ -11,7 +11,9 @@ namespace NXtelManager
         public void Configuration(IAppBuilder app)
         {
             //new Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Save();
-            DBOps.ConnectionString = new Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Load().ConnectionString;
+            var settings = new Settings(HttpContext.Current.Server.MapPath("~/App_Data")).Load();
+            DBOps.ConnectionString = settings.ConnectionString;
+            DBOps.Settings = settings;
             SQL.UpdateStructure();
             SQL.SetupData();
             ServerStatus.StartIfStopped();

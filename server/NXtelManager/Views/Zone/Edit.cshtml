@@ -1,8 +1,14 @@
 ﻿@model ZoneEditModel
 @using NXtelManager.Models
 @{
-    ViewBag.Title = "Edit Zone";
+    bool can = Model.Permissions.Can(Model.Zone);
+    bool admin = Model.Permissions.IsAdmin;
     string zoneID = Model.Zone.ID <= 0 ? "NEW" : Model.Zone.ID.ToString();
+    ViewBag.Title = (Model.Copying ? "Copy" : (@Model.Zone.ID <= 0 ? "New" : (can ? "Edit" : "View"))) + " Zone";
+    if (!string.IsNullOrWhiteSpace(Model.Zone.Environment))
+    {
+        ViewBag.Title = "Copy Zone to NXtel " + Model.Zone.Environment;
+    }
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -12,6 +18,7 @@
     @Html.AntiForgeryToken()
     <div class="form-group">
         @Html.HiddenFor(m => @Model.Zone.ID)
+        @Html.HiddenFor(m => @Model.Zone.Environment)
         @Html.LabelFor(m => @Model.Zone.ID, new { @class = "control-label col-sm-1" })
         <div class="col-sm-11" style="padding-top:7px;padding-left:35px;vertical-align:middle">
             @Html.DisplayFor(m => @zoneID, new { @class = "form-control" })
@@ -22,7 +29,7 @@
         <div class="col-sm-11">
             <div class="checkbox">
                 <label>
-                    @Html.TextBoxFor(m => @Model.Zone.Description, null, new { maxlength = 40, style = "width:100%;max-width:initial", @class = "form-control input-sm" })
+                    @Html.TextBoxFor(m => @Model.Zone.Description, null, new { maxlength = 40, style = "width:100%;max-width:initial", @class = "form-control input-sm", placeholder = Model.OldDescription })
                 </label>
             </div>
         </div>
@@ -30,7 +37,33 @@
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
     <input type="submit" value="Save" name="action:Save" class="btn btn-primary" onclick="return validateSave();" />
     <input type="submit" value="Delete" name="action:Delete" class="btn btn-danger" onclick="return validateDelete();" />
-    @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("Back", "Index", null, new { @class = "btn btn-default", style = "margin-left:4px" })
+    @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
+    if (Model.Zone.ID > 0)
+    {
+        if (admin && NXtelData.DBOps.Settings.AdditionalConnections.Count > 0)
+        {
+            <div class="btn-group">
+                @Html.ActionLink("Copy", "Copy", new { id = @Model.Zone.ID }, new { @class = "btn btn-default" })
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>@Html.ActionLink("Copy to NXtel " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @Model.Zone.ID })</li>
+                    <li role="separator" class="divider"></li>
+                    @foreach (var con in NXtelData.DBOps.Settings.AdditionalConnections)
+                    {
+                        <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @Model.Zone.ID, id2 = con.Environment.ToString() })</li>
+                    }
+                </ul>
+            </div>
+        }
+        else if (admin)
+        {
+            @Html.ActionLink("Copy", "Copy", new { id = @Model.Zone.ID }, new { @class = "btn btn-default", style = "margin-left:4px" })
+        }
+    }
 }
 
 @section scripts {

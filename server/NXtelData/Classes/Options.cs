@@ -270,17 +270,6 @@ namespace NXtelData
             }
         }
 
-        private static string _cssBundle;
-        public static string CssBundle
-        {
-            get
-            {
-                if (_cssBundle == null)
-                    _cssBundle = ("~/Content/css" + EnumExtensions.GetDescription(Options.Environment)).Trim().ToLower();
-                return _cssBundle;
-            }
-        }
-
         private static string _appName;
         public static string AppName
         {

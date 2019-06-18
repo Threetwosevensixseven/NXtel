@@ -11,6 +11,8 @@ namespace NXtelManager.Models
         public Zone Zone { get; set; }
         public Permissions Permissions { get; set; }
         public Pages Pages { get; set; }
+        public bool Copying { get; set; }
+        public string OldDescription { get; set; }
 
         public ZoneEditModel()
         {
