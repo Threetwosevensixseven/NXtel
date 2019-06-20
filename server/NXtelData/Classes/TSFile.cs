@@ -17,10 +17,12 @@ namespace NXtelData
         public byte[] Contents { get; set; }
         [Display(Name = "Owner")]
         public int OwnerID { get; set; }
+        public string Environment { get; set; }
+        public int CopyingFromID { get; set; }
 
         public TSFile()
         {
-            TeleSoftwareID = OwnerID = - 1;
+            TeleSoftwareID = OwnerID = CopyingFromID = - 1;
             Key = FileName = "";
             Contents = new byte[0];
         }
@@ -68,10 +70,16 @@ namespace NXtelData
             Err = "";
             try
             {
-                if (File.TeleSoftwareID <= 0)
-                    return File.Create(out Err);
-                else
-                    return File.Update(out Err);
+                using (var ConX = new MySqlConnection(DBOps.GetConnectionString(File.Environment)))
+                {
+                    ConX.Open();
+                    if (!string.IsNullOrWhiteSpace(File.Environment))
+                        File.GetIDFromDescription(ConX);
+                    if (File.TeleSoftwareID <= 0)
+                        return File.Create(out Err, ConX);
+                    else
+                        return File.Update(out Err, ConX);
+                }
             }
             catch (Exception ex)
             {
@@ -80,31 +88,33 @@ namespace NXtelData
             }
         }
 
-        public bool Create(out string Err)
+        public bool Create(out string Err, MySqlConnection ConX = null)
         {
             Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
             try
             {
-                using (var con = new MySqlConnection(DBOps.ConnectionString))
-                {
-                    con.Open();
-                    string sql = @"INSERT INTO telesoftware
+                string sql = @"INSERT INTO telesoftware
                         (`Key`,Contents,FileName,OwnerID)
                         VALUES(@Key,@Contents,@FileName,@OwnerID);
                         SELECT LAST_INSERT_ID();";
-                    var cmd = new MySqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("Key", Key);
-                    cmd.Parameters.AddWithValue("Contents", Contents);
-                    cmd.Parameters.AddWithValue("FileName", FileName);
-                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
-                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
-                    int rv = cmd.ExecuteScalarInt32();
-                    if (rv > 0)
-                        TeleSoftwareID = rv;
-                    if (TeleSoftwareID <= 0)
-                        Err = "The file could not be saved.";
-                    return TeleSoftwareID > 0;
-                }
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("Key", Key);
+                cmd.Parameters.AddWithValue("Contents", Contents);
+                cmd.Parameters.AddWithValue("FileName", FileName);
+                int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                int rv = cmd.ExecuteScalarInt32();
+                if (rv > 0)
+                    TeleSoftwareID = rv;
+                if (TeleSoftwareID <= 0)
+                    Err = "The file could not be saved.";
+                return TeleSoftwareID > 0;
             }
             catch (Exception ex)
             {
@@ -114,35 +124,42 @@ namespace NXtelData
                     Err = ex.Message;
                 return false;
             }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
         }
 
-        public bool Update(out string Err)
+        public bool Update(out string Err, MySqlConnection ConX = null)
         {
             Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
             try
             {
-                using (var con = new MySqlConnection(DBOps.ConnectionString))
-                {
-                    con.Open();
-                    string sql = @"UPDATE telesoftware
+                string sql = @"UPDATE telesoftware
                         SET `Key`=@Key,
                         Contents=@Contents,
                         FileName=@FileName,
                         OwnerID=@OwnerID
                         WHERE TeleSoftwareID=@TeleSoftwareID;
                         SELECT ROW_COUNT();";
-                    var cmd = new MySqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("TeleSoftwareID", TeleSoftwareID);
-                    cmd.Parameters.AddWithValue("Key", Key);
-                    cmd.Parameters.AddWithValue("Contents", Contents);
-                    cmd.Parameters.AddWithValue("FileName", FileName);
-                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
-                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
-                    int rv = cmd.ExecuteScalarInt32();
-                    if (rv <= 0)
-                        Err = "The file could not be saved.";
-                    return rv > 0;
-                }
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("TeleSoftwareID", TeleSoftwareID);
+                cmd.Parameters.AddWithValue("Key", Key);
+                cmd.Parameters.AddWithValue("Contents", Contents);
+                cmd.Parameters.AddWithValue("FileName", FileName);
+                int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                int rv = cmd.ExecuteScalarInt32();
+                if (rv <= 0)
+                    Err = "The file could not be saved.";
+                return rv > 0;
             }
             catch (Exception ex)
             {
@@ -151,6 +168,11 @@ namespace NXtelData
                 else
                     Err = ex.Message;
                 return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
             }
         }
 
@@ -184,6 +206,39 @@ namespace NXtelData
             this.OwnerID = rdr.GetInt32Safe("OwnerID");
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
+        }
+
+        public int GetIDFromDescription(MySqlConnection ConX = null)
+        {
+            int rv = -1;
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            string sql = @"SELECT TeleSoftwareID FROM telesoftware
+                WHERE telesoftware.`Key`=@Key
+                ORDER BY TeleSoftwareID LIMIT 1;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("Key", (Key ?? "").Trim());
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        rv = rdr.GetInt32("TeleSoftwareID");
+                        TeleSoftwareID = rv;
+                        break;
+                    }
+                }
+            }
+            OwnerID = -1;
+
+            if (openConX)
+                ConX.Close();
+
+            return rv;
         }
     }
 }

@@ -18,6 +18,8 @@ namespace NXtelManager.Models
         public TSFile File { get; set; }
         public IEnumerable<SelectListItem> Owners { get; set; }
         public Permissions Permissions { get; set; }
+        public bool Copying { get; set; }
+        public string OldKey { get; set; }
 
         public FileEditModel()
         {

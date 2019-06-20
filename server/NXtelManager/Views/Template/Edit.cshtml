@@ -10,7 +10,9 @@
     string width = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Width.ToString();
     string height = @template.TemplateID <= 0 && !Model.Copying ? "" : @template.Height.ToString();
     string placeholder = Model.Copying ? Model.OldDescription : "";
-    ViewBag.Title = (@template.TemplateID <= 0 ? "New" : (can ? "Edit" : "View")) + " Template";
+    ViewBag.Title = (Model.Copying ? "Copy" : (@template.TemplateID <= 0 ? "New" : (can ? "Edit" : "View"))) + " Template";
+    if (!string.IsNullOrWhiteSpace(template.Environment))
+        ViewBag.Title = "Copy Template to NXtel " + template.Environment;
     string lockcls = @template.TemplateID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
 }
 <h1>@ViewBag.Title<span class="@lockcls"></span></h1>
@@ -19,19 +21,20 @@
 {
     @Html.AntiForgeryToken()
     @Html.Hidden("CopyTemplateID", Model.CopyTemplateID)
+    @Html.HiddenFor(m => @Model.Template.Environment)
     <table id="tblEdit" class="edit">
         <tbody>
             <tr>
                 <td class="lbl">Template ID</td>
-                <td class="data" colspan="5">@templateID@Html.Hidden("TemplateID", @template.TemplateID)</td>
+                <td class="data" colspan="5">@templateID@Html.Hidden("Template.TemplateID", @template.TemplateID)</td>
             </tr>
             <tr>
                 <td class="lbl">Description</td>
-                <td class="data" colspan="5">@Html.TextBox("Description", template.Description, new { maxlength = 30, style = "width:100%;max-width:initial", placeholder = placeholder, @class = "form-control input-sm" })</td>
+                <td class="data" colspan="5">@Html.TextBox("Template.Description", template.Description, new { maxlength = 30, style = "width:100%;max-width:initial", placeholder = placeholder, @class = "form-control input-sm" })</td>
             </tr>
             <tr>
                 <td class="lbl">URL</td>
-                <td class="data">@Html.TextArea("URL", template.URL, new { @class = "form-control input-sm", style = "resize:vertical;height:45px;min-height:45px" })</td>
+                <td class="data">@Html.TextArea("Template.URL", template.URL, new { id = "URL", name = "Template_URL", @class = "form-control input-sm", style = "resize:vertical;height:45px;min-height:45px" })</td>
             </tr>
             <tr>
                 <td class="lbl" style="vertical-align:top">Content</td>
@@ -50,7 +53,7 @@
             <tr>
                 <td class="lbl" style="vertical-align:top">Templates</td>
                 <td id="PageTemplates" class="data">
-                    @Html.Hidden("SelectedTemplates", template.SelectedTemplates)
+                    @Html.Hidden("Template.SelectedTemplates", template.SelectedTemplates, new { id = "SelectedTemplates" })
                     <table style="display:inline">
                         <tbody id="tbodyPageTemplates">
                             @for (int i = 0; i < template.ChildTemplates.Count; i++)
@@ -76,7 +79,7 @@
                         </tbody>
                         <tbody style="display:none">
                             <tr id="trPageTemplateXXX" class="template ordered">
-                                <td>@Html.DropDownList("TemplateMasterListXXX", Model.Templates)</td>
+                                <td>@Html.DropDownList("TemplateMasterListXXX", Model.Templates, new { @class = "form-control input-sm" })</td>
                                 @if (can)
                                 {
                                 <td><a href="#" class="ordered ordered-btn up" title="Move template up">Up</a></td>
@@ -94,54 +97,54 @@
             </tr>
             <tr>
                 <td class="lbl">X</td>
-                <td class="data">@Html.TextBox("X", x, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
+                <td class="data">@Html.TextBox("Template.X", x, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
                 <td class="lbl">Y</td>
-                <td class="data">@Html.TextBox("Y", y, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
+                <td class="data">@Html.TextBox("Template.Y", y, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
                 <td class="lbl">Width</td>
-                <td class="data">@Html.TextBox("Width", width, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
+                <td class="data">@Html.TextBox("Template.Width", width, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
                 <td class="lbl">Height</td>
-                <td class="data">@Html.TextBox("Height", height, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
+                <td class="data">@Html.TextBox("Template.Height", height, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
                 <td class="lbl"></td>
                 <td class="data">
-                    @Html.CheckBox("IsContainer", template.IsContainer, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsContainer)</span>
-                    @Html.CheckBox("IsRepeatingItem", template.IsRepeatingItem, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsRepeatingItem)</span>
-                    @Html.CheckBox("CanExpand", template.CanExpand, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.CanExpand)</span>
-                    @Html.CheckBox("StickToTop", template.StickToTop, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToTop)</span>
-                    @Html.CheckBox("StickToBottom", template.StickToBottom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToBottom)</span>
+                    @Html.CheckBox("Template.IsContainer", template.IsContainer, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsContainer)</span>
+                    @Html.CheckBox("Template.IsRepeatingItem", template.IsRepeatingItem, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.IsRepeatingItem)</span>
+                    @Html.CheckBox("Template.CanExpand", template.CanExpand, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.CanExpand)</span>
+                    @Html.CheckBox("Template.StickToTop", template.StickToTop, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToTop)</span>
+                    @Html.CheckBox("Template.StickToBottom", template.StickToBottom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.StickToBottom)</span>
             </tr>
             <tr>
                 <td class="lbl"></td>
                 <td class="data">
-                    @Html.CheckBox("ContinuedOver", template.ContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedOver)</span>
-                    @Html.CheckBox("ContinuedFrom", template.ContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedFrom)</span>
-                    @Html.CheckBox("NotContinuedOver", template.NotContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.NotContinuedOver)</span>
-                    @Html.CheckBox("NotContinuedFrom", template.NotContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.NotContinuedFrom)</span>
-                    @Html.CheckBox("KeepTogether", template.KeepTogether, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.KeepTogether)</span>
+                    @Html.CheckBox("Template.ContinuedOver", template.ContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedOver)</span>
+                    @Html.CheckBox("Template.ContinuedFrom", template.ContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.ContinuedFrom)</span>
+                    @Html.CheckBox("Template.NotContinuedOver", template.NotContinuedOver, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.NotContinuedOver)</span>
+                    @Html.CheckBox("Template.NotContinuedFrom", template.NotContinuedFrom, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.NotContinuedFrom)</span>
+                    @Html.CheckBox("Template.KeepTogether", template.KeepTogether, new { @class = "inline" })<span class="lbl">@Html.LabelFor(t => template.KeepTogether)</span>
                 </td>
             </tr>
             <tr>
                 <td class="lbl">Orphan/Widow</td>
-                <td class="data">@Html.TextBox("MinOrphanWidowRows", template.MinOrphanWidowRows, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
+                <td class="data">@Html.TextBox("Template.MinOrphanWidowRows", template.MinOrphanWidowRows, new { maxlength = 2, onkeypress = "javascript:return allownumbers(event);", @class = "form-control input-sm", style = "text-align:right;width:35px" })</td>
             </tr>
             <tr>
                 <td class="lbl">Expression</td>
-                <td class="data">@Html.TextBox("Expression", template.Expression, new { maxlength = 300, style = "width:100%;max-width:initial", @class = "form-control input-sm" })</td>
+                <td class="data">@Html.TextBox("Template.Expression", template.Expression, new { maxlength = 300, style = "width:100%;max-width:initial", @class = "form-control input-sm" })</td>
             </tr>
             <tr>
                 <td class="lbl">Owner</td>
                 <td class="data">
-                    @Html.Hidden("OwnerID", template.OwnerID)
+                    @Html.Hidden("Template.OwnerID", template.OwnerID)
                     @if (admin)
                     {
-                        <select id="Owner" class="form-control input-sm" style="width:auto">
+                        <select id="Template_Owner" class="form-control input-sm" style="width:auto">
                             @foreach (var owner in Model.Owners)
                             {
                                 string sel = template.OwnerID.ToString() == owner.Value ? "selected=\"selected\"" : "";
@@ -167,7 +170,28 @@
     @Html.ActionLink("New", "Edit", new { id = "" }, new { @class = "btn btn-default", style = "margin-left:4px" })
     if (template.TemplateID > 0)
     {
-        @Html.ActionLink("Copy", "Copy", new { id = @template.TemplateID }, new { @class = "btn btn-default", style = "margin-left:4px" })
+        if (admin && NXtelData.DBOps.Settings.AdditionalConnections.Count > 0)
+        {
+            <div class="btn-group">
+                @Html.ActionLink("Copy", "Copy", new { id = @template.TemplateID }, new { @class = "btn btn-default" })
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>@Html.ActionLink("Copy to NXtel " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @template.TemplateID })</li>
+                    <li role="separator" class="divider"></li>
+                    @foreach (var con in NXtelData.DBOps.Settings.AdditionalConnections)
+                    {
+                        <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @template.TemplateID, id2 = con.Environment.ToString() })</li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            @Html.ActionLink("Copy", "Copy", new { id = @template.TemplateID }, new { @class = "btn btn-default", style = "margin-left:4px" })
+        }
     }
 }
 
@@ -304,7 +328,7 @@
     function validateSave() {
         @if(@admin)
         {
-            <text>$("#OwnerID").val($("#Owner").val());</text>
+            <text>$("#Template_OwnerID").val($("#Template_Owner").val());</text>
         }
         return true;
     }

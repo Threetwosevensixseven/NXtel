@@ -52,6 +52,8 @@ namespace NXtelData
         public int RepeatingItemLinesAdded { get; set; }
         public bool Active { get; set; }
         public int OwnerID { get; set; }
+        public string Environment { get; set; }
+        public int CopyingFromID { get; set; }
 
         public Template()
         {

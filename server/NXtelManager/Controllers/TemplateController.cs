@@ -23,7 +23,7 @@ namespace NXtelManager.Controllers
             return View(model);
         }
 
-        public ActionResult Edit(int? ID)
+        public ActionResult Edit(int? ID, string ID2)
         {
             int id = ID ?? -1;
             var model = new TemplateEditModel();
@@ -113,16 +113,21 @@ namespace NXtelManager.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult Copy(int ID)
+        public ActionResult Copy(int ID, string ID2)
         {
             if (ID <= 0)
                 return RedirectToAction("Index");
             var model = new TemplateEditModel();
             model.Copying = true;
             model.Template = Template.Load(ID);
+            model.Template.Environment = ID2;
+            model.Template.CopyingFromID = model.Template.TemplateID;
             model.Template.TemplateID = -1;
-            model.OldDescription = model.Template.Description;
-            model.Template.Description = "";
+            if (string.IsNullOrWhiteSpace(model.Template.Environment))
+            {
+                model.OldDescription = model.Template.Description;
+                model.Template.Description = "";
+            }
             Session["TemplateCopy"] = model;
             return RedirectToAction("Edit");
         }

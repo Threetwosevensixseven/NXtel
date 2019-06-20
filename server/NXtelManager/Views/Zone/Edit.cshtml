@@ -9,8 +9,9 @@
     {
         ViewBag.Title = "Copy Zone to NXtel " + Model.Zone.Environment;
     }
+    string lockcls = @Model.Zone.ID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
 }
-<h1>@ViewBag.Title</h1>
+<h1>@ViewBag.Title<span class="@lockcls"></span></h1>
 <h3>@ViewBag.Message</h3>
 
 @using (Html.BeginForm("Edit", "Zone", FormMethod.Post, new { @class = "form-horizontal" }))

@@ -4,7 +4,7 @@
     ViewBag.Title = "View Zone";
     string zoneID = Model.Zone.ID <= 0 ? "NEW" : Model.Zone.ID.ToString();
 }
-<h1>@ViewBag.Title</h1>
+<h1>@ViewBag.Title<span class="lock large locked"></span></h1>
 <h3>@ViewBag.Message</h3>
 
 <div class="form-group" style="clear:both">

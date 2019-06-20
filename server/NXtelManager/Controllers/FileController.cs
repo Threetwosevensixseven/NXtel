@@ -29,7 +29,16 @@ namespace NXtelManager.Controllers
         {
             int id = ID ?? -1;
             var model = new FileEditModel();
-            model.File = TSFile.Load(id);
+
+            var copy = Session["FileCopy"] as FileEditModel;
+            if (copy == null)
+                model.File = TSFile.Load(id);
+            else
+            {
+                model = copy;
+                model.File.Environment = copy.File.Environment;
+            }
+            Session["FileCopy"] = null;
             if (id != -1 && model.File.TeleSoftwareID <= 0)
                 return RedirectToAction("Index");
             model.Permissions = Permissions.Load(User);
@@ -53,6 +62,12 @@ namespace NXtelManager.Controllers
                     model = new FileEditModel();
                     model.File = File;
                     model.Permissions = perms;
+                    if (model.File.CopyingFromID > 0)
+                    {
+                        var cf = TSFile.Load(model.File.CopyingFromID);
+                        model.File.FileName = cf.FileName;
+                        model.File.Contents = cf.Contents;
+                    }
                     return View("Edit", model);
                 }
                 File.Contents = new byte[0];
@@ -83,12 +98,24 @@ namespace NXtelManager.Controllers
                 string err;
                 if (File.TeleSoftwareID <= 0 && File.OwnerID <= 0)
                     File.OwnerID = perms.User.UserNo;
+                if (File.CopyingFromID > 0)
+                {
+                    var cf = TSFile.Load(File.CopyingFromID);
+                    File.FileName = cf.FileName;
+                    File.Contents = cf.Contents;
+                }
                 if (!TSFile.Save(File, out err))
                 {
                     ModelState.AddModelError("", err);
                     model = new FileEditModel();
                     model.File = File;
                     model.Permissions = perms;
+                    if (model.File.CopyingFromID > 0)
+                    {
+                        var cf = TSFile.Load(model.File.CopyingFromID);
+                        model.File.FileName = cf.FileName;
+                        model.File.Contents = cf.Contents;
+                    }
                     return View("Edit", model);
                 }
                 return RedirectToAction("Index");
@@ -100,6 +127,12 @@ namespace NXtelManager.Controllers
                 File = TSFile.Load(File.TeleSoftwareID);
             model.File = File;
             model.Permissions = perms;
+            if (model.File.CopyingFromID > 0)
+            {
+                var cf = TSFile.Load(model.File.CopyingFromID);
+                model.File.FileName = cf.FileName;
+                model.File.Contents = cf.Contents;
+            }
             return View("Edit", model);
         }
 
@@ -142,6 +175,25 @@ namespace NXtelManager.Controllers
             if (id != -1 && model.File.TeleSoftwareID <= 0)
                 return RedirectToAction("Index");
             return File(model.File.Contents, MediaTypeNames.Application.Octet, model.File.FileName);
+        }
+
+        public ActionResult Copy(int ID, string ID2)
+        {
+            if (ID <= 0)
+                return RedirectToAction("Index");
+            var model = new FileEditModel();
+            model.Copying = true;
+            model.File = TSFile.Load(ID);
+            model.File.Environment = ID2;
+            model.File.CopyingFromID = model.File.TeleSoftwareID;
+            model.File.TeleSoftwareID = -1;
+            if (string.IsNullOrWhiteSpace(model.File.Environment))
+            {
+                model.OldKey = model.File.Key;
+                model.File.Key = "";
+            }
+            Session["FileCopy"] = model;
+            return RedirectToAction("Edit");
         }
     }
 }

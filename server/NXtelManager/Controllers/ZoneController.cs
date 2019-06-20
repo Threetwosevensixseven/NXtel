@@ -33,7 +33,6 @@ namespace NXtelManager.Controllers
         {
             int id = ID ?? -1;
             var model = new ZoneEditModel();
-            model.Zone = Zone.Load(id);
             var copy = Session["ZoneCopy"] as ZoneEditModel;
             if (copy == null)
                 model.Zone = Zone.Load(id);
