@@ -76,7 +76,7 @@ namespace NXtelManager.Controllers
             if (ModelState.IsValid)
             {
                 string err;
-                if (!Zone.Save(Model.Zone, out err))
+                if (!Model.Zone.Save(out err))
                 {
                     return View("Edit", Model);
                 }

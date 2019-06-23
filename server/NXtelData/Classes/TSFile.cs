@@ -65,7 +65,7 @@ namespace NXtelData
             return item;
         }
 
-        public static bool Save(TSFile File, out string Err)
+        public static bool Save(TSFile File, out string Err, bool ResetOwnerIfNotFound = true)
         {
             Err = "";
             try
@@ -74,7 +74,7 @@ namespace NXtelData
                 {
                     ConX.Open();
                     if (!string.IsNullOrWhiteSpace(File.Environment))
-                        File.GetIDFromDescription(ConX);
+                        File.GetIDFromDescription(ConX, true, ResetOwnerIfNotFound);
                     if (File.TeleSoftwareID <= 0)
                         return File.Create(out Err, ConX);
                     else
@@ -208,9 +208,10 @@ namespace NXtelData
             this.Contents = rdr.GetBytesNullable("Contents");
         }
 
-        public int GetIDFromDescription(MySqlConnection ConX = null)
+        public int GetIDFromDescription(MySqlConnection ConX = null, bool ResetIfNotFound = true, bool ResetOwnerIfNotFound = true)
         {
             int rv = -1;
+            bool found = false;
             bool openConX = ConX == null;
             if (openConX)
             {
@@ -229,11 +230,15 @@ namespace NXtelData
                     {
                         rv = rdr.GetInt32("TeleSoftwareID");
                         TeleSoftwareID = rv;
+                        found = true;
                         break;
                     }
                 }
             }
-            OwnerID = -1;
+            if (ResetIfNotFound && !found)
+                TeleSoftwareID = -1;
+            if (ResetOwnerIfNotFound && !found)
+                OwnerID = -1;
 
             if (openConX)
                 ConX.Close();

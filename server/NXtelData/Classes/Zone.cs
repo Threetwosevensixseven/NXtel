@@ -41,23 +41,30 @@ namespace NXtelData
             return true;
         }
 
-        public static Zone Load(int ZoneID)
+        public static Zone Load(int ZoneID, MySqlConnection ConX = null)
         {
             var item = new Zone();
-            using (var con = new MySqlConnection(DBOps.ConnectionString))
+            bool openConX = ConX == null;
+            if (openConX)
             {
-                con.Open();
-                string sql = "SELECT * FROM zone WHERE ZoneID=" + ZoneID;
-                var cmd = new MySqlCommand(sql, con);
-                using (var rdr = cmd.ExecuteReader())
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            string sql = "SELECT * FROM zone WHERE ZoneID=" + ZoneID;
+            var cmd = new MySqlCommand(sql, ConX);
+            using (var rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
                 {
-                    while (rdr.Read())
-                    {
-                        item.Read(rdr);
-                        break;
-                    }
+                    item.Read(rdr);
+                    break;
                 }
             }
+
+            if (openConX)
+                ConX.Close();
+
             return item;
         }
 
@@ -89,20 +96,20 @@ namespace NXtelData
             }
         }
 
-        public static bool Save(Zone Zone, out string Err)
+        public bool Save(out string Err)
         {
             Err = "";
             try
             {
-                using (var ConX = new MySqlConnection(DBOps.GetConnectionString(Zone.Environment)))
+                using (var ConX = new MySqlConnection(DBOps.GetConnectionString(Environment)))
                 {
                     ConX.Open();
-                    if (!string.IsNullOrWhiteSpace(Zone.Environment))
-                        Zone.GetIDFromDescription(ConX);
-                    if (Zone.ID <= 0)
-                        return Zone.Create(out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Environment))
+                        GetIDFromDescription(ConX);
+                    if (ID <= 0)
+                        return Create(out Err, ConX);
                     else
-                        return Zone.Update(out Err, ConX);
+                        return Update(out Err, ConX);
                 }
             }
             catch (Exception ex)
@@ -189,9 +196,10 @@ namespace NXtelData
             }
         }
 
-        public int GetIDFromDescription(MySqlConnection ConX = null)
+        public int GetIDFromDescription(MySqlConnection ConX = null, bool ResetIfNotFound = true)
         {
             int rv = -1;
+            bool found = false;
             bool openConX = ConX == null;
             if (openConX)
             {
@@ -210,10 +218,14 @@ namespace NXtelData
                     {
                         rv = rdr.GetInt32("ZoneID");
                         ID = rv;
+                        found = true;
                         break;
                     }
                 }
             }
+
+            if (ResetIfNotFound && !found)
+                ID = -1;
 
             if (openConX)
                 ConX.Close();

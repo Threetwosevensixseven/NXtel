@@ -242,10 +242,21 @@ namespace NXtelData
             Err = "";
             try
             {
-                if (Page.PageID <= 0)
-                    return Page.Create(out Err);
-                else
-                    return Page.Update(out Err);
+                using (var ConX = new MySqlConnection(DBOps.GetConnectionString(Page.Environment)))
+                {
+                    ConX.Open();
+                    if (string.IsNullOrWhiteSpace(Page.Environment))
+                    {
+                        if (Page.PageID <= 0)
+                            return Page.Create(out Err, ConX);
+                        else
+                            return Page.Update(out Err, ConX);
+                    }
+                    else
+                    {
+                        return Page.CopySave(out Err, ConX);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -254,59 +265,61 @@ namespace NXtelData
             }
         }
 
-        public bool Create(out string Err)
+        public bool Create(out string Err, MySqlConnection ConX = null)
         {
             Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
             try
             {
-                using (var con = new MySqlConnection(DBOps.GetConnectionString(Environment)))
-                {
-                    con.Open();
-                    string sql = @"INSERT INTO page
+                string sql = @"INSERT INTO page
                         (PageNo,FrameNo,Title,Contents,BoxMode,URL,FromPageFrameNo,ToPageFrameNo,
                         TeleSoftwareID,OwnerID,IsCarousel,CarouselWait)
                         VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,@FromPageFrameNo,@ToPageFrameNo,
                         @TeleSoftwareID,@OwnerID,@IsCarousel,@CarouselWait);
                         SELECT LAST_INSERT_ID();";
-                    var cmd = new MySqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("PageNo", PageNo);
-                    cmd.Parameters.AddWithValue("FrameNo", FrameNo);
-                    cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
-                    cmd.Parameters.AddWithValue("BoxMode", BoxMode);
-                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
-                    cmd.Parameters.AddWithValue("Contents", Contents);
-                    decimal fromPageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
-                    cmd.Parameters.AddWithValue("FromPageFrameNo", fromPageFrameNo);
-                    decimal toPageFrameNo = ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
-                    cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
-                    int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
-                    cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
-                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
-                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
-                    cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
-                    cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("PageNo", PageNo);
+                cmd.Parameters.AddWithValue("FrameNo", FrameNo);
+                cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
+                cmd.Parameters.AddWithValue("BoxMode", BoxMode);
+                cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                cmd.Parameters.AddWithValue("Contents", Contents);
+                decimal fromPageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
+                cmd.Parameters.AddWithValue("FromPageFrameNo", fromPageFrameNo);
+                decimal toPageFrameNo = ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
+                cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
+                int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
+                cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
+                int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
+                cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
 
-                    int rv = cmd.ExecuteScalarInt32();
-                    if (rv > 0)
-                        PageID = rv;
-                    if (PageID <= 0)
-                        Err = "The page could not be saved.";
+                int rv = cmd.ExecuteScalarInt32();
+                if (rv > 0)
+                    PageID = rv;
+                if (PageID <= 0)
+                    Err = "The page could not be saved.";
 
-                    if (PageID > 0)
-                    {
-                        Templates.SaveForPage(PageID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                        Routing.SaveForPage(PageID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                        Zones.SaveForPage(PageID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                    }
-
-                    return PageID > 0;
+                if (PageID > 0)
+                {
+                    Templates.SaveForPage(PageID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
+                    Routing.SaveForPage(PageID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
+                    Zones.SaveForPage(PageID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
                 }
+
+                return PageID > 0;
             }
             catch (Exception ex)
             {
@@ -316,17 +329,25 @@ namespace NXtelData
                     Err = ex.Message;
                 return false;
             }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
         }
 
-        public bool Update(out string Err)
+        public bool Update(out string Err, MySqlConnection ConX = null)
         {
             Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
             try
             {
-                using (var con = new MySqlConnection(DBOps.ConnectionString))
-                {
-                    con.Open();
-                    string sql = @"UPDATE page
+                string sql = @"UPDATE page
                         SET PageNo=@PageNo,
                         FrameNo=@FrameNo,
                         Title=@Title,
@@ -341,44 +362,43 @@ namespace NXtelData
                         CarouselWait=@CarouselWait
                         WHERE PageID=@PageID;
                         SELECT ROW_COUNT();";
-                    var cmd = new MySqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("PageID", PageID);
-                    cmd.Parameters.AddWithValue("PageNo", PageNo);
-                    cmd.Parameters.AddWithValue("FrameNo", FrameNo);
-                    cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
-                    cmd.Parameters.AddWithValue("BoxMode", BoxMode);
-                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
-                    cmd.Parameters.AddWithValue("Contents", Contents);
-                    decimal fromPageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
-                    cmd.Parameters.AddWithValue("FromPageFrameNo", fromPageFrameNo);
-                    decimal toPageFrameNo = ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
-                    cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
-                    int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
-                    cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
-                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
-                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
-                    cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
-                    cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("PageID", PageID);
+                cmd.Parameters.AddWithValue("PageNo", PageNo);
+                cmd.Parameters.AddWithValue("FrameNo", FrameNo);
+                cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
+                cmd.Parameters.AddWithValue("BoxMode", BoxMode);
+                cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                cmd.Parameters.AddWithValue("Contents", Contents);
+                decimal fromPageFrameNo = PageNo + (Convert.ToDecimal(FrameNo) / 100m);
+                cmd.Parameters.AddWithValue("FromPageFrameNo", fromPageFrameNo);
+                decimal toPageFrameNo = ToPageNo + (Convert.ToDecimal(ToFrameNo) / 100m);
+                cmd.Parameters.AddWithValue("ToPageFrameNo", toPageFrameNo);
+                int? tsid = TeleSoftwareID != null && TeleSoftwareID > 0 ? TeleSoftwareID : null;
+                cmd.Parameters.AddWithValue("TeleSoftwareID", tsid);
+                int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
+                cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
 
-                    int rv = cmd.ExecuteScalarInt32();
-                    if (rv <= 0)
-                        Err = "The page could not be saved.";
+                int rv = cmd.ExecuteScalarInt32();
+                if (rv <= 0)
+                    Err = "The page could not be saved.";
 
-                    if (PageID > 0)
-                    {
-                        Templates.SaveForPage(PageID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                        Routing.SaveForPage(PageID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                        Zones.SaveForPage(PageID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                    }
-
-                    return rv > 0;
+                if (PageID > 0)
+                {
+                    Templates.SaveForPage(PageID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
+                    Routing.SaveForPage(PageID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
+                    Zones.SaveForPage(PageID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
                 }
+
+                return rv > 0;
             }
             catch (Exception ex)
             {
@@ -387,6 +407,11 @@ namespace NXtelData
                 else
                     Err = ex.Message;
                 return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
             }
         }
 
@@ -717,6 +742,85 @@ namespace NXtelData
                 return sb.ToString();
             }
             set { }
+        }
+
+        public int GetIDFromDescription(MySqlConnection ConX = null, bool ResetIfNotFound = true)
+        {
+            int rv = -1;
+            bool found = false;
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            string sql = @"SELECT PageID FROM `page`
+                WHERE Title=@Title
+                ORDER BY PageID LIMIT 1;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("Title", (Title ?? "").Trim());
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        rv = rdr.GetInt32("PageID");
+                        PageID = rv;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            OwnerID = -1;
+
+            if (ResetIfNotFound && !found)
+                PageID = -1;
+
+            if (openConX)
+                ConX.Close();
+
+            return rv;
+        }
+
+        public bool CopySave(out string Err, MySqlConnection ConX)
+        {
+            Err = "";
+            bool success = true;
+            try
+            {
+                var zones = this.ZoneIDs;
+                foreach (var zone in Zones ?? new Zones())
+                {
+                    zone.Environment = Environment;
+                    zone.GetIDFromDescription(ConX);
+                    success = success & zone.Save(out Err);
+                    if (!success) return false;
+                }
+                if (TeleSoftwareID != null && TeleSoftwareID > 0)
+                {
+                    var file = TSFile.Load((int)TeleSoftwareID);
+                    file.Environment = Environment;
+                    success = success & TSFile.Save(file, out Err, false);
+                    if (!success) return false;
+                    TeleSoftwareID = file.TeleSoftwareID;
+                }
+                foreach (var template in Templates ?? new Templates())
+                {
+                    template.Environment = Environment;
+                    success = success & template.CopySave(out Err, ConX);
+                    if (!success) return false;
+                }
+                GetIDFromDescription(ConX);
+                if (PageID <= 0)
+                    return Create(out Err, ConX);
+                else
+                    return Update(out Err, ConX);
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
         }
     }
 }

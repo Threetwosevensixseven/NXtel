@@ -8,10 +8,10 @@
         ViewBag.Title = "Copy Page to NXtel " + Model.Page.Environment;
     string lockcls = @page.PageID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
-    string pageNo = @page.PageID <= 0 ? "" : @page.PageNo.ToString();
-    string frame = @page.PageID <= 0 ? "" : @page.Frame;
-    string toPageNo = @page.PageID <= 0 ? "" : @page.ToPageNo.ToString();
-    string toFrame = @page.PageID <= 0 ? "" : @page.ToFrame;
+    string pageNo = @page.PageID <= 0 && !Model.Copying ? "" : @page.PageNo.ToString();
+    string frame = @page.PageID <= 0 && !Model.Copying ? "" : @page.Frame;
+    string toPageNo = @page.PageID <= 0 && !Model.Copying ? "" : @page.ToPageNo.ToString();
+    string toFrame = @page.PageID <= 0 && !Model.Copying ? "" : @page.ToFrame;
     var rvd = new RouteValueDictionary();
     rvd.Add("id", -1);
     string pageEditURL = Url.Action("Edit", "Page", rvd);

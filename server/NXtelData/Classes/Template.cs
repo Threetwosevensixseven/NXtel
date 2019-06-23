@@ -118,7 +118,7 @@ namespace NXtelData
             }
         }
 
-        public bool Create(out string Err, MySqlConnection ConX = null, bool SaveChildren = true)
+        public bool Create(out string Err, MySqlConnection ConX = null)
         {
             Err = "";
             bool openConX = ConX == null;
@@ -165,7 +165,7 @@ namespace NXtelData
                 if (TemplateID <= 0)
                     Err = "The template could not be saved.";
 
-                if (TemplateID > 0 && SaveChildren)
+                if (TemplateID > 0)
                 {
                     ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, ConX);
                     if (!string.IsNullOrWhiteSpace(Err))

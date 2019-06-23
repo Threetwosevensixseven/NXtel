@@ -191,16 +191,19 @@ namespace NXtelManager.Controllers
             model.Page = Page.Load(ID);
             model.Page.Environment = ID2;
             model.Page.PageID = -1;
-            model.OldTitle = model.Page.Title;
-            model.Page.Title = "";
-            model.OldPageNo = model.Page.PageNo.ToString();
-            model.Page.PageNo = 0;
-            model.OldFrame = model.Page.Frame;
-            model.Page.Frame = "";
-            model.OldToPageNo = model.Page.ToPageNo.ToString();
-            model.Page.ToPageNo = 0;
-            model.OldToFrame = model.Page.ToFrame;
-            model.Page.ToFrame = "";
+            if (string.IsNullOrWhiteSpace(model.Page.Environment))
+            {
+                model.OldTitle = model.Page.Title;
+                model.Page.Title = "";
+                model.OldPageNo = model.Page.PageNo.ToString();
+                model.Page.PageNo = 0;
+                model.OldFrame = model.Page.Frame;
+                model.Page.Frame = "";
+                model.OldToPageNo = model.Page.ToPageNo.ToString();
+                model.Page.ToPageNo = 0;
+                model.OldToFrame = model.Page.ToFrame;
+                model.Page.ToFrame = "";
+            }
             Session["PageCopy"] = model;
             return RedirectToAction("Edit");
         }
