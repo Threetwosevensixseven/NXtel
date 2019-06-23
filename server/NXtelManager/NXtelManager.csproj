@@ -229,6 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-dev.css" />
+    <Content Include="Content\bootstrap-dev2.css" />
     <Content Include="Content\bootstrap-multiselect.css" />
     <Content Include="Content\bootstrap-test.css" />
     <Content Include="Content\bootstrap.css" />

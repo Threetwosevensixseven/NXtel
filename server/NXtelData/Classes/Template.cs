@@ -54,10 +54,11 @@ namespace NXtelData
         public int OwnerID { get; set; }
         public string Environment { get; set; }
         public int CopyingFromID { get; set; }
+        public int Sort { get; set; }
 
         public Template()
         {
-            TemplateID = -1;
+            TemplateID = Sort  = - 1;
             Description = Expression = SelectedTemplates = "";
             Active = true;
             ChildTemplates = new Templates();
@@ -94,10 +95,21 @@ namespace NXtelData
             Err = "";
             try
             {
-                if (Template.TemplateID <= 0)
-                    return Template.Create(out Err);
-                else
-                    return Template.Update(out Err);
+                using (var ConX = new MySqlConnection(DBOps.GetConnectionString(Template.Environment)))
+                {
+                    ConX.Open();
+                    if (string.IsNullOrWhiteSpace(Template.Environment))
+                    {
+                        if (Template.TemplateID <= 0)
+                            return Template.Create(out Err, ConX);
+                        else
+                            return Template.Update(out Err, ConX);
+                    }
+                    else
+                    {
+                        return Template.CopySave(out Err, ConX);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -106,15 +118,18 @@ namespace NXtelData
             }
         }
 
-        public bool Create(out string Err)
+        public bool Create(out string Err, MySqlConnection ConX = null, bool SaveChildren = true)
         {
             Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
             try
             {
-                using (var con = new MySqlConnection(DBOps.ConnectionString))
-                {
-                    con.Open();
-                    string sql = @"INSERT INTO template
+                string sql = @"INSERT INTO template
                     (Description,X,Y,Width,Height,Expression,URL,Contents,IsContainer,IsRepeatingItem,CanExpand,
                     StickToTop,StickToBottom,ContinuedOver,ContinuedFrom,NotContinuedOver,NotContinuedFrom,KeepTogether,
                     MinOrphanWidowRows,OwnerID)
@@ -122,60 +137,67 @@ namespace NXtelData
                     @StickToTop,@StickToBottom,@ContinuedOver,@ContinuedFrom,@NotContinuedOver,@NotContinuedFrom,@KeepTogether,
                     @MinOrphanWidowRows,@OwnerID);
                     SELECT LAST_INSERT_ID();";
-                    var cmd = new MySqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
-                    cmd.Parameters.AddWithValue("X", X);
-                    cmd.Parameters.AddWithValue("Y", Y);
-                    cmd.Parameters.AddWithValue("Width", Width);
-                    cmd.Parameters.AddWithValue("Height", Height);
-                    cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
-                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
-                    cmd.Parameters.AddWithValue("Contents", Contents);
-                    cmd.Parameters.AddWithValue("IsContainer", IsContainer);
-                    cmd.Parameters.AddWithValue("IsRepeatingItem", IsRepeatingItem);
-                    cmd.Parameters.AddWithValue("CanExpand", CanExpand);
-                    cmd.Parameters.AddWithValue("StickToTop", StickToTop);
-                    cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
-                    cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
-                    cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
-                    cmd.Parameters.AddWithValue("NotContinuedOver", NotContinuedOver);
-                    cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
-                    cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
-                    cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
-                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
-                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
-                    int rv = cmd.ExecuteScalarInt32();
-                    if (rv > 0)
-                        TemplateID = rv;
-                    if (TemplateID <= 0)
-                        Err = "The template could not be saved.";
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
+                cmd.Parameters.AddWithValue("X", X);
+                cmd.Parameters.AddWithValue("Y", Y);
+                cmd.Parameters.AddWithValue("Width", Width);
+                cmd.Parameters.AddWithValue("Height", Height);
+                cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
+                cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                cmd.Parameters.AddWithValue("Contents", Contents);
+                cmd.Parameters.AddWithValue("IsContainer", IsContainer);
+                cmd.Parameters.AddWithValue("IsRepeatingItem", IsRepeatingItem);
+                cmd.Parameters.AddWithValue("CanExpand", CanExpand);
+                cmd.Parameters.AddWithValue("StickToTop", StickToTop);
+                cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
+                cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
+                cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
+                cmd.Parameters.AddWithValue("NotContinuedOver", NotContinuedOver);
+                cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
+                cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
+                cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
+                int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                int rv = cmd.ExecuteScalarInt32();
+                if (rv > 0)
+                    TemplateID = rv;
+                if (TemplateID <= 0)
+                    Err = "The template could not be saved.";
 
-                    if (TemplateID > 0)
-                    {
-                        ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                    }
-
-                    return TemplateID > 0;
+                if (TemplateID > 0 && SaveChildren)
+                {
+                    ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
                 }
+
+                return TemplateID > 0;
             }
             catch (Exception ex)
             {
                 Err = ex.Message;
                 return false;
             }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
         }
 
-        public bool Update(out string Err)
+        public bool Update(out string Err, MySqlConnection ConX = null, bool SaveChildren = true)
         {
             Err = "";
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
             try
             {
-                using (var con = new MySqlConnection(DBOps.ConnectionString))
-                {
-                    con.Open();
-                    string sql = @"UPDATE template
+                string sql = @"UPDATE template
                     SET Description=@Description,X=@X,Y=@Y,Width=@Width,Height=@Height,Expression=@Expression,URL=@URL,
                     Contents=@Contents,IsContainer=@IsContainer,IsRepeatingItem=@IsRepeatingItem,CanExpand=@CanExpand,
                     StickToTop=@StickToTop,StickToBottom=@StickToBottom,ContinuedOver=@ContinuedOver,
@@ -183,47 +205,51 @@ namespace NXtelData
                     KeepTogether=@KeepTogether,MinOrphanWidowRows=@MinOrphanWidowRows,OwnerID=@OwnerID
                     WHERE TemplateID=@TemplateID;
                     SELECT ROW_COUNT();";
-                    var cmd = new MySqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("TemplateID", TemplateID);
-                    cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
-                    cmd.Parameters.AddWithValue("X", X);
-                    cmd.Parameters.AddWithValue("Y", Y);
-                    cmd.Parameters.AddWithValue("Width", Width);
-                    cmd.Parameters.AddWithValue("Height", Height);
-                    cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
-                    cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
-                    cmd.Parameters.AddWithValue("Contents", Contents);
-                    cmd.Parameters.AddWithValue("IsContainer", IsContainer);
-                    cmd.Parameters.AddWithValue("IsRepeatingItem", IsRepeatingItem);
-                    cmd.Parameters.AddWithValue("CanExpand", CanExpand);
-                    cmd.Parameters.AddWithValue("StickToTop", StickToTop);
-                    cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
-                    cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
-                    cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
-                    cmd.Parameters.AddWithValue("NotContinuedOver", NotContinuedOver);
-                    cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
-                    cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
-                    cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
-                    int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
-                    cmd.Parameters.AddWithValue("OwnerID", ownerID);
-                    int rv = cmd.ExecuteScalarInt32();
-                    if (rv <= 0)
-                        Err = "The template could not be saved.";
+                var cmd = new MySqlCommand(sql, ConX);
+                cmd.Parameters.AddWithValue("TemplateID", TemplateID);
+                cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
+                cmd.Parameters.AddWithValue("X", X);
+                cmd.Parameters.AddWithValue("Y", Y);
+                cmd.Parameters.AddWithValue("Width", Width);
+                cmd.Parameters.AddWithValue("Height", Height);
+                cmd.Parameters.AddWithValue("Expression", (Expression ?? "").Trim());
+                cmd.Parameters.AddWithValue("URL", (URL ?? "").Trim());
+                cmd.Parameters.AddWithValue("Contents", Contents);
+                cmd.Parameters.AddWithValue("IsContainer", IsContainer);
+                cmd.Parameters.AddWithValue("IsRepeatingItem", IsRepeatingItem);
+                cmd.Parameters.AddWithValue("CanExpand", CanExpand);
+                cmd.Parameters.AddWithValue("StickToTop", StickToTop);
+                cmd.Parameters.AddWithValue("StickToBottom", StickToBottom);
+                cmd.Parameters.AddWithValue("ContinuedOver", ContinuedOver);
+                cmd.Parameters.AddWithValue("ContinuedFrom", ContinuedFrom);
+                cmd.Parameters.AddWithValue("NotContinuedOver", NotContinuedOver);
+                cmd.Parameters.AddWithValue("NotContinuedFrom", NotContinuedFrom);
+                cmd.Parameters.AddWithValue("KeepTogether", KeepTogether);
+                cmd.Parameters.AddWithValue("MinOrphanWidowRows", MinOrphanWidowRows);
+                int? ownerID = OwnerID <= 0 ? null : (int?)OwnerID;
+                cmd.Parameters.AddWithValue("OwnerID", ownerID);
+                int rv = cmd.ExecuteScalarInt32();
+                if (rv <= 0)
+                    Err = "The template could not be saved.";
 
-                    if (TemplateID > 0)
-                    {
-                        ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, con);
-                        if (!string.IsNullOrWhiteSpace(Err))
-                            return false;
-                    }
-
-                    return TemplateID > 0;
+                if (TemplateID > 0 && SaveChildren)
+                {
+                    ChildTemplates.SaveChildenForTemplate(TemplateID, out Err, ConX);
+                    if (!string.IsNullOrWhiteSpace(Err))
+                        return false;
                 }
+
+                return TemplateID > 0;
             }
             catch (Exception ex)
             {
                 Err = ex.Message;
                 return false;
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
             }
         }
 
@@ -299,7 +325,6 @@ namespace NXtelData
 
             return true;
         }
-
 
         public bool LoadChildTemplates(ref HashSet<int> IDs, Template ParentTemplate, MySqlConnection ConX = null, bool StubsOnly = false)
         {
@@ -706,6 +731,89 @@ namespace NXtelData
             this.Active = false;
             foreach (var t in ChildTemplates)
                 t.InactivateRecursive();
+        }
+
+        public int GetIDFromDescription(MySqlConnection ConX = null, bool ResetIfNotFound = true)
+        {
+            int rv = -1;
+            bool found = false;
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+            string sql = @"SELECT TemplateID FROM template
+                WHERE template.Description=@Description
+                ORDER BY TemplateID LIMIT 1;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("Description", (Description ?? "").Trim());
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        rv = rdr.GetInt32("TemplateID");
+                        TemplateID = rv;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            OwnerID = -1;
+
+            if (ResetIfNotFound && !found)
+                TemplateID = -1;
+
+            if (openConX)
+                ConX.Close();
+
+            return rv;
+        }
+
+        public bool CopySave(out string Err, MySqlConnection ConX)
+        {
+            Err = "";
+            try
+            {
+                var ids = new HashSet<int>();
+                ids.Add(this.CopyingFromID);
+                foreach (var ct in this.ChildTemplates ?? new Templates())
+                    ids.Add(ct.TemplateID);
+                this.LoadChildTemplates(ref ids, this);
+                var srcIDs = new List<int>();
+                var destIDs = new Dictionary<int, int>();
+                foreach (var srcID in ids.AsEnumerable().Reverse().ToList())
+                {
+                    srcIDs.Add(srcID);
+                    destIDs.Add(srcID, -1);
+                }
+                foreach (int srcID in srcIDs)
+                {
+                    Template t;
+                    if (srcID == this.CopyingFromID)
+                        t = this;
+                    else
+                        t = Template.Load(srcID);
+                    t.GetIDFromDescription(ConX);
+                    foreach (var ct in t.ChildTemplates ?? new Templates())
+                        ct.TemplateID = destIDs[ct.TemplateID];
+                    bool success;
+                    if (t.TemplateID <= 0)
+                        success = t.Create(out Err, ConX);
+                    else
+                        success = t.Update(out Err, ConX);
+                    destIDs[srcID] = t.TemplateID;
+                    if (!success)
+                        return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Err = ex.Message;
+                return false;
+            }
         }
     }
 }

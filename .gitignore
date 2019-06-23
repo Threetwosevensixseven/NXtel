@@ -67,3 +67,5 @@
 /server/NXtelLogImport/bin
 /server/NXtelLogImport/obj
 /docs/admin emails.txt
+/telesoft/*.z80
+/telesoft/*.sna
