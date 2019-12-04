@@ -1,0 +1,51 @@
+How to flash an ESP-8266-01 to the very latest firmware, on Windows.
+
+Buy one of these USB adaptors. If you can buy one of the red ones with the switch, they are more useful. The left position (nearest the USB plug) allows you to use the ESP on your PC. The right position (away from the USB plug) allows you to program the ESP on your PC. If you but one of the green or black ones without a switch, sometimes you they are configured for usage, and sometimes for programming. You can add your own switch but it's a pain.
+
+Plug the ESP into the USB adaptor, with the antenna pointing towards the USB plug, like this:
+
+With the switch in the programming position, plug the adaptor into a free USB port on your PC.
+
+Open device manager from the Windows control panel, and make a note of which COM port has been assigned to it. You are likely to get a different COM port for each USB socket you plug the adaptor into, so try to always keep it plugged into the same one, to avoid confusion. In this example, it is assigned to COM 5:
+
+Download ESP Flash Download Tools from here: https://www.espressif.com/sites/default/files/tools/flash_download_tools_v3.6.6_0.zip. You may find the latest version of the download tools at https://www.espressif.com/en/products/hardware/esp8266ex/resources, under the Tools section.
+
+Unzip the Flash Download Tools into a directory on your PC, and run the flash_download_tools_v3.6.6.exe program. Click the ESP 8266 DOwnload Tool button:
+
+Switch to the SPIDownload tab, and set the options like this, substituting your own COM port instead of COM5:
+
+Click the START button, and wait a few seconds. If successful, you will get a FINISH status, with information filled into the DETECTED INFO window, and two MAC addresses in Download Panel 1. This means the download tool can talk to the ESP:
+
+If you don't get this result, unplug and replug the USB adaptor, ensuring the switch is set to the programming port, the press START again. Note that, after each usage of the tool, the ESP will not respond again until you unplug and replug the adaptor. If you still don't get a successful result, experiment with changing options one at a time, until you get a detection.
+
+Now we can talk to the ESP, we are ready to download some flash files to talk to it.
+
+In the expressif resources page here https://www.espressif.com/en/products/hardware/esp8266ex/resources, look for the latest NONOS SDK under the SDKs & Demos section. Here, the latest is ESP8266 NONOS SDK V3.0.0. Click the download button, which should take you to a release tag on github.
+
+Scroll down to the Assets section, and click Source Code (zip). Unzip the downloaded zip file to a directory on your PC. Inside the bin/at/ directory, you will see a README.md file. OPen it in notepad.
+
+Since we selected the 16MBit-C1 FLASH SIZE, refer to the Flash size 16Mbit-C1: 1024KB+1024KB section. This tells us which firmware files and address to enter into the Flash Download Tools. If you selected a different FLASH SIZE, refer to that section instead. 
+
+Note that the more recent firmwares have deprecated the older flash sizes, so for the latest firmware you may have to use one of the C1 sizes.
+
+Note that the FLASH SIZE is a logical size, which has to match the settings the firmware was compiled with. It doesn't reflect the actual physical size in your ESP module.
+
+For 16MBit-C1 FLASH SIZE, set it up like this:
+
+Unplug and replug the ESP adaptor, and click the START button again. This time you should see a download progress bar:
+
+If everything is successful, you should see the progress bar reach 100%, and a green FINISH status:
+
+Unplug the USB adaptor, flick the switch to usage mode, and replug it.
+
+Download and run the Termite terminal from here: 
+
+Click the Settings button, and set up like this (substituting your own COM port).
+
+
+
+
+
+
+
+

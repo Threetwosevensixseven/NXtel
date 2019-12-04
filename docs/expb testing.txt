@@ -1,0 +1,33 @@
+As you have to do it from a 48K or 128K personality with no ESXDOS configured you just have to type in the four OUT statements: 
+OUT 9275,135: OUT 9531,246
+OUT 9275,128: OUT 9531,64
+soft reset
+Then you should see ESXDOS load.
+
+Ff you have a Kempston Port on it that you want to use then you can create a small BASIC program on ESXDOS itself to do this 10 OUT 9275,134:OUT 9531,191:OUT 9275,136:OUT 9531,253
+That will disable onboard and enable the one on the interface.  If the onboard ones are set at boot to be Sinclair 1 and 2 you have three joysticks!
+
+OUT 9275,2: OUT 9531,128
+OUT 9275,2: OUT 9531,0
+
+---
+
+TBBLUE.30002.RESET.2.tbu
+
+nextreg 2,128
+nextreg 2,0
+
+should generate no reset
+
+turn exp bus on
+
+nextreg 128,208
+
+nextreg 2,128
+nextreg 2,0
+
+should generate no reset again
+
+if you have the divmmc attached, you should probably disable the divmmc per usual and boot as a 48k
+internal divmmc nmi will be disabled if the internal divmmc is disabled
+

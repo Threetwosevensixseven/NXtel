@@ -13,8 +13,10 @@ copy ..\bin\NXtel.nex ..\sd\*.*
 ::"C:\Program Files (x86)\CSpect2_4_0\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -mmc=..\sd\ ..\sd\NXtel.nex
 ::"C:\Program Files (x86)\CSpect2_7_0\CSpect.exe" -s14 -w2 -zxnext -exit -brk -zx128 -com="COM5:115200" -mmc=..\sd\ ..\sd\NXtel.nex
 
-cd C:\spec\CSpect2_8_0
-C:\spec\CSpect2_8_0\CSpect.exe -w2 -zxnext -esc -nextrom -com="COM5:115200" -mmc=.\cspect-next-2gb.img
+C:\spec\next\CSpect2_8_2\hdfmonkey.exe put C:\spec\next\CSpect2_8_2\cspect-next-2gb.img ..\bin\NXtel.nex Mine
+
+cd C:\spec\next\CSpect2_8_2
+C:\spec\next\CSpect2_8_2\CSpect.exe -w2 -zxnext -nextrom -basickeys -esc -mmc=cspect-next-2gb.img
 
 
-:: pause
+pause

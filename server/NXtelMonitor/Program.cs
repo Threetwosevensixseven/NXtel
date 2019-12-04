@@ -14,37 +14,49 @@ namespace NXtelMonitor
     {
         private static int Main(string[] args)
         {
-            bool kill = args.Any(a => a.ToLower() == "-k");
-            bool start = args.Any(a => a.ToLower() == "-s");
-            var rest = args.Where(a => a.ToLower() != "-k" && a.ToLower() != "-s").ToList();
-            if (kill && rest.Count != 1)
+            bool interactive = args.Any(a => a.ToLower() == "-i");
+            try
             {
-                Console.WriteLine("Usage: NXtelMonitor -k PathAndFileName");
+                bool kill = args.Any(a => a.ToLower() == "-k");
+                bool start = args.Any(a => a.ToLower() == "-s");
+                var rest = args.Where(a => a.ToLower() != "-k" && a.ToLower() != "-s" && a.ToLower() != "-i").ToList();
+                if (kill && rest.Count != 1)
+                {
+                    Console.WriteLine("Usage: NXtelMonitor -k PathAndFileName");
+                    return 1;
+                }
+                else if (start && rest.Count != 0)
+                {
+                    Console.WriteLine("Usage: NXtelMonitor -s");
+                    return 1;
+                }
+                else if (!kill && !start)
+                {
+                    Console.WriteLine("Usage: NXtelMonitor -k PathAndFileName");
+                    Console.WriteLine("Or:    NXtelMonitor -s");
+                    return 1;
+                }
+
+                string pathAndFile = "NXtelServer.exe";
+                if (rest.Count == 1)
+                    pathAndFile = rest[0];
+
+                if (kill)
+                    return Kill(pathAndFile);
+
+                if (start)
+                    return Start();
+
                 return 1;
             }
-            else if (start && rest.Count != 0)
+            finally
             {
-                Console.WriteLine("Usage: NXtelMonitor -s");
-                return 1;
+                if (interactive)
+                {
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                }
             }
-            else if (!kill && !start)
-            {
-                Console.WriteLine("Usage: NXtelMonitor -k PathAndFileName");
-                Console.WriteLine("Or:    NXtelMonitor -s");
-                return 1;
-            }
-
-            string pathAndFile = "NXtelServer.exe";
-            if (rest.Count == 1)
-                pathAndFile = rest[0];
-
-            if (kill)
-                return Kill(pathAndFile);
-
-            if (start)
-                return Start();
-
-            return 1;
         }
 
         [DllImport("kernel32.dll")]
@@ -300,6 +312,84 @@ namespace NXtelMonitor
                     catch
                     {
                         Console.WriteLine("Error calling URL");
+                        success = 1;
+                    }
+                }
+            }
+            join = "";
+            foreach (var cfg in ConfigurationManager.AppSettings)
+            {
+                var key = (cfg ?? "").ToString();
+                if (!key.StartsWith("StartProgram"))
+                    continue;
+                Console.WriteLine(join + "Processing " + key + "...");
+                join = "\r\n";
+                var val = (ConfigurationManager.AppSettings[key] ?? "").ToString().Trim();
+                var vals = val.Split(new char[] { ';' }, 2);
+                if (vals.Length != 1)
+                {
+                    Console.WriteLine("Invalid format: " + val);
+                    continue;
+                }
+                string exeFile = vals[0].Trim();
+                if (string.IsNullOrWhiteSpace(exeFile))
+                {
+                    Console.WriteLine("Invalid exe");
+                    continue;
+                }
+                if (!File.Exists(exeFile))
+                {
+                    Console.WriteLine("Invalid exe: " + exeFile);
+                    continue;
+                }
+
+                string exe = Path.GetFileNameWithoutExtension((exeFile ?? "")).ToLower();
+                var path = Path.GetDirectoryName(exeFile ?? "").Trim().ToLower();
+                if (string.IsNullOrWhiteSpace(exe))
+                {
+                    Console.WriteLine("Invalid filename: " + exe);
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    Console.WriteLine("Invalid path: " + path);
+                    continue;
+                }
+
+                Console.WriteLine("Checking processes: " + exeFile);
+
+                int runCount = 0;
+                foreach (var p in Process.GetProcessesByName(exe))
+                {
+                    var thisExe = GetExecutablePath(p).Trim().ToLower();
+                    if (string.IsNullOrWhiteSpace(thisExe))
+                        continue;
+                    string thisPath = Path.GetDirectoryName(thisExe).Trim().ToLower();
+                    if (thisPath == path)
+                        runCount++;
+                }
+                if (runCount > 0)
+                {
+                    string plural = runCount == 1 ? " instance" : " instances";
+                    Console.WriteLine("Already running " + runCount + plural);
+                    continue;
+                }
+
+                bool disabled = false;
+                if (!disabled)
+                {
+                    Console.WriteLine("Running program: " + exeFile);
+                    try
+                    {
+                        var p = new ProcessStartInfo(exeFile);
+                        p.WorkingDirectory = Path.GetDirectoryName(exeFile);
+                        p.WindowStyle = ProcessWindowStyle.Minimized;
+                        Process.Start(p);
+                        Console.WriteLine("Success running program");
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Error running program");
                         success = 1;
                     }
                 }

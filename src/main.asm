@@ -25,6 +25,7 @@ LogESP optionbool 710, -15, "Log", false
 EmulateTime optionbool 755, -15, "Time", false
 NoDivMMC                = ZeusDebug
 bp alias zeusdatabreakpoint 0, $+disp
+dbp alias zeusdatabreakpoint
 
                         org $6000
 Start:
