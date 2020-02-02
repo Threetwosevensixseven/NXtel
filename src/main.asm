@@ -1,5 +1,24 @@
 ; main.asm
 
+; NXtel is copyright © 2018-2020 Robin Verhagen-Guest.
+;
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see:
+; https://github.com/Threetwosevensixseven/NXtel/blob/master/LICENSE
+;
+; NXtel source code for the Spectrum Next client, server, page manager
+; is available at: https://github.com/Threetwosevensixseven/NXtel
+
 zeusemulate             "Next", "RAW"
 zoLogicOperatorsHighPri = false
 zoSupportStringEscapes  = false
@@ -17,9 +36,9 @@ Zeus_IE                 = false
 optionsize 5
 Cspect optionbool 15, -15, "Cspect", false
 //ZEsarUX optionbool 80, -15, "ZEsarUX", false
-ZeusDebug optionbool 155, -15, "Zeus", true
+ZeusDebug optionbool 155, -15, "Zeus", false
 UploadNext optionbool 205, -15, "Next", false
-ULAMonochrome optionbool 665, -15, "ULA", true
+ULAMonochrome optionbool 665, -15, "ULA", false
 LogESP optionbool 710, -15, "Log", false
 //Carousel optionbool 755, -15, "Carousel", false
 EmulateTime optionbool 755, -15, "Time", false

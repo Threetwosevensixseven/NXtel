@@ -1,5 +1,24 @@
 ; c31.asm - Old Cfg Reading code (deprecated)
 
+; NXtel is copyright © 2018-2020 Robin Verhagen-Guest.
+;
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see:
+; https://github.com/Threetwosevensixseven/NXtel/blob/master/LICENSE
+;
+; NXtel source code for the Spectrum Next client, server, page manager
+; is available at: https://github.com/Threetwosevensixseven/NXtel
+
 // This gets mapped in at $C000-$DFFF
 
 include "dzx7_mega.asm"

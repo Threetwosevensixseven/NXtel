@@ -69,3 +69,8 @@
 /docs/admin emails.txt
 /telesoft/*.z80
 /telesoft/*.sna
+/server/NXStaticServer/Publish
+/server/NXStaticServer/bin
+/server/NXStaticServer/obj
+/build/*.ps1
+/build/zeustest.exe
