@@ -6,4 +6,11 @@ if exist "%~dpn0.txt" (
 ) else goto :scriptexists
 :scriptexists
 PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command "& '%~dpn0.ps1'"
+
+C:
+CD %~dp0
+CD ..\
+md bin
+md sd
+
 PAUSE

@@ -26,6 +26,7 @@ ReportBankSizes         equ true
 ; UART
 UART_RxD                equ $143B                       ; Also used to set the baudrate
 UART_TxD                equ $133B                       ; Also reads status
+UART_Sel                equ $153B                       ; Selects between ESP and Pi, and sets upper 3 bits of baud
 UART_SetBaud            equ UART_RxD                    ; Sets baudrate
 UART_GetStatus          equ UART_TxD                    ; Reads status bits
 UART_mRX_DATA_READY     equ %xxxxx 0 0 1                ; Status bit masks
@@ -82,7 +83,14 @@ PaletteSelSpriteB       equ %0 000 1000 ; OR this with the values above to selec
 PaletteSelL2B           equ %0 000 0100 ; OR this with the values above to select Layer2 B palette
 PaletteSelULAb          equ %0 000 0010 ; OR this with the values above to select ULA    B palette
 
-
+; Registers
+Reg                     proc
+  MachineID             equ $00
+  CoreMSB               equ $01
+  CPUSpeed              equ $07
+  CoreLSB               equ $0E
+  VideoTiming           equ $11
+pend
 
 ; Copper
 CopperStop              equ %00

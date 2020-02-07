@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see:
 https://github.com/Threetwosevensixseven/NXtel/blob/master/LICENSE
 
-NXtel source code for the Spectrum Next client, server, page manager
+Full NXtel source code for the Spectrum Next client, server, page manager
 is available at: https://github.com/Threetwosevensixseven/NXtel
 Source code for the Spectrum Next client is also included in the
 Next distro, available at: https://www.specnext.com/latestdistro/

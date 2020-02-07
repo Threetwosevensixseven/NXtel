@@ -7,7 +7,8 @@ if (([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
 function download-tool {
 	Param (
 		[string]$fn, 
-		[string]$url = "https://github.com/Threetwosevensixseven/NXtel/tree/master/build/"
+		[string]$url = "https://github.com/Threetwosevensixseven/NXtel/raw/master/build/",
+		[string]$dest = ".\"
     )
 	$force = $true;
 	if ((-not $force) -and (Test-Path $fn)) {
@@ -15,10 +16,13 @@ function download-tool {
 	} else {
 		Write-Output "Downloading $fn..."
 		[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12	
-		wget "$url$fn" -outfile "$fn"
+		wget "$url$fn" -outfile "$dest$fn"
 		Write-Output "Downloaded $fn"
 	}
 }
 
 download-tool ZXVersion.exe
+download-tool zx7.exe https://github.com/Threetwosevensixseven/NXtel/raw/master/tools/
+download-tool TTConv.exe https://github.com/Threetwosevensixseven/NXtel/raw/master/pages/zx7/
+download-tool BeepFX.exe https://github.com/Threetwosevensixseven/NXtel/raw/master/tools/beepfx/
 download-tool zeustest.exe http://www.desdes.com/products/oldfiles/

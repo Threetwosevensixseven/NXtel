@@ -15,6 +15,8 @@ Browse to the "build" directory.
 Doubleclick on "get-tools.bat".
 Wait while four tools are downloaded. The last, "zeustest.exe" is 1.6MB, so be patient.
 When prompted "Press any key to continue", press a key.
+Doubleclick on "compress.bat".
+When prompted "Press any key to continue", press a key.
 
 DO THIS EVERY TIME YOU WANT TO BUILD:
 -------------------------------------
@@ -23,8 +25,8 @@ Doubleclick on "zeustest.exe".
 Do File >> Open, then browse to the "src" directory.
 Select "main.asm" and click the Open button.
 In Zeus, on the "Zeus (assembler)" tab, click the Assemble button.
-The dot command will be build in the "dot" folder as "NXTP".
-Copy this file to the dot folder on your Next SD card.
+Then Next client will be build in the "bin" directory as "NXtel.nex".
+Copy this file to any directory of your Next SD card, and launch from the browser.
 
 LICENCE (GPL-3.0)
 =================
@@ -44,7 +46,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see:
 https://github.com/Threetwosevensixseven/NXtel/blob/master/LICENSE
 
-NXtel source code for the Spectrum Next client, server, page manager
+Full NXtel source code for the Spectrum Next client, server, page manager
 is available at: https://github.com/Threetwosevensixseven/NXtel
 Source code for the Spectrum Next client is also included in the
 Next distro, available at: https://www.specnext.com/latestdistro/

@@ -735,5 +735,27 @@ Mod40 proc Table:
                         next ; row
 pend
 
+SetUARTPrescaler        proc
+                        NextRegRead(Reg.VideoTiming)
+                        and %111
+                        add a, a
+                        ld hl, Baud.B115200
+                        add hl, a
+                        ld e, (hl)
+                        inc hl
+                        ld d, (hl)
+                        ld a, %x0x1 x000                ; Choose ESP UART, and set most significant bits of the 17-bit
+                        ld bc, UART_Sel                 ; prescalar baud to zero, by writing to port 0x153B.
+                        out (c), a
+                        dec b                           ; Set baud by writing twice to port 0x143B
+                        out (c), e                      ; Doesn't matter which order they are written,
+                        out (c), d                      ; because bit 7 ensures that it is interpreted correctly.
+                        ret
+pend
+
+Baud                    proc Table:
+  B115200:              dw $8173, $8178, $817F, $8204, $820D, $8215, $821E, $816A
+pend
+
 //zeusmem ESPBuffer,"ESP Buffer",16,true,true,false
 
