@@ -19,9 +19,12 @@ namespace NXtelData
                 ConX = new MySqlConnection(DBOps.ConnectionString);
                 ConX.Open();
             }
+            // Leave this one in permanently
+            CreateGetUniqueMailbox(ConX);
 
-            CreateUserPermissionTable(ConX);
-            DropUserPageRangeTable(ConX);
+            // Temporary procedures
+            //CreateUserPermissionTable(ConX);
+            //DropUserPageRangeTable(ConX);
 
             if (openConX)
                 ConX.Close();
