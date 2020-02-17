@@ -77,6 +77,7 @@ Start2:
                         call DefinePalettes
                         call InitLayer2
                         NextRegRead(%00)
+                        and %0000 1111                  ; Only look at bottom four bits, to allow for Next clones
                         cp 10                           ; Next and CSpect 1.14.1 has clock
                         jp z, IsNext
                         cp 8                            ; ZEsarUX and Zeus doesn't yet
