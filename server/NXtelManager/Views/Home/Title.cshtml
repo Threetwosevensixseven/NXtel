@@ -1,12 +1,13 @@
 ﻿@{
     ViewBag.Title = "NXtel";
+    string appName = NXtelData.Options.AppName;
 }
-<h2>Welcome to NXtel</h2>
+<h2>Welcome to the @appName Dashboard</h2>
 
 @Html.Partial("_psa")
 
 <p>Looking for the <a href="https://github.com/Threetwosevensixseven/NXtel/wiki/FAQ" target="_blank">FAQ</a>?</p>
 
-@*<p>Click @Html.ActionLink("here", "Login", "Account") to login, or @Html.ActionLink("here", "Register", "Account") to register an account.</p>*@
+<p>Click @Html.ActionLink("here", "Login", "Account") to login, or @Html.ActionLink("here", "Register", "Account") to register an account.</p>
 
 
