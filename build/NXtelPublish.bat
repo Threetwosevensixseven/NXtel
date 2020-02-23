@@ -91,6 +91,7 @@ XCOPY /Y "..\server\NXtelManager\App_Data\GitHubWiki\*.md" "%USERPROFILE%\Docume
 :: Stage and commit deployment changes for the server
 for /F "tokens=2" %%i in ('date /t') do set mydate=%%i
 cd "%USERPROFILE%\Documents\Visual Studio 2015\Projects\NXtelDeploy"
+git add *
 git commit -a -m "Autocommit %mydate% %time% from build script."
 git push
 
