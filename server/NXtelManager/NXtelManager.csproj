@@ -349,6 +349,7 @@
     <Content Include="Views\Email\ForgotPassword.cshtml" />
     <Content Include="Views\Email\_ViewStart.cshtml" />
     <Content Include="Views\Email\ConfirmAccount.cshtml" />
+    <Content Include="Views\Shared\_psa.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
