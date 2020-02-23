@@ -100,6 +100,7 @@ namespace NXtelManager.Controllers
                                 ViewBag.NotLoggedIn = true;
                                 return View("Error");
                             }
+                            finally { }
                             // Show message
                             AuthenticationManager.SignOut();
                             ViewBag.NotLoggedIn = true;

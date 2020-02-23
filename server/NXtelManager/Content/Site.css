@@ -270,6 +270,20 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     text-decoration: underline;
 }
 
+.psa {
+    color: #c40000;
+    border: red 2px solid;
+    padding: 10px;
+    background: #ffc9c9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.psa h3 {
+    margin-top: 4px;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
     div.dataTables_wrapper div.dataTables_primary,

@@ -13,13 +13,18 @@ namespace NXtelData
         public int? DayCount { get; set; }
         public int? PopularPageNo { get; set; }
         public int? PopularCount { get; set; }
-        public DateTime? Day { get; set; }
+        public DateTime Day { get; set; }
         public Dictionary<DateTime, Metric> DailyMetrics { get; set; }
+        public Dictionary<DateTime, Metric> MonthlyMetrics { get; set; }
+
 
         public static Metric Calculate(/*MySqlConnection ConX = null*/)
         {
             var rv = new Metric();
+            rv.Day = DateTime.Today;
             rv.DailyMetrics = new Dictionary<DateTime, Metric>();
+            rv.MonthlyMetrics = new Dictionary<DateTime, Metric>();
+            var currMon = new DateTime(rv.Day.Year, rv.Day.Month, 1);
 
             MySqlConnection ConX = null;
             bool openConX = ConX == null;
@@ -78,10 +83,13 @@ namespace NXtelData
                 }
             }
 
-            // Unique client count per day
+            // OVERALL
+
+            // Unique client count per day, this month
             sql = @"SELECT dt,COUNT(*) AS cnt from (
                     SELECT DATE(`Timestamp`) AS dt,ClientHash,COUNT(*) AS cnt
                     FROM stats
+                    WHERE `Timestamp`>='" + currMon.ToString("yyyy-MM-dd") + @"'
                     GROUP BY dt,ClientHash
                 ) AS clientdays
                 GROUP BY dt
@@ -98,10 +106,13 @@ namespace NXtelData
                 }
             }
 
-            // Unique page count per day
+            // DAILY, THIS MONTH
+
+            // Unique page count per day, this month
             sql = @"SELECT dt,COUNT(*) AS cnt from (
                     SELECT DATE(`Timestamp`) AS dt,PageNo,COUNT(*) AS cnt
                     FROM stats
+                    WHERE `Timestamp`>='" + currMon.ToString("yyyy-MM-dd") + @"'
                     GROUP BY dt,PageNo
                 ) AS clientpages
                 GROUP BY dt
@@ -118,7 +129,7 @@ namespace NXtelData
                 }
             }
 
-            // Most popular page per day
+            // Most popular page per day, this month
             sql = @"SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
                 SELECT dt,MAX(ky) AS mx FROM (
                     SELECT dt,PageNo,
@@ -127,6 +138,7 @@ namespace NXtelData
                         SELECT DATE(`Timestamp`) AS dt,PageNo
                         FROM stats
                         WHERE PageNo NOT IN(0,1)
+                        AND `Timestamp`>='" + currMon.ToString("yyyy-MM-dd") + @"'
                         GROUP BY dt,PageNo,ClientHash
                     ) AS daysclientspages
                     GROUP BY dt,PageNo
@@ -149,6 +161,82 @@ namespace NXtelData
                         rv.DailyMetrics[dt].PopularCount = count;
                     if (int.TryParse(p, out page))
                         rv.DailyMetrics[dt].PopularPageNo = page;
+                }
+            }
+
+            // MONTHLY
+
+            // Unique client count per month
+            sql = @"SELECT dt,COUNT(*) AS cnt from (
+                    SELECT CONCAT(LPAD(year(`Timestamp`),4,'0'),'-',LPAD(month(`Timestamp`),2,'0'),'-01') AS dt,ClientHash,COUNT(*) AS cnt
+                    FROM stats
+                    GROUP BY dt,ClientHash
+                ) AS clientdays
+                GROUP BY dt
+                ORDER BY dt DESC;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            using (var rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
+                {
+                    var dt = rdr.GetDateTime("dt");
+                    if (!rv.MonthlyMetrics.ContainsKey(dt))
+                        rv.MonthlyMetrics.Add(dt, new Metric());
+                    rv.MonthlyMetrics[dt].ClientCount = rdr.GetInt32Safe("cnt");
+                }
+            }
+
+            // Unique page count per month
+            sql = @"SELECT dt,COUNT(*) AS cnt from (
+                    SELECT CONCAT(LPAD(year(`Timestamp`),4,'0'),'-',LPAD(month(`Timestamp`),2,'0'),'-01') AS dt,PageNo,COUNT(*) AS cnt
+                    FROM stats
+                    GROUP BY dt,PageNo
+                ) AS clientpages
+                GROUP BY dt
+                ORDER BY dt DESC;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            using (var rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
+                {
+                    var dt = rdr.GetDateTime("dt");
+                    if (!rv.MonthlyMetrics.ContainsKey(dt))
+                        rv.MonthlyMetrics.Add(dt, new Metric());
+                    rv.MonthlyMetrics[dt].PageCount = rdr.GetInt32Safe("cnt");
+                }
+            }
+
+            // Most popular page per month
+            sql = @"SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+                SELECT dt,MAX(ky) AS mx FROM (
+                    SELECT dt,PageNo,
+                    CAST(CONCAT(dt,'-',LPAD(CAST(COUNT(*) AS char),11,'0'),'-',LPAD(CAST(PageNo AS char),11,'0')) AS char) AS ky
+                     FROM (
+                        SELECT CONCAT(LPAD(year(`Timestamp`),4,'0'),'-',LPAD(month(`Timestamp`),2,'0'),'-01') AS dt,PageNo
+                        FROM stats
+                        WHERE PageNo NOT IN(0,1)
+                        GROUP BY dt,PageNo,ClientHash
+                    ) AS daysclientspages
+                    GROUP BY dt,PageNo
+                ) AS dayspages
+                GROUP BY dt
+                ORDER BY dt DESC;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            using (var rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
+                {
+                    var dt = rdr.GetDateTime("dt");
+                    if (!rv.MonthlyMetrics.ContainsKey(dt))
+                        rv.MonthlyMetrics.Add(dt, new Metric());
+                    string val = rdr.GetStringNullable("mx");
+                    string c = val.Substring(11, 11);
+                    string p = val.Substring(23, 11);
+                    int count, page;
+                    if (int.TryParse(c, out count))
+                        rv.MonthlyMetrics[dt].PopularCount = count;
+                    if (int.TryParse(p, out page))
+                        rv.MonthlyMetrics[dt].PopularPageNo = page;
                 }
             }
 

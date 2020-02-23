@@ -30,7 +30,43 @@
     </tbody>
 </table>
 
-<h3>Daily Statistics</h3>
+<h3>Monthly Statistics</h3>
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th style="text-align:right">User</th>
+            <th style="text-align:right">Page</th>
+            <th style="text-align:center" colspan="2">Most Popular Page<sup>*</sup></th>
+        </tr>
+        <tr>
+            <th>Month</th>
+            <th style="text-align:right">Count</th>
+            <th style="text-align:right">Count</th>
+            <th style="text-align:right">Number</th>
+            <th style="text-align:right">Unique Views</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var day in @Model.MonthlyMetrics)
+        {
+            <tr>
+                <td><b>@day.Key.ToString("MMMM yyyy")</b></td>
+                <td style="text-align:right">@Metric.Format(day.Value.ClientCount)</td>
+                <td style="text-align:right">@Metric.Format(day.Value.PageCount)</td>
+                <td style="text-align:right">@day.Value.PopularPageNo</td>
+                <td style="text-align:right">@Metric.Format(day.Value.PopularCount)</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5"><i><sup>*</sup> Excluding welcome page (0) and main index (1)</i></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h3>Daily Statistics for @Model.Day.ToString("MMMM yyyy")</h3>
 <table>
     <thead>
         <tr>

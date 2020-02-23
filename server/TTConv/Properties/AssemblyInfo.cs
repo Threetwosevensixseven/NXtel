@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TTConv")]
-[assembly: AssemblyCopyright("Copyright © NXtel 2018")]
+[assembly: AssemblyCopyright("Copyright © 2018-2020 Robin Verhagen-Guest")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

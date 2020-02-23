@@ -57,7 +57,8 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2018-@DateTime.Now.Year NXtel @version</p>
+            <p style="margin-bottom:0">NXtel @version</p>
+            <p>&copy; 2018-@DateTime.Now.Year Robin Verhagen-Guest</p>
         </footer>
     </div>
     @RenderSection("editor", required: false)
