@@ -69,6 +69,15 @@ namespace MySql.Data.MySqlClient
             return rdr.GetBoolean(column);
         }
 
+        public static DateTime? GetDateTimeNullable(this MySqlDataReader rdr, string column)
+        {
+            if (rdr == null)
+                return null;
+            if (rdr.IsDBNull(rdr.GetOrdinal(column)))
+                return null;
+            return rdr.GetDateTime(column);
+        }
+
         public static DateTime GetDateTimeSafe(this MySqlDataReader rdr, string column)
         {
             if (rdr == null)

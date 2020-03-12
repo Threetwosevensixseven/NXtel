@@ -47,6 +47,7 @@ namespace NXtelData
         [Required(ErrorMessage = "Carousel Wait must be between 1 and 99 seconds.")]
         public int CarouselWait { get; set; }
         public string Environment { get; set; }
+        public DateTime? Updated { get; set; }
 
         public Page()
         {
@@ -278,9 +279,9 @@ namespace NXtelData
             {
                 string sql = @"INSERT INTO page
                         (PageNo,FrameNo,Title,Contents,BoxMode,URL,FromPageFrameNo,ToPageFrameNo,
-                        TeleSoftwareID,OwnerID,IsCarousel,CarouselWait)
+                        TeleSoftwareID,OwnerID,IsCarousel,CarouselWait,Updated)
                         VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,@FromPageFrameNo,@ToPageFrameNo,
-                        @TeleSoftwareID,@OwnerID,@IsCarousel,@CarouselWait);
+                        @TeleSoftwareID,@OwnerID,@IsCarousel,@CarouselWait,@Updated);
                         SELECT LAST_INSERT_ID();";
                 var cmd = new MySqlCommand(sql, ConX);
                 cmd.Parameters.AddWithValue("PageNo", PageNo);
@@ -299,6 +300,7 @@ namespace NXtelData
                 cmd.Parameters.AddWithValue("OwnerID", ownerID);
                 cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
                 cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
+                cmd.Parameters.AddWithValue("Updated", DateTime.Now);
 
                 int rv = cmd.ExecuteScalarInt32();
                 if (rv > 0)
@@ -359,7 +361,8 @@ namespace NXtelData
                         TeleSoftwareID=@TeleSoftwareID,
                         OwnerID=@OwnerID,
                         IsCarousel=@IsCarousel,
-                        CarouselWait=@CarouselWait
+                        CarouselWait=@CarouselWait,
+                        Updated=@Updated
                         WHERE PageID=@PageID;
                         SELECT ROW_COUNT();";
                 var cmd = new MySqlCommand(sql, ConX);
@@ -380,6 +383,7 @@ namespace NXtelData
                 cmd.Parameters.AddWithValue("OwnerID", ownerID);
                 cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
                 cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
+                cmd.Parameters.AddWithValue("Updated", DateTime.Now);
 
                 int rv = cmd.ExecuteScalarInt32();
                 if (rv <= 0)
@@ -467,6 +471,7 @@ namespace NXtelData
             this.ToPageNo = Convert.ToInt32(toPageFrameNo);
             this.ToFrameNo = Convert.ToInt32((toPageFrameNo - this.ToPageNo) * 100);
             this.OwnerID = rdr.GetInt32Safe("OwnerID");
+            this.Updated = rdr.GetDateTimeNullable("Updated");
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();

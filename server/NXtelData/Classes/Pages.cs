@@ -40,7 +40,7 @@ namespace NXtelData
             return list;
         }
 
-        public static Pages LoadStubs(int ZoneID = -1, string ZoneIDs = null)
+        public static Pages LoadStubs(int ZoneID = -1, string ZoneIDs = null, int MostRecent = -1)
         {
             var list = new Pages();
             var pids = new List<int>();
@@ -51,13 +51,20 @@ namespace NXtelData
                 if (ZoneIDs == null)
                 {
                     string filter = "";
+                    string limit = "";
+                    string order = " ORDER BY PageNo,FrameNo";
                     if (ZoneID > 0)
                         filter = "WHERE PageID IN (SELECT PageID FROM pagezone pz WHERE pz.ZoneID=" + ZoneID + ") ";
                     else if (ZoneID == -2)
                         filter = "WHERE PageID NOT IN (SELECT PageID FROM pagezone pz) ";
-                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo,OwnerID 
-                    FROM page " + filter + @"
-                    ORDER BY PageNo,FrameNo;";
+                    else if (MostRecent > 0)
+                    {
+                        filter = "WHERE Updated IS NOT NULL ";
+                        limit = " LIMIT " + MostRecent;
+                        order = " ORDER BY Updated DESC";
+                    }
+                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo,OwnerID,Updated 
+                    FROM page " + filter + order + limit;
                 }
                 else
                 {

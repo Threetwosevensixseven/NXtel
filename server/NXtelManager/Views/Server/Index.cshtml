@@ -11,7 +11,8 @@
     @Html.AntiForgeryToken()
     @Html.ActionLink("Users", "Index", "User")<text>&nbsp;</text>
     @Html.ActionLink("Zones", "Index", "Zone")<text>&nbsp;</text>
-    @Html.ActionLink("Statistics", "Summary", "Statistics")
+    @Html.ActionLink("Statistics", "Summary", "Statistics")<text>&nbsp;</text>
+    @Html.ActionLink("Recent", "Recent", "Page")
     <br /><br />
     <p>Server Location:</p>
     <pre>@Model.Location</pre>

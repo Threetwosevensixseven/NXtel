@@ -15,6 +15,8 @@
     string val2 = "";
     string val3 = "";
     string mine = Model.Permissions.IsAdmin ? "Owned?" : "Editable?";
+    if (Model.Recent)
+        ViewBag.Title = "Recently Edited Pages";
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -32,6 +34,10 @@ else
     @Html.ActionLink("Zones", "Index", "Zone") <text>&nbsp; </text>
     @Html.ActionLink("Unzoned Pages", "Unzoned", "Page")
 }
+@if (!Model.Recent && Model.Permissions.IsAdmin)
+{<text>&nbsp; </text>
+    @Html.ActionLink("Recent", "Recent", "Page")
+}
     <br />
     <br />
     <table id="PageList" class="paged" style="width:auto">
@@ -44,6 +50,10 @@ else
                 <th style="display:none"></th>
                 <th style="display:none"></th>
                 <th style="display:none"></th>
+                @if (Model.Recent)
+                {
+                    <th>Updated</th>
+                }
           </tr>
         </thead>
         <tbody>
@@ -57,6 +67,7 @@ else
                 val3 = Model.Permissions.IsAdmin ? (page.OwnerID == Model.Permissions.User.UserNo ? "0" : "1") : val2;
                 string from = @page.PageNo.ToString("X8") + @page.FrameNo.ToString("X2");
                 string to = @page.ToPageNo.ToString("X8") + @page.ToFrameNo.ToString("X2");
+                string upd = (@page.Updated ?? DateTime.MinValue).ToString("yyyy-MM-dd hh:mm");
                 <tr>
                     <td style="text-align:right;padding-right:32px" data-pageno="@from">@Html.ActionLink(@page.PageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
                     <td style="text-align:right;padding-right:32px" data-pageno="@to">@Html.ActionLink(@page.ToPageAndFrame, "Edit", "Page", new { id = page.PageID }, null)</td>
@@ -65,6 +76,10 @@ else
                     <td style="display:none">@val3</td>
                     <td style="display:none">@page.ZoneIDsEncoded</td>
                     <td style="display:none">@primary</td>
+                    @if (Model.Recent)
+                    {
+                        <td>@upd</td>
+                    }
                 </tr>
             }
         </tbody>

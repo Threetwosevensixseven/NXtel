@@ -19,12 +19,8 @@ namespace NXtelData
                 ConX = new MySqlConnection(DBOps.ConnectionString);
                 ConX.Open();
             }
-            // Leave this one in permanently
-            CreateGetUniqueMailbox(ConX);
 
-            // Temporary procedures
-            //CreateUserPermissionTable(ConX);
-            //DropUserPageRangeTable(ConX);
+            CreatePageUpdatedField(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -39,6 +35,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
+            CreateGetUniqueMailbox(ConX);
             PopulateDummyTable(ConX);
             FixRoutes1(ConX);
             FixRoutes2(ConX);
@@ -1088,5 +1085,36 @@ END$$";
                     ConX.Close();
             }
         }
+
+        public static void CreatePageUpdatedField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                    ADD COLUMN `Updated` DATETIME NULL DEFAULT NULL AFTER `CarouselWait`;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
     }
 }

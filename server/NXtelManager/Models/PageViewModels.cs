@@ -11,6 +11,7 @@ namespace NXtelManager.Models
     {
         public Pages Pages { get; set; }
         public Permissions Permissions { get; set; }
+        public bool Recent { get; set; }
     }
 
     public class PageEditModel

@@ -86,7 +86,8 @@ namespace NXtelManager.Controllers
                     model.Permissions = perms;
                     return View("Edit", model);
                 }
-                if (!can) {
+                if (!can)
+                {
                     ModelState.AddModelError("", "You can't save this page. Check your <a href='"
                         + Url.Action("Index", "Manage")
                         + "' target='_blank'>permissions</a>.");
@@ -150,7 +151,7 @@ namespace NXtelManager.Controllers
         {
             if (Model == null)
                 Model = new PageRouteViewModel();
-            var route = NXtelData.Route.GetRoute(Model.CurrentPageNo, Model.CurrentFrame, 
+            var route = NXtelData.Route.GetRoute(Model.CurrentPageNo, Model.CurrentFrame,
                 Model.PageNo, Model.Frame, Model.NextPage, Model.NextFrame);
             Model.PageID = route.GoesToPageID;
             Model.GoesToPageFrameDesc = route.GoesToPageFrameDesc;
@@ -206,6 +207,20 @@ namespace NXtelManager.Controllers
             }
             Session["PageCopy"] = model;
             return RedirectToAction("Edit");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult Recent()
+        {
+            var model = new PageIndexModel();
+            model.Recent = true;
+            model.Pages = Pages.LoadStubs(-1, null, 100);
+            model.Permissions = Permissions.Load(User);
+            string userID = User.GetUserID();
+            model.Pages.ZoneFilter = UserPreferences.Get<int>(userID, "PageIndexZone");
+            model.Pages.PrimaryFilter = UserPreferences.Get<bool>(userID, "PageIndexPrimary");
+            model.Pages.MineFilter = UserPreferences.Get<bool>(userID, "PageIndexMine");
+            return View("Index", model);
         }
     }
 }
