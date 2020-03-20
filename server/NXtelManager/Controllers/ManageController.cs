@@ -63,6 +63,8 @@ namespace NXtelManager.Controllers
 
             var userId = User.Identity.GetUserId();
             var mailbox = User.Identity.GetMailbox();
+            var user = NXtelData.User.Load(userId);
+            string name = user == null ? "" : ((user.FirstName ?? "").Trim() + " " + (user.LastName ?? "").Trim()).Trim();
             var model = new IndexViewModel
             {
                 HasPassword = HasPassword(),
@@ -71,6 +73,7 @@ namespace NXtelManager.Controllers
                 Logins = await UserManager.GetLoginsAsync(userId),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
                 Mailbox = mailbox,
+                Name = name,
                 Permissions = NXtelData.Permissions.Load(userId),
                 Email = await UserManager.GetEmailAsync(userId)
             };

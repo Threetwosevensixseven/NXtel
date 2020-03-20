@@ -22,6 +22,5 @@ namespace Microsoft.AspNet.Identity
             // Test for null to avoid issues during local testing
             return (claim != null) ? claim.Value : string.Empty;
         }
-
     }
 }

@@ -17,6 +17,7 @@
     string mine = Model.Permissions.IsAdmin ? "Owned?" : "Editable?";
     if (Model.Recent)
         ViewBag.Title = "Recently Edited Pages";
+
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -53,6 +54,7 @@ else
                 @if (Model.Recent)
                 {
                     <th>Updated</th>
+                    <th>By</th>
                 }
           </tr>
         </thead>
@@ -79,6 +81,7 @@ else
                     @if (Model.Recent)
                     {
                         <td>@upd</td>
+                        <td>@Model.GetUser(@page.UpdatedByID)</td>
                     }
                 </tr>
             }

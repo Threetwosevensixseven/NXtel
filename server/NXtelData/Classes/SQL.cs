@@ -20,7 +20,11 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreatePageUpdatedField(ConX);
+            CreateNoticeTable();
+            CreateNoticeFK();
+            CreateNoticeReadTable();
+            CreateNoticeReadFK();
+            CreatePageUpdatedByField();
 
             if (openConX)
                 ConX.Close();
@@ -1099,6 +1103,193 @@ END$$";
 
                 string sql = @"ALTER TABLE `page` 
                     ADD COLUMN `Updated` DATETIME NULL DEFAULT NULL AFTER `CarouselWait`;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateNoticeTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `notice` (
+                    `NoticeID` INT(11) NOT NULL AUTO_INCREMENT,
+                    `PageID` INT(11) NOT NULL,
+                    `StartDate` DATETIME NULL,
+                    `EndDate` DATETIME NULL,
+                    `IsActive` BIT(1) NOT NULL,
+                    `UpdatedDate` DATETIME NOT NULL,
+                    PRIMARY KEY (`NoticeID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateNoticeFK(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `notice` 
+                    ADD INDEX `FK_notice_page_idx` (`PageID` ASC);
+                    ALTER TABLE `nxtel`.`notice` 
+                    ADD CONSTRAINT `FK_notice_page`
+                    FOREIGN KEY (`PageID`)
+                    REFERENCES `nxtel`.`page` (`PageID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateNoticeReadTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `noticeread` (
+                    `NoticeReadID` INT(11) NOT NULL AUTO_INCREMENT,
+                    `NoticeID` INT(11) NOT NULL,
+                    `UserNo` INT(11) NOT NULL,
+                    `ReadDate` DATETIME NOT NULL,
+                    PRIMARY KEY (`NoticeReadID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateNoticeReadFK(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `noticeread` 
+                    ADD INDEX `FK_noticeread_notice_idx` (`NoticeID` ASC),
+                    ADD INDEX `FK_noticeread_user_idx` (`UserNo` ASC);
+                    ALTER TABLE `nxtel`.`noticeread` 
+                    ADD CONSTRAINT `FK_noticeread_notice`
+                    FOREIGN KEY (`NoticeID`)
+                    REFERENCES `nxtel`.`notice` (`NoticeID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                    ADD CONSTRAINT `FK_noticeread_user`
+                    FOREIGN KEY (`UserNo`)
+                    REFERENCES `nxtel`.`aspnetusers` (`UserNo`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreatePageUpdatedByField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `page` 
+                    ADD COLUMN `UpdatedBy` INT(11) NULL AFTER `Updated`,
+                    ADD INDEX `FK_page_UpdatedBy_idx` (`UpdatedBy` ASC);
+                    ALTER TABLE `nxtel`.`page` 
+                    ADD CONSTRAINT `FK_page_UpdatedBy`
+                    FOREIGN KEY (`UpdatedBy`)
+                    REFERENCES `nxtel`.`aspnetusers` (`UserNo`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

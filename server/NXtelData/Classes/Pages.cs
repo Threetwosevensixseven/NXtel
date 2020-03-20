@@ -63,7 +63,7 @@ namespace NXtelData
                         limit = " LIMIT " + MostRecent;
                         order = " ORDER BY Updated DESC";
                     }
-                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo,OwnerID,Updated 
+                    sql = @"SELECT PageID,PageNo,FrameNo,Title,ToPageFrameNo,OwnerID,Updated,UpdatedBy 
                     FROM page " + filter + order + limit;
                 }
                 else

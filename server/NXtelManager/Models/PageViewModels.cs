@@ -12,6 +12,21 @@ namespace NXtelManager.Models
         public Pages Pages { get; set; }
         public Permissions Permissions { get; set; }
         public bool Recent { get; set; }
+
+        private static List<User> _users = null;
+
+        public string GetUser(int UserNo)
+        {
+            if (UserNo <= 0)
+                return "";
+            if (_users == null)
+                _users = Users.Load();
+            var user = _users.FirstOrDefault(o => o.UserNo == UserNo);
+            if (user == null)
+                return "";
+            string join = !string.IsNullOrWhiteSpace(user.LastName) && !string.IsNullOrWhiteSpace(user.FirstName) ? ", " : "";
+            return (user.LastName ?? "").Trim() + join + (user.FirstName ?? "").Trim();
+        }
     }
 
     public class PageEditModel

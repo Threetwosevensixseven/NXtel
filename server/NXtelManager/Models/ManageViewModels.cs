@@ -19,9 +19,11 @@ namespace NXtelManager.Models
         public Templates Templates { get; set; }
         public Zones Zones { get; set; }
         public TSFiles Files { get; set; }
+        public string Name { get; set; }
 
         public IndexViewModel()
         {
+            Name = "";
             Permissions = new Permissions();
             Templates = Templates.LoadStubs();
             Zones = Zones.Load();

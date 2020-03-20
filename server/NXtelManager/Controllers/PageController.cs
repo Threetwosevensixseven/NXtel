@@ -99,7 +99,7 @@ namespace NXtelManager.Controllers
                 if (Page.PageID <= 0 && Page.OwnerID <= 0)
                     Page.OwnerID = perms.User.UserNo;
                 string err;
-                if (!Page.Save(Page, out err))
+                if (!Page.Save(Page, perms.User.UserNo, out err))
                 {
                     ModelState.AddModelError("", err);
                     model = new PageEditModel();

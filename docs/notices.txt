@@ -1,0 +1,28 @@
+NOTICE TABLE
+============
+NoticeID
+PageID
+StartDate
+EndDate
+IsActive
+UpdatedDate
+
+Display sequence of unread notices is by pageNo,Frame.
+Saving of a A..Z notice frame will set the UpdatedDate of other A..Z notice frames for that page, which will trigger re-reading for the entire set of frames.
+
+NOTICEUSER TABLE
+================
+NoticeID
+PageID
+ReadDate
+
+A page is assumed read if a record exists and ReadDate < UpdatedDate
+
+CreateNoticeTable();
+CreateNoticeFK();
+CreateNoticeReadTable();
+CreateNoticeReadFK();
+CreatePageUpdatedByField();
+
+
+

@@ -15,6 +15,13 @@
             <td class="lbl">Email:</td>
             <td class="data">@Model.Email</td>
         </tr>
+        @if (!string.IsNullOrWhiteSpace(@Model.Name))
+        {
+        <tr>
+            <td class="lbl">Name:</td>
+            <td class="data">@Model.Name</td>
+        </tr>
+        }
         <tr>
             <td class="lbl">Mailbox:</td>
             <td class="data">@Model.Mailbox</td>

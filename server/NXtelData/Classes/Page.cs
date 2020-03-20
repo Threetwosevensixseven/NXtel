@@ -48,10 +48,11 @@ namespace NXtelData
         public int CarouselWait { get; set; }
         public string Environment { get; set; }
         public DateTime? Updated { get; set; }
+        public int UpdatedByID { get; set; }
 
         public Page()
         {
-            PageID = OwnerID = -1;
+            PageID = OwnerID = UpdatedByID = - 1;
             Title = URL = SelectedTemplates = SelectedRoutes = Environment = "";
             Templates = new Templates();
             Routing = new Routes();
@@ -238,7 +239,7 @@ namespace NXtelData
             return item;
         }
 
-        public static bool Save(Page Page, out string Err)
+        public static bool Save(Page Page, int UpdatedBy, out string Err)
         {
             Err = "";
             try
@@ -249,9 +250,9 @@ namespace NXtelData
                     if (string.IsNullOrWhiteSpace(Page.Environment))
                     {
                         if (Page.PageID <= 0)
-                            return Page.Create(out Err, ConX);
+                            return Page.Create(UpdatedBy, out Err, ConX);
                         else
-                            return Page.Update(out Err, ConX);
+                            return Page.Update(UpdatedBy, out Err, ConX);
                     }
                     else
                     {
@@ -266,7 +267,7 @@ namespace NXtelData
             }
         }
 
-        public bool Create(out string Err, MySqlConnection ConX = null)
+        public bool Create(int UpdatedBy, out string Err, MySqlConnection ConX = null)
         {
             Err = "";
             bool openConX = ConX == null;
@@ -279,9 +280,9 @@ namespace NXtelData
             {
                 string sql = @"INSERT INTO page
                         (PageNo,FrameNo,Title,Contents,BoxMode,URL,FromPageFrameNo,ToPageFrameNo,
-                        TeleSoftwareID,OwnerID,IsCarousel,CarouselWait,Updated)
+                        TeleSoftwareID,OwnerID,IsCarousel,CarouselWait,Updated,UpdatedBy)
                         VALUES(@PageNo,@FrameNo,@Title,@Contents,@BoxMode,@URL,@FromPageFrameNo,@ToPageFrameNo,
-                        @TeleSoftwareID,@OwnerID,@IsCarousel,@CarouselWait,@Updated);
+                        @TeleSoftwareID,@OwnerID,@IsCarousel,@CarouselWait,@Updated,@UpdatedBy);
                         SELECT LAST_INSERT_ID();";
                 var cmd = new MySqlCommand(sql, ConX);
                 cmd.Parameters.AddWithValue("PageNo", PageNo);
@@ -301,6 +302,8 @@ namespace NXtelData
                 cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
                 cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
                 cmd.Parameters.AddWithValue("Updated", DateTime.Now);
+                int? updBy = UpdatedBy <= 0 ? null : (int?)UpdatedBy;
+                cmd.Parameters.AddWithValue("UpdatedBy", updBy);
 
                 int rv = cmd.ExecuteScalarInt32();
                 if (rv > 0)
@@ -338,7 +341,7 @@ namespace NXtelData
             }
         }
 
-        public bool Update(out string Err, MySqlConnection ConX = null)
+        public bool Update(int UpdatedBy, out string Err, MySqlConnection ConX = null)
         {
             Err = "";
             bool openConX = ConX == null;
@@ -362,7 +365,8 @@ namespace NXtelData
                         OwnerID=@OwnerID,
                         IsCarousel=@IsCarousel,
                         CarouselWait=@CarouselWait,
-                        Updated=@Updated
+                        Updated=@Updated,
+                        UpdatedBy=@UpdatedBy
                         WHERE PageID=@PageID;
                         SELECT ROW_COUNT();";
                 var cmd = new MySqlCommand(sql, ConX);
@@ -384,6 +388,8 @@ namespace NXtelData
                 cmd.Parameters.AddWithValue("IsCarousel", IsCarousel);
                 cmd.Parameters.AddWithValue("CarouselWait", CarouselWait);
                 cmd.Parameters.AddWithValue("Updated", DateTime.Now);
+                int? updBy = UpdatedBy <= 0 ? null : (int?)UpdatedBy;
+                cmd.Parameters.AddWithValue("UpdatedBy", updBy);
 
                 int rv = cmd.ExecuteScalarInt32();
                 if (rv <= 0)
@@ -472,6 +478,7 @@ namespace NXtelData
             this.ToFrameNo = Convert.ToInt32((toPageFrameNo - this.ToPageNo) * 100);
             this.OwnerID = rdr.GetInt32Safe("OwnerID");
             this.Updated = rdr.GetDateTimeNullable("Updated");
+            this.UpdatedByID = rdr.GetInt32Safe("UpdatedBy");
             if (StubOnly) return;
             this.Contents = rdr.GetBytesNullable("Contents");
             this.URL = rdr.GetStringNullable("URL").Trim();
@@ -817,9 +824,9 @@ namespace NXtelData
                 }
                 GetIDFromDescription(ConX);
                 if (PageID <= 0)
-                    return Create(out Err, ConX);
+                    return Create(-1, out Err, ConX);
                 else
-                    return Update(out Err, ConX);
+                    return Update(-1, out Err, ConX);
             }
             catch (Exception ex)
             {
