@@ -20,11 +20,8 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateNoticeTable();
-            CreateNoticeFK();
-            CreateNoticeReadTable();
-            CreateNoticeReadFK();
-            CreatePageUpdatedByField();
+            CreateMessageSentField();
+            CreateMessageSubjectField();
 
             if (openConX)
                 ConX.Close();
@@ -1290,6 +1287,261 @@ END$$";
                     REFERENCES `nxtel`.`aspnetusers` (`UserNo`)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `message` (
+                    `MessageID` INT NOT NULL AUTO_INCREMENT,
+                    `MessageText` LONGTEXT NULL,
+                    PRIMARY KEY (`MessageID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageUserTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `messageuser` (
+                    `MessageUserID` INT NOT NULL AUTO_INCREMENT,
+                    `MessageID` INT NOT NULL,
+                    `FromUserNo` INT NOT NULL,
+                    `ToUserNo` INT NULL,
+                    `ToAllAdmins` BIT(1) NULL,
+                    `ToAllEditors` BIT(1) NULL,
+                    `ToAllUsers` BIT(1) NULL,
+                    PRIMARY KEY (`MessageUserID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageReadTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `messageread` (
+                    `MessageReadID` INT NOT NULL AUTO_INCREMENT,
+                    `MessageID` INT NOT NULL,
+                    `UserNo` INT NOT NULL,
+                    PRIMARY KEY (`MessageReadID`)
+                    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageUserFK(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `messageuser` 
+                    ADD INDEX `FK_messageuser_msg_idx` (`MessageID` ASC),
+                    ADD INDEX `FK_messageuser_from_idx` (`FromUserNo` ASC),
+                    ADD INDEX `FK_messageuser_to_idx` (`ToUserNo` ASC);
+                    ALTER TABLE `messageuser` 
+                    ADD CONSTRAINT `FK_messageuser_msg`
+                    FOREIGN KEY (`MessageID`)
+                    REFERENCES `message` (`MessageID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                    ADD CONSTRAINT `FK_messageuser_from`
+                    FOREIGN KEY (`FromUserNo`)
+                    REFERENCES `aspnetusers` (`UserNo`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                    ADD CONSTRAINT `FK_messageuser_to`
+                    FOREIGN KEY (`ToUserNo`)
+                    REFERENCES `aspnetusers` (`UserNo`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageReadFK(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `messageread` 
+                    ADD INDEX `FK_messageread_msg_idx` (`MessageID` ASC),
+                    ADD INDEX `FK_messageread_user_idx` (`UserNo` ASC);
+                    ALTER TABLE `messageread` 
+                    ADD CONSTRAINT `FK_messageread_msg`
+                    FOREIGN KEY (`MessageID`)
+                    REFERENCES `message` (`MessageID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                    ADD CONSTRAINT `FK_messageread_user`
+                    FOREIGN KEY (`UserNo`)
+                    REFERENCES `aspnetusers` (`UserNo`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageSentField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `message` 
+                    ADD COLUMN `Sent` BIT(1) NULL AFTER `MessageText`;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
+        public static void CreateMessageSubjectField(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `message` 
+                    ADD COLUMN `Subject` VARCHAR(100) NULL AFTER `Sent`;";
                 using (var cmd = new MySqlCommand(sql, ConX))
                 {
                     cmd.ExecuteNonQuery();

@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNet.Identity
+@model NXtelManager.Models.MessageComposeModel
+@{
+    ViewBag.Title = "Compose Message";
+    bool admin = User.IsInRole("Admin");
+    bool pageEditor = User.IsInRole("Page Editor");
+    //string mailbox = User.Identity.GetMailbox();
+    ViewBag.NavID = "MessageCompose";
+}
+@Html.Partial("_MessageToolbar")
+<h1>@ViewBag.Title</h1>
+<h3>@ViewBag.Message</h3>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <table class="edit">
+        <tr>
+            <td class="lbl">From:</td>
+            <td class="data">@NXtelData.Options.ProductName Admins</td>
+       </tr>
+        <tr>
+            <td class="lbl">To:</td>
+            <td class="data">
+                @Html.CheckBoxFor(m => m.ToAllAdmins)<span class="cbl">All Admins</span>
+                @Html.CheckBoxFor(m => m.ToAllEditors)<span class="cbl">All Editors</span>
+                @Html.CheckBoxFor(m => m.ToAllUsers)<span class="cbl">All Users</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="lbl top">Subject:</td>
+            <td class="data">@Html.TextBoxFor(m => m.Message.Subject, null, new { @class = "subject", maxlength = 100 })</td>
+        </tr>
+        <tr>
+            <td class="lbl top">Message:</td>
+            <td class="data">@Html.TextAreaFor(m => m.Message, 5, 1, new { @class = "msg" })</td>
+        </tr>
+    </table>
+    @Html.Raw(HttpUtility.HtmlDecode(Html.ValidationSummary(false, "", new { @class = "text-danger" }).ToString()))
+    <input type="submit" value="Send" name="action:Send" class="btn btn-primary" onclick="return validateSend();" />
+    <input type="submit" value="Save" name="action:Save" class="btn btn-default" onclick="return validateSave();" />
+}
+
+@section head {
+    <style type="text/css">
+        td.top {
+            display: inline-block;
+        }
+        textarea.msg {
+            min-height: 340px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        .cbl {
+            display: inline-block;
+            margin-left: 4px;
+            margin-right: 15px;
+            position: relative;
+            top: -2px;
+       }
+        .subject {
+            width: 100%;
+            max-width: unset;
+        }
+    </style>
+}
+
+@section Scripts {
+@*<script type="text/javascript" src="~/Scripts/message-toolbar.js"></script>*@
+    <script type="text/javascript">
+        $(document).ready(function () {
+        });
+
+        function validateSend() {
+            return false;
+        }
+
+        function validateSave() {
+            return false;
+        }
+    </script>
+}

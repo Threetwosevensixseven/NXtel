@@ -1,0 +1,13 @@
+﻿@{
+    string navID = ViewBag.NavID;
+    string unrDis = navID == "MessageUnread" ? "btn-warning disabled" : "btn-default";
+    string reaDis = navID == "MessageRead" ? "btn-warning disabled" : "btn-default";
+    string draDis = navID == "MessageDrafts" ? "btn-warning disabled" : "btn-default";
+    string comDis = navID == "MessageCompose" ? "btn-warning disabled" : "btn-default";
+}
+<div class="btn-group msg-toolbar" style="margin-top:25px">
+    @Html.ActionLink("Unread", "Unread", "Message", null, new { @class = "btn " + unrDis })
+    @Html.ActionLink("Read", "Read", "Message", null, new { @class = "btn " + reaDis })
+    @Html.ActionLink("Drafts", "Drafts", "Message", null, new { @class = "btn " + draDis })
+    @Html.ActionLink("Compose", "Compose", "Message", null, new { @class = "btn " + comDis })
+</div>

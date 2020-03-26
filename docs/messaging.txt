@@ -1,0 +1,81 @@
+MESSAGE TABLE
+=============
+MessageID
+Text
+
+MESSAGEUSER TABLE
+=================
+MessageUserID
+MessageID
+FromUserNo
+ToUserNo
+AllAdmins
+AllEditors
+AllUsers
+
+MESSAGEREAD TABLE
+=================
+MessageID
+UserNo
+
+CREATE TABLE `message` (
+  `MessageID` INT NOT NULL AUTO_INCREMENT,
+  `MessageText` LONGTEXT NULL,
+  PRIMARY KEY (`MessageID`));
+  
+CREATE TABLE `messageuser` (
+  `MessageUserID` INT NOT NULL AUTO_INCREMENT,
+  `MessageID` INT NOT NULL,
+  `FromUserNo` INT NOT NULL,
+  `ToUserNo` INT NULL,
+  `ToAllAdmins` BIT(1) NULL,
+  `ToAllEditors` BIT(1) NULL,
+  `ToAllUsers` BIT(1) NULL,
+  PRIMARY KEY (`MessageUserID`));
+
+CREATE TABLE `messageread` (
+  `MessageReadID` INT NOT NULL AUTO_INCREMENT,
+  `MessageID` INT NOT NULL,
+  `UserNo` INT NOT NULL,
+  PRIMARY KEY (`MessageReadID`));
+  
+ALTER TABLE `messageuser` 
+ADD INDEX `FK_messageuser_msg_idx` (`MessageID` ASC),
+ADD INDEX `FK_messageuser_from_idx` (`FromUserNo` ASC),
+ADD INDEX `FK_messageuser_to_idx` (`ToUserNo` ASC);
+ALTER TABLE `messageuser` 
+ADD CONSTRAINT `FK_messageuser_msg`
+  FOREIGN KEY (`MessageID`)
+  REFERENCES `message` (`MessageID`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE,
+ADD CONSTRAINT `FK_messageuser_from`
+  FOREIGN KEY (`FromUserNo`)
+  REFERENCES `aspnetusers` (`UserNo`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE,
+ADD CONSTRAINT `FK_messageuser_to`
+  FOREIGN KEY (`ToUserNo`)
+  REFERENCES `aspnetusers` (`UserNo`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE;
+  
+ALTER TABLE `messageread` 
+ADD INDEX `FK_messageread_msg_idx` (`MessageID` ASC),
+ADD INDEX `FK_messageread_user_idx` (`UserNo` ASC);
+ALTER TABLE `messageread` 
+ADD CONSTRAINT `FK_messageread_msg`
+  FOREIGN KEY (`MessageID`)
+  REFERENCES `message` (`MessageID`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE,
+ADD CONSTRAINT `FK_messageread_user`
+  FOREIGN KEY (`UserNo`)
+  REFERENCES `aspnetusers` (`UserNo`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE;
+
+
+
+
+

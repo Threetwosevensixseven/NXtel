@@ -7,7 +7,7 @@
     ViewBag.Title = (Model.Copying ? "Copy" : (@Model.Zone.ID <= 0 ? "New" : (can ? "Edit" : "View"))) + " Zone";
     if (!string.IsNullOrWhiteSpace(Model.Zone.Environment))
     {
-        ViewBag.Title = "Copy Zone to NXtel " + Model.Zone.Environment;
+        ViewBag.Title = "Copy Zone to " + NXtelData.Options.ProductName + " " + Model.Zone.Environment;
     }
     string lockcls = @Model.Zone.ID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
 }
@@ -51,11 +51,11 @@
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li>@Html.ActionLink("Copy to NXtel " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @Model.Zone.ID })</li>
+                    <li>@Html.ActionLink("Copy to " + NXtelData.Options.ProductName + " " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @Model.Zone.ID })</li>
                     <li role="separator" class="divider"></li>
                     @foreach (var con in NXtelData.DBOps.Settings.AdditionalConnections)
                     {
-                        <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @Model.Zone.ID, id2 = con.Environment.ToString() })</li>
+                        <li>@Html.ActionLink("Copy to " + NXtelData.Options.ProductName + " " + con.Environment.ToString(), "Copy", new { id = @Model.Zone.ID, id2 = con.Environment.ToString() })</li>
                     }
                 </ul>
             </div>

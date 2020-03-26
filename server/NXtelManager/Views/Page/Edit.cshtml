@@ -5,7 +5,7 @@
     can = @page.PageID <= 0 ? true : can;
     ViewBag.Title = (Model.Copying ? "Copy" : (@page.PageID <= 0 ? "New" : (can ? "Edit" : "View"))) + " Page";
     if (!string.IsNullOrWhiteSpace(Model.Page.Environment))
-        ViewBag.Title = "Copy Page to NXtel " + Model.Page.Environment;
+        ViewBag.Title = "Copy Page to " + NXtelData.Options.ProductName + " " + Model.Page.Environment;
     string lockcls = @page.PageID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
     string pageID = @page.PageID <= 0 ? "NEW" : @page.PageID.ToString();
     string pageNo = @page.PageID <= 0 && !Model.Copying ? "" : @page.PageNo.ToString();
@@ -242,11 +242,11 @@
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li>@Html.ActionLink("Copy to NXtel " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @page.PageID })</li>
+                    <li>@Html.ActionLink("Copy to " + NXtelData.Options.ProductName + " " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @page.PageID })</li>
                     <li role="separator" class="divider"></li>
                     @foreach (var con in NXtelData.DBOps.Settings.AdditionalConnections)
                     {
-                    <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @page.PageID, id2 = con.Environment.ToString() })</li>
+                    <li>@Html.ActionLink("Copy to " + NXtelData.Options.ProductName + " " + con.Environment.ToString(), "Copy", new { id = @page.PageID, id2 = con.Environment.ToString() })</li>
                     }
                 </ul>
             </div>

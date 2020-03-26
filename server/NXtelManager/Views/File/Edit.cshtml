@@ -8,7 +8,7 @@
     string fn = hasFile && !string.IsNullOrWhiteSpace(Model.File.FileName) ? Model.File.FileName : "Download";
     ViewBag.Title = (Model.Copying ? "Copy" : (@Model.File.TeleSoftwareID <= 0 ? "New" : (can ? "Edit" : "View"))) + " File";
     if (!string.IsNullOrWhiteSpace(Model.File.Environment))
-        ViewBag.Title = "Copy File to NXtel " + Model.File.Environment;
+        ViewBag.Title = "Copy File to " + @NXtelData.Options.ProductName + " " + Model.File.Environment;
     string lockcls = @Model.File.TeleSoftwareID <= 0 ? "new" : (can ? "lock large unlocked" : "lock large locked");
 }
 <h1>@ViewBag.Title<span class="@lockcls"></span></h1>
@@ -94,11 +94,11 @@
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li>@Html.ActionLink("Copy to NXtel " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @Model.File.TeleSoftwareID })</li>
+                    <li>@Html.ActionLink("Copy to " + NXtelData.Options.ProductName + " " + NXtelData.Options.Environment.ToString(), "Copy", new { id = @Model.File.TeleSoftwareID })</li>
                     <li role="separator" class="divider"></li>
                     @foreach (var con in NXtelData.DBOps.Settings.AdditionalConnections)
                     {
-                        <li>@Html.ActionLink("Copy to NXtel " + con.Environment.ToString(), "Copy", new { id = @Model.File.TeleSoftwareID, id2 = con.Environment.ToString() })</li>
+                        <li>@Html.ActionLink("Copy to " + NXtelData.Options.ProductName + " " + con.Environment.ToString(), "Copy", new { id = @Model.File.TeleSoftwareID, id2 = con.Environment.ToString() })</li>
                     }
                 </ul>
             </div>

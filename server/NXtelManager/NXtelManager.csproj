@@ -197,6 +197,7 @@
     <Compile Include="Controllers\HelpController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\MessageController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\ServerController.cs" />
     <Compile Include="Controllers\StatisticsController.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Attributes\MultipleButtonAttribute.cs" />
+    <Compile Include="Models\MessageViewModels.cs" />
     <Compile Include="Models\PageViewModels.cs" />
     <Compile Include="Models\TemplateViewModels.cs" />
     <Compile Include="Models\UserViewModels.cs" />
@@ -350,6 +352,11 @@
     <Content Include="Views\Email\_ViewStart.cshtml" />
     <Content Include="Views\Email\ConfirmAccount.cshtml" />
     <Content Include="Views\Shared\_psa.cshtml" />
+    <Content Include="Views\Message\Compose.cshtml" />
+    <Content Include="Views\Message\Drafts.cshtml" />
+    <Content Include="Views\Shared\_MessageToolbar.cshtml" />
+    <Content Include="Views\Message\Read.cshtml" />
+    <Content Include="Views\Message\Unread.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

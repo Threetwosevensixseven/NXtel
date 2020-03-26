@@ -24,7 +24,14 @@
         }
         <tr>
             <td class="lbl">Mailbox:</td>
-            <td class="data">@Model.Mailbox</td>
+            @if (admin)
+            {
+                <td class="data">@Html.ActionLink(@Model.Mailbox, "Unread", "Message")</td>
+            }
+            else
+            {
+                <td class="data">@Model.Mailbox</td>
+            }
         </tr>
         <tr>
             <td class="lbl">Password:</td>
@@ -103,3 +110,11 @@
         }
     </tbody>
 </table>
+
+@section head {
+    <style type="text/css">
+        #ManageUser td.data a {
+            font-weight: normal;
+        }
+    </style>
+}

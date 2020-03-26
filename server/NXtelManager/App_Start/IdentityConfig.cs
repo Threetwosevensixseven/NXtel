@@ -28,9 +28,14 @@ namespace NXtelManager
                 msg.From = new MailAddress(Options.AdminEmailAddress);
                 msg.To.Add(new MailAddress(message.Destination));
                 foreach (string bcc in Options.AdminEmailBCCList)
-                    msg.Bcc.Add(new MailAddress(bcc));
-                msg.Subject = (("NXtel " + (Options.Environment.GetDescription() ?? "")).Trim() 
-                    + " - " + (message.Subject ?? "").Trim()).Trim();
+                {
+                    try
+                    {
+                        msg.Bcc.Add(new MailAddress(bcc));
+                    }
+                    catch { }
+                }
+                msg.Subject = Options.AppName + " - " + (message.Subject ?? "").Trim();
                 msg.Body = message.Body;
                 return client.SendMailAsync(msg);
             }
@@ -38,6 +43,7 @@ namespace NXtelManager
             {
                 return null;
             }
+            finally { }
         }
     }
 

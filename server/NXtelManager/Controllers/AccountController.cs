@@ -83,6 +83,7 @@ namespace NXtelManager.Controllers
                         var currentUser = UserManager.FindByNameAsync(model.Email);
                         if (!await UserManager.IsEmailConfirmedAsync(currentUser.Result.Id))
                         {
+                            string mailbox = currentUser.Result.Mailbox;
                             AuthenticationManager.SignOut();
 
                             // Send email
@@ -90,7 +91,7 @@ namespace NXtelManager.Controllers
                             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Url.Scheme);
                             try
                             {
-                                var emailModel = new CallbackEmailModel(callbackUrl);
+                                var emailModel = new CallbackEmailModel(callbackUrl, mailbox);
                                 string body = EmailController.RenderViewToString("Email", "ConfirmAccount", emailModel).Trim();
                                 await UserManager.SendEmailAsync(currentUser.Result.Id, "Confirm your account", body);
                             }
@@ -196,7 +197,7 @@ namespace NXtelManager.Controllers
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     try
                     {
-                        var emailModel = new CallbackEmailModel(callbackUrl);
+                        var emailModel = new CallbackEmailModel(callbackUrl, u.Mailbox);
                         string body = EmailController.RenderViewToString("Email", "ConfirmAccount", emailModel).Trim();
                         await UserManager.SendEmailAsync(user.Id, "Confirm your account", body);
                     }
@@ -279,7 +280,7 @@ namespace NXtelManager.Controllers
                 string callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 try
                 {
-                    var emailModel = new CallbackEmailModel(callbackUrl);
+                    var emailModel = new CallbackEmailModel(callbackUrl, user.Mailbox);
                     string body = EmailController.RenderViewToString("Email", "ForgotPassword", emailModel).Trim();
                     await UserManager.SendEmailAsync(user.Id, "Reset your password", body);
                 }

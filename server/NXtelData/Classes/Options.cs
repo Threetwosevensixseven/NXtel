@@ -276,8 +276,19 @@ namespace NXtelData
             get
             {
                 if (_appName == null)
-                    _appName = ("NXtel " + NXtelData.EnumExtensions.GetDescription(NXtelData.Options.Environment)).Trim();
+                    _appName = (ProductName + " " + NXtelData.EnumExtensions.GetDescription(NXtelData.Options.Environment)).Trim();
                 return _appName;
+            }
+        }
+
+        private static string _productName;
+        public static string ProductName
+        {
+            get
+            {
+                if (_productName == null)
+                    _productName = (ConfigurationManager.AppSettings["ProductName"] ?? "").Trim();
+                return _productName;
             }
         }
 

@@ -284,6 +284,10 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     margin-top: 4px;
 }
 
+.msg-toolbar .btn-warning.disabled {
+    color: #000000 !important;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
     div.dataTables_wrapper div.dataTables_primary,

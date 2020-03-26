@@ -1,11 +1,11 @@
 ﻿@model RequestPageEditorModel
 @using NXtelManager.Models
 @{
-    ViewBag.Title = "I'd like to create pages on NXtel!";
+    ViewBag.Title = "I'd like to create pages on " + NXtelData.Options.ProductName + "!";
 }
 
 <h1>@ViewBag.Title</h1>
-<h4>It's very simple to request to be a NXtel page editor. Just fill in some details below, and click the <i>Request</i> button.</h4>
+<h4>It's very simple to request to be a @NXtelData.Options.ProductName page editor. Just fill in some details below, and click the <i>Request</i> button.</h4>
 <br/>
 
 @using (Html.BeginForm("Request", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -14,7 +14,7 @@
 
     <p>
         Firstly, we'd like to know your real name. We didn't ask you when you registered,
-        but NXtel is a small community, and we have a close relationship with our page editors,
+        but @NXtelData.Options.ProductName is a small community, and we have a close relationship with our page editors,
         so it'd be great to be on first name terms.
     </p>
     <div class="form-group">
