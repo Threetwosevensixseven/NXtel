@@ -36,6 +36,8 @@ namespace NXtelServer.Classes
         public object CarouselLock = new object();
         public string ClientHash = "";
         public DateTime LastSeen;
+        public bool ShowingNotices;
+        public int LastNoticeReadID;
 
         public Client(IPEndPoint _remoteEndPoint, DateTime _connectedAt, ClientStates _clientState)
         {
@@ -60,6 +62,8 @@ namespace NXtelServer.Classes
             this._carouselPages.Add(new Tuple<int, int>(666, 0));
             this._carouselPages.Add(new Tuple<int, int>(999, 3));
             this._carousel = new Carousel(this);
+            this.ShowingNotices = false;
+            this.LastNoticeReadID = -1;
         }
 
         public Page CurrentPage
@@ -315,6 +319,18 @@ namespace NXtelServer.Classes
                         CommandState = CommandStates.InsideStarPageCommand;
                         KeyBuffer.Dequeue();
                         continue;
+                    }
+                    if (ShowingNotices && b == ENTER)
+                    {
+                        var np = Notice.GetNextNotice(PageHistory.Peek(), ClientHash, ref ShowingNotices, ref LastNoticeReadID);
+                        if (np != null)
+                        {
+                            NextPage = np;
+                            PageHistory.Push(NextPage);
+                            KeyBuffer.Dequeue();
+                            SendIAC = sendIAC.ToArray();
+                            return true;
+                        }
                     }
                     //Console.WriteLine(string.Format("Outside Commands, Processing {0} (", b.ToString("X2")) 
                     //    + string.Format("{0}", LogAddress) + ")");

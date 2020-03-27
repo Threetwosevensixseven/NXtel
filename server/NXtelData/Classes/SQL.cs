@@ -22,6 +22,7 @@ namespace NXtelData
 
             CreateMessageSentField();
             CreateMessageSubjectField();
+            ChangeNoticeReadClientHash();
 
             if (openConX)
                 ConX.Close();
@@ -1559,5 +1560,44 @@ END$$";
             }
         }
 
+        public static void ChangeNoticeReadClientHash(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"ALTER TABLE `noticeread` 
+                    DROP FOREIGN KEY `FK_noticeread_user`;
+                    ALTER TABLE `nxtel`.`noticeread` 
+                    CHANGE COLUMN `UserNo` `ClientHash` CHAR(32) NOT NULL,
+                    ADD INDEX `FK_noticeread_user_idx` (`ClientHash` ASC),
+                    DROP INDEX `FK_noticeread_user_idx`;
+                    ALTER TABLE `noticeread` 
+                    ADD CONSTRAINT `FK_noticeread_user`
+                    FOREIGN KEY (`ClientHash`)
+                    REFERENCES `geo` (`ClientHash`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }

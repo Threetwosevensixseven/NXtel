@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using NXtelData;
 using NXtelServer.Classes;
@@ -70,6 +71,7 @@ namespace NXtelServer
             var page = Page.Load(Options.StartPageNo, Options.StartFrameNo, null, client.LastSeen);
             client.PageHistory.Push(page);
             client.clientState = ClientStates.Logging;
+            client.ShowingNotices = true;
             try
             {
                 if (Options.IACEnabled)
@@ -87,6 +89,7 @@ namespace NXtelServer
                         Console.WriteLine(string.Format("Sending page {0} (To: {1}", Options.StartPage, 
                             client.LogAddress) + ")");
                     Stats.Update(client.remoteEndPoint, page);
+                    //string log = RawLog(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length);
                     newSocket.BeginSend(page.Contents7BitEncoded, 0, page.Contents7BitEncoded.Length,
                         SocketFlags.None, new AsyncCallback(SendData), newSocket);
                     serverSocket.BeginAccept(new AsyncCallback(AcceptConnection), serverSocket);
@@ -155,6 +158,7 @@ namespace NXtelServer
                 var sendData = client.Combine(sendIAC, queued, pageData);
                 if (sendData.Length > 0)
                 {
+                    //string log2 = RawLog(sendData, 0, sendData.Length);
                     clientSocket.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, 
                         new AsyncCallback(SendData), clientSocket);
                 }
@@ -251,6 +255,29 @@ namespace NXtelServer
                 if (Input == "lock") { newClients = false; Console.WriteLine("Refusing new connections."); }
                 if (Input == "unlock") { newClients = true; Console.WriteLine("Accepting new connections."); }
             }
+        }
+
+        private static string RawLog(byte[] buffer, int offset, int size)
+        {
+            if (buffer == null || size == 0 || (offset + size) > buffer.Length)
+                return "";
+            int count = 0;
+            string join = "";
+            var sb = new StringBuilder();
+            for (int i = offset; i < offset + size; i++)
+            {
+                sb.Append(join);
+                sb.Append(buffer[i].ToString("X2"));
+                join = " ";
+                count++;
+                if (count >= 16)
+                {
+                    join = "";
+                    count = 0;
+                    sb.Append("\r\n");
+                }
+            }
+            return sb.ToString();
         }
     }
 }
