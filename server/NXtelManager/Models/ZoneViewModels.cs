@@ -20,4 +20,34 @@ namespace NXtelManager.Models
             Pages = new Pages();
         }
     }
+
+    public class ZoneLookupModel
+    {
+        public int id { get; set; }
+        public string text { get; set; }
+
+        public ZoneLookupModel()
+        {
+            id = -1;
+            text = "";
+        }
+
+        public ZoneLookupModel(Zone Zone) 
+            :this()
+        {
+            if (Zone != null)
+            {
+                id = Zone.ID;
+                text = Zone.Description;
+            }
+        }
+
+        public static List<ZoneLookupModel> Convert(Zones Zones)
+        {
+            var rv = new List<ZoneLookupModel>();
+            foreach (var zone in Zones ?? new Zones())
+                rv.Add(new ZoneLookupModel(zone));
+            return rv;
+        }
+    }
 }

@@ -103,5 +103,12 @@ namespace NXtelManager.Controllers
             Session["ZoneCopy"] = model;
             return RedirectToAction("Edit");
         }
+
+        [Authorize(Roles = "Admin,Page Editor")]
+        public JsonResult Lookup(string q)
+        {
+            var zones = Zones.Search(q, true);
+            return Json(ZoneLookupModel.Convert(zones), JsonRequestBehavior.AllowGet);
+        }
     }
 }

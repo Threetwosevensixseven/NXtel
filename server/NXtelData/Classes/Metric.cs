@@ -16,7 +16,9 @@ namespace NXtelData
         public DateTime Day { get; set; }
         public Dictionary<DateTime, Metric> DailyMetrics { get; set; }
         public Dictionary<DateTime, Metric> MonthlyMetrics { get; set; }
-
+        public int GeoLocCount { get; set; }
+        public int GeoIpCount { get; set; }
+        public int GeoAnonCount { get; set; }
 
         public static Metric Calculate(/*MySqlConnection ConX = null*/)
         {
@@ -237,6 +239,25 @@ namespace NXtelData
                         rv.MonthlyMetrics[dt].PopularCount = count;
                     if (int.TryParse(p, out page))
                         rv.MonthlyMetrics[dt].PopularPageNo = page;
+                }
+            }
+
+            // Geo
+            sql = @"SELECT 'L' AS typ,COUNT(*) AS cnt FROM geo WHERE Geo IS NOT NULL
+                UNION ALL
+                SELECT 'I' AS typ,COUNT(*) AS cnt FROM geo WHERE IPAddress IS NOT NULL
+                UNION ALL
+                SELECT 'A' AS typ,COUNT(*) AS cnt FROM geo WHERE Geo IS NULL AND IPAddress IS NULL;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            using (var rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
+                {
+                    string typ = rdr.GetString("typ");
+                    int cnt = rdr.GetInt32("cnt");
+                    if (typ == "L") rv.GeoLocCount = cnt;
+                    if (typ == "I") rv.GeoIpCount = cnt;
+                    if (typ == "A") rv.GeoAnonCount = cnt;
                 }
             }
 

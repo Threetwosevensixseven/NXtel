@@ -1,0 +1,89 @@
+﻿@using NXtelData
+@model NXtelManager.Models.NoticeIndexModel
+@{
+    ViewBag.Title = "Notices";
+    string tablePageSize = NXtelData.UserPreferences.Get(System.Security
+        .Principal.IPrincipalExtensions.GetUserID(User), "TablePageSize", "10");
+}
+<h1>@ViewBag.Title</h1>
+
+<div class="form-group">
+    <label id="lblNoticeZone" for="NoticeZone">Default zone for new notices</label>
+    <select id="NoticeZone" class="form-control" placeholder="Type to search..." 
+            data-url="@Url.Action("Lookup", "Zone")" autocomplete="off"></select>
+    <span id="ZoneSaved" class="glyphicon glyphicon" aria-hidden="true" style="display:none"></span>
+</div>
+
+<table class="paged" style="width:auto">
+    <thead>
+        <tr>
+            <th>Page</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Notice notice in Model.Notices)
+        {
+            string page = (string.IsNullOrWhiteSpace(notice.PageFrameNoStr) ? "[None]" : @notice.PageFrameNoStr).Trim();
+            string title = (string.IsNullOrWhiteSpace(notice.PageTitle) ? "[None]" : @notice.PageTitle).Trim();
+            <tr>
+                <td>@Html.ActionLink(@page, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                <td>@Html.ActionLink(@title, "Edit", "Page", new { id = notice.PageID }, null)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section head {
+    <style type="text/css">
+        #NoticeZone { display:inline; }
+        #lblNoticeZone { display:block; }
+        .glyphicon { padding-left:5px; }
+        .glyphicon-ok { color: seagreen; }
+        .glyphicon-remove { color: red; }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("#NoticeZone").autoComplete({ 
+                bootstrapVersion: "3",
+                minLength: 1,
+                events: {
+                    typed: function (newValue) {
+                        $("#ZoneSaved").hide();
+                        return newValue;
+                    }
+                }
+            } ).autoComplete("set", { 
+                id: @Model.Zone.ID,
+                text: "@Model.Zone.Description"
+            })
+            $("#NoticeZone").on("autocomplete.select", function(evt, item) {
+                zoneChanged(item);
+            });
+            $("table.paged").DataTable({ pageLength: @tablePageSize });
+            $(".dataTables_length select").change(function () {
+                setUserPreference("TablePageSize", $(".dataTables_length select").val());
+            });
+        });
+
+        function zoneChanged(zone) {
+            $.ajax(  
+             {  
+                 type: "POST",
+                 url: "@Url.Action("SaveZone", "Notice")",
+                 data: { Zone: zone }  
+             }).done(function(data) {
+                 if (data)
+                     $("#ZoneSaved").addClass("glyphicon-ok").removeClass("glyphicon-remove").show();
+                 else
+                     $("#ZoneSaved").addClass("glyphicon-remove").removeClass("glyphicon-ok").show();
+             })
+              .fail(function() {
+                  $("#ZoneSaved").addClass("glyphicon-remove").removeClass("glyphicon-ok").show();
+              });  
+        }
+    </script>
+}

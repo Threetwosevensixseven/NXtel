@@ -20,9 +20,7 @@ namespace NXtelData
                 ConX.Open();
             }
 
-            CreateMessageSentField();
-            CreateMessageSubjectField();
-            ChangeNoticeReadClientHash();
+            CreateDBSettingsTable();
 
             if (openConX)
                 ConX.Close();
@@ -1599,5 +1597,39 @@ END$$";
                     ConX.Close();
             }
         }
+
+        public static void CreateDBSettingsTable(MySqlConnection ConX = null)
+        {
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                string sql = @"CREATE TABLE `settings` (
+                    `Key` VARCHAR(30) NOT NULL,
+                    `Value` VARCHAR(100) NULL,
+                    PRIMARY KEY (`Key`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+                using (var cmd = new MySqlCommand(sql, ConX))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                Logger.Log(ex.StackTrace);
+            }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
+
     }
 }

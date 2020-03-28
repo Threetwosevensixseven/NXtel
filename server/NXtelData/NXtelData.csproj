@@ -102,6 +102,7 @@
   <ItemGroup>
     <Compile Include="Classes\Character.cs" />
     <Compile Include="Classes\DB.cs" />
+    <Compile Include="Classes\DBSettings.cs" />
     <Compile Include="Classes\DebugLogger.cs" />
     <Compile Include="Classes\EnvironmentConnection.cs" />
     <Compile Include="Classes\EnvironmentNames.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Classes\MessageUser.cs" />
     <Compile Include="Classes\Metric.cs" />
     <Compile Include="Classes\Notice.cs" />
+    <Compile Include="Classes\Notices.cs" />
     <Compile Include="Classes\Options.cs" />
     <Compile Include="Classes\PageBase.cs" />
     <Compile Include="Classes\PageCache.cs" />

@@ -2,6 +2,7 @@
 @model Metric
 @{
     ViewBag.Title = "Statistics";
+    bool admin = User.IsInRole("Admin");
 }
 <h1>@ViewBag.Title</h1>
 <h3>@ViewBag.Message</h3>
@@ -101,6 +102,31 @@
         </tr>
     </tfoot>
 </table>
+
+@if (admin)
+{
+    <h3>Geolocation</h3>
+    <table>
+        <tbody>
+            <tr>
+                <td><b>Geolocated Users:</b></td>
+                <td style="text-align:right">@Model.GeoLocCount</td>
+            </tr>
+            <tr>
+                <td><b>Awaiting Geolookup:</b></td>
+                <td style="text-align:right">@Model.GeoIpCount</td>
+            </tr>
+            <tr>
+                <td><b>Anonymous Users:</b></td>
+                <td style="text-align:right">@Model.GeoAnonCount</td>
+            </tr>
+            <tr>
+                <td><b>TOTAL:</b></td>
+                <td style="text-align:right"><b>@(Model.GeoLocCount + Model.GeoIpCount + Model.GeoAnonCount)</b></td>
+            </tr>
+        </tbody>
+    </table>
+}
 
 @section head {
 <style type="text/css">

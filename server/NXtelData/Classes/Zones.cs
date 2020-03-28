@@ -37,6 +37,51 @@ namespace NXtelData
             return list;
         }
 
+        public static Zones Search(string Value, bool AllowNone, MySqlConnection ConX = null)
+        {
+            var list = new Zones();
+            if (AllowNone)
+                list.Add(new Zone() { ID = -1, Description = "[None]" });
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            Value = Value ?? "";
+            string filter = "1=0";
+            if (Value.Length > 0)
+            {
+                filter = "Description LIKE @Description";
+                Value = "%" + Value + "%";
+            }
+
+            string sql = @"SELECT * 
+                FROM zone
+                WHERE " + filter + @"
+                ORDER BY Description,ZoneID;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("@Description", Value);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var item = new Zone();
+                        item.ID = rdr.GetInt32("ZoneID");
+                        item.Description = rdr.GetStringNullable("Description");
+                        list.Add(item);
+                    }
+                }
+            }
+
+            if (openConX)
+                ConX.Close();
+
+            return list;
+        }
+
         public static Zones LoadForPage(int PageID, MySqlConnection ConX = null)
         {
             var list = new Zones();

@@ -90,12 +90,20 @@ namespace NXtelData
                 ConX.Open();
             }
 
+            uint ip = IPEndPointExtensions.ToUint32(EndPoint);
             string hash = IPEndPointExtensions.CalculateHash(EndPoint);
             string sql = @"INSERT IGNORE INTO geo (ClientHash,IPAddress) VALUES (@ClientHash,@IPAddress);";
             using (var cmd = new MySqlCommand(sql, ConX))
             {
                 cmd.Parameters.AddWithValue("ClientHash", hash);
-                cmd.Parameters.AddWithValue("IPAddress", EndPoint.Address.ToString());
+                cmd.Parameters.AddWithValue("IPAddress", ip);
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = @"UPDATE geo gg
+                    JOIN geo g ON gg.ClientHash=g.ClientHash
+                    SET gg.IPAddress=@IPAddress
+                    WHERE g.IPAddress IS NULL
+                    AND g.Geo IS NULL
+                    AND g.ClientHash=@ClientHash;";
                 cmd.ExecuteNonQuery();
             }
 

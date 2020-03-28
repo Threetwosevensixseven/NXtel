@@ -198,6 +198,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessageController.cs" />
+    <Compile Include="Controllers\NoticeController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\ServerController.cs" />
     <Compile Include="Controllers\StatisticsController.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Attributes\MultipleButtonAttribute.cs" />
     <Compile Include="Models\MessageViewModels.cs" />
+    <Compile Include="Models\NoticeViewModels.cs" />
     <Compile Include="Models\PageViewModels.cs" />
     <Compile Include="Models\TemplateViewModels.cs" />
     <Compile Include="Models\UserViewModels.cs" />
@@ -265,6 +267,7 @@
     <Content Include="fonts\TeletextTG.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Scripts\bootstrap-autocomplete.min.js" />
     <Content Include="Scripts\bootstrap-multiselect.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -357,6 +360,7 @@
     <Content Include="Views\Shared\_MessageToolbar.cshtml" />
     <Content Include="Views\Message\Read.cshtml" />
     <Content Include="Views\Message\Unread.cshtml" />
+    <Content Include="Views\Notice\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -8,6 +8,15 @@ namespace NXtelData
 {
     public class Notice
     {
+        public int ID { get; set; }
+        public int PageID { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? Updated { get; set; }
+        public string PageTitle { get; set; }
+        public double PageFrameNo { get; set; }
+        public string PageFrameNoStr { get; set; }
 
         public static Page GetNextNotice(Page CurrentPage, string ClientHash, ref bool ShowingNotices, ref int LastNoticeReadID)
         {
