@@ -16,6 +16,8 @@ namespace NXtelManager
                         "~/Scripts/datatables.min.js",
                         "~/Scripts/bootstrap-multiselect.js",
                         "~/Scripts/bootstrap-autocomplete.min.js",
+                        "~/Scripts/moment.min.js",
+                        "~/Scripts/datetime-moment.js",
                         "~/Scripts/natural.js",
                         "~/Scripts/utility.js"));
 

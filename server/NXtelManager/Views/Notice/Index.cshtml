@@ -19,6 +19,10 @@
         <tr>
             <th>Page</th>
             <th>Title</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Active</th>
+            <th>Last Updated</th>
         </tr>
     </thead>
     <tbody>
@@ -26,9 +30,38 @@
         {
             string page = (string.IsNullOrWhiteSpace(notice.PageFrameNoStr) ? "[None]" : @notice.PageFrameNoStr).Trim();
             string title = (string.IsNullOrWhiteSpace(notice.PageTitle) ? "[None]" : @notice.PageTitle).Trim();
+            string start = notice.StartDate.HasValue ? ((DateTime)notice.StartDate).ToString("dd/MM/yyyy") : "";
+            string end = notice.EndDate.HasValue ? ((DateTime)notice.EndDate).ToString("dd/MM/yyyy") : "";
+            string active = notice.IsActive ? "Yes" : "No";
+            string updated = notice.Updated.HasValue ? ((DateTime)notice.Updated).ToString("dd/MM/yyyy hh:mm") : "";
             <tr>
                 <td>@Html.ActionLink(@page, "Edit", "Page", new { id = notice.PageID }, null)</td>
                 <td>@Html.ActionLink(@title, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                @if (!string.IsNullOrWhiteSpace(start))
+                {
+                <td>@Html.ActionLink(@start, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                }
+                else
+                {
+                <td></td>
+                }
+                @if (!string.IsNullOrWhiteSpace(end))
+                {
+                <td>@Html.ActionLink(@end, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                }
+                else
+                {
+                <td></td>
+                }
+                <td>@Html.ActionLink(@active, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                @if (!string.IsNullOrWhiteSpace(updated))
+                {
+                <td>@Html.ActionLink(@updated, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                }
+                else
+                {
+                <td></td>
+                }
             </tr>
         }
     </tbody>
@@ -47,6 +80,8 @@
 @section scripts {
     <script type="text/javascript">
         $(function () {
+            $.fn.dataTable.moment("D/M/YYYY");
+            $.fn.dataTable.moment("D/M/YYYY HH:mm");
             $("#NoticeZone").autoComplete({ 
                 bootstrapVersion: "3",
                 minLength: 1,
@@ -63,7 +98,12 @@
             $("#NoticeZone").on("autocomplete.select", function(evt, item) {
                 zoneChanged(item);
             });
-            $("table.paged").DataTable({ pageLength: @tablePageSize });
+            $("table.paged").DataTable({
+                pageLength: @tablePageSize,
+                columnDefs: [
+                    { target: [2, 3, 5], type: "datetime-moment" }
+                ]
+            });
             $(".dataTables_length select").change(function () {
                 setUserPreference("TablePageSize", $(".dataTables_length select").val());
             });
