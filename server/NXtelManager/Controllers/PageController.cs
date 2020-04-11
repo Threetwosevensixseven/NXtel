@@ -222,5 +222,12 @@ namespace NXtelManager.Controllers
             model.Pages.MineFilter = UserPreferences.Get<bool>(userID, "PageIndexMine");
             return View("Index", model);
         }
+
+        [Authorize(Roles = "Admin,Page Editor")]
+        public JsonResult Lookup(string q)
+        {
+            var pages = Pages.Search(q, false);
+            return Json(PageLookupModel.Convert(pages), JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -288,6 +288,19 @@ table.dataTable thead tr .sorting_desc_disabled::after {
     color: #000000 !important;
 }
 
+.modal-header {
+    background-color: #eee;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.modal-header .close {
+    margin-top: -20px;
+}
+
 @media screen and (max-width: 767px) {
     div.dataTables_wrapper div.dataTables_zone,
     div.dataTables_wrapper div.dataTables_primary,

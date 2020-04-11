@@ -17,6 +17,8 @@ namespace NXtelData
         public string PageTitle { get; set; }
         public double PageFrameNo { get; set; }
         public string PageFrameNoStr { get; set; }
+        public string StartDateStr { get; set; }
+        public string EndDateStr { get; set; }
 
         public static Page GetNextNotice(Page CurrentPage, string ClientHash, ref bool ShowingNotices, ref int LastNoticeReadID)
         {

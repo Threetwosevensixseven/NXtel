@@ -23,6 +23,8 @@
             <th>End Date</th>
             <th>Active</th>
             <th>Last Updated</th>
+            <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -34,26 +36,27 @@
             string end = notice.EndDate.HasValue ? ((DateTime)notice.EndDate).ToString("dd/MM/yyyy") : "";
             string active = notice.IsActive ? "Yes" : "No";
             string updated = notice.Updated.HasValue ? ((DateTime)notice.Updated).ToString("dd/MM/yyyy hh:mm") : "";
-            <tr>
-                <td>@Html.ActionLink(@page, "Edit", "Page", new { id = notice.PageID }, null)</td>
-                <td>@Html.ActionLink(@title, "Edit", "Page", new { id = notice.PageID }, null)</td>
+            string rowID = "Row" + @notice.ID.ToString();
+            <tr id="@rowID" data-notice-id="@notice.ID" data-page-no-frame="@page" data-title="@title" data-page-id="@notice.PageID">
+                <td>@Html.ActionLink(@page, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdPageID" })</td>
+                <td>@Html.ActionLink(@title, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdTitle" })</td>
                 @if (!string.IsNullOrWhiteSpace(start))
                 {
-                <td>@Html.ActionLink(@start, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                <td>@Html.ActionLink(@start, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdStartDate" })</td>
                 }
                 else
                 {
-                <td></td>
+                <td class="tdStartDate"></td>
                 }
                 @if (!string.IsNullOrWhiteSpace(end))
                 {
-                <td>@Html.ActionLink(@end, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                <td>@Html.ActionLink(@end, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdEndDate" })</td>
                 }
                 else
                 {
-                <td></td>
+                <td class="tdEndDate"></td>
                 }
-                <td>@Html.ActionLink(@active, "Edit", "Page", new { id = notice.PageID }, null)</td>
+                <td>@Html.ActionLink(@active, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdActive" })</td>
                 @if (!string.IsNullOrWhiteSpace(updated))
                 {
                 <td>@Html.ActionLink(@updated, "Edit", "Page", new { id = notice.PageID }, null)</td>
@@ -62,10 +65,56 @@
                 {
                 <td></td>
                 }
+                <td>
+                    <a id="EditContent" href="#" class="ordered ordered-btn edit" onclick="editNotice(this);return false;"
+                       style="display:inline-block;margin:0 4px;float:left" title="Edit notice">Edit</a></td>
+                <td>
+                    <a id="EditContent" href="#" class="ordered ordered-btn delete" onclick="deleteNotice(this);return false;"
+                       style="display:inline-block;margin:0 4px;float:left" title="Delete notice">Delete</a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+<a  href="#" class="btn btn-primary" onclick="newNotice();return false;">New Notice</a>
+
+<div class="modal fade" id="NoticeDialog" tabindex="-1" role="dialog" aria-labelledby="NoticeDialogTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="NoticeDialogTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body form-group">
+                <input id="hfNoticeID" type="hidden" value="-1" />
+                <label id="lblNoticePage" for="NoticePage">Page*</label>
+                <select id="NoticePage" class="form-control ctrl-pad" placeholder="Type to search..."
+                        data-url="@Url.Action("Lookup", "Page")" autocomplete="off"></select>
+                <label id="lblStartDate" for="StartDate">Start Date</label>
+                <div class="input-group date ctrl-pad">
+                    <input id="StartDate" type="text" class="form-control">
+                    <span id="StartDateShow" class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                </div>
+                <label id="lblEndDate" for="lEndDate">End Date</label>
+                <div class="input-group datectrl-pad">
+                    <input id="EndDate" type="text" class="form-control">
+                    <span id="EndDateShow" class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="chkActive">
+                    <label class="custom-control-label" for="chkActive">Active</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button id="btnSave" type="button" class="btn btn-primary" onclick="saveNotice();return false;">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section head {
     <style type="text/css">
@@ -74,15 +123,20 @@
         .glyphicon { padding-left:5px; }
         .glyphicon-ok { color: seagreen; }
         .glyphicon-remove { color: red; }
+        .modal-body input { max-width: unset; }
+        .ctrl-pad { margin-bottom: 10px; }
+        .input-group.date .input-group-addon { cursor: pointer; }
     </style>
 }
 
 @section scripts {
     <script type="text/javascript">
+        var nextNoticeID = -1;
+
         $(function () {
             $.fn.dataTable.moment("D/M/YYYY");
             $.fn.dataTable.moment("D/M/YYYY HH:mm");
-            $("#NoticeZone").autoComplete({ 
+            $("#NoticeZone").autoComplete({
                 bootstrapVersion: "3",
                 minLength: 1,
                 events: {
@@ -91,39 +145,133 @@
                         return newValue;
                     }
                 }
-            } ).autoComplete("set", { 
+            } ).autoComplete("set", {
                 id: @Model.Zone.ID,
                 text: "@Model.Zone.Description"
             })
             $("#NoticeZone").on("autocomplete.select", function(evt, item) {
                 zoneChanged(item);
             });
+            $("#NoticePage").autoComplete({
+                bootstrapVersion: "3",
+                minLength: 2
+            });
             $("table.paged").DataTable({
                 pageLength: @tablePageSize,
                 columnDefs: [
-                    { target: [2, 3, 5], type: "datetime-moment" }
+                    { target: [2, 3, 5], type: "datetime-moment" },
+                    { targets: [6, 7], searchable: false, orderable: false }
                 ]
             });
             $(".dataTables_length select").change(function () {
                 setUserPreference("TablePageSize", $(".dataTables_length select").val());
             });
+            $('#StartDate').datepicker({
+                todayBtn: "linked",
+                clearBtn: true,
+                autoclose: true
+            });
+            $("#StartDateShow").on("click", function(evt, item) {
+                $('#StartDate').datepicker("show");
+            });
+            $('#EndDate').datepicker({
+                todayBtn: "linked",
+                clearBtn: true,
+                autoclose: true
+            });
+            $("#EndDateShow").on("click", function(evt, item) {
+                $('#EndDate').datepicker("show");
+            });
         });
 
         function zoneChanged(zone) {
-            $.ajax(  
-             {  
-                 type: "POST",
-                 url: "@Url.Action("SaveZone", "Notice")",
-                 data: { Zone: zone }  
-             }).done(function(data) {
-                 if (data)
-                     $("#ZoneSaved").addClass("glyphicon-ok").removeClass("glyphicon-remove").show();
-                 else
-                     $("#ZoneSaved").addClass("glyphicon-remove").removeClass("glyphicon-ok").show();
-             })
-              .fail(function() {
-                  $("#ZoneSaved").addClass("glyphicon-remove").removeClass("glyphicon-ok").show();
-              });  
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("SaveZone", "Notice")",
+                data: { Zone: zone }
+            }).done(function(data) {
+                if (data)
+                    $("#ZoneSaved").addClass("glyphicon-ok").removeClass("glyphicon-remove").show();
+                else
+                    $("#ZoneSaved").addClass("glyphicon-remove").removeClass("glyphicon-ok").show();
+            }).fail(function() {
+                $("#ZoneSaved").addClass("glyphicon-remove").removeClass("glyphicon-ok").show();
+            });
+        }
+
+        function getNextNoticeID() {
+            var rv = nextNoticeID;
+            nextNoticeID--;
+            return rv;
+        }
+
+        function editNotice(ctrl) {
+            var row = $(ctrl).parents("tr");
+            var noticeID = row.data("notice-id") * 1;
+            var pageNoFrame = row.data("page-no-frame");
+            var title = row.data("title");
+            var desc = pageNoFrame + ": " + title;
+            var pageID = row.data("page-id") * 1;
+            var startDate = row.find(".tdStartDate").text();
+            var endDate = row.find(".tdEndDate").text();
+            var active = row.find(".tdActive").text() == "Yes";
+            $("#hfNoticeID").val(noticeID.toString());
+            $("#NoticeDialogTitle").text("Edit Notice: Page " + pageNoFrame + " - " + title);
+            $("#NoticePage").autoComplete("set", { value: pageID, text: desc });
+            $("#StartDate").datepicker('setDate', startDate);
+            $("#EndDate").datepicker('setDate', endDate);
+            $("#chkActive").prop("checked", active);
+            $("#NoticeDialog").modal();
+        }
+
+        function deleteNotice(ctrl) {
+            if (!confirm("Are you sure you want to delete this notice?"))
+                return;
+            var noticeID = $(ctrl).parents("tr").data("notice-id") * 1;
+        }
+
+        function newNotice() {
+            var noticeID = getNextNoticeID();
+            $("#NoticeDialogTitle").text("Add New Notice");
+            $("#hfNoticeID").val(noticeID.toString());
+            $("#NoticePage").val("").next("input[type=hidden]").val("");
+            $("#StartDate").datepicker('clearDates');
+            $("#EndDate").datepicker('clearDates');
+            $("#chkActive").prop("checked", true);
+            $("#NoticeDialog").modal();
+        }
+
+        function saveNotice() {
+            $("#btnSave").prop("disabled", "disabled");
+            $("#btnCancel").prop("disabled", "disabled");
+            var errors = [];
+            var notice = {};
+            notice.ID = $("#hfNoticeID").val() * 1;
+            notice.PageID = $("#NoticePage").next("input[type=hidden]").val() * 1;
+            notice.StartDateStr = JSON.stringify($("#StartDate").datepicker('getDate'));
+            notice.EndDateStr = JSON.stringify($("#EndDate").datepicker('getDate'));
+            notice.IsActive = $("#chkActive").prop("checked");
+            if (notice.PageID <= 0)
+                errors.push("Please choose a Page.");
+            if (errors.length > 0)
+            {
+                alert(errors.join("\n"));
+                $("#btnSave").prop("disabled", "disabled");
+                $("#btnCancel").prop("disabled", "disabled");
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("SaveNotice", "Notice")",
+                data: { Notice: notice }
+            }).done(function(data) {
+                alert(JSON.stringify(data));
+            }).fail(function() {
+                alert("fail");
+            }).always(function() {
+                $("#btnSave").removeProp("disabled");
+                $("#btnCancel").removeProp("disabled");
+            });
         }
     </script>
 }

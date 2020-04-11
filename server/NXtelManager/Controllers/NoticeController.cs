@@ -27,5 +27,17 @@ namespace NXtelManager.Controllers
                 DBSettings.NoticeZone = Zone.ID;
             return Json(rv, JsonRequestBehavior.DenyGet);
         }
+
+        [HttpPost]
+        public JsonResult SaveNotice(Notice Notice)
+        {
+            var rv = new Notice();
+            if (Notice == null || Notice.ID <= 0)
+                return Json(rv, JsonRequestBehavior.DenyGet);
+
+            rv = Notices.Load()[0];
+
+            return Json(rv, JsonRequestBehavior.DenyGet);
+        }
     }
 }

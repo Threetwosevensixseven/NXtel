@@ -169,7 +169,7 @@ Read:
                         ld a, (hl)
                         inc hl
 ProcessRead:
-                        dbp 1, "a=$D1", $+disp
+                        //dbp 1, "a=$D1", $+disp
 
 
                         cp $C0                          ; Start of control code range

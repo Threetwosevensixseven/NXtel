@@ -16,6 +16,7 @@ namespace NXtelManager
                         "~/Scripts/datatables.min.js",
                         "~/Scripts/bootstrap-multiselect.js",
                         "~/Scripts/bootstrap-autocomplete.min.js",
+                        "~/Scripts/bootstrap-datepicker.min.js",
                         "~/Scripts/moment.min.js",
                         "~/Scripts/datetime-moment.js",
                         "~/Scripts/natural.js",
@@ -40,6 +41,7 @@ namespace NXtelManager
             if (File.Exists(abs)) files.Add(vir);
             files.Add("~/Content/datatables.min.css");
             files.Add("~/Content/bootstrap-multiselect.css");
+            files.Add("~/Content/bootstrap-datepicker.css");
             files.Add("~/Content/site.css");
             bundles.Add(new StyleBundle("~/Content/css").Include(files.ToArray()));
         }

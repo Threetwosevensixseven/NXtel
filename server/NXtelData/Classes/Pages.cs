@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
 
 namespace NXtelData
@@ -107,6 +108,69 @@ namespace NXtelData
                     }
                 }
             }
+            return list;
+        }
+
+        private static Regex frameRegex = new Regex(@"^\s*?(?<PageNo>\d{1,10})(?<Frame>[a-zA-Z])\s*$");
+        public static Pages Search(string Value, bool AllowNone, MySqlConnection ConX = null)
+        {
+            var list = new Pages();
+            if (AllowNone)
+                list.Add(new Page() { PageID = -1, Title = "[None]" });
+            bool openConX = ConX == null;
+            if (openConX)
+            {
+                ConX = new MySqlConnection(DBOps.ConnectionString);
+                ConX.Open();
+            }
+
+            int pageNo = -1;
+            int frameNo = -1;
+            Value = Value ?? "";
+            string filter = "1=0";
+            if (Value.Length > 0)
+            {
+                string filter2 = "";
+                var m = frameRegex.Match(Value);
+                if (m.Success)
+                {
+                    int.TryParse(m.Groups["PageNo"].Value, out pageNo);
+                    string frame = (m.Groups["Frame"].Value ?? "").Trim().ToLower();
+                    if (frame.Length == 1)
+                        frameNo = Convert.ToByte(frame[0]) - 'a';
+                    if (pageNo > 0 && frameNo >= 0 && frameNo <= 25)
+                        filter2 = " OR (PageNo=@PageNo AND FrameNo=@FrameNo)";
+                }
+                filter = "((Title LIKE @Title)" + filter2 + ")";
+                Value = "%" + Value + "%";
+            }
+
+            string sql = @"SELECT PageID,Title,PageNo,FrameNo
+                FROM `page`
+                WHERE " + filter + @"
+                ORDER BY Title,PageID;";
+            using (var cmd = new MySqlCommand(sql, ConX))
+            {
+                cmd.Parameters.AddWithValue("Title", Value);
+                cmd.Parameters.AddWithValue("PageNo", pageNo);
+                cmd.Parameters.AddWithValue("FrameNo", frameNo);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var item = new Page();
+                        item.PageID = rdr.GetInt32("PageID");
+                        item.Title = rdr.GetStringNullable("Title");
+                        item.PageNo = rdr.GetInt32("PageNo");
+                        item.FrameNo = rdr.GetInt32("FrameNo");
+                        list.Add(item);
+                    }
+                }
+            }
+
+            if (openConX)
+                ConX.Close();
+
             return list;
         }
     }

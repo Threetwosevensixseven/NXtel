@@ -187,7 +187,7 @@ Text:                   db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, 
                         db $FF
 pend
 
-                        zeusassert zeusver<=74, "Upgrade to Zeus v4.00 (TEST ONLY) or above, available at http://www.desdes.com/products/oldfiles/zeustest.exe"
+                        zeusassert zeusver>=74, "Upgrade to Zeus v4.00 (TEST ONLY) or above, available at http://www.desdes.com/products/oldfiles/zeustest.exe"
 
                         //output_sna "..\build\NXtel.sna", $FF40, Start
 

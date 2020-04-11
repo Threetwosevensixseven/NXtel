@@ -171,4 +171,35 @@ namespace NXtelManager.Models
         }
     }
 
+    public class PageLookupModel
+    {
+        public int id { get; set; }
+        public string text { get; set; }
+
+        public PageLookupModel()
+        {
+            id = -1;
+            text = "";
+        }
+
+        public PageLookupModel(Page Page)
+            : this()
+        {
+            if (Page != null)
+            {
+                id = Page.PageID;
+                text = (Page.Title ?? "").Trim();
+                if (Page.PageID > 0)
+                    text = (Page.PageAndFrame ?? "").Trim() + ": " + text;
+            }
+        }
+
+        public static List<PageLookupModel> Convert(Pages Pages)
+        {
+            var rv = new List<PageLookupModel>();
+            foreach (var page in Pages ?? new Pages())
+                rv.Add(new PageLookupModel(page));
+            return rv;
+        }
+    }
 }
