@@ -436,6 +436,7 @@ mend*/
 
 
 Freeze                  macro()
+
 Loop:                   Border(Red)
                         Border(Blue)
                         jp Loop
@@ -757,6 +758,25 @@ mend
 CSExit                  macro()                         ; Intended for CSpect debugging
                         noflow                          ; enabled when the -exit switch is supplied
                         db $DD, $00                     ; This executes as NOP:NOP on real hardware
+mend
+
+
+
+StrStr                  macro(FindAddr, BuffAddr)
+                        ld hl, FindAddr
+                        ld de, BuffAddr
+                        call StrStrProc
+mend
+
+
+
+FindPrintStr            macro(FindAddr, TermChar, BuffAddr, PrintAddr, NotFoundAddr)
+                        ld hl, FindAddr
+                        ld a, TermChar
+                        ld de, BuffAddr
+                        ld bc, PrintAddr
+                        ld ix, NotFoundAddr
+                        call FindPrintStrProc
 mend
 
 

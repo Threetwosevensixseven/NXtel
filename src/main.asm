@@ -35,6 +35,7 @@ Zeus_IE                 = false
 //bOnlyUse128KSNAVector=true
 optionsize 5
 Cspect optionbool 15, -15, "Cspect", false
+RealESP optionbool 80, -15, "Real ESP", false           ; Launch CSpect with physical ESP in USB adaptor
 //ZEsarUX optionbool 80, -15, "ZEsarUX", false
 ZeusDebug optionbool 155, -15, "Zeus", false
 UploadNext optionbool 205, -15, "Next", false
@@ -233,7 +234,11 @@ mend
                         //endif
 
                         if enabled Cspect
-                          zeusinvoke "..\build\cspect.bat", "", false
+                          if enabled RealESP
+                            zeusinvoke "..\build\cspect.bat", "", false
+                          else
+                            zeusinvoke "..\build\cspect-emulate-esp.bat", "", false
+                          endif
                         endif
                         //if enabled ZEsarUX
                         //  zeusinvoke "..\build\ZEsarUX.bat", "", false

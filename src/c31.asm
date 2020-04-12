@@ -45,8 +45,6 @@ MainMenu31              proc
                         jp MainMenu.Return
 pend
 
-
-
 MenuConnect31           proc
                         Border(Teletext.Border)
                         FillLDIR(ESPBuffer, ESPBuffer.Size, $00)
@@ -111,9 +109,40 @@ LastKey:                ld a, (CurrentDigit)
                         ld (ReadMenuConnectKeys.ItemCount), a
                         jp MenuConnect.Return
 TempBuffer:             ds 40
+
 pend
 
 
+
+FindPrintStrProc        proc
+                        ld (Print), bc
+                        ld (Print2), bc
+                        ld (ErrStr), ix
+                        ld (Term), a
+                        call StrStrProc
+                        jp c, NotFound
+                        push hl
+                        ld a, [Term]SMC
+                        cpir
+                        pop de
+                        or a
+                        sbc hl, de
+                        dec hl
+                        ld bc, hl
+                        ex de, hl
+                        ld de, [Print]SMC
+                        ldir
+                        ret
+NotFound:               ld hl, [ErrStr]SMC
+                        ld de, [Print2]SMC
+Loop:                   ld a, (hl)
+                        or a
+                        ret z
+                        ld (de), a
+                        inc hl
+                        inc de
+                        jr Loop
+pend
 
 MenuNetworkSettings31   proc
                         ld hl, Menus.NetworkSettings    ; Source address (compressed data)
@@ -121,55 +150,107 @@ MenuNetworkSettings31   proc
                         call dzx7_mega
                         ESPSend("ATE0")
                         call ESPReceiveWaitOK
-                        ESPSend("AT+CIFSR")
+CIFSR:                  ESPSend("AT+CIFSR")
                         call ESPCaptureOK
-
-                        ld hl, ESPBuffer                ; Find IP address
-                        ld bc, ESPBuffer.Size
-                        ld a, '"'
-                        cpir
-                        push hl
-                        push hl
-                        cpir
-                        ld (MacStart), hl
-                        pop de
-                        push bc
-                        or a
-                        sbc hl, de
-                        dec hl
-                        ld bc, hl                       ; Copy IP address to display buffer
-                        ex de, hl
-                        ld de, DisplayBuffer+291
-                        ldir
-                        pop bc
-                        pop hl
-
-                        ld hl, [MacStart]SMC
-                        ld a, '"'                       ; Find MAC address
-                        cpir
-                        push hl
-                        push hl
-                        cpir
-                        pop de
-                        push bc
-                        or a
-                        sbc hl, de
-                        dec hl
-                        ld bc, hl                       ; Copy MAC address to display buffer
-                        ex de, hl
-                        ld de, DisplayBuffer+331
-                        ldir
-                        pop bc
-                        pop hl
-
-                        jp MenuNetworkSettings.Return
-
+                        jr c, CWJAP
+                        FindPrintStr(NetStr.IP, '"', ESPBuffer, DisplayBuffer+292, NetStr.NA)
+                        FindPrintStr(NetStr.MAC, '"', ESPBuffer, DisplayBuffer+332, NetStr.NA)
+CWJAP:                  ESPSend("AT+CWJAP?")
+                        call ESPCaptureOK
+                        jr c, CIPSTA
+                        FindPrintStr(NetStr.SSID, '"', ESPBuffer, DisplayBuffer+372, NetStr.NA)
+                        FindPrintStr(NetStr.APMAC, '"', ESPBuffer, DisplayBuffer+412, NetStr.NA)
+CIPSTA:                 ESPSend("AT+CIPSTA?")
+                        call ESPCaptureOK
+                        jr c, CIPDNS_CUR
+                        FindPrintStr(NetStr.Gateway, '"', ESPBuffer, DisplayBuffer+452, NetStr.NA)
+                        FindPrintStr(NetStr.Netmask, '"', ESPBuffer, DisplayBuffer+492, NetStr.NA)
+CIPDNS_CUR:             ESPSend("AT+CIPDNS_CUR?")
+                        call ESPCaptureOK
+                        jr c, GMR
+                        FindPrintStr(NetStr.DNS1, CR, ESPBuffer, DisplayBuffer+532, NetStr.NA)
+                        FindPrintStr(NetStr.DNS2, CR, ESPBuffer, DisplayBuffer+572, NetStr.NA)
+GMR:                    ESPSend("AT+GMR")
+                        call ESPCaptureOK
+                        jr c, Ret
+                        FindPrintStr(NetStr.SDKVer, '(', ESPBuffer, DisplayBuffer+612, NetStr.NA)
+                        FindPrintStr(NetStr.ATVer, '(', ESPBuffer, DisplayBuffer+652, NetStr.NA)
+Ret:                    jp MenuNetworkSettings.Return
 pend
 
-//zeusmem ESPBuffer, "AT+CIFSR Log",24,true,true,false
+
+
+NetStr:                 proc                            ; Null-terminated strings
+  IP:                   db "TAIP,", '"', 0
+  MAC:                  db "TAMAC,", '"', 0
+  SSID:                 db "CWJAP:", '"', 0
+  APMAC:                db '"', ",", '"', 0
+  Gateway:              db "gateway:", '"', 0
+  Netmask:              db "netmask:", '"', 0
+  DNS2:                 db LF, "+CIPDNS_CUR:", 0
+  DNS1:                 equ DNS2+1
+  SDKVer:               db "T version:", 0
+  ATVer:                db "DK version:", 0
+  NA:                   db 0
+pend
+
+
+
+// Uses asm_strstr routine, with grateful thanks to Allen Albright and z88dk project
+// https://github.com/z88dk/z88dk/blob/master/libsrc/_DEVELOPMENT/string/z80/asm_strstr.asm
+StrStrProc              proc                            ; Return ptr in s1 to first occurrence of substring s2.
+                                                        ; If s2 has zero length, s1 is returned.
+                                                        ; enter:     de = char *s1 = string
+                                                        ;            hl = char *s2 = substring
+                                                        ; exit:      de = char *s2 = substring
+                                                        ; found:     carry reset
+                                                        ;            hl = ptr in s1 to substring s2
+                                                        ; not found: carry set
+                                                        ;            hl = 0
+                                                        ; uses:      af, de, hl
+                        ld a, (hl)
+                        or a
+                        jr z, EmptySubstring
+Match1:                 ld a, (de)                      ; try to locate first char of substring in s1
+                        cp (hl)                         ; a = *string
+                        jr z, MatchRest                 ; string char matches first substring char
+                        inc de
+                        or a                            ; end of string reached?
+                        jr nz, Match1
+NotFound:               ex de, hl                       ; de = char *s2 = substring
+                        scf
+                        ret
+MatchRest:              push de                         ; save s1 = string
+                        push hl                         ; save s2 = substring
+                        ex de, hl                       ; de = char *s2 = substring, hl = char *s1 = string
+Loop:                   inc de
+                        inc hl
+                        ld a, (de)                      ; a = *substring
+                        or a
+                        jr z, MatchFound
+                        cp (hl)
+                        jr z, Loop                      ; char matches so still hope
+NoMatch:                ld a, (hl)                      ; a = mismatch char in string
+                        pop hl                          ; hl = char *s2 = substring
+                        pop de                          ; de = char *s1 = string
+                        inc de
+                        or a                            ; if first mismatch occurred at end of string,
+                        jr nz, Match1                   ; substring cannot fit so abandon early
+                        jr NotFound
+MatchFound:             pop de                          ; de = char *s2 = substring
+                        //pop hl                        ; hl = ptr to match in s1
+                        pop de                          ; Leave next buffer char in HL
+                        ret
+EmptySubstring:         ex de, hl
+                        ret
+pend
+
+
 
 ESPCaptureOK            proc
                         di
+                        ld a, $37                       ; $37 = scf
+                        ld (ReturnStatus), a            ; SMC>
                         ld hl, ESPBuffer
                         ld (BufferPointer), hl
                         ld hl, FirstChar
@@ -203,8 +284,10 @@ CaptureReturn:          pop hl
                         ld de, [Compare]SMC
                         CpHL(de)
                         jp nz, NotReady
+                        ld hl, (BufferPointer)  ; Ensure Buffer is null-terminated,
+                        ld (hl), 0              ; so we can safely search for strings
+ReturnStatus:           scf                     ; <SMC (clear or set carry)
                         ei
-                        xor a                   ; Clear carry
                         ret
 MatchSubsequent:        inc hl
                         jp Capture
@@ -213,19 +296,21 @@ MatchOK:                ld hl, SubsequentChar
                         ld hl, OKEnd
                         ld (Compare), hl
                         ld hl, OK
+                        ld a, $AF                       ; $AF = xor a
+                        ld (ReturnStatus), a
                         jp Capture
 MatchError:             ld hl, SubsequentChar
                         ld (StateJump), hl
                         ld hl, ErrorEnd
-                        ld (Compare), hl
+SetError:               ld (Compare), hl
                         ld hl, Error
+                        ld a, $3F
+                        ld (ReturnStatus), a
                         jp Capture
 MatchSendFail:          ld hl, SubsequentChar
                         ld (StateJump), hl
                         ld hl, SendFailEnd
-                        ld (Compare), hl
-                        ld hl, Error
-                        jp Capture
+                        jr SetError
 OK:                     db "K", CR, LF
 OKEnd:
 Error:                  db "RROR", CR, LF

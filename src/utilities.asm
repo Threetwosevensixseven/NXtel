@@ -370,9 +370,9 @@ Return:                 call RenderBuffer
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
-Addresses:              dw MenuNotImplemented                   ; Key 1 - NXtelBaud
-                        dw MenuNotImplemented                   ; Key 2 - Join Wifi Network
-                        dw TestLatency                          ; Key 3 - Test Latency
+Addresses:              //dw MenuNotImplemented                   ; Key 1 - NXtelBaud
+                        //dw MenuNotImplemented                   ; Key 2 - Join Wifi Network
+                        //dw TestLatency                          ; Key 3 - Test Latency
 ItemCount               equ ($-Addresses)/2
 pend
 

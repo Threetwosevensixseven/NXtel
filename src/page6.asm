@@ -39,6 +39,10 @@ Entry6:
                         Turbo(MHz14)
                         Contention(false)
 
+                        //nextreg $56, 31
+                        //StrStr(MenuNetworkSettings31.FindIP, CIFSRTest)
+                        //nop
+
                         //PortOut($7ffd, %000 1 0 000)
                         //PortOut($1ffd, %00000 1 00)
                         //Freeze()
