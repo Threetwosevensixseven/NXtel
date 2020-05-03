@@ -33,7 +33,8 @@ UART_mRX_DATA_READY     equ %xxxxx 0 0 1                ; Status bit masks
 UART_mTX_BUSY           equ %xxxxx 0 1 0                ; Status bit masks
 UART_mRX_FIFO_FULL      equ %xxxxx 1 0 0                ; Status bit masks
 
-
+;ESP
+ESPTimeout              equ 65535                       ; Use 10000 for 3.5MHz, but 28NHz needs to be 65535
 
 ; Sprite I/O ports
 Sprite_Pattern_Port     equ $5B
@@ -111,6 +112,7 @@ FRAMES                  equ 23672                       ; Frame counter
 BORDCR                  equ 23624                       ; Border colour system variable
 ULA_PORT                equ $FE                         ; out (254), a
 STIMEOUT                equ $5C81                       ; Screensaver control sysvar
+SYSVARS                 equ $5C3A
 
 
 

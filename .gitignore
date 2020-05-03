@@ -75,3 +75,4 @@
 /build/*.ps1
 /build/zeustest.exe
 /docs/registrations.txt
+/uart

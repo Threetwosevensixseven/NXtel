@@ -9,8 +9,11 @@ copy ..\bin\NXtel.nex ..\sd\*.*
 
 hdfmonkey.exe put C:\spec\cspect-next-2gb.img ..\bin\NXtel.nex Mine
 hdfmonkey.exe put C:\spec\cspect-next-2gb.img autoexec.bas nextzxos\autoexec.bas
+hdfmonkey.exe put C:\spec\cspect-next-2gb.img ..\guide\GUIDE DOT
+hdfmonkey.exe put C:\spec\cspect-next-2gb.img ..\guide\NXtel.gde Mine
+hdfmonkey.exe put C:\spec\cspect-next-2gb.img ..\build\UART DOT
 
-cd C:\spec\CSpect2_12_17
+cd C:\spec\CSpect2_12_20
 CSpect.exe -w2 -zxnext -nextrom -basickeys -exit -brk -tv -mmc=..\cspect-next-2gb.img
 
 

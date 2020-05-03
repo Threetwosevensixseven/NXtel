@@ -301,9 +301,10 @@ Return:                 call RenderBuffer
 Addresses:              dw MenuConnect                          ; 1: Connect
                         dw RunCarousel                          ; 2: Carousel Demo
                         dw MenuNetworkSettings                  ; 3: Network Settings
-                        dw MenuNotImplemented                   ; 4: Help
+                        dw MenuHelp                             ; 4: Help
                         dw MenuKeyDescriptions                  ; 5: Keys
                         dw MenuNotImplemented                   ; 6: About NXtel
+                        dw MenuQuit                             ; 7: Quit
 ItemCount               equ ($-Addresses)/2
 pend
 
@@ -370,10 +371,86 @@ Return:                 call RenderBuffer
                         ei
                         call WaitNoKey
                         jp ReadMenuKeys
-Addresses:              //dw MenuNotImplemented                   ; Key 1 - NXtelBaud
-                        //dw MenuNotImplemented                   ; Key 2 - Join Wifi Network
+Addresses:              dw MenuAutodetectBaud                     ; Key 1 - Autodetect Baud
+                        dw MenuTerminal                           ; Key 2 - Terminal
                         //dw TestLatency                          ; Key 3 - Test Latency
 ItemCount               equ ($-Addresses)/2
+pend
+
+
+
+PrepLaunchDot           proc                            ; This routine lines at $6000ish in the always-resident part
+                                                        ; of NXtel. We need to move to a more esxDOS-friendly
+                                                        ; configuration to invoke a dot command, which we do in two
+                                                        ; stages. Part (1) is in this routine, part (2) is in
+                                                        ; LaunchDot.
+                        di
+                        NextRegRead($54)                ; Read and save upper RAM slots
+                        ld (Bank54), a                  ; apart from the bank we're going to jump into
+                        NextRegRead($55)
+                        ld (Bank55), a
+                        NextRegRead($56)
+                        ld (Bank56), a
+                        NextRegRead($57)
+                        ld (Bank57), a
+                        ld bc, $123B                    ; Read and save layer 2 settings
+                        in a, (c)
+                        ld (L2), a
+                        and %1111 1101                  ; Hide layer 2
+                        out (c), a
+                        NextRegRead($15)                ; Read and save sprite settings
+                        ld (Sprites), a
+                        and %1111 1110                  ; Hide sprites
+                        nextreg $15, a
+                        nextreg $54, 4                  ; Make sure our guide calling ruoutine is paged into slot 4
+                        ld (SaveStack), sp              ; Save current stack
+                        ld sp, $9FFF                    ; Move stack into slot 4
+                        ei
+
+                        call LaunchDot                  ; We are now esxDOS friendly.
+                                                        ; Call our routine to launch the guid in slot 4.
+
+                        di
+                        ld sp, [SaveStack]SMC           ; Restore stack
+                        nextreg $54, [Bank54]SMC        ; Restore upper RAM slots
+                        nextreg $55, [Bank55]SMC
+                        nextreg $56, [Bank56]SMC
+                        nextreg $57, [Bank57]SMC
+                        ld bc, $123B
+                        ld a, [L2]SMC                   ; Restore layer 2 settings
+                        out (c), a
+                        nextreg $15, [Sprites]SMC       ; Restore sprite settings
+                        ld a, $80
+                        ld i, a
+                        im 2
+                        ei
+                        ret
+pend
+
+
+
+MenuHelp                proc
+                        ld hl, LaunchDot.Guide
+                        ld (LaunchDot.Command), hl
+                        call PrepLaunchDot
+                        jp MainMenu
+pend
+
+
+
+MenuAutodetectBaud      proc
+                        ld hl, LaunchDot.UartBaud
+                        ld (LaunchDot.Command), hl
+                        call PrepLaunchDot
+                        jp MenuNetworkSettings
+pend
+
+
+MenuTerminal            proc
+                        ld hl, LaunchDot.UartTerm
+                        ld (LaunchDot.Command), hl
+                        call PrepLaunchDot
+                        jp MenuNetworkSettings
 pend
 
 
@@ -639,5 +716,12 @@ SetupCopperFlash        proc
                         MMU6(32, false)
                         jp SetupCopperFlash32
 Return:                 ret
+pend
+
+
+
+MenuQuit                proc
+                        nextreg 2, 1                    ; soft reset
+                        jp MenuNotImplemented           ; Don't carry on and run unknown code, just in case (CSpect)
 pend
 

@@ -28,8 +28,8 @@ zoDebug                 = true
 Zeus_PC                 = Start
 Stack                   = Start
 Zeus_P7FFD              = $10
-Zeus_IY                 = $5C3A
-Zeus_AltHL              = $5C3A
+Zeus_IY                 = SYSVARS
+Zeus_AltHL              = SYSVARS
 Zeus_IM                 = 1
 Zeus_IE                 = false
 //bOnlyUse128KSNAVector=true
@@ -186,6 +186,41 @@ Text:                   db "Cursor keys & ENTER, SPACE=exit, EDIT=up  re", Inv, 
                         db "Open Download"
                         db Inv, Off, Bright, Off, TextWidth, 5
                         db $FF
+pend
+
+LaunchDot               proc                            ; Part (2). This routine must live at $8000ish
+                                                        ; in standard BASIC 16k bank 5.
+                        NextRegRead($52)                ; Read and save slot 2
+                        ld (Bank52), a
+                        NextRegRead($53)                ; Read and save slot 3
+                        ld (Bank53), a
+                        nextreg $52, 10                 ; Page ULA screen into slot 2
+                        nextreg $53, 11                 ; Page BASIC sysvars into slot 3
+
+                        FillLDIR(SCREEN,PIXELS_COUNT,0)
+                        FillLDIR(ATTRS_8x8,ATTRS_8x8_COUNT,DimBlackWhiteP)
+                        ld iy, SYSVARS                  ; Point to sysvars
+                        ld a, 2
+                        call 5633                       ; Setup rst 16 printing to upper screen stream
+                        ld a, 30:rst 16
+                        ld a, 8:rst 16
+                        ld a, 29:rst 16
+                        ld a, 8:rst 16
+                        ld a, At:rst 16
+                        xor a:rst 16
+                        xor a:rst 16                    ; PRINT AT 0,0
+
+                        ld ix, [Command]SMC             ; Null-terminated dot command line (omitting initial '.')
+                        rst 8
+                        noflow                          ; Data byte not to be executed: Zeus Data Execution Prevention
+                        db esxDOS.M_EXECCMD             ; M_EXECCMD API call to launch the dot command
+
+                        nextreg $52, [Bank52]SMC        ; Restore slot 2
+                        nextreg $53, [Bank53]SMC        ; Restore slot 3
+                        ret
+Guide:                  db "guide NXtel.gde", 0
+UartBaud:               db "uart -fi", 0
+UartTerm:               db "uart", 0
 pend
 
                         zeusassert zeusver>=74, "Upgrade to Zeus v4.00 (TEST ONLY) or above, available at http://www.desdes.com/products/oldfiles/zeustest.exe"

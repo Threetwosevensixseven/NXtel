@@ -28,7 +28,7 @@ Welcome31               proc
                         ld de, DisplayBuffer            ; Destination address (decompressing)
                         call dzx7_mega
                         ld hl, Version
-                        ld de, DisplayBuffer+667
+                        ld de, DisplayBuffer+747
                         ld bc, 12
                         ldir
                         jp Welcome.Return
@@ -148,8 +148,16 @@ MenuNetworkSettings31   proc
                         ld hl, Menus.NetworkSettings    ; Source address (compressed data)
                         ld de, DisplayBuffer            ; Destination address (decompressing)
                         call dzx7_mega
+                        ESPSend("AT")
+                        call ESPReceiveWaitOKTimeout
+                        jp c, Ret
+                        ld hl, NetStr.b115200
+                        ld bc, NetStr.b115200Len
+                        ld de, DisplayBuffer+692
+                        ldir
                         ESPSend("ATE0")
-                        call ESPReceiveWaitOK
+                        call ESPReceiveWaitOKTimeout
+                        jp c, Ret
 CIFSR:                  ESPSend("AT+CIFSR")
                         call ESPCaptureOK
                         jr c, CWJAP
@@ -192,6 +200,8 @@ NetStr:                 proc                            ; Null-terminated string
   SDKVer:               db "T version:", 0
   ATVer:                db "DK version:", 0
   NA:                   db 0
+  b115200               db "115200"
+  b115200Len            equ $-b115200
 pend
 
 

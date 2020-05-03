@@ -31,7 +31,7 @@ Start6:
                         nextreg $53, 12
                         jp Entry6
 Entry6:
-                        ld iy, $5C3A
+                        ld iy, SYSVARS
                         ld sp, Stack
                         ld a, $80
                         ld i, a

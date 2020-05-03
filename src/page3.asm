@@ -170,7 +170,7 @@ Matrix proc Table:
   db $FF,  $BF,  None,   $3D,  None,   $2B,  None  ;   9  HJKLEn   Symbol Shift
   db $FF,  $DF,   $22,   $3B, Index,  None,  None  ;  10  YUIOP    Symbol Shift
   db $FF,  $EF,  None,   $29,   $28,   $27,   $26  ;  11  67890    Symbol Shift
-  db $FF,  $F7,   $21,   $40,  None,   $24,   $25  ;  12  54321    Symbol Shift
+  db $FF,  $F7,   $21,   $40,   $5F,   $24,   $25  ;  12  54321    Symbol Shift
   db $FF,  $FB,  None,  None,  None,   $3C,   $3E  ;  13  TREWQ    Symbol Shift
   db $FF,  $FD,  None, Concl, DownL,  None,  None  ;  14  GFDSA    Symbol Shift
   db $FF,  $FE,  None,   $3A,   $23,   $3F,   $2F  ;  15  VCXZCs   Symbol Shift
