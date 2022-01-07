@@ -42,9 +42,12 @@
                         <input type="submit" value="Log in" class="btn btn-default" />
                     </div>
                 </div>
+                if (!NXtelData.Options.DisableAccountRegistration)
+                {
                 <p>
                     @Html.ActionLink("Register as a new user", "Register")
                 </p>
+                }
                 <p>
                     @Html.ActionLink("Forgot your password?", "ForgotPassword")
                 </p>

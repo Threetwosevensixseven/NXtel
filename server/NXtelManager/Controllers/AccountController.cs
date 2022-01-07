@@ -168,6 +168,8 @@ namespace NXtelManager.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
+            if (NXtelData.Options.DisableAccountRegistration)
+                return RedirectToAction("Login");
             return View();
         }
 
@@ -178,6 +180,8 @@ namespace NXtelManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            if (NXtelData.Options.DisableAccountRegistration)
+                return View("Error");
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };

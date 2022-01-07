@@ -429,5 +429,19 @@ namespace NXtelData
                 return rv;
             }
         }
+
+        private static bool? _disableAccountRegistration;
+        public static bool DisableAccountRegistration
+        {
+            get
+            {
+                if (_disableAccountRegistration == null)
+                {
+                    string cfg = (ConfigurationManager.AppSettings["DisableAccountRegistration"] ?? "").Trim().ToLower();
+                    _disableAccountRegistration = (cfg == "true");
+                }
+                return (bool)_disableAccountRegistration;
+            }
+        }
     }
 }
