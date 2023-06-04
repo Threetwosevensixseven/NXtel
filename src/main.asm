@@ -1,6 +1,6 @@
 ; main.asm
 
-; NXtel is copyright © 2018-2020 Robin Verhagen-Guest.
+; NXtel is copyright © 2018-2023 Robin Verhagen-Guest.
 ;
 ; This program is free software: you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -85,11 +85,6 @@ org $8181
                         NextRegRead($57)
                         ld (ISR57), a
                         nextreg $56, 6
-
-                        //NextRegRead(5)
-                        //and %11111011
-                        //or [CurrentHz]SMC
-                        //out (c), a
 
 EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or $21 (ld hl, nnnn: disabled)
                         //call DoFlash

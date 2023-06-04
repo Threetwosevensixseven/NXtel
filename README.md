@@ -7,7 +7,7 @@ See the [wiki](https://github.com/Threetwosevensixseven/NXtel/wiki) for document
 <a href="https://github.com/Threetwosevensixseven/NXtel/wiki/images/welcome.png" target="_blank"><img src="https://github.com/Threetwosevensixseven/NXtel/wiki/images/welcome.png" alt="NXtel Welcome Page" width="400"></a>
 
 ## Copyright and Licence
-NXtel is copyright  2018-2020 Robin Verhagen-Guest, and is licensed under [GPL-3.0](https://github.com/Threetwosevensixseven/NXtel/blob/master/LICENSE).
+NXtel is copyright  2018-2023 Robin Verhagen-Guest, and is licensed under [GPL-3.0](https://github.com/Threetwosevensixseven/NXtel/blob/master/LICENSE).
 
 [ZX Spectrum Next](https://www.specnext.com/about/) is a trademark of SpecNext Ltd.
 

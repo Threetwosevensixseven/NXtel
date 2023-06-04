@@ -1,6 +1,6 @@
 ; page6.asm - OS-FRIENDLY CORE CODE
 
-; NXtel is copyright © 2018-2020 Robin Verhagen-Guest.
+; NXtel is copyright © 2018-2023 Robin Verhagen-Guest.
 ;
 ; This program is free software: you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
