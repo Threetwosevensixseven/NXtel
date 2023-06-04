@@ -301,9 +301,9 @@ Return:                 call RenderBuffer
 Addresses:              dw MenuConnect                          ; 1: Connect
                         dw RunCarousel                          ; 2: Carousel Demo
                         dw MenuNetworkSettings                  ; 3: Network Settings
-                        dw MenuHelp                             ; 4: Help
+                        //dw MenuHelp                             ; 4: Help
                         dw MenuKeyDescriptions                  ; 5: Keys
-                        dw MenuNotImplemented                   ; 6: About NXtel
+                        //dw MenuNotImplemented                   ; 6: About NXtel
                         dw MenuQuit                             ; 7: Quit
 ItemCount               equ ($-Addresses)/2
 pend
