@@ -80,6 +80,12 @@ org $8181
                         push hl
                         push ix
                         push iy
+                        ld bc, DivMMC
+                        in a, (c)                       ; Read and save divMMC port
+                        ld (SavedDivMMC), a
+                        ld bc, Sprite_Register_Port
+                        in a, (c)                       ; Read and save NextReg port
+                        ld (SavedNextReg), a
                         NextRegRead($56)
                         ld (ISR56), a
                         NextRegRead($57)
@@ -93,6 +99,12 @@ EnableDisableKBScan:    call ScanKeyboard               ; $CD (call: Enabled) or
 PrintTimeCall:          ld hl, PrintTime
                         nextreg $56, [ISR56]SMC
                         nextreg $57, [ISR57]SMC
+                        ld bc, Sprite_Register_Port
+                        ld a, [SavedNextReg]SMC
+                        out (c), a                      ; Restore NextReg port
+                        ld bc, DivMMC
+                        ld a, [SavedDivMMC]SMC
+                        out (c), a                      ; Restore divMMC port
                         pop iy
                         pop ix
                         pop hl
@@ -265,9 +277,11 @@ mend
 
                         if enabled Cspect
                           if enabled RealESP
-                            zeusinvoke "..\build\cspect.bat", "", false
-                          else
+                            zeusprint "Running cspect-emulate-esp.bat"
                             zeusinvoke "..\build\cspect-emulate-esp.bat", "", false
+                          else
+                           zeusprint "Running cspect.bat"
+                            zeusinvoke "..\build\cspect.bat", "", false
                           endif
                         endif
                         //if enabled ZEsarUX

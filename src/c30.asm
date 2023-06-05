@@ -870,7 +870,8 @@ pend
 
 
 
-GetTime                 proc
+GetTime                 proc                            ; Temporarily disable clock because
+                        ret                             ; M_GETDATE is crashing on NextZXOS 2.08
                         ld a, [ShowClock]SMC
                         or a
                         ret z
