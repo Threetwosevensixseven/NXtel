@@ -41,7 +41,7 @@ namespace NXtelData
                 }
                 settings.appDir = appDir;
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
                 settings = new Settings(appDir);
             }

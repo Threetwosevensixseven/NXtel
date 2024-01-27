@@ -132,7 +132,7 @@ namespace NXtelData
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception /*ex*/)
                 {
                     var obj2 = JsonConvert.DeserializeObject<T>(EmptyJSON);
                     return obj2;
@@ -147,7 +147,7 @@ namespace NXtelData
                 var obj = JsonConvert.DeserializeObject<T>(json);
                 return obj;
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
                 var obj = JsonConvert.DeserializeObject<T>(EmptyJSON);
                 return obj;

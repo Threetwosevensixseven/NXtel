@@ -30,7 +30,7 @@ namespace NXtelServer.Classes
         private DateTime _latencyStart;
         private Timer _queuedPageTimer;
         private List<Tuple<int, int>> _carouselPages;
-        private Tuple<int, int> _carouselPage;
+        //private Tuple<int, int> _carouselPage;
         private Carousel _carousel;
         public Socket Socket;
         public object CarouselLock = new object();

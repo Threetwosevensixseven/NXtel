@@ -23,12 +23,12 @@ namespace NXtelManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                string err;
+                //string err;
                 //if (!Model.Zone.Save(out err))
                 {
                     return View("Edit", Model);
                 }
-                return RedirectToAction("Index");
+                //return RedirectToAction("Index");
             }
             return View("Edit", Model);
         }

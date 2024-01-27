@@ -128,7 +128,7 @@ namespace NXtelData
                 if (CurrentFrameNo < 0)
                     CurrentFrameNo = -1;
 
-                byte KeyCode = 0;
+                //byte KeyCode = 0;
                 string sql = @"SELECT @CurrentPageNo AS CurrentPageNo,@CurrentFrameNo AS CurrentFrameNo,
                     @NextPageNo AS NextPageNo,@NextFrameNo AS NextFrameNo,
                     @GoNextPage AS GoNextPage,@GoNextFrame AS GoNextFrame,dp.PageID AS DirectPageID,dp.PageNo AS DirectPageNo,dp.FrameNo AS DirectFrameNo,

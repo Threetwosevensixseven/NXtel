@@ -19,7 +19,7 @@ namespace NXtelServer
         private const int dataSize = 1024;
         private static Dictionary<Socket, Client> clientList = new Dictionary<Socket, Client>();
         private static string Version;
-        private static bool IACEnabled = false;
+        //private static bool IACEnabled = false;
 
         static void Main(string[] args)
         {

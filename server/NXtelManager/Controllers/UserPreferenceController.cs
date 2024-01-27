@@ -35,7 +35,7 @@ namespace NXtelManager.Controllers
                 UserPreferences.Set(userID, Pref.Key, (Pref.Value ?? "").ToString());
                 return AllowGet(true);
             }
-            catch (Exception ex)
+            catch (Exception /*ex*/)
             {
             }
             return AllowGet(false);

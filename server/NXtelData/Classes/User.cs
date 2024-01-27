@@ -188,7 +188,7 @@ namespace NXtelData
             catch (Exception ex)
             {
                 throw ex;
-                return "";
+                //return "";
             }
         }
 
