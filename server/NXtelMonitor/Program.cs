@@ -305,13 +305,16 @@ namespace NXtelMonitor
                     Console.WriteLine("Calling URL: " + url);
                     try
                     {
+                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
                         var request = WebRequest.Create(url);
                         var response = request.GetResponse();
                         Console.WriteLine("Success calling URL");
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         Console.WriteLine("Error calling URL");
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
                         success = 1;
                     }
                 }
