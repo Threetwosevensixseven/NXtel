@@ -1,0 +1,38 @@
+# NXtel viewdata server with MySQL 8.4.
+# Start from this directory: docker compose up -d
+# The first start creates an empty database from Schema/NXtelDbSchema.sql.
+# Change both passwords before you use it outside a test machine.
+name: nxtel
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme-root
+      MYSQL_DATABASE: nxtel
+      # The schema's stored procedure has DEFINER `nxtel`@`%`, so the user must be called nxtel.
+      MYSQL_USER: nxtel
+      MYSQL_PASSWORD: changeme
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./Schema/NXtelDbSchema.sql:/docker-entrypoint-initdb.d/10-NXtelDbSchema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -unxtel -p$$MYSQL_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 60s
+  server:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionString: server=db;port=3306;database=nxtel;uid=nxtel;pwd=changeme
+      TimeZone: Europe/London
+    ports:
+      - "23280:23280"
+    # The server reads commands from stdin and stops if stdin is closed.
+    stdin_open: true
+    tty: true
+volumes:
+  dbdata:
