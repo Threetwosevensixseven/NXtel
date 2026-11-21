@@ -480,7 +480,7 @@ namespace NXtelData
                 return;
             }
             string val = "";
-            var now = DateTime.Now;
+            var now = Options.Now;
             string expr = (Expression ?? "").ToLower();
             if (expr == "@pageframe")
                 val = Page.PageNo.ToString() + Page.Frame;
@@ -498,7 +498,7 @@ namespace NXtelData
                 if (LastSeen == DateTime.MinValue)
                 val = "                   Never";
             else
-                val = ((DateTime)LastSeen).ToString("ddd dd MMM yyyy HH:mm:ss");
+                val = Options.ToLocal((DateTime)LastSeen).ToString("ddd dd MMM yyyy HH:mm:ss");
             else if (expr == "@version")
                 val = "v" + Assembly.GetEntryAssembly().GetName().Version.ToString();
             else if (expr == "@ts.percent")

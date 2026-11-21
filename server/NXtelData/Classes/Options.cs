@@ -366,6 +366,32 @@ namespace NXtelData
             }
         }
 
+        public static string TimeZone
+        {
+            get
+            {
+                string cfg = (Configuration["TimeZone"] ?? "").Trim();
+                return cfg;
+            }
+        }
+
+        public static DateTime Now
+        {
+            get
+            {
+                if (TimeZone == "")
+                    return DateTime.Now;
+                return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, TimeZone);
+            }
+        }
+
+        public static DateTime ToLocal(DateTime ServerTime)
+        {
+            if (TimeZone == "")
+                return ServerTime;
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.SpecifyKind(ServerTime, DateTimeKind.Local), TimeZone);
+        }
+
         public static string GeoEndpoint
         {
             get

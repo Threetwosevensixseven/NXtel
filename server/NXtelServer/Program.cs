@@ -27,7 +27,7 @@ namespace NXtelServer
             {
                 try
                 {
-                    var settings = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load();
+                    var settings = new Settings(AppContext.BaseDirectory).Load();
                     DBOps.ConnectionString = settings.ConnectionString;
                     Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
                     Console.WriteLine("Starting NXtel Server v" + Version);
