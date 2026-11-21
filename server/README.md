@@ -43,6 +43,17 @@ mkdir -p App_Data/ContentHelp App_Data/GitHubWiki
 ConnectionString='server=127.0.0.1;port=3306;database=nxtel;uid=nxtel;pwd=changeme' ASPNETCORE_URLS=http://0.0.0.0:8080 dotnet NXtelManager.dll
 ```
 
+## NXtelGeo
+
+`NXtelGeo` is a console app that fills in the latitude and longitude of visitor addresses in the `geo` table. It looks each address up at `GeoEndpoint`, at most `GeoRequestsPerMinute` times a minute. It reads `appsettings.json` from its own directory, with the same environment variable overrides. It processes the database in `ConnectionString` and then each database in `AdditionalConnections`, then exits. Run it from cron or a systemd timer:
+
+```sh
+dotnet publish NXtelGeo/NXtelGeo.csproj -c Release -o /opt/nxtel-geo
+dotnet /opt/nxtel-geo/NXtelGeo.dll
+```
+
+With `-i` it waits for a key press before it exits.
+
 ## Docker
 
 `compose.yaml` runs the server, the manager and MySQL 8.4. From this directory:

@@ -20,7 +20,7 @@ namespace NXtelGeo
                 interactive = args.Any(a => a.ToLower() == "-i");
                 if (interactive)
                     Console.WriteLine("Running in interactive mode");
-                var settings = new Settings(AppDomain.CurrentDomain.BaseDirectory).Load();
+                var settings = new Settings(AppContext.BaseDirectory).Load();
                 foreach (var con in settings.GetAllConnectionStrings())
                 {
                     DBOps.ConnectionString = con;
