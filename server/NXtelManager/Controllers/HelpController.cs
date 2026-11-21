@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NXtelData;
 
 namespace NXtelManager.Controllers
@@ -21,7 +22,7 @@ namespace NXtelManager.Controllers
             string id = (ID ?? "").Trim().ToLower();
             var help = items.FirstOrDefault(h => id == h.Slug.ToLower());
             if (help == null)
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             help.LoadMarkdown();
             return View(help);
         }
@@ -30,7 +31,7 @@ namespace NXtelManager.Controllers
         {
             var bytes = HelpItem.LoadMedia(ID2, ID);
             if (bytes == null || bytes.Length == 0)
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             return base.File(bytes, "application/octet-stream");
         }
     }

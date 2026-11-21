@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NXtelData;
@@ -34,7 +35,7 @@ namespace NXtelManager.Controllers
             var model = new PageEditModel();
             bool sendURL = id == -2;
             if (sendURL) id = -1;
-            var copy = Session["PageCopy"] as PageEditModel;
+            var copy = HttpContext.Session.GetObject("PageCopy") as PageEditModel;
             if (copy == null)
                 model.Page = Page.Load(id);
             else
@@ -43,7 +44,7 @@ namespace NXtelManager.Controllers
                 model.Page.Environment = copy.Page.Environment;
             }
             model.SendURL = sendURL;
-            Session["PageCopy"] = null;
+            HttpContext.Session.SetObject("PageCopy", null);
             if (id != -1 && model.Page.PageID <= 0)
                 return RedirectToAction("Index");
             model.Permissions = Permissions.Load(User);
@@ -155,7 +156,7 @@ namespace NXtelManager.Controllers
                 Model.PageNo, Model.Frame, Model.NextPage, Model.NextFrame);
             Model.PageID = route.GoesToPageID;
             Model.GoesToPageFrameDesc = route.GoesToPageFrameDesc;
-            return Json(Model, JsonRequestBehavior.AllowGet);
+            return Json(Model);
         }
 
         public ActionResult Zone(int ID)
@@ -205,7 +206,7 @@ namespace NXtelManager.Controllers
                 model.OldToFrame = model.Page.ToFrame;
                 model.Page.ToFrame = "";
             }
-            Session["PageCopy"] = model;
+            HttpContext.Session.SetObject("PageCopy", model);
             return RedirectToAction("Edit");
         }
 
@@ -227,7 +228,7 @@ namespace NXtelManager.Controllers
         public JsonResult Lookup(string q)
         {
             var pages = Pages.Search(q, false);
-            return Json(PageLookupModel.Convert(pages), JsonRequestBehavior.AllowGet);
+            return Json(PageLookupModel.Convert(pages));
         }
     }
 }

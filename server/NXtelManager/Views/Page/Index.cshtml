@@ -76,7 +76,7 @@ else
                     <td>@Html.ActionLink(@page.Title, "Edit", "Page", new { id = page.PageID }, null)</td>
                     <td class="lock @cls" title="@val">@val2</td>
                     <td style="display:none">@val3</td>
-                    <td style="display:none">@page.ZoneIDsEncoded</td>
+                    <td style="display:none">@(page.ZoneIDsEncoded)</td>
                     <td style="display:none">@primary</td>
                     @if (Model.Recent)
                     {

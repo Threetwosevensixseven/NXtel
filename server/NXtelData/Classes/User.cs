@@ -219,6 +219,7 @@ namespace NXtelData
                     con.Open();
                     string sql = @"UPDATE aspnetusers
                         SET email=@email,
+                        NormalizedEmail=UPPER(@email),
                         emailconfirmed=@emailconfirmed,
                         mailbox=@mailbox,
                         FirstName=@FirstName,

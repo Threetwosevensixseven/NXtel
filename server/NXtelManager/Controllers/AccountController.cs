@@ -3,11 +3,10 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Identity;
 using NXtelManager.Models;
 
 namespace NXtelManager.Controllers
@@ -17,10 +16,6 @@ namespace NXtelManager.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-
-        public AccountController()
-        {
-        }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
         {
@@ -32,7 +27,7 @@ namespace NXtelManager.Controllers
         {
             get
             {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+                return _signInManager;
             }
             private set 
             { 
@@ -44,7 +39,7 @@ namespace NXtelManager.Controllers
         {
             get
             {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                return _userManager;
             }
             private set
             {
@@ -75,8 +70,8 @@ namespace NXtelManager.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, true, shouldLockout: false);
-            switch (result)
+            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, true, lockoutOnFailure: false);
+            switch (result.ToStatus())
             {
                 case SignInStatus.Success:
                     {
@@ -84,11 +79,11 @@ namespace NXtelManager.Controllers
                         if (!await UserManager.IsEmailConfirmedAsync(currentUser.Result.Id))
                         {
                             string mailbox = currentUser.Result.Mailbox;
-                            AuthenticationManager.SignOut();
+                            await SignInManager.SignOutAsync();
 
                             // Send email
                             var code = await UserManager.GenerateEmailConfirmationTokenAsync(currentUser.Result.Id);
-                            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Url.Scheme);
+                            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = currentUser.Result.Id, code = code }, protocol: Request.Scheme);
                             try
                             {
                                 var emailModel = new CallbackEmailModel(callbackUrl, mailbox);
@@ -97,13 +92,13 @@ namespace NXtelManager.Controllers
                             }
                             catch
                             {
-                                AuthenticationManager.SignOut();
+                                await SignInManager.SignOutAsync();
                                 ViewBag.NotLoggedIn = true;
                                 return View("Error");
                             }
                             finally { }
                             // Show message
-                            AuthenticationManager.SignOut();
+                            await SignInManager.SignOutAsync();
                             ViewBag.NotLoggedIn = true;
                             return RedirectToAction("DisplayEmail");
                         }
@@ -149,8 +144,8 @@ namespace NXtelManager.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
-            switch (result)
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberClient: model.RememberBrowser);
+            switch (result.ToStatus())
             {
                 case SignInStatus.Success:
                     return RedirectToLocal(model.ReturnUrl);
@@ -193,12 +188,12 @@ namespace NXtelManager.Controllers
                     u.Mailbox = user.Mailbox;
                     string err;
                     NXtelData.User.Save(u, out err);
-                    AuthenticationManager.SignOut();
+                    await SignInManager.SignOutAsync();
 
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Scheme);
                     try
                     {
                         var emailModel = new CallbackEmailModel(callbackUrl, u.Mailbox);
@@ -207,7 +202,7 @@ namespace NXtelManager.Controllers
                     }
                     catch
                     {
-                        AuthenticationManager.SignOut();
+                        await SignInManager.SignOutAsync();
                         ViewBag.NotLoggedIn = true;
                         return View("Error");
                     }
@@ -281,7 +276,7 @@ namespace NXtelManager.Controllers
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                string callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                string callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Scheme);
                 try
                 {
                     var emailModel = new CallbackEmailModel(callbackUrl, user.Mailbox);
@@ -290,7 +285,7 @@ namespace NXtelManager.Controllers
                 }
                 catch
                 {
-                    AuthenticationManager.SignOut();
+                    await SignInManager.SignOutAsync();
                     ViewBag.NotLoggedIn = true;
                     return View("Error");
                 }
@@ -359,7 +354,8 @@ namespace NXtelManager.Controllers
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            var properties = SignInManager.ConfigureExternalAuthenticationProperties(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            return new ChallengeResult(provider, properties);
         }
 
         //
@@ -402,15 +398,15 @@ namespace NXtelManager.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
+            var loginInfo = await SignInManager.GetExternalLoginInfoAsync();
             if (loginInfo == null)
             {
                 return RedirectToAction("Login");
             }
 
             // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
-            switch (result)
+            var result = await SignInManager.ExternalLoginSignInAsync(loginInfo.LoginProvider, loginInfo.ProviderKey, isPersistent: false);
+            switch (result.ToStatus())
             {
                 case SignInStatus.Success:
                     return RedirectToLocal(returnUrl);
@@ -422,8 +418,8 @@ namespace NXtelManager.Controllers
                 default:
                     // If the user does not have an account, then prompt the user to create an account
                     ViewBag.ReturnUrl = returnUrl;
-                    ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
+                    ViewBag.LoginProvider = loginInfo.LoginProvider;
+                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Principal.FindFirstValue(ClaimTypes.Email) });
             }
         }
 
@@ -442,7 +438,7 @@ namespace NXtelManager.Controllers
             if (ModelState.IsValid)
             {
                 // Get the information about the user from the external login provider
-                var info = await AuthenticationManager.GetExternalLoginInfoAsync();
+                var info = await SignInManager.GetExternalLoginInfoAsync();
                 if (info == null)
                 {
                     return View("ExternalLoginFailure");
@@ -451,10 +447,10 @@ namespace NXtelManager.Controllers
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
-                    result = await UserManager.AddLoginAsync(user.Id, info.Login);
+                    result = await UserManager.AddLoginAsync(user.Id, info);
                     if (result.Succeeded)
                     {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                        await SignInManager.SignInAsync(user, isPersistent: false);
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -469,9 +465,9 @@ namespace NXtelManager.Controllers
         // POST: /Account/LogOff
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult LogOff()
+        public async Task<ActionResult> LogOff()
         {
-            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            await SignInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
@@ -483,63 +479,32 @@ namespace NXtelManager.Controllers
             return View();
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (_userManager != null)
-                {
-                    _userManager.Dispose();
-                    _userManager = null;
-                }
-
-                if (_signInManager != null)
-                {
-                    _signInManager.Dispose();
-                    _signInManager = null;
-                }
-            }
-
-            base.Dispose(disposing);
-        }
-
         // GET: /Account/SilentLogOff
         [HttpGet]
         [Authorize]
-        public ActionResult SilentLogOff()
+        public async Task<ActionResult> SilentLogOff()
         {
             // Sign out and redirect to Login
-            AuthenticationManager.SignOut();
+            await SignInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
 
         // GET: /Account/DisplayEmail
         [HttpGet]
         [Authorize]
-        public ActionResult DisplayEmail()
+        public async Task<ActionResult> DisplayEmail()
         {
             // Sign out and show DisplayEmail view
-            AuthenticationManager.SignOut();
+            await SignInManager.SignOutAsync();
             return View();
         }
 
         #region Helpers
-        // Used for XSRF protection when adding external logins
-        private const string XsrfKey = "XsrfId";
-
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
-            }
-        }
-
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError("", error);
+                ModelState.AddModelError("", error.Description);
             }
         }
 
@@ -550,35 +515,6 @@ namespace NXtelManager.Controllers
                 return Redirect(returnUrl);
             }
             return RedirectToAction("Index", "Home");
-        }
-
-        internal class ChallengeResult : HttpUnauthorizedResult
-        {
-            public ChallengeResult(string provider, string redirectUri)
-                : this(provider, redirectUri, null)
-            {
-            }
-
-            public ChallengeResult(string provider, string redirectUri, string userId)
-            {
-                LoginProvider = provider;
-                RedirectUri = redirectUri;
-                UserId = userId;
-            }
-
-            public string LoginProvider { get; set; }
-            public string RedirectUri { get; set; }
-            public string UserId { get; set; }
-
-            public override void ExecuteResult(ControllerContext context)
-            {
-                var properties = new AuthenticationProperties { RedirectUri = RedirectUri };
-                if (UserId != null)
-                {
-                    properties.Dictionary[XsrfKey] = UserId;
-                }
-                context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
-            }
         }
         #endregion
     }

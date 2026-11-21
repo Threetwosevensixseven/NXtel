@@ -197,6 +197,23 @@ namespace NXtelData
             }
         }
 
+        public static string DbBackupDirectory
+        {
+            get
+            {
+                string cfg = (Configuration["DbBackupDirectory"] ?? "").Trim();
+                if (cfg.StartsWith("~"))
+                    cfg = Path.Combine(AppContext.BaseDirectory, cfg.TrimStart('~', '/'));
+                try
+                {
+                    if (!Directory.Exists(cfg))
+                        Directory.CreateDirectory(cfg);
+                }
+                catch { }
+                return cfg;
+            }
+        }
+
         private static bool? _usePrestelCharSet;
         public static bool UsePrestelCharSet
         {

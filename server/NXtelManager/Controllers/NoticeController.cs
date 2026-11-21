@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NXtelData;
 using NXtelManager.Models;
 
@@ -25,7 +26,7 @@ namespace NXtelManager.Controllers
             bool rv = Zone != null;
             if (rv)
                 DBSettings.NoticeZone = Zone.ID;
-            return Json(rv, JsonRequestBehavior.DenyGet);
+            return Json(rv);
         }
 
         [HttpPost]
@@ -33,11 +34,11 @@ namespace NXtelManager.Controllers
         {
             var rv = new Notice();
             if (Notice == null || Notice.ID <= 0)
-                return Json(rv, JsonRequestBehavior.DenyGet);
+                return Json(rv);
 
             rv = Notices.Load()[0];
 
-            return Json(rv, JsonRequestBehavior.DenyGet);
+            return Json(rv);
         }
     }
 }

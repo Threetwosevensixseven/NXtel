@@ -1,13 +1,11 @@
-﻿using System.Web;
-using System.Web.Mvc;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace NXtelManager
 {
     public class FilterConfig
     {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+        public static void RegisterGlobalFilters(FilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
         }
     }
 }

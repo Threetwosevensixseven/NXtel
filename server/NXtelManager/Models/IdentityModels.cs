@@ -1,8 +1,6 @@
-﻿using System.Data.Entity;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NXtelData;
 
 namespace NXtelManager.Models
@@ -11,37 +9,25 @@ namespace NXtelManager.Models
     public class ApplicationUser : IdentityUser
     {
         public string Mailbox { get; set; }
-
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, bool isPersistent)
-        {
-            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
-            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-            userIdentity.SetIsPersistent(isPersistent);
-            //userIdentity.AddClaim(new Claim("Mailbox", (Mailbox ?? "").ToString()));
-            return userIdentity;
-        }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext()
-            : base(DBOps.ConnectionString, throwIfV1Schema: false)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
         }
 
-        public static ApplicationDbContext Create()
-        {
-            return new ApplicationDbContext();
-        }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ApplicationUser>().ToTable("aspnetusers");
             modelBuilder.Entity<IdentityRole>().ToTable("aspnetroles");
-            modelBuilder.Entity<IdentityUserRole>().ToTable("aspnetuserroles");
-            modelBuilder.Entity<IdentityUserClaim>().ToTable("aspnetuserclaims");
-            modelBuilder.Entity<IdentityUserLogin>().ToTable("aspnetuserlogins");
+            modelBuilder.Entity<IdentityUserRole<string>>().ToTable("aspnetuserroles");
+            modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("aspnetuserclaims");
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("aspnetuserlogins");
+            modelBuilder.Entity<IdentityUserToken<string>>().ToTable("aspnetusertokens");
+            modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("aspnetroleclaims");
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NXtelData;
 using NXtelManager.Attributes;
 using NXtelManager.Models;
@@ -33,7 +34,7 @@ namespace NXtelManager.Controllers
         {
             int id = ID ?? -1;
             var model = new ZoneEditModel();
-            var copy = Session["ZoneCopy"] as ZoneEditModel;
+            var copy = HttpContext.Session.GetObject("ZoneCopy") as ZoneEditModel;
             if (copy == null)
                 model.Zone = Zone.Load(id);
             else
@@ -41,7 +42,7 @@ namespace NXtelManager.Controllers
                 model = copy;
                 model.Zone.Environment = copy.Zone.Environment;
             }
-            Session["ZoneCopy"] = null;
+            HttpContext.Session.SetObject("ZoneCopy", null);
             if (id != -1 && model.Zone.ID <= 0)
                 return RedirectToAction("Index");
             model.Permissions = Permissions.Load(User);
@@ -100,7 +101,7 @@ namespace NXtelManager.Controllers
                 model.OldDescription = model.Zone.Description;
                 model.Zone.Description = "";
             }
-            Session["ZoneCopy"] = model;
+            HttpContext.Session.SetObject("ZoneCopy", model);
             return RedirectToAction("Edit");
         }
 
@@ -108,7 +109,7 @@ namespace NXtelManager.Controllers
         public JsonResult Lookup(string q)
         {
             var zones = Zones.Search(q, true);
-            return Json(ZoneLookupModel.Convert(zones), JsonRequestBehavior.AllowGet);
+            return Json(ZoneLookupModel.Convert(zones));
         }
     }
 }

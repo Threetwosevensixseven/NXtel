@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Web.Hosting;
 
 namespace NXtelData
 {
@@ -14,7 +13,7 @@ namespace NXtelData
             var list = new List<HelpItem>();
 
             // Site Help
-            foreach (var fileName in Directory.EnumerateFiles(HostingEnvironment.MapPath(@"~/SiteHelp/"), "*.md"))
+            foreach (var fileName in Directory.EnumerateFiles(Path.Combine(AppContext.BaseDirectory, @"SiteHelp/"), "*.md"))
             {
                 var item = new HelpItem(fileName, LoadContent);
                 list.Add(item);
@@ -23,7 +22,7 @@ namespace NXtelData
             // Content Help
             var path = Options.ContentHelpDirectory;
             if (path.StartsWith("~"))
-                path = HostingEnvironment.MapPath(path);
+                path = Path.Combine(AppContext.BaseDirectory, path.TrimStart('~', '/'));
             foreach (var fileName in Directory.EnumerateFiles(path, "*.md"))
             {
                 var item = new HelpItem(fileName, LoadContent);
@@ -33,7 +32,7 @@ namespace NXtelData
             // External Wiki
             path = Options.ExternalWikiDirectory;
             if (path.StartsWith("~"))
-                path = HostingEnvironment.MapPath(path);
+                path = Path.Combine(AppContext.BaseDirectory, path.TrimStart('~', '/'));
             foreach (var fileName in Directory.EnumerateFiles(path, "*.md"))
             {
                 if (Path.GetFileName(fileName).ToLower() == "home.md")

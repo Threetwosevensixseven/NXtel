@@ -1,5 +1,4 @@
-﻿@model NXtelData.ServerStatus
-@{
+﻿@{
     ViewBag.Title = "Admin Console";
     
 }
@@ -15,25 +14,10 @@
     @Html.ActionLink("Recent", "Recent", "Page")<text>&nbsp;</text>
     @Html.ActionLink("Notices", "Index", "Notice")
     <br /><br />
-    <p>Server Location:</p>
-    <pre>@Model.Location</pre>
-    <p>Log File (<b>@Model.LogFileSize Bytes</b>):</p>
+    <p>Log File (<b>@ViewBag.LogFileSize Bytes</b>):</p>
     <pre>@NXtelData.Options.LogFile</pre>
-    <p>Server Status: <b style="color:@Model.StatusColor">@Model.Status</b></p>
-    <br />
-    <div>
-        <input type="submit" value="Refresh" name="action:Refresh" class="btn btn-default" />
-        <input type="submit" value="Start" name="action:Start" class="btn btn-success @Model.StartClass" />
-        <input type="submit" value="Stop" name="action:Stop" class="btn btn-danger @Model.StopClass" />
-        <input type="submit" value="Restart" name="action:Restart" class="btn btn-warning @Model.StopClass" />
-        <input type="submit" value="Disable" name="action:Disable" class="btn btn-danger @Model.EnabledClass" />
-        <input type="submit" value="Enable" name="action:Enable" class="btn btn-success @Model.DisabledClass" />
-        <span>@Html.CheckBox("StartVisible", @Model.StartVisible)&nbsp;Start&nbsp;Visible?</span>
-    </div>
-    <br />
     <div>
         <input type="submit" value="Download Log" name="action:DownloadLog" class="btn btn-default" />
-        <input type="submit" value="Empty Log" name="action:EmptyLog" class="btn btn-danger" />
     </div>
     <br />
     <div>

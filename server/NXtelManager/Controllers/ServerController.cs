@@ -4,9 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Web;
-using System.Web.Mvc;
-using MySql.Data.MySqlClient;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using MySqlConnector;
 using NXtelData;
 using NXtelManager.Attributes;
 
@@ -17,71 +18,19 @@ namespace NXtelManager.Controllers
     {
         public ActionResult Index()
         {
-            var model = new ServerStatus();
-            return View(model);
+            long size = 0;
+            try
+            {
+                size = new FileInfo(Options.LogFile).Length;
+            }
+            catch { }
+            ViewBag.LogFileSize = size;
+            return View();
         }
-
-        [HttpPost]
-        [MultipleButton("Refresh")]
-        public ActionResult Refresh(ServerStatus Status)
-        {
-            var model = new ServerStatus();
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
-        }
-
-        [HttpPost]
-        [MultipleButton("Start")]
-        public ActionResult Start(ServerStatus Status)
-        {
-            var model = ServerStatus.Start(Status.StartVisible);
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
-        }
-
-        [HttpPost]
-        [MultipleButton("Stop")]
-        public ActionResult Stop(ServerStatus Status)
-        {
-            var model = ServerStatus.KillAll();
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
-        }
-
-        [HttpPost]
-        [MultipleButton("Restart")]
-        public ActionResult Restart(ServerStatus Status)
-        {
-            ServerStatus.KillAll();
-            var model = ServerStatus.Start(Status.StartVisible);
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
-        }
-
-        [HttpPost]
-        [MultipleButton("Enable")]
-        public ActionResult Enable(ServerStatus Status)
-        {
-            Status.IsDisabled = false;
-            var model = ServerStatus.Start(Status.StartVisible);
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
-        }
-
-        [HttpPost]
-        [MultipleButton("Disable")]
-        public ActionResult Disable(ServerStatus Status)
-        {
-            Status.IsDisabled = true;
-            var model = ServerStatus.KillAll();
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
-        }
-
 
         [HttpPost]
         [MultipleButton("DownloadLog")]
-        public ActionResult DownloadLog(ServerStatus Status)
+        public ActionResult DownloadLog()
         {
             string fileName = Options.LogFile;
             string ts = DateTime.Now.ToString("_yyyyMMdd_HHmmssfff");
@@ -94,23 +43,6 @@ namespace NXtelManager.Controllers
             {
             }
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [MultipleButton("EmptyLog")]
-        public ActionResult EmptyLog(ServerStatus Status)
-        {
-            ServerStatus.KillAll();
-            try
-            {
-                if (System.IO.File.Exists(Options.LogFile))
-                    System.IO.File.Delete(Options.LogFile);
-            }
-            catch { }
-            ServerStatus.Start(Status.StartVisible);
-            var model = new ServerStatus();
-            model.StartVisible = Status.StartVisible;
-            return View("Index", model);
         }
 
         public ActionResult Backup()
@@ -153,14 +85,5 @@ namespace NXtelManager.Controllers
             return RedirectToAction("Index");
         }
 
-        [AllowAnonymous]
-        public ActionResult KeepAlive(string id)
-        {
-            id = (id ?? "").ToLower().Replace("-", "").Trim();
-            if (id != Options.KeepAliveGUID)
-                return new HttpNotFoundResult();
-            ServerStatus.StartIfStopped();
-            return Content("1");
-        }
     }
 }

@@ -17,7 +17,6 @@
   <ItemGroup>
     <Compile Remove="Classes\HelpItem.cs" />
     <Compile Remove="Classes\HelpItems.cs" />
-    <Compile Remove="Classes\OptionsManager.cs" />
     <Compile Remove="Classes\ServerStatus.cs" />
     <Compile Remove="Classes\SQL.cs" />
   </ItemGroup>

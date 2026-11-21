@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NXtelData;
 using NXtelManager.Attributes;
 using NXtelManager.Models;
@@ -29,13 +30,13 @@ namespace NXtelManager.Controllers
             var model = new TemplateEditModel();
             bool sendURL = id == -2;
             if (sendURL) id = -1;
-            var copy = Session["TemplateCopy"] as TemplateEditModel;
+            var copy = HttpContext.Session.GetObject("TemplateCopy") as TemplateEditModel;
             if (copy == null)
                 model.Template = Template.Load(id);
             else
                 model = copy;
             model.SendURL = sendURL;
-            Session["TemplateCopy"] = null;
+            HttpContext.Session.SetObject("TemplateCopy", null);
             if (id != -1 && model.Template.TemplateID <= 0)
                 return RedirectToAction("Index");
             model.Permissions = Permissions.Load(User);
@@ -128,7 +129,7 @@ namespace NXtelManager.Controllers
                 model.OldDescription = model.Template.Description;
                 model.Template.Description = "";
             }
-            Session["TemplateCopy"] = model;
+            HttpContext.Session.SetObject("TemplateCopy", model);
             return RedirectToAction("Edit");
         }
     }

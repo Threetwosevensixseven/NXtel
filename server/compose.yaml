@@ -1,7 +1,7 @@
-# NXtel viewdata server with MySQL 8.4.
+# NXtel viewdata server and manager with MySQL 8.4.
 # Start from this directory: docker compose up -d
 # The first start creates an empty database from Schema/NXtelDbSchema.sql.
-# Change both passwords before you use it outside a test machine.
+# Change the passwords before you use it outside a test machine.
 name: nxtel
 services:
   db:
@@ -29,10 +29,33 @@ services:
     environment:
       ConnectionString: server=db;port=3306;database=nxtel;uid=nxtel;pwd=changeme
       TimeZone: Europe/London
+      LogFile: /logs/NXtelServerLog.txt
+    volumes:
+      - logs:/logs
     ports:
       - "23280:23280"
     # The server reads commands from stdin and stops if stdin is closed.
     stdin_open: true
     tty: true
+    restart: unless-stopped
+  manager:
+    build:
+      context: .
+      dockerfile: NXtelManager/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionString: server=db;port=3306;database=nxtel;uid=nxtel;pwd=changeme
+      # The manager's Server page downloads the server's log file.
+      LogFile: /logs/NXtelServerLog.txt
+    volumes:
+      - logs:/logs
+      # Database backups and the sign in keys.
+      - managerdata:/app/App_Data
+    ports:
+      - "8080:8080"
 volumes:
   dbdata:
+  logs:
+  managerdata:

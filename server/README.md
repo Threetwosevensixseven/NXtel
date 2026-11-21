@@ -1,6 +1,6 @@
-# Running the NXtel server
+# Running the NXtel server and manager
 
-The viewdata server is `NXtelServer`, a .NET 10 console app. It listens on TCP port 23280 and reads its pages from a MySQL database. It runs on Linux and macOS, and in Docker.
+The viewdata server is `NXtelServer`, a .NET 10 console app. It listens on TCP port 23280 and reads its pages from a MySQL database. The manager is `NXtelManager`, an ASP.NET Core web app for editing pages, templates, files, zones and users. Both run on Linux and macOS, and in Docker.
 
 ## Settings
 
@@ -24,17 +24,36 @@ mysql -uroot -p < Schema/NXtelDbSchema.sql
 
 An empty database gives an empty start page. Pages are added with the manager.
 
+## The manager
+
+The manager reads `appsettings.json` from the directory that holds `NXtelManager.dll`, with the same environment variable overrides as the server. Its keys are the ones the old `Web.config` had, plus `ConnectionString`, `AdditionalConnections` and the mail settings `SmtpHost`, `SmtpUserName` and `SmtpPassword`.
+
+- The database must be called `nxtel`, because some of the manager's SQL names it.
+- When `UpdateSQL` is `true`, the manager adds the columns and tables that ASP.NET Core Identity needs to the `aspnet*` tables at startup. Existing passwords keep working, and new ones are stored in the same format.
+- The help pages need the directories named by `ContentHelpDirectory` and `ExternalWikiDirectory`. By default they are `App_Data/ContentHelp` and `App_Data/GitHubWiki` next to `NXtelManager.dll`. Create them before the first start.
+- `App_Data` also holds database backups and the keys for the sign in cookie.
+- The Server page downloads the file named by `LogFile`, so point it at the server's log file.
+
+To run it outside Docker:
+
+```sh
+dotnet publish NXtelManager/NXtelManager.csproj -c Release -o /opt/nxtel-manager
+cd /opt/nxtel-manager
+mkdir -p App_Data/ContentHelp App_Data/GitHubWiki
+ConnectionString='server=127.0.0.1;port=3306;database=nxtel;uid=nxtel;pwd=changeme' ASPNETCORE_URLS=http://0.0.0.0:8080 dotnet NXtelManager.dll
+```
+
 ## Docker
 
-`compose.yaml` runs the server and MySQL 8.4. From this directory:
+`compose.yaml` runs the server, the manager and MySQL 8.4. From this directory:
 
 ```sh
 docker compose up -d
 ```
 
-The first start creates the database from the schema. Change both passwords in `compose.yaml` before you use it outside a test machine. The server is on port 23280 of the host. Server settings go in the `environment` section of the `server` service.
+The first start creates the database from the schema. Change the passwords in `compose.yaml` before you use it outside a test machine. The server is on port 23280 of the host and the manager on port 8080. Settings go in the `environment` section of each service. Docker restarts the server if it stops. The server and the manager share a volume for the server's log file.
 
-To build only the server image: `docker build -t nxtel-server .`
+To build only the server image: `docker build -t nxtel-server .`. For the manager: `docker build -f NXtelManager/Dockerfile -t nxtel-manager .`
 
 ## Linux
 

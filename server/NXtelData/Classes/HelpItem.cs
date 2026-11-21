@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.Hosting;
 
 namespace NXtelData
 {
@@ -56,7 +55,7 @@ namespace NXtelData
             {
                 string path = Options.ContentHelpDirectory;
                 if (path.StartsWith("~"))
-                    path = HostingEnvironment.MapPath(path);
+                    path = Path.Combine(AppContext.BaseDirectory, path.TrimStart('~', '/'));
                 path = Path.Combine(path, "media");
                 string ext = (Extension ?? "").Trim();
                 string fileName = Path.Combine(path, Path.GetFileNameWithoutExtension(FileName) + "." + ext);
@@ -69,7 +68,7 @@ namespace NXtelData
             catch { }
             try
             {
-                string path = HostingEnvironment.MapPath(@"~/SiteHelp/media");
+                string path = Path.Combine(AppContext.BaseDirectory, @"SiteHelp/media");
                 string ext = (Extension ?? "").Trim();
                 string fileName = Path.Combine(path, Path.GetFileNameWithoutExtension(FileName) + "." + ext);
                 if (File.Exists(fileName))

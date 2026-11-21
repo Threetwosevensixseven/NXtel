@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace NXtelData
 {
@@ -21,6 +21,7 @@ namespace NXtelData
             }
 
             CreateDBSettingsTable();
+            UpdateIdentityTables(ConX);
 
             if (openConX)
                 ConX.Close();
@@ -156,9 +157,15 @@ BEGIN
     END WHILE;
     SELECT @Mailbox AS Mailbox;
 END$$";
-                var script = new MySqlScript(ConX, sql);
-                script.Delimiter = "$$";
-                script.Execute();
+                foreach (string statement in sql.Split("$$"))
+                {
+                    if (string.IsNullOrWhiteSpace(statement))
+                        continue;
+                    using (var cmd = new MySqlCommand(statement, ConX))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
             }
             catch (Exception /*ex*/)
             {
@@ -1631,5 +1638,67 @@ END$$";
             }
         }
 
+
+        public static void UpdateIdentityTables(MySqlConnection ConX = null)
+        {
+            // Columns and tables that ASP.NET Core Identity needs on top of the ASP.NET Identity 2 tables.
+            // Each statement runs on its own, so the ones already applied fail without stopping the rest.
+            var statements = new string[]
+            {
+                @"ALTER TABLE aspnetusers ADD COLUMN NormalizedUserName VARCHAR(256) NULL AFTER UserName;",
+                @"ALTER TABLE aspnetusers ADD COLUMN NormalizedEmail VARCHAR(256) NULL AFTER Email;",
+                @"ALTER TABLE aspnetusers ADD COLUMN ConcurrencyStamp LONGTEXT NULL AFTER SecurityStamp;",
+                @"ALTER TABLE aspnetusers ADD COLUMN LockoutEnd DATETIME(6) NULL AFTER LockoutEndDateUtc;",
+                @"UPDATE aspnetusers SET NormalizedUserName=UPPER(UserName) WHERE NormalizedUserName IS NULL;",
+                @"UPDATE aspnetusers SET NormalizedEmail=UPPER(Email) WHERE NormalizedEmail IS NULL;",
+                @"UPDATE aspnetusers SET LockoutEnd=LockoutEndDateUtc WHERE LockoutEnd IS NULL AND LockoutEndDateUtc IS NOT NULL;",
+                @"ALTER TABLE aspnetroles ADD COLUMN NormalizedName VARCHAR(256) NULL AFTER Name;",
+                @"ALTER TABLE aspnetroles ADD COLUMN ConcurrencyStamp LONGTEXT NULL AFTER NormalizedName;",
+                @"UPDATE aspnetroles SET NormalizedName=UPPER(Name) WHERE NormalizedName IS NULL;",
+                @"ALTER TABLE aspnetuserlogins ADD COLUMN ProviderDisplayName LONGTEXT NULL AFTER ProviderKey;",
+                @"CREATE TABLE aspnetusertokens (
+                    UserId VARCHAR(128) NOT NULL,
+                    LoginProvider VARCHAR(128) NOT NULL,
+                    Name VARCHAR(128) NOT NULL,
+                    Value LONGTEXT NULL,
+                    PRIMARY KEY (UserId, LoginProvider, Name)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+                @"CREATE TABLE aspnetroleclaims (
+                    Id INT NOT NULL AUTO_INCREMENT,
+                    RoleId VARCHAR(128) NOT NULL,
+                    ClaimType LONGTEXT NULL,
+                    ClaimValue LONGTEXT NULL,
+                    PRIMARY KEY (Id)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+            };
+
+            bool openConX = ConX == null;
+            try
+            {
+                if (openConX)
+                {
+                    ConX = new MySqlConnection(DBOps.ConnectionString);
+                    ConX.Open();
+                }
+
+                foreach (string sql in statements)
+                {
+                    try
+                    {
+                        using (var cmd = new MySqlCommand(sql, ConX))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+            finally
+            {
+                if (openConX)
+                    ConX.Close();
+            }
+        }
     }
 }

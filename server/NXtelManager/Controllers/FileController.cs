@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Security.Principal;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NXtelData;
 using NXtelManager.Attributes;
 using NXtelManager.Models;
@@ -30,7 +32,7 @@ namespace NXtelManager.Controllers
             int id = ID ?? -1;
             var model = new FileEditModel();
 
-            var copy = Session["FileCopy"] as FileEditModel;
+            var copy = HttpContext.Session.GetObject("FileCopy") as FileEditModel;
             if (copy == null)
                 model.File = TSFile.Load(id);
             else
@@ -38,7 +40,7 @@ namespace NXtelManager.Controllers
                 model = copy;
                 model.File.Environment = copy.File.Environment;
             }
-            Session["FileCopy"] = null;
+            HttpContext.Session.SetObject("FileCopy", null);
             if (id != -1 && model.File.TeleSoftwareID <= 0)
                 return RedirectToAction("Index");
             model.Permissions = Permissions.Load(User);
@@ -74,12 +76,12 @@ namespace NXtelManager.Controllers
                 File.FileName = "";
                 try
                 {
-                    if (Request.Files.Count > 0)
+                    if (Request.Form.Files.Count > 0)
                     {
-                        HttpPostedFileBase objFiles = Request.Files["Contents"];
-                        using (var binaryReader = new BinaryReader(objFiles.InputStream))
+                        IFormFile objFiles = Request.Form.Files["Contents"];
+                        using (var binaryReader = new BinaryReader(objFiles.OpenReadStream()))
                         {
-                            File.Contents = binaryReader.ReadBytes(objFiles.ContentLength);
+                            File.Contents = binaryReader.ReadBytes((int)objFiles.Length);
                         }
                         File.FileName = Path.GetFileName(objFiles.FileName);
                     }
@@ -192,7 +194,7 @@ namespace NXtelManager.Controllers
                 model.OldKey = model.File.Key;
                 model.File.Key = "";
             }
-            Session["FileCopy"] = model;
+            HttpContext.Session.SetObject("FileCopy", model);
             return RedirectToAction("Edit");
         }
     }

@@ -151,7 +151,7 @@
                                 <tr id="@id" + page.Routing[i].KeyCode class="route ordered" data-route-keycode="@kcode">
                                     <td>
                                         @Html.Hidden("Routing[" + i + "].KeyCode", page.Routing[i].KeyCode)
-                                        @page.Routing[i].Description
+                                        @(page.Routing[i].Description)
                                     </td>
                                     <td>@Html.TextBox("Routing[" + i + "].NextPageNo", page.Routing[i].NextPageNo, new { @class = clsPage, maxlength = 9, style = "width:88px;text-align:right", onkeypress = "javascript:return allownumbers(event);" })</td>
                                     <td>@Html.TextBox("Routing[" + i + "].NextFrame", page.Routing[i].NextFrame, new { @class = clsFrame, maxlength = 1, style = "width:30px;text-align:right;text-transform:lowercase", onkeypress = "javascript:return allowalpha(event);" })</td>

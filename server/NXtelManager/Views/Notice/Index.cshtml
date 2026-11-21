@@ -37,7 +37,7 @@
             string active = notice.IsActive ? "Yes" : "No";
             string updated = notice.Updated.HasValue ? ((DateTime)notice.Updated).ToString("dd/MM/yyyy hh:mm") : "";
             string rowID = "Row" + @notice.ID.ToString();
-            <tr id="@rowID" data-notice-id="@notice.ID" data-page-no-frame="@page" data-title="@title" data-page-id="@notice.PageID">
+            <tr id="@rowID" data-notice-id="@notice.ID" data-page-no-frame="@(page)" data-title="@title" data-page-id="@notice.PageID">
                 <td>@Html.ActionLink(@page, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdPageID" })</td>
                 <td>@Html.ActionLink(@title, "Edit", "Page", new { id = notice.PageID }, new { @class = "tdTitle" })</td>
                 @if (!string.IsNullOrWhiteSpace(start))
