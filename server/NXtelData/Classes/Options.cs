@@ -1,21 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace NXtelData
 {
-    public static class Options
+    public static partial class Options
     {
+        private static IConfiguration _configuration;
+        public static IConfiguration Configuration
+        {
+            get
+            {
+                if (_configuration == null)
+                    _configuration = LoadConfiguration(AppContext.BaseDirectory);
+                return _configuration;
+            }
+        }
+
+        public static IConfiguration LoadConfiguration(string AppDir)
+        {
+            return new ConfigurationBuilder()
+                .SetBasePath(AppDir)
+                .AddJsonFile("appsettings.json", true)
+                .AddEnvironmentVariables()
+                .Build();
+        }
+
         public static int TCPListeningPort
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["TCPListeningPort"] ?? "").Trim();
+                string cfg = (Configuration["TCPListeningPort"] ?? "").Trim();
                 int val;
                 int.TryParse(cfg, out val);
                 if (val <= 0)
@@ -28,7 +47,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["UpdateFeedMins"] ?? "").Trim();
+                string cfg = (Configuration["UpdateFeedMins"] ?? "").Trim();
                 int val;
                 int.TryParse(cfg, out val);
                 if (val <= 0)
@@ -41,7 +60,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["StartPage"] ?? "").Trim().ToLower();
+                string cfg = (Configuration["StartPage"] ?? "").Trim().ToLower();
                 return cfg;
             }
         }
@@ -50,7 +69,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["StartPage"] ?? "").Trim();
+                string cfg = (Configuration["StartPage"] ?? "").Trim();
                 cfg = Regex.Replace(cfg, @"^(\d+).*$", "$1");
                 int val;
                 int.TryParse(cfg, out val);
@@ -63,7 +82,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["StartPage"] ?? "").Trim();
+                string cfg = (Configuration["StartPage"] ?? "").Trim();
                 byte frame = Convert.ToByte((Regex.Replace(cfg, @"^\d+([a-z]).*$", "$1") + "0")[0]);
                 return frame - 97;
             }
@@ -73,7 +92,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["MainIndexPage"] ?? "").Trim().ToLower();
+                string cfg = (Configuration["MainIndexPage"] ?? "").Trim().ToLower();
                 return cfg;
             }
         }
@@ -82,7 +101,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["MainIndexPage"] ?? "").Trim();
+                string cfg = (Configuration["MainIndexPage"] ?? "").Trim();
                 cfg = Regex.Replace(cfg, @"^(\d+).*$", "$1");
                 int val;
                 int.TryParse(cfg, out val);
@@ -95,7 +114,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["MainIndexPage"] ?? "").Trim();
+                string cfg = (Configuration["MainIndexPage"] ?? "").Trim();
                 byte frame = Convert.ToByte((Regex.Replace(cfg, @"^\d+([a-z]).*$", "$1") + "0")[0]);
                 return frame - 97;
             }
@@ -116,7 +135,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["ServerLocation"] ?? "").Trim();
+                string cfg = (Configuration["ServerLocation"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -125,7 +144,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["LogFile"] ?? "").Trim();
+                string cfg = (Configuration["LogFile"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -134,7 +153,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["UpdateSQL"] ?? "").Trim().ToLower();
+                string cfg = (Configuration["UpdateSQL"] ?? "").Trim().ToLower();
                 return cfg == "true";
             }
         }
@@ -143,7 +162,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["TelesoftFile"] ?? "").Trim();
+                string cfg = (Configuration["TelesoftFile"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -152,7 +171,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["PageCacheDurationMins"] ?? "").Trim();
+                string cfg = (Configuration["PageCacheDurationMins"] ?? "").Trim();
                 int val;
                 int.TryParse(cfg, out val);
                 if (val <= 0)
@@ -164,7 +183,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["ContentHelpDirectory"] ?? "").Trim();
+                string cfg = (Configuration["ContentHelpDirectory"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -173,24 +192,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["ExternalWikiDirectory"] ?? "").Trim();
-                return cfg;
-            }
-        }
-
-        public static string DbBackupDirectory
-        {
-            get
-            {
-                string cfg = (ConfigurationManager.AppSettings["DbBackupDirectory"] ?? "").Trim();
-                if (cfg.StartsWith("~"))
-                    cfg = HostingEnvironment.MapPath(cfg);
-                try
-                {
-                    if (!Directory.Exists(cfg))
-                        Directory.CreateDirectory(cfg);
-                }
-                catch { }
+                string cfg = (Configuration["ExternalWikiDirectory"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -202,7 +204,7 @@ namespace NXtelData
             {
                 if (_usePrestelCharSet == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["UsePrestelCharSet"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["UsePrestelCharSet"] ?? "").Trim().ToLower();
                     _usePrestelCharSet = (cfg == "true");
                 }
                 return (bool)_usePrestelCharSet;
@@ -229,7 +231,7 @@ namespace NXtelData
             {
                 if (_trimSpaces == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["TrimSpaces"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["TrimSpaces"] ?? "").Trim().ToLower();
                     _trimSpaces = (cfg == "true");
                 }
                 return (bool)_trimSpaces;
@@ -240,7 +242,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["KeepAliveGUID"] ?? "").ToLower().Replace("-", "").Trim();
+                string cfg = (Configuration["KeepAliveGUID"] ?? "").ToLower().Replace("-", "").Trim();
                 return cfg;
             }
         }
@@ -253,7 +255,7 @@ namespace NXtelData
                 if (_environment == null)
                 {
                     bool match = false;
-                    string cfg = (ConfigurationManager.AppSettings["Environment"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["Environment"] ?? "").Trim().ToLower();
                     foreach (EnvironmentNames env in EnvironmentNames.Prod.GetList())
                     {
                         if (cfg == env.ToString().ToLower())
@@ -287,7 +289,7 @@ namespace NXtelData
             get
             {
                 if (_productName == null)
-                    _productName = (ConfigurationManager.AppSettings["ProductName"] ?? "").Trim();
+                    _productName = (Configuration["ProductName"] ?? "").Trim();
                 return _productName;
             }
         }
@@ -307,7 +309,7 @@ namespace NXtelData
             {
                 if (_showStaticTimeAndDate == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["ShowStaticTimeAndDate"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["ShowStaticTimeAndDate"] ?? "").Trim().ToLower();
                     _showStaticTimeAndDate = (cfg == "true");
                 }
                 return (bool)_showStaticTimeAndDate;
@@ -321,7 +323,7 @@ namespace NXtelData
             {
                 if (_enableInputParserLogging == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["EnableInputParserLogging"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["EnableInputParserLogging"] ?? "").Trim().ToLower();
                     _enableInputParserLogging = (cfg == "true");
                 }
                 return (bool)_enableInputParserLogging;
@@ -332,7 +334,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["IACTimeoutMillisecs"] ?? "").Trim();
+                string cfg = (Configuration["IACTimeoutMillisecs"] ?? "").Trim();
                 int val;
                 int.TryParse(cfg, out val);
                 if (val <= 0)
@@ -348,7 +350,7 @@ namespace NXtelData
             {
                 if (_iACEnabled == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["IACEnabled"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["IACEnabled"] ?? "").Trim().ToLower();
                     _iACEnabled = (cfg == "true");
                 }
                 return (bool)_iACEnabled;
@@ -359,7 +361,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["HashSalt"] ?? "").Trim();
+                string cfg = (Configuration["HashSalt"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -368,7 +370,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["GeoEndpoint"] ?? "").Trim();
+                string cfg = (Configuration["GeoEndpoint"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -377,7 +379,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["GeoRequestsPerMinute"] ?? "").Trim();
+                string cfg = (Configuration["GeoRequestsPerMinute"] ?? "").Trim();
                 int val;
                 int.TryParse(cfg, out val);
                 if (val <= 0)
@@ -401,7 +403,7 @@ namespace NXtelData
             {
                 if (_disablePermissions == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["DisablePermissions"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["DisablePermissions"] ?? "").Trim().ToLower();
                     _disablePermissions = (cfg == "true");
                 }
                 return (bool)_disablePermissions;
@@ -412,7 +414,7 @@ namespace NXtelData
         {
             get
             {
-                string cfg = (ConfigurationManager.AppSettings["AdminEmailAddress"] ?? "").Trim();
+                string cfg = (Configuration["AdminEmailAddress"] ?? "").Trim();
                 return cfg;
             }
         }
@@ -422,7 +424,7 @@ namespace NXtelData
             get
             {
                 var rv = new List<string>();
-                var cfg = (ConfigurationManager.AppSettings["AdminEmailBCC"] ?? "").Trim().Replace(";", ",").Split(',');
+                var cfg = (Configuration["AdminEmailBCC"] ?? "").Trim().Replace(";", ",").Split(',');
                 foreach (string addr in cfg)
                     if (!string.IsNullOrWhiteSpace(addr))
                         rv.Add(addr.Trim());
@@ -437,7 +439,7 @@ namespace NXtelData
             {
                 if (_disableAccountRegistration == null)
                 {
-                    string cfg = (ConfigurationManager.AppSettings["DisableAccountRegistration"] ?? "").Trim().ToLower();
+                    string cfg = (Configuration["DisableAccountRegistration"] ?? "").Trim().ToLower();
                     _disableAccountRegistration = (cfg == "true");
                 }
                 return (bool)_disableAccountRegistration;

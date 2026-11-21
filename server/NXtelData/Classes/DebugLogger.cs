@@ -2,12 +2,9 @@
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Web;
-using System.Data.SqlClient;
 using System.Data;
 using System.Data.SqlTypes;
 
@@ -22,11 +19,11 @@ namespace NXtelData
         {
             try
             {
-                bool DebugLogOn = ConfigurationManager.AppSettings["EnableDebugLog"] == "ON";
+                bool DebugLogOn = Options.Configuration["EnableDebugLog"] == "ON";
                 _debugWriter = null;
                 if (DebugLogOn)
                 {
-                    string LogDirectory = (ConfigurationManager.AppSettings["DebugLogDirectory"] ?? "").Trim();
+                    string LogDirectory = (Options.Configuration["DebugLogDirectory"] ?? "").Trim();
                     if (!Directory.Exists(LogDirectory)) Directory.CreateDirectory(LogDirectory);
                     string guid = Guid.NewGuid().ToString();
                     if (string.IsNullOrWhiteSpace(Topic)) Topic = "DebugLog";
@@ -217,52 +214,6 @@ namespace NXtelData
             catch
             {
             }
-        }
-
-        public static void Logsql(this DebugLogger Logger, string SectionName, SqlCommand Command)
-        {
-            try
-            {
-                if (Logger == null)
-                    return;
-                ((IDebugLogger)Logger).LogWithoutTimestamp((SectionName ?? "").Trim() + ".SQL START ======================================================================");
-                if (Command != null)
-                {
-                    if (Command.Parameters != null)
-                    {
-                        foreach (SqlParameter p in Command.Parameters)
-                        {
-                            string msg = "DECLARE @" + p.ParameterName + " " + p.SqlDbType.ToString();
-                            if (p.Size > 0)
-                            {
-                                msg += "(" + p.Size;
-                                if (p.Precision > 0)
-                                    msg += "," + p.Precision;
-                                msg += ")";
-                            }
-                            msg += "=" + QuoteValue(p.SqlDbType, p.Value) + ";";
-                            ((IDebugLogger)Logger).LogWithoutTimestamp(msg ?? "");
-                        }
-                    }
-
-                    ((IDebugLogger)Logger).LogWithoutTimestamp(Command.CommandText ?? "");
-                }
-                ((IDebugLogger)Logger).LogWithoutTimestamp((SectionName ?? "").Trim() + ".SQL END ========================================================================");
-            }
-            catch
-            {
-            }
-        }
-
-        private static string QuoteValue(SqlDbType Type, object Value)
-        {
-            if (Value == null || Value == DBNull.Value)
-                return "NULL";
-            if (Type == SqlDbType.Char || Type == SqlDbType.NChar || Type == SqlDbType.NText || Type == SqlDbType.NVarChar || Type == SqlDbType.Text || Type == SqlDbType.VarChar || Type == SqlDbType.Xml)
-                return "'" + Value.ToString() + "'";
-            if (Type == SqlDbType.Date || Type == SqlDbType.DateTime || Type == SqlDbType.DateTime2 || Type == SqlDbType.DateTimeOffset || Type == SqlDbType.SmallDateTime || Type == SqlDbType.Time || Type == SqlDbType.Timestamp)
-                return "'" + new SqlDateTime((DateTime)Value).ToString() + "'";
-            return Value.ToString();
         }
 
         public static string Declare(this DebugLogger Logger, string Name, DateTime? Value)

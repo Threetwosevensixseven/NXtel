@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using Microsoft.Extensions.Configuration;
 
 namespace NXtelData
 {
@@ -31,15 +32,10 @@ namespace NXtelData
             Settings settings;
             try
             {
-                string xml = File.ReadAllText(FileName);
-                var reader = new StringReader(xml);
-                using (reader)
-                {
-                    var serializer = new XmlSerializer(typeof(Settings));
-                    settings = (Settings)serializer.Deserialize(reader);
-                    reader.Close();
-                }
-                settings.appDir = appDir;
+                var config = Options.LoadConfiguration(appDir);
+                settings = new Settings(appDir);
+                settings.ConnectionString = config["ConnectionString"];
+                config.GetSection("AdditionalConnections").Bind(settings.AdditionalConnections);
             }
             catch (Exception /*ex*/)
             {

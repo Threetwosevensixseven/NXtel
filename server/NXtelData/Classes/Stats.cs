@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace NXtelData
 {
